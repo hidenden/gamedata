@@ -16,6 +16,7 @@ def build_main():
     copy_data()
     copy2pickle("weekly_hard_1999_2022")
     conv_hardframe()
+    hw_sum.hw_sum_main()
 
 def copy_data():
     print("Copy from transform")
