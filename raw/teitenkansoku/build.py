@@ -22,6 +22,8 @@ def get_hwdata(year:int) -> None:
         lines = clean_hwyear_data_2016(get_hwyear_page(year))
     elif year == 2022:
         lines = clean_hwyear_data_2022(get_hwyear_page(year))       
+    elif year == 2019:
+        lines = clean_hwyear_data_2019(get_hwyear_page(year))       
     else:
         lines = clean_hwyear_data_2017(get_hwyear_page(year))
 
@@ -86,6 +88,10 @@ def clean_hwyear_data_2016(rawdata:List) -> List:
 
 def clean_hwyear_data_2017(rawdata:List) -> List:
     lines = rawdata[0:-2]
+    return clean_hwyear_data(lines)
+
+def clean_hwyear_data_2019(rawdata:List) -> List:
+    lines = rawdata[0:-3]
     return clean_hwyear_data(lines)
 
 def clean_hwyear_data_2022(rawdata:List) -> List:
