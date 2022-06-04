@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import csv
 import pandas as pd
 import datetime
 from typing import List
@@ -31,10 +30,9 @@ def hw_sum_main():
     make_launchsum()
 
 def make_sumcum():
-    hw_weekly_df = pd.read_pickle("hard_weekly.pkl")
+    hw_weekly_df = pd.read_pickle("weekly_hard_record.pkl")
     hwsum_df = hw_weekly_df.cumsum().drop(["GB", "N64", "PS", "SATURN"], axis=1)
-    hwsum_name = "hard_weekly_cumsum"
-    hwsum_df.to_csv(f"{hwsum_name}.csv")
+    hwsum_name = "weekly_hard_cumsum"
     hwsum_df.to_pickle(f"{hwsum_name}.pkl")
 
 def make_launchsum():
@@ -62,10 +60,9 @@ def make_launchsum():
         'PKS':datetime.datetime(1999, 1, 23)
         }
     
-    hw_sum = pd.read_pickle("hard_weekly_cumsum.pkl")
+    hw_sum = pd.read_pickle("weekly_hard_cumsum.pkl")
     hw_launch_sum = sum_to_launchsum(hw_sum, launch)
-    launch_fname = "hard_launch_cumsum"
-    hw_launch_sum.to_csv(f"{launch_fname}.csv")
+    launch_fname = "launch_hard_cumsum"
     hw_launch_sum.to_pickle(f"{launch_fname}.pkl")
 
 def sum_to_launchsum(hw_sum:pd.DataFrame, launch_days:Dict) -> pd.DataFrame :
