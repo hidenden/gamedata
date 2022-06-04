@@ -52,13 +52,13 @@
   - teitenkansoku/
     - raw/build.py
     - processed/teiten_filter.py
-    - 最終データは直下に配置 teiten_weekly_hard_2016_2022.csv
+    - 最終データは直下に配置 teiten_hard_weekly_2016_2022.csv
   - geimin_net/
     - raw/build.py
     - processed/geimin_filter.py
-    - 最終データは直下に配置 geimin_weekly_hard_1999_2015.csv
+    - 最終データは直下に配置 geimin_hard_weekly_1999_2015.csv
   - gamesdata/
-    - 手差しデータを直下に配置
+    - 手差しデータを直下に配置 gamesdata_hard_weekly_2015_15.csv
 - database/
   - processed/nayose.py, saven_days.py
   - hard_weekly.csv  マスターデータを直下に
