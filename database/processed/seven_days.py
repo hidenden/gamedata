@@ -5,33 +5,29 @@ import datetime
 from dateutil import parser
 from typing import List
 from typing import Dict
-import csv
+import util
 
-def seven_days_main():
-    src_data = load_csv("nayose_weekly_hard_1999_2022.csv")
-    seven_days_data = fix_7days(src_data)
-    save_csv("weekly_hard_1999_2022.csv", seven_days_data)
+def seven_days_main(csv_file:str):
+    src_data = util.load_csv(csv_file)
+    seven_days_data = seven_days(src_data[1:])
+    seven_days_data = util.insert_header(seven_days_data)
+    util.save_csv("hard_weekly.csv", seven_days_data)
 
-def save_csv(fname: str, data:List):
-    data.insert(0, ["begin_date", "end_date", "hw", "units"])
-    with open(fname, "w") as f:
-        writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
-        writer.writerows(data)
-        print(f"{fname} is saved")
+def seven_days(data:List) -> List:
+    newdata = []
+    for row in data:
+        line = row
+        line[0] = parser.parse(row[0]).date()
+        line[1] = parser.parse(row[1]).date()
+        newdata.append(line)
 
-def load_csv(fname) -> List:
-    with open(fname, "r") as f:
-        reader = csv.reader(f)
-        rows = []
-        for row in reader:
-            rows.append(row)
-        return rows
+    return fix_7days(newdata)
 
 def fix_7days(src_data: List) -> List:
     data2 = []
-    for src in src_data[1:]:
-        begin = parser.parse(src[0]).date()
-        end = parser.parse(src[1]).date()
+    for src in src_data:
+        begin = src[0]
+        end = src[1]
         delta = end - begin
         if datetime.timedelta(7) == delta:
             end = end - datetime.timedelta(1)
@@ -77,5 +73,6 @@ def cut1998(data:List) -> List:
     return after1999
 
 if __name__ == "__main__":
-    seven_days_main()
+    csv_file = "unioned_hard_weekly.csv"
+    seven_days_main(csv_file)
     sys.exit(0)
