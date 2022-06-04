@@ -7,15 +7,15 @@ from typing import List
 from typing import Dict
 import csv
 
-def geimin_filter_main():
+def geimin_filter_main(srcdir:str, out_path:str):
     all_data_list = []
     for i in range(10):
-        csv_rows = load_geimin_csv(i)
+        csv_rows = load_geimin_csv(srcdir, i)
         csv_data = parse_geimin_csv(csv_rows[1:])
         all_data_list.extend(csv_data)
 
     fixed_list = fix_2week(all_data_list)
-    save_csv("geimin_weekly_hard_1999_2015.csv", fixed_list)
+    save_csv(out_path, fixed_list)
     
 def save_csv(fname: str, data:List):
     with open(fname, "w") as f:
@@ -60,8 +60,8 @@ def parse_geimin_csv(csv_rows: List[str]) -> List:
         all_data.extend(data_list)
     return all_data
 
-def load_geimin_csv(index: int) -> List: 
-    file_name = f"../raw/geimin_net/geimin_{index}.csv"
+def load_geimin_csv(srcdir:str, index: int) -> List: 
+    file_name = f"{srcdir}/geimin_{index}.csv"
     with open(file_name, "r") as f:
         reader = csv.reader(f)
         rows = []
@@ -114,6 +114,8 @@ def datalines(row_dict) -> List:
     return lines
 
 if __name__ == "__main__":
-    geimin_filter_main()
+    srcdir = "../raw"
+    out_path = "../geimin_hard_weekly_1999_2015.csv"
+    geimin_filter_main(srcdir, out_path)
     sys.exit(0)
     

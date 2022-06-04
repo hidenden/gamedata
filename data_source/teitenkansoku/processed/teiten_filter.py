@@ -4,16 +4,17 @@ import sys
 import csv
 from typing import List
 
-def teiten_filter_main():
-    hw_data = load_all()
+def teiten_filter_main(srcdir:str, out_path:str):
+    hw_data = load_all(srcdir)
+    save_csv(out_path, hw_data)
 
-def load_all():   
+def load_all(dir:str) -> List:   
     normalized_data = [["begin_date", "end_date", "hw", "units"]]
     for year in range(2016, 2023):
-        csv_rows = load_csv(year)
+        csv_rows = load_csv(dir, year)
         normal_data = teiten2normalize(csv_rows)
         normalized_data.extend(normal_data)
-    save_csv("teiten_weekly_hard_2016_2022.csv", normalized_data)
+    return normalized_data
     
 def save_csv(fname: str, data:List):
     with open(fname, "w") as f:
@@ -21,8 +22,8 @@ def save_csv(fname: str, data:List):
         writer.writerows(data)
         print(f"{fname} is saved")
 
-def load_csv(year:int) -> List:
-    file_name = f"../raw/teitenkansoku/hwdata_{year}.csv"
+def load_csv(dir:str, year:int) -> List:
+    file_name = f"{dir}/hwdata_{year}.csv"
     with open(file_name, "r") as f:
         reader = csv.reader(f)
         rows = []
@@ -63,5 +64,7 @@ def teiten2normalize(teiten_rows:List) -> List:
     return normalized_data
 
 if __name__ == "__main__":
-    teiten_filter_main()
+    srcdir = "../raw"
+    out_path = "../teiten_hard_weekly_2016_2022.csv"
+    teiten_filter_main(srcdir, out_path)
     sys.exit(0)
