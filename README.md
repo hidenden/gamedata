@@ -1,5 +1,11 @@
 # Japan Game Data Analysis
 
+## 使い方
+
+1. ./update.sh を実行し定点観測サイトから最新のデータをロードします
+2. pyspark を実行し PySparkを起動します
+3. ブラウザ上のPySpark画面上で database/parquet/build.ipynb を実行します
+
 ## Pの考え方
 
 - データソース毎にプロジェクトを作成する
