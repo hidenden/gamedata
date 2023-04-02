@@ -4,13 +4,16 @@ import sys
 import csv
 from typing import List
 
+def get_this_year() -> int:
+    return 2023
+
 def teiten_filter_main(srcdir:str, out_path:str):
     hw_data = load_all(srcdir)
     save_csv(out_path, hw_data)
 
 def load_all(dir:str) -> List:   
     normalized_data = [["begin_date", "end_date", "hw", "units"]]
-    for year in range(2016, 2023):
+    for year in range(2016, get_this_year() + 1):
         csv_rows = load_csv(dir, year)
         normal_data = teiten2normalize(csv_rows)
         normalized_data.extend(normal_data)
@@ -65,6 +68,7 @@ def teiten2normalize(teiten_rows:List) -> List:
 
 if __name__ == "__main__":
     srcdir = "../raw"
-    out_path = "../teiten_hard_weekly_2016_2022.csv"
+    this_year = get_this_year()
+    out_path = f"../teiten_hard_weekly_2016_{this_year}.csv"
     teiten_filter_main(srcdir, out_path)
     sys.exit(0)

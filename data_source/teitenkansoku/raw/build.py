@@ -14,14 +14,14 @@ import csv
 # pip install lockfileが必要です
 
 def hwdata_main():
-    for y in range(2016, 2023):
+    for y in range(2016, 2024):
         get_hwdata(y)
 
 def get_hwdata(year:int) -> None:
     if year <= 2016:
         lines = clean_hwyear_data_2016(get_hwyear_page(year))
-    elif year == 2022:
-        lines = clean_hwyear_data_2022(get_hwyear_page(year))       
+    elif year == get_this_year():
+        lines = clean_hwyear_data_thisyear(get_hwyear_page(year))       
     elif year == 2019:
         lines = clean_hwyear_data_2019(get_hwyear_page(year))       
     else:
@@ -36,10 +36,13 @@ def save_hwdata(year:int, data:List) -> None:
         writer.writerows(data)
         print(file_name + " is saved")
 
+def get_this_year() -> int:
+    return 2023
+
 def get_hwyear_page(year: int) -> List:
     URLBASE = "http://www.teitengame.com/"
     year_name = ""
-    if year != 2022:
+    if year != get_this_year():
         year_name = "_" + str(year)
     data_url = URLBASE + "hard" + year_name + ".html"
 
@@ -94,13 +97,13 @@ def clean_hwyear_data_2019(rawdata:List) -> List:
     lines = rawdata[0:-3]
     return clean_hwyear_data(lines)
 
-def clean_hwyear_data_2022(rawdata:List) -> List:
+def clean_hwyear_data_thisyear(rawdata:List) -> List:
     header = rawdata[0]
     body = rawdata[1:-4]
     newdata = [header]
     skip = True
     for line in body:
-        if "2022年販売台数" in line[0]:
+        if "年販売台数" in line[0]:
             skip = False
         if skip:
             continue

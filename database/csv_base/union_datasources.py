@@ -14,11 +14,14 @@ def union_datasource(srcdir:str) -> List:
     cleaned_data = clean_data(base_data)
     return group_hard_variations(cleaned_data)
 
+def get_this_year() -> int:
+    return 2023
 
 def concat_all_source(srcdir:str) -> List:
+    this_year = get_this_year()
     data1 = util.load_csv(f"{srcdir}/gamesdata/gamesdata_hard_weekly_2015_12.csv")
     data2 = util.load_csv(f"{srcdir}/geimin_net/geimin_hard_weekly_1999_2015.csv")
-    data3 = util.load_csv(f"{srcdir}/teitenkansoku/teiten_hard_weekly_2016_2022.csv")
+    data3 = util.load_csv(f"{srcdir}/teitenkansoku/teiten_hard_weekly_2016_{this_year}.csv")
     data = []
     data.extend(data1[1:])
     data.extend(data2[1:])
