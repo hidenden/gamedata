@@ -14,7 +14,7 @@ import csv
 # pip install lockfileが必要です
 
 def hwdata_main():
-    for y in range(2016, 2024):
+    for y in range(2016, 2026):
         get_hwdata(y)
 
 def get_hwdata(year:int) -> None:
@@ -37,7 +37,7 @@ def save_hwdata(year:int, data:List) -> None:
         print(file_name + " is saved")
 
 def get_this_year() -> int:
-    return 2023
+    return 2025
 
 def get_hwyear_page(year: int) -> List:
     URLBASE = "http://www.teitengame.com/"
