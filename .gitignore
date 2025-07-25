@@ -134,3 +134,18 @@ dmypy.json
 # 
 _webcache/
 .webcache/
+
+# Inogores define depends on the project
+# Add any additional files or directories that should be ignored here
+
+# image files
+*.png
+
+# parquet related files
+*.parquet
+*.pkl
+hard_weekly.pkl
+.part*.crc
+._SUCCESS*
+_SUCCESS*
+
