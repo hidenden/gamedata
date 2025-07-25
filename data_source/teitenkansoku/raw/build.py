@@ -157,7 +157,7 @@ def clean_hwyear_data(rawdata:List) -> List:
         begin = row[0]
         offset = row[1]
         row[0] = str(begin.date())
-        row[1] = str((begin + datetime.timedelta(offset)).date())
+        row[1] = str((begin + datetime.timedelta(offset - 1)).date())
         arranged_data.append(row)
 
     return [header] + arranged_data

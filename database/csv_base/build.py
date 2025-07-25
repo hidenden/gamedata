@@ -9,7 +9,8 @@ def build_main(srcdir:str, outdir:str):
     outfile = f"{outdir}/hard_weekly.csv"
 
     unioned = union_datasource(srcdir)
-    shared_data = fix_7days(unioned)
+    # shared_data = fix_7days(unioned)
+    shared_data = unioned  # Assuming unioned data is already in the desired format
     util.save_csv(outfile, util.insert_header(shared_data))
 
 if __name__ == "__main__":
