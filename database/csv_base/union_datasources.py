@@ -15,7 +15,7 @@ def union_datasource(srcdir:str) -> List:
     return group_hard_variations(cleaned_data)
 
 def get_this_year() -> int:
-    return 2023
+    return 2025
 
 def concat_all_source(srcdir:str) -> List:
     this_year = get_this_year()
@@ -44,6 +44,7 @@ def clean_data(data: List) -> List:
         'N64':'N64',
         'NGP':'NeoGeoP',
         'NSW':'Switch',
+        'NSW2':'Switch2',
         'New3DS':'3DS',
         'PS':'PS',
         'PS2':'PS2',
