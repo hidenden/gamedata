@@ -5,7 +5,7 @@ import csv
 from typing import List
 
 def get_this_year() -> int:
-    return 2023
+    return 2025
 
 def teiten_filter_main(srcdir:str, out_path:str):
     hw_data = load_all(srcdir)
@@ -37,6 +37,9 @@ def load_csv(dir:str, year:int) -> List:
 def teiten2normalize(teiten_rows:List) -> List:
     HW_MAP = {
         'NINTENDOSWITCH': 'NSW', 
+        "NINTENDOSWITCH2": 'NSW2',
+        'PS4': 'PS4',
+        'PS5': 'PS5',
         'XboxSeriesX/S':'XSX',
         'ゲームボーイアドバンス':'GBA',
         'ニンテンドー3DS':'3DS',
