@@ -12,9 +12,9 @@ pushd database/csv_base
 ./build.py
 popd
 
-pushd database/pkl
-./build.py
-popd
+# pushd database/pkl
+# ./build.py
+# popd
 
 git diff database/hard_weekly.csv
 
