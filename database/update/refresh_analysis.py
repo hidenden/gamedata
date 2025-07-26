@@ -13,13 +13,12 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = False) -> None:
     cursor.execute("SELECT id, launch_date FROM gamehard_info")
     launch_map = {row[0]: row[1] for row in cursor.fetchall()}
 
-    # 既存のanalysisテーブルのidをセットで取得
-    cursor.execute("SELECT id FROM gamehard_weekly_analysis")
-    existing_ids = set(row[0] for row in cursor.fetchall())
-
-    # gamehard_weeklyをreport_date降順で取得（新しい順）
-    cursor.execute("SELECT id, report_date, hw, units, period_date FROM gamehard_weekly ORDER BY report_date DESC, hw")
+    # gamehard_weeklyをreport_date昇順（古い順）で取得
+    cursor.execute("SELECT id, report_date, hw, units, period_date FROM gamehard_weekly ORDER BY report_date ASC, hw")
     rows = cursor.fetchall()
+
+    # テーブル全体を削除
+    cursor.execute("DELETE FROM gamehard_weekly_analysis")
 
     # 累計台数計算用
     sum_units_map = {}
@@ -27,11 +26,6 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = False) -> None:
     analysis_data = []
     for row in rows:
         id, report_date, hw, units, period_date = row
-        if id in existing_ids:
-            # 既存idが見つかったら以降の処理を終了
-            if debug_mode:
-                print(f"既存id {id} が見つかったため処理を終了します。")
-            break
 
         units = int(units)
         period_date = int(period_date)
@@ -63,7 +57,7 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = False) -> None:
             id, year, month, mday, week, delta_day, delta_week, delta_year, avg_units, sum_units
         ])
 
-    # 追加分のみINSERT
+    # 全件INSERT
     if analysis_data:
         cursor.executemany('''
             INSERT INTO gamehard_weekly_analysis
@@ -71,7 +65,7 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = False) -> None:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', analysis_data)
         if debug_mode:
-            print(f"{len(analysis_data)} 行を追加しました。")
+            print(f"{len(analysis_data)} 行を再構築しました。")
     else:
         if debug_mode:
             print("追加する行はありません。")
