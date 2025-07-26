@@ -2,7 +2,7 @@
 
 import os
 import sys
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 def insert_weekly_analysis(db_path: str, debug_mode: bool = False) -> None:
     import sqlite3
@@ -33,6 +33,9 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = False) -> None:
         launch_dt = datetime.strptime(launch_date_str, "%Y-%m-%d").date()
         report_dt = datetime.strptime(report_date, "%Y-%m-%d").date()
 
+        # begindateを計算
+        begin_date = report_dt - timedelta(days=period_date - 1)
+
         # 年月日
         year = report_dt.year
         month = report_dt.month
@@ -54,15 +57,15 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = False) -> None:
         avg_units = units // period_date if period_date > 0 else 0
         
         analysis_data.append([
-            id, year, month, mday, week, delta_day, delta_week, delta_year, avg_units, sum_units
+            id, begin_date, year, month, mday, week, delta_day, delta_week, delta_year, avg_units, sum_units
         ])
 
     # 全件INSERT
     if analysis_data:
         cursor.executemany('''
             INSERT INTO gamehard_weekly_analysis
-            (id, year, month, mday, week, delta_day, delta_week, delta_year, avg_units, sum_units)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (id, begin_date, year, month, mday, week, delta_day, delta_week, delta_year, avg_units, sum_units)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', analysis_data)
         if debug_mode:
             print(f"{len(analysis_data)} 行を再構築しました。")

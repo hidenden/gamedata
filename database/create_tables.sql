@@ -87,6 +87,8 @@ create table if not exists gamehard_events (
 
 CREATE TABLE IF NOT EXISTS gamehard_weekly_analysis (
     id TEXT PRIMARY KEY, -- gamehard_weeklyのidと同じ。PKかつFK
+    begin_date TEXT NOT NULL CHECK(begin_date GLOB '????-??-??'), -- 集計開始日
+    -- つまり report_date - period_days + 1 となる。
     year INTEGER NOT NULL,      -- report_dateの年
     month INTEGER NOT NULL,     -- report_dateの月
     mday INTEGER NOT NULL,      -- report_dateの日
@@ -104,6 +106,8 @@ DROP VIEW IF EXISTS hard_sales;
 CREATE VIEW hard_sales AS
 SELECT
     gw.id AS weekly_id,
+    gwa.begin_date as begin_date,
+    gw.report_date as end_date,
     gw.report_date as report_date,
     gw.period_date as period_date,
     gw.hw as hw,
