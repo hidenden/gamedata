@@ -41,5 +41,16 @@ then
     exit 1
 fi
 
+# table: gamehard_weeklyに初期データを投入する
+# 初期データソースは ../data_source/hard_weekly_init.csv である。
+if ! sqlite3 "$GAMEHARD_DB" <<EOF
+.mode csv
+.import --skip 1 ../data_source/hard_weekly_init.csv gamehard_weekly
+EOF
+then
+    echo "Error: Failed to import initial data into gamehard_weekly table."
+    exit 1
+fi
+
 exit 0
 # スクリプトの終了コードは0で正常終了を示す。
