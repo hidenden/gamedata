@@ -1,7 +1,8 @@
-hw,launch_day,maker,full_name
+id,launch_date,maker_name,full_name
 PS5,2020-11-12,SONY,PlayStation5
 XSX,2020-11-10,Microsoft,Xbox Series X|S
-Switch,2017-03-03,Nintendo,Nintendo Switch
+NSW,2017-03-03,Nintendo,Nintendo Switch
+NS2,2025-06-05,Nintendo,Nintendo Switch2
 XBOne,2014-09-04,Microsoft,XboxOne
 PS4,2014-02-22,SONY,PlayStation4
 WiiU,2012-12-08,Nintendo,WiiU
@@ -21,6 +22,6 @@ PKS,1999-01-23,SONY,PocketStation
 DC,1998-11-27,SEGA,DreamCast
 NeoGeoP,1998-10-28,SNK,NeoGeo Pocket
 GB,1989-04-21,Nintendo,GAME BOY
-N64,1996-6-23,Nintendo,NINTENDO64
+N64,1996-06-23,Nintendo,NINTENDO64
 PS,1994-12-03,SONY,PlayStation
 SATURN,1994-11-22,SEGA,SEGA SATURN
