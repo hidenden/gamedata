@@ -76,8 +76,6 @@
 
 ## テーブル間のリレーション
 
-## テーブル間のリレーション
-
 ```mermaid
 erDiagram
     gamehard_info ||--o{ gamehard_weekly : "id = hw"
