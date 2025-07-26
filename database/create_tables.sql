@@ -99,6 +99,32 @@ CREATE TABLE IF NOT EXISTS gamehard_weekly_analysis (
     FOREIGN KEY (id) REFERENCES gamehard_weekly(id) ON DELETE CASCADE
 );
 
+DROP VIEW IF EXISTS hard_sales;
+
+CREATE VIEW hard_sales AS
+SELECT
+    gw.id AS weekly_id,
+    gw.report_date as report_date,
+    gw.period_date as period_date,
+    gw.hw as hw,
+    gw.units as units,
+    gwa.year as year,
+    gwa.month as month,
+    gwa.mday as mday,
+    gwa.week as week,
+    gwa.delta_day as delta_day,
+    gwa.delta_week as delta_week,
+    gwa.delta_year as delta_year,
+    gwa.avg_units as avg_units,
+    gwa.sum_units as sum_units,
+    gi.launch_date as launch_date,
+    gi.maker_name as maker_name,
+    gi.full_name as full_name
+FROM
+    gamehard_weekly gw
+    INNER JOIN gamehard_weekly_analysis gwa ON gw.id = gwa.id
+    INNER JOIN gamehard_info gi ON gw.hw = gi.id;
+
 CREATE INDEX IF NOT EXISTS idx_gamehard_weekly_report_date ON gamehard_weekly(report_date);
 CREATE INDEX IF NOT EXISTS idx_gamehard_weekly_hw ON gamehard_weekly(hw);
 
