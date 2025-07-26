@@ -37,7 +37,7 @@ def load_csv(dir:str, year:int) -> List:
 def teiten2normalize(teiten_rows:List) -> List:
     HW_MAP = {
         'NINTENDOSWITCH': 'NSW', 
-        "NINTENDOSWITCH2": 'NSW2',
+        "NINTENDOSWITCH2": 'NS2',
         'PS4': 'PS4',
         'PS5': 'PS5',
         'XboxSeriesX/S':'XSX',
