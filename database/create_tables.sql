@@ -10,6 +10,7 @@
 DROP TABLE IF EXISTS gamehard_weekly;
 DROP TABLE IF EXISTS gamehard_info;
 DROP TABLE IF EXISTS gamehard_events;
+DROP TABLE IF EXISTS gamehard_weekly_analysis;
 
  /* テーブルの作成
  */
@@ -82,6 +83,20 @@ create table if not exists gamehard_events (
      * ON DELETE CASCADEは、gamehard_infoの行が削除された場合、
      * gamehard_weeklyの対応する行も削除されることを意味します
      */
+);
+
+CREATE TABLE IF NOT EXISTS gamehard_weekly_analysis (
+    id TEXT PRIMARY KEY, -- gamehard_weeklyのidと同じ。PKかつFK
+    year INTEGER NOT NULL,      -- report_dateの年
+    month INTEGER NOT NULL,     -- report_dateの月
+    mday INTEGER NOT NULL,      -- report_dateの日
+    week INTEGER NOT NULL,      -- report_dateの週番号（ISO週番号）
+    delta_day INTEGER NOT NULL, -- 発売から何日後か
+    delta_week INTEGER NOT NULL,-- 発売から何週間後か
+    delta_year INTEGER NOT NULL,-- 発売から何年後か
+    avg_units INTEGER NOT NULL, -- 1日あたりの販売台数
+    sum_units INTEGER NOT NULL, -- report_date時点での累計台数
+    FOREIGN KEY (id) REFERENCES gamehard_weekly(id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_gamehard_weekly_report_date ON gamehard_weekly(report_date);
