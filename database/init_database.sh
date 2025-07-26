@@ -27,7 +27,7 @@ if ! sqlite3 "$GAMEHARD_DB" < ./create_tables.sql; then
     exit 1
 fi
 
-echo "Database tables created successfully."
+echo "Database tables and views created successfully."
 
 # table: gamehard_infoに初期データを投入する
 # 初期データソースは ./hard_info.csv である。

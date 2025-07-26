@@ -57,6 +57,29 @@
 
 ---
 
+### 4. `gamehard_weekly_analysis`
+
+週次販売データとゲームハード情報をもとに、分析用の指標をまとめたテーブルです。
+
+| カラム名      | 型      | 制約・説明                                                                                  |
+|:------------- |:------- |:------------------------------------------------------------------------------------------ |
+| id            | TEXT    | PRIMARY KEY。`gamehard_weekly(id)` と同じ値。外部キーでもある                              |
+| year          | INTEGER | `report_date` の年                                                                         |
+| month         | INTEGER | `report_date` の月                                                                         |
+| mday          | INTEGER | `report_date` の日                                                                         |
+| week          | INTEGER | `report_date` の週番号（ISO週番号）                                                        |
+| delta_day     | INTEGER | 発売日から何日後か（発売日と同じなら0）                                                    |
+| delta_week    | INTEGER | 発売日から何週間後か（発売週と同じなら0）                                                  |
+| delta_year    | INTEGER | 発売年から何年後か（発売年と同じなら0、翌年なら1、整数）                                   |
+| avg_units     | INTEGER | 1日あたりの販売台数。`units` の値を `period_date`の値で割ったもの。整数、小数点以下切り捨て   |
+| sum_units     | INTEGER | `report_date` 時点でのそのゲーム機の累計台数（その週の `units` も加算済み）                |
+
+- `id` は `gamehard_weekly(id)` を参照する外部キーです（ON DELETE CASCADE）。
+- このテーブルは、`gamehard_weekly` と `gamehard_info` のデータをもとに、分析や可視化に便利な形で指標をまとめています。
+- `sum_units` は各ハードごとに `report_date` 昇順で累積計算されます。
+
+---
+
 ## インデックス
 
 - `gamehard_weekly(report_date)` に `idx_gamehard_weekly_report_date`
@@ -80,6 +103,7 @@
 erDiagram
     gamehard_info ||--o{ gamehard_weekly : "id = hw"
     gamehard_info ||--o{ gamehard_events : "id = hw"
+    gamehard_weekly ||--|| gamehard_weekly_analysis : "id = id"
 
     gamehard_info {
         TEXT id PK
@@ -99,6 +123,18 @@ erDiagram
         TEXT event_date
         TEXT hw FK
         TEXT event_name
+    }
+    gamehard_weekly_analysis {
+        TEXT id PK, FK
+        INTEGER year
+        INTEGER month
+        INTEGER mday
+        INTEGER week
+        INTEGER delta_day
+        INTEGER delta_week
+        INTEGER delta_year
+        INTEGER avg_units
+        INTEGER sum_units
     }
 ```
 
