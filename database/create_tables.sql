@@ -9,6 +9,7 @@
  */
 DROP TABLE IF EXISTS gamehard_weekly;
 DROP TABLE IF EXISTS gamehard_info;
+DROP TABLE IF EXISTS gamehard_events;
 
  /* テーブルの作成
  */
@@ -51,6 +52,30 @@ create table if not exists gamehard_weekly (
 
     units INTEGER NOT NULL CHECK(units >= 0),
     -- 売上台数。売上金額ではない
+
+    FOREIGN KEY (hw) REFERENCES gamehard_info(id) ON DELETE CASCADE
+    /* 外部キー制約。hw gamehard_infoのidを参照する。
+     * ON DELETE CASCADEは、gamehard_infoの行が削除された場合、
+     * gamehard_weeklyの対応する行も削除されることを意味します
+     */
+);
+
+
+create table if not exists gamehard_events (
+    id TEXT PRIMARY KEY,
+    /* idはイベントの識別子である。
+     * これは event_date と hw を繋いだ文字列である。    
+     * 例えば、"2025-06-05_NS2"など。
+     */
+
+    event_date TEXT NOT NULL CHECK(event_date GLOB '????-??-??'),
+    -- イベントの日付。形式はYYYY-MM-DDである。
+
+    hw TEXT NOT NULL,
+    -- hwは gamehard_infoのidと同じ値を持つ外部キーである
+
+    event_name TEXT NOT NULL,
+    -- イベント名。例えば、"ドンキーコングバナンザ発売"や　"PS5値下げセール開始"など。
 
     FOREIGN KEY (hw) REFERENCES gamehard_info(id) ON DELETE CASCADE
     /* 外部キー制約。hw gamehard_infoのidを参照する。
