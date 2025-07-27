@@ -147,3 +147,77 @@ def aggregate_monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     return monthly_sales
+
+def pivot_cumulative_sales_by_hw(df: pd.DataFrame, hw_names: List[str]) -> pd.DataFrame:
+    """
+    指定されたハードウェアの累計販売台数をピボットテーブル形式で返す。
+    
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        hw_names: 出力に含むハードウェア名のリスト
+    
+    Returns:
+        report_dateをインデックス、hwを列、sum_unitsを値とするピボットテーブル
+    """
+    # 指定されたハードウェアのデータのみを抽出
+    filtered_df = extract_by_hw(df, hw_names)
+    
+    # ピボットテーブルを作成
+    pivot_df = filtered_df.pivot(index='report_date', columns='hw', values='sum_units')
+
+    return pivot_df
+
+def pivot_monthly_cumulative_sales_by_hw(df: pd.DataFrame, hw_names: List[str]) -> pd.DataFrame:
+    """
+    指定されたハードウェアの月毎累計販売台数をピボットテーブル形式で返す。
+    
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        hw_names: 出力に含むハードウェア名のリスト
+    
+    Returns:
+        月初日(毎月1日)をインデックス、hwを列、その月最初のsum_unitsを値とするピボットテーブル
+    """
+    # 指定されたハードウェアのデータのみを抽出
+    filtered_df = extract_by_hw(df, hw_names)
+    
+    # 月初日(1日)のカラムを追加
+    filtered_df = filtered_df.copy()
+    filtered_df['month_start'] = filtered_df['report_date'].dt.to_period('M').dt.start_time
+    
+    # 各ハードウェア・月毎に最初のsum_unitsを取得
+    monthly_first = (
+        filtered_df
+        .sort_values(['hw', 'report_date'])
+        .groupby(['hw', 'month_start'])
+        .first()
+        .reset_index()
+    )
+    
+    # ピボットテーブルを作成
+    pivot_df = monthly_first.pivot(index='month_start', columns='hw', values='sum_units')
+    
+    return pivot_df
+
+def pivot_cumulative_sales_by_delta_week(df: pd.DataFrame, hw_names: List[str]) -> pd.DataFrame:
+    """
+    指定されたハードウェアの累計販売台数をピボットテーブル形式で返す（発売からの週数ベース）。
+    
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        hw_names: 出力に含むハードウェア名のリスト
+    
+    Returns:
+        delta_weekをインデックス、hwを列、sum_unitsを値とするピボットテーブル
+        欠損値は後方補間（各ハードの後続の値で補填）される
+    """
+    # 指定されたハードウェアのデータのみを抽出
+    filtered_df = extract_by_hw(df, hw_names)
+    
+    # ピボットテーブルを作成
+    pivot_df = filtered_df.pivot(index='delta_week', columns='hw', values='sum_units')
+    
+    # 各列（ハードウェア）ごとに後方補間を行う
+    pivot_df = pivot_df.bfill()
+
+    return pivot_df
