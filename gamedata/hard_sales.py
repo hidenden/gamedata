@@ -8,9 +8,16 @@ from typing import List, Optional
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
 
-# sqlite3を使用してデータベースからハードウェア販売データを読み込む関数
-# 日付関係のカラムをdatetime64[ns]型に変換して返す
 def load_hard_sales() -> pd.DataFrame:
+    """
+    sqlite3を使用してデータベースからハードウェア販売データを読み込む関数。
+    日付関係のカラムをdatetime64[ns]型に変換して返す。
+    
+    Returns:
+        pd.DataFrame: ハードウェア販売データのDataFrame。
+                      日付カラム（begin_date, report_date, end_date, launch_date）は
+                      datetime64[ns]型に変換済み。
+    """
     # SQLite3データベースに接続
     conn = sqlite3.connect(DB_PATH)
     # SQLクエリを実行してデータをDataFrameに読み込む
@@ -29,12 +36,18 @@ def load_hard_sales() -> pd.DataFrame:
     return df
 
 
-# 累計販売台数が指定の値を超えた最初の週を見つける関数
-# 引数のdfは load_hard_sales()の戻り値と仮定します。
 def extract_week_reached_units(df: pd.DataFrame, threshold_units: int) -> pd.DataFrame:
     """
-    累計販売台数がthreshold_unitsを超えた最初の週ごとに、その行を抽出して返す。
-    ハードごと（hw）に最初に到達した週のみを返す。
+    累計販売台数が指定の値を超えた最初の週を見つける関数。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+        threshold_units: 閾値となる累計販売台数
+    
+    Returns:
+        pd.DataFrame: 累計販売台数がthreshold_unitsを超えた最初の週ごとに、その行を抽出したDataFrame。
+                      ハードごと（hw）に最初に到達した週のみを返す。
+                      どのハードも到達していなければ空DataFrameを返す。
     """
     result = []
     for hw, group in df.sort_values(['hw', 'report_date']).groupby('hw'):
@@ -48,11 +61,18 @@ def extract_week_reached_units(df: pd.DataFrame, threshold_units: int) -> pd.Dat
         return df.iloc[0:0]
 
 
-# 指定された日付の週に該当するデータを抽出する関数
-# 省略可能な第3引数にハードウェア名のリストを指定すると、そのハードウェアに限定して抽出します。
-# 引数のdfは load_hard_sales()の戻り値と仮定します。
-# なのでbegin_date, end_date, report_dateの型はdatetime64[ns]型に変換済みです。
-def extract_by_date(df:pd.DataFrame, date_str:str, hw_names:Optional[List[str]] = None) -> pd.DataFrame:
+def extract_by_date(df: pd.DataFrame, date_str: str, hw_names: Optional[List[str]] = None) -> pd.DataFrame:
+    """
+    指定された日付の週に該当するデータを抽出する関数。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame（begin_date, end_date, report_dateはdatetime64[ns]型に変換済み）
+        date_str: 抽出したい日付の文字列
+        hw_names: 省略可能なハードウェア名のリスト。指定すると、そのハードウェアに限定して抽出
+    
+    Returns:
+        pd.DataFrame: 指定された日付がbegin_dateからend_dateの範囲にある行を抽出したDataFrame
+    """
     target_date = pd.to_datetime(date_str)
 
     # target_dateがbegin_dateからend_dateの範囲にある行を抽出
@@ -65,44 +85,80 @@ def extract_by_date(df:pd.DataFrame, date_str:str, hw_names:Optional[List[str]] 
     return filtered_df
 
 
-# DataFrameから最新の週を抽出する関数
-def extract_latest(df:pd.DataFrame) -> pd.DataFrame:
+def extract_latest(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    DataFrameから最新の週を抽出する関数。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+    
+    Returns:
+        pd.DataFrame: 最新のreport_dateを持つ行のDataFrame
+    """
     target_date = df['report_date'].max()
     return df[df['report_date'] == target_date]
 
 
-# 配列で指定されたHWのデータのみを抽出する
 def extract_by_hw(df: pd.DataFrame, hw_names: List[str]) -> pd.DataFrame:
     """
     指定されたハードウェア名のデータのみを抽出する。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+        hw_names: 抽出したいハードウェア名のリスト
+    
+    Returns:
+        pd.DataFrame: 指定されたハードウェア名のデータのみを含むDataFrame
     """
     return df[df['hw'].isin(hw_names)]
 
-# 配列で指定されたmaekerのデータのみを抽出する
 def extract_by_maker(df: pd.DataFrame, makers: List[str]) -> pd.DataFrame:
     """
     指定されたメーカー名のデータのみを抽出する。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+        makers: 抽出したいメーカー名のリスト
+    
+    Returns:
+        pd.DataFrame: 指定されたメーカー名のデータのみを含むDataFrame
     """
     return df[df['maker_name'].isin(makers)]
 
-# ハードウェア名のリストを取得する関数
 def get_hw_names(df: pd.DataFrame) -> List[str]:
     """
     DataFrameからハードウェア名のユニークなリストを取得する。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+    
+    Returns:
+        List[str]: ハードウェア名のユニークなリスト
     """
     return df['hw'].unique().tolist()
 
-# 指定された年のデータを抽出する関数
 def extract_by_year(df: pd.DataFrame, year: int) -> pd.DataFrame:
     """
     指定された年のデータのみを抽出する。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+        year: 抽出したい年
+    
+    Returns:
+        pd.DataFrame: 指定された年のデータのみを含むDataFrame
     """
     return df[df['year'] == year]
 
-# 月毎の販売台数を集計する関数
 def aggregate_monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
     """
     月毎の販売台数と、その月までの累計販売台数（sum_units）を集計して返す。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+    
+    Returns:
+        pd.DataFrame: 月毎の販売台数（monthly_units）と累計販売台数（sum_units）を含むDataFrame
     """
     # 月ごとの販売台数を集計
     monthly_sales = df.groupby(['year', 'month', 'hw']).agg({'units': 'sum'}).reset_index()
@@ -127,7 +183,7 @@ def pivot_cumulative_sales_by_hw(df: pd.DataFrame, hw_names: List[str]) -> pd.Da
         hw_names: 出力に含むハードウェア名のリスト
     
     Returns:
-        report_dateをインデックス、hwを列、sum_unitsを値とするピボットテーブル
+        pd.DataFrame: report_dateをインデックス、hwを列、sum_unitsを値とするピボットテーブル
     """
     # 指定されたハードウェアのデータのみを抽出
     filtered_df = extract_by_hw(df, hw_names)
@@ -146,7 +202,7 @@ def pivot_monthly_cumulative_sales_by_hw(df: pd.DataFrame, hw_names: List[str]) 
         hw_names: 出力に含むハードウェア名のリスト
     
     Returns:
-        月初日(毎月1日)をインデックス、hwを列、その月最初のsum_unitsを値とするピボットテーブル
+        pd.DataFrame: 月初日(毎月1日)をインデックス、hwを列、その月最初のsum_unitsを値とするピボットテーブル
     """
     # 指定されたハードウェアのデータのみを抽出
     filtered_df = extract_by_hw(df, hw_names)
@@ -178,8 +234,8 @@ def pivot_cumulative_sales_by_delta_week(df: pd.DataFrame, hw_names: List[str]) 
         hw_names: 出力に含むハードウェア名のリスト
     
     Returns:
-        delta_weekをインデックス、hwを列、sum_unitsを値とするピボットテーブル
-        欠損値は後方補間（各ハードの後続の値で補填）される
+        pd.DataFrame: delta_weekをインデックス、hwを列、sum_unitsを値とするピボットテーブル。
+                      欠損値は後方補間（各ハードの後続の値で補填）される。
     """
     # 指定されたハードウェアのデータのみを抽出
     filtered_df = extract_by_hw(df, hw_names)

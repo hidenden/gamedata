@@ -5,7 +5,7 @@ This package provides utilities for analyzing game hardware sales data.
 """
 
 # Version information
-__version__ = "1.0.0"
+__version__ = "0.1.0"
 __author__ = "Hidenari Miwa"
 
 # Import main functions from modules
