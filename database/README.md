@@ -16,7 +16,7 @@
 | id            | TEXT  | PRIMARY KEY。ゲームハードの識別子（例: "NSW", "PS5" など）                |
 | launch_date   | TEXT  | NOT NULL。発売日（YYYY-MM-DD形式）。形式チェックあり                       |
 | maker_name    | TEXT  | NOT NULL。メーカー名（例: "Nintendo", "Sony" など）                        |
-| full_name     | TEXT  | NOT NULL。正式名称（例: "Nintendo Switch", "PlayStation 5" など）          |
+| full_name     | TEXT  | NOT NULL。ゲームハードの正式名称（例: "Nintendo Switch", "PlayStation 5" など）          |
 
 - `id` は他テーブルの外部キーとして参照されます。
 - `launch_date` には `GLOB '????-??-??'` による形式チェックが入っています（数字であることや実在日付までは保証しません）。
@@ -88,6 +88,70 @@
 これにより、週次データの検索効率が向上します。
 
 ---
+## ビュー `hard_sales`
+
+`hard_sales` は、ゲームハードの週次販売データ・分析指標・ハード情報を統合して参照できるビューです。  
+主に分析や可視化、データ抽出用途で利用します。
+
+#### カラム一覧
+
+| カラム名      | 型      | 説明                                   | 元のテーブル.カラム         |
+|:------------- |:------- |:-------------------------------------|:----------------------- |
+| weekly_id     | TEXT    | 週次データのID（gamehard_weekly.id）    |  gamehard_weekly.id      |
+| begin_date    | TEXT    | 集計開始日（週の初日）   |  gamehard_weekly_analysis.begin_date                    |
+| end_date      | TEXT    | 集計終了日（週の末日、=report_date）  |  gamehard_weekly.report_date  |
+| report_date   | TEXT    | 集計期間の末日                  | gamehard_weekly.report_date |
+| period_date   | INTEGER | 集計日数                       | gamehard_weekly.period_date  |
+| hw            | TEXT    | ゲームハードの識別子              | gamehard_weekly.hw    |
+| units         | INTEGER | 週次販売台数                      | gamehard_weekly.units |
+| year          | INTEGER | report_dateの年                 |  gamehard_weekly_analysis.year  |
+| month         | INTEGER | report_dateの月                 |  gamehard_weekly_analysis.month |
+| mday          | INTEGER | report_dateの日                 |  gamehard_weekly_analysis.mday  |
+| week          | INTEGER | report_dateの週番号（ISO週番号）  |  gamehard_weekly_analysis.week |
+| delta_day     | INTEGER | 発売日から何日後か                |  gamehard_weekly_analysis.delta_day|
+| delta_week    | INTEGER | 発売日から何週間後か              |  gamehard_weekly_analysis.delta_week|
+| delta_year    | INTEGER | 発売年から何年後か                |  gamehard_weekly_analysis.delta_year |
+| avg_units     | INTEGER | 1日あたりの販売台数               | gamehard_weekly_analysis.avg_units |
+| sum_units     | INTEGER | report_date時点での累計販売台数   | gamehard_weekly_analysis.sum_units |
+| launch_date   | TEXT    | 発売日                         |  gamehard_info.launch_date |
+| maker_name    | TEXT    | メーカー名                      |  gamehard_info.maker_name  |
+| full_name     | TEXT    | ゲームハードの正式名称            |  gamehard_info.full_name   |
+
+
+---
+
+### load_hard_sales()の返すデータ型
+
+hardsales_utils.pyに定義されるload_hard_sales()を使うことで、VIEW hard_salesから
+pandas.DataFrame型でデータを読み込むことが出来ます。
+load_hard_sales()はデータを読み込む際に、日付データをTEXTからdatetime64に型変換します。
+
+#### load_hard_sales()が返すpandas.DataFrameのカラム一覧
+
+| カラム名      | 型      | 説明                                                         |
+|:------------- |:------- |:------------------------------------------------------------ |
+| weekly_id     | string    | 週次データのID（gamehard_weekly.id）                         |
+| begin_date    | datetime64   | 集計開始日（週の初日）                                       |
+| end_date      | datetime64   | 集計終了日（週の末日、=report_date）                         |
+| report_date   | datetime64   | 集計期間の末日                                               |
+| period_date   | int64 | 集計日数                                                     |
+| hw            | string    | ゲームハードの識別子                                         |
+| units         | int64 | 週次販売台数                                                 |
+| year          | int64 | report_dateの年                                              |
+| month         | int64 | report_dateの月                                              |
+| mday          | int64 | report_dateの日                                              |
+| week          | int64 | report_dateの週番号（ISO週番号）                             |
+| delta_day     | int64 | 発売日から何日後か                                           |
+| delta_week    | int64 | 発売日から何週間後か                                         |
+| delta_year    | int64 | 発売年から何年後か                                           |
+| avg_units     | int64 | 1日あたりの販売台数                                          |
+| sum_units     | int64 | report_date時点での累計販売台数                              |
+| launch_date   | datetime64 | 発売日                                                       |
+| maker_name    | string  | メーカー名                                                   |
+| full_name     | string  | ゲームハードの正式名称                                       |　　
+
+
+----
 
 ## 注意事項
 
