@@ -174,38 +174,44 @@ def aggregate_monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
 
     return monthly_sales
 
-def pivot_cumulative_sales_by_hw(df: pd.DataFrame, hw_names: List[str]) -> pd.DataFrame:
+def pivot_cumulative_sales(df: pd.DataFrame, hw: Optional[List[str]] = None) -> pd.DataFrame:
     """
     指定されたハードウェアの累計販売台数をピボットテーブル形式で返す。
     
     Args:
         df: load_hard_sales()で取得したDataFrame
-        hw_names: 出力に含むハードウェア名のリスト
+        hw: 出力に含むハードウェア名のリスト (省略可能)
     
     Returns:
         pd.DataFrame: report_dateをインデックス、hwを列、sum_unitsを値とするピボットテーブル
     """
     # 指定されたハードウェアのデータのみを抽出
-    filtered_df = extract_by_hw(df, hw_names)
+    if hw:
+        filtered_df = extract_by_hw(df, hw)
+    else:
+        filtered_df = df
     
     # ピボットテーブルを作成
     pivot_df = filtered_df.pivot(index='report_date', columns='hw', values='sum_units')
 
     return pivot_df
 
-def pivot_monthly_cumulative_sales_by_hw(df: pd.DataFrame, hw_names: List[str]) -> pd.DataFrame:
+def pivot_cumulative_sales_monthly(df: pd.DataFrame, hw: Optional[List[str]] = None) -> pd.DataFrame:
     """
     指定されたハードウェアの月毎累計販売台数をピボットテーブル形式で返す。
     
     Args:
         df: load_hard_sales()で取得したDataFrame
-        hw_names: 出力に含むハードウェア名のリスト
-    
+        hw: 出力に含むハードウェア名のリスト (省略可能)
+
     Returns:
         pd.DataFrame: 月初日(毎月1日)をインデックス、hwを列、その月最初のsum_unitsを値とするピボットテーブル
     """
     # 指定されたハードウェアのデータのみを抽出
-    filtered_df = extract_by_hw(df, hw_names)
+    if hw:
+        filtered_df = extract_by_hw(df, hw)
+    else:
+        filtered_df = df
     
     # 月初日(1日)のカラムを追加
     filtered_df = filtered_df.copy()
@@ -225,24 +231,63 @@ def pivot_monthly_cumulative_sales_by_hw(df: pd.DataFrame, hw_names: List[str]) 
     
     return pivot_df
 
-def pivot_cumulative_sales_by_delta_week(df: pd.DataFrame, hw_names: List[str]) -> pd.DataFrame:
+def pivot_cumulative_sales_by_delta(df: pd.DataFrame, hw: Optional[List[str]] = None) -> pd.DataFrame:
     """
     指定されたハードウェアの累計販売台数をピボットテーブル形式で返す（発売からの週数ベース）。
     
     Args:
         df: load_hard_sales()で取得したDataFrame
-        hw_names: 出力に含むハードウェア名のリスト
+        hw: 出力に含むハードウェア名のリスト
     
     Returns:
         pd.DataFrame: delta_weekをインデックス、hwを列、sum_unitsを値とするピボットテーブル。
                       欠損値は後方補間（各ハードの後続の値で補填）される。
     """
     # 指定されたハードウェアのデータのみを抽出
-    filtered_df = extract_by_hw(df, hw_names)
-    
+    if hw:
+        filtered_df = extract_by_hw(df, hw)
+    else:
+        filtered_df = df
+
     # ピボットテーブルを作成
     pivot_df = filtered_df.pivot(index='delta_week', columns='hw', values='sum_units')
     
+    # 各列（ハードウェア）ごとに後方補間を行う
+    pivot_df = pivot_df.bfill()
+
+    return pivot_df
+
+def pivot_cumulative_sales_by_delta_month(df: pd.DataFrame, hw: Optional[List[str]] = None) -> pd.DataFrame:
+    """
+    指定されたハードウェアの月毎累計販売台数をピボットテーブル形式で返す（発売からの月数ベース）。
+    delta_monthごとに最大のdelta_weekを持つ行を抽出してpivotする。
+    
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        hw: 出力に含むハードウェア名のリスト
+    
+    Returns:
+        pd.DataFrame: delta_monthをインデックス、hwを列、sum_unitsを値とするピボットテーブル。
+                      欠損値は後方補間（各ハードの後続の値で補填）される。
+    """
+    # 指定されたハードウェアのデータのみを抽出
+    if hw:
+        filtered_df = extract_by_hw(df, hw)
+    else:
+        filtered_df = df
+
+    # delta_monthごとに最大のdelta_weekを持つ行を抽出
+    max_delta_week_df = (
+        filtered_df
+        .sort_values(['hw', 'delta_month', 'delta_week'])
+        .groupby(['hw', 'delta_month'])
+        .last()
+        .reset_index()
+    )
+
+    # ピボットテーブルを作成
+    pivot_df = max_delta_week_df.pivot(index='delta_month', columns='hw', values='sum_units')
+
     # 各列（ハードウェア）ごとに後方補間を行う
     pivot_df = pivot_df.bfill()
 
