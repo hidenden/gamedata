@@ -1,13 +1,12 @@
 ---
-applyTo: '**/*.py'
-applyTo: '**/*.md'
-applyTo: '**/*.ipynb'
+applyTo: '**'
 description: 'プロジェクトで使用するデータ構造の情報を提供します。'
 version: 1.0.0
 ---
-このプロジェクトでは、load_hard_sales()を使用して、ビュー `hard_sales` からデータを取得することができます。
-このビューは、ゲームハードの週次販売データ、分析指標、およびハード情報を統合して参照できるように設計されています。
-ビューのデータは load_hard_sale()内で処理され、Pandas DataFrameとして返されます。
+- このプロジェクトでは、load_hard_sales()を使用して、ビュー `hard_sales` からデータを取得することができます。
+- このビューは、ゲームハードの週次販売データ、分析指標、およびハード情報を統合して参照できるように設計されています。
+- ビューのデータは load_hard_sale()内で処理され、Pandas DataFrameとして返されます。
+
 以下に、load_hard_sales()の返すデータ型の詳細を示します。
 
 | カラム名      | 型      | 説明                                                         |
@@ -31,5 +30,7 @@ version: 1.0.0
 | launch_date   | datetime64 | 発売日                                                |
 | maker_name    | string  | メーカー名                                                |
 | full_name     | string  | ゲームハードの正式名称                                      |　　
+
+
 
 
