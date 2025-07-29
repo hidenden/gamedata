@@ -4,11 +4,12 @@ import sqlite3
 from datetime import datetime, timedelta
 import pandas as pd
 from typing import List, Optional
+import warnings
 
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
 
-def load_hard_sales() -> pd.DataFrame:
+def load_hard_sales(normalize7: bool = False) -> pd.DataFrame:
     """
     sqlite3を使用してデータベースからハードウェア販売データを読み込む関数。
     日付関係のカラムをdatetime64[ns]型に変換して返す。
@@ -21,7 +22,7 @@ def load_hard_sales() -> pd.DataFrame:
     # SQLite3データベースに接続
     conn = sqlite3.connect(DB_PATH)
     # SQLクエリを実行してデータをDataFrameに読み込む
-    query = "SELECT * FROM hard_sales"
+    query = "SELECT * FROM hard_sales ORDER BY weekly_id;"
     df = pd.read_sql_query(query, conn)
     
     # 接続を閉じる
@@ -33,7 +34,13 @@ def load_hard_sales() -> pd.DataFrame:
     df['end_date'] = pd.to_datetime(df['end_date'])
     df['launch_date'] = pd.to_datetime(df['launch_date'])
 
+    # normalize7がTrueの場合、7日間集計に正規化
+    if normalize7:
+        df = normalize_7days(df)
+
     return df
+
+
 
 
 def extract_week_reached_units(df: pd.DataFrame, threshold_units: int) -> pd.DataFrame:
@@ -292,3 +299,94 @@ def pivot_cumulative_sales_by_delta_month(df: pd.DataFrame, hw: Optional[List[st
     pivot_df = pivot_df.bfill()
 
     return pivot_df
+
+def normalize_7days(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    14日間の集計行を2つの7日間の集計行に分割し、7日間の集計行はそのまま保持して正規化する関数。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+    
+    Returns:
+        pd.DataFrame: 全ての行が7日間集計に正規化されたDataFrame。
+                      14日間の集計行は2つの7日間行に分割される。
+    """
+    # 7日間と14日間の行を分離
+    df_7days = df[df['period_date'] == 7].copy()
+    df_14days = df[df['period_date'] == 14].copy()
+
+    # 7日でも14日でもない行があれば警告を出し、それらの行を除外
+    invalid_rows = df[~df['period_date'].isin([7, 14])]
+    if not invalid_rows.empty:
+        unique_periods = invalid_rows['period_date'].unique()
+        warnings.warn(f"集計日数が7日または14日でない行が{len(invalid_rows)}件見つかりました。"
+                     f"period_date: {unique_periods}。これらの行は出力から除外されます。")
+   
+    # 14日間の行を7日間の2行に分割
+    normalized_rows = []
+    
+    for _, row in df_14days.iterrows():
+        # 第1週の行（前半7日間）
+        row1 = row.copy()
+        row1['period_date'] = 7
+        row1['units'] = row['units'] // 2
+        row1['avg_units'] = row1['units'] // 7
+        row1['end_date'] = row['begin_date'] + timedelta(days=6)
+        row1['report_date'] = row1['end_date']
+        row1['year'] = row1['report_date'].year
+        row1['month'] = row1['report_date'].month
+        row1['mday'] = row1['report_date'].day
+        row1['week'] = row1['report_date'].isocalendar().week
+        
+        # weekly_idを再生成
+        row1['weekly_id'] = f"{row1['report_date'].strftime('%Y-%m-%d')}_{row1['hw']}"
+        
+        # delta_day, delta_week, delta_yearを再計算
+        days_from_launch = (row1['report_date'] - row['launch_date']).days
+        row1['delta_day'] = days_from_launch
+        row1['delta_week'] = days_from_launch // 7
+        row1['delta_year'] = row1['report_date'].year - row['launch_date'].year
+
+        # sum_unitsを再計算（元の累計販売台数から前半週の販売台数を引いた値）
+        row1['sum_units'] = row['sum_units'] - row1['units']
+        
+        normalized_rows.append(row1)
+        
+        # 第2週の行（後半7日間）
+        row2 = row.copy()
+        row2['period_date'] = 7
+        row2['units'] = row['units'] - row1['units']  # 残りの販売台数
+        row2['avg_units'] = row2['units'] // 7
+        row2['begin_date'] = row1['end_date'] + timedelta(days=1)
+        row2['end_date'] = row['end_date']
+        row2['report_date'] = row2['end_date']
+        row2['year'] = row2['report_date'].year
+        row2['month'] = row2['report_date'].month
+        row2['mday'] = row2['report_date'].day
+        row2['week'] = row2['report_date'].isocalendar().week
+        
+        # weekly_idを再生成
+        row2['weekly_id'] = f"{row2['report_date'].strftime('%Y-%m-%d')}_{row2['hw']}"
+        
+        # delta_day, delta_week, delta_yearを再計算
+        days_from_launch = (row2['report_date'] - row['launch_date']).days
+        row2['delta_day'] = days_from_launch
+        row2['delta_week'] = days_from_launch // 7
+        row2['delta_year'] = row2['report_date'].year - row['launch_date'].year
+        
+        # sum_unitsはそのまま（元の累計販売台数を保持）
+        row2['sum_units'] = row['sum_units']
+        
+        normalized_rows.append(row2)
+    
+    # 結果をまとめる
+    if normalized_rows:
+        df_normalized_14days = pd.DataFrame(normalized_rows)
+        result_df = pd.concat([df_7days, df_normalized_14days], ignore_index=True)
+    else:
+        result_df = df_7days
+    
+    # report_dateでソートし、インデックスを再設定
+    result_df = result_df.sort_values(['report_date']).reset_index(drop=True)
+
+    return result_df
