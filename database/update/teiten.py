@@ -16,12 +16,12 @@ from bs4 import BeautifulSoup
 
 # 定点観測サイトからハード週次データを取得する
 def get_hwyear_page() -> List:
-    URLBASE = "http://www.teitengame.com/"
+    URLBASE = "https://www.teitengame.com/"
     data_url = URLBASE + "hard.html"
 
     adapter = CacheControlAdapter(heuristic=LastModified(), cache=FileCache('_webcache'))
     session = requests.Session()
-    session.mount('http://', adapter)
+    session.mount('https://', adapter)
     response = session.get(data_url)
     soup = BeautifulSoup(response.content, "html.parser")
     table = soup.find("table", attrs={"class": "table1"})
