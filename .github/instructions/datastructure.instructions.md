@@ -24,6 +24,7 @@ version: 1.0.0
 | week          | int64 | report_dateの週番号（ISO週番号）                             |
 | delta_day     | int64 | 発売日から何日後か                                           |
 | delta_week    | int64 | 発売日から何週間後か                                         |
+| delta_month   | int64 | 発売日から何ヶ月後か                                         |
 | delta_year    | int64 | 発売年から何年後か(同じ年なら0)                                |
 | avg_units     | int64 | 1日あたりの販売台数 (units / period_date)                     |
 | sum_units     | int64 | report_date時点での累計販売台数                              |

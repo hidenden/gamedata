@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS gamehard_weekly_analysis (
     week INTEGER NOT NULL,      -- report_dateの週番号（ISO週番号）
     delta_day INTEGER NOT NULL, -- 発売から何日後か
     delta_week INTEGER NOT NULL,-- 発売から何週間後か
+    delta_month INTEGER NOT NULL,-- 発売から何ヶ月後か
     delta_year INTEGER NOT NULL,-- 発売から何年後か
     avg_units INTEGER NOT NULL, -- 1日あたりの販売台数
     sum_units INTEGER NOT NULL, -- report_date時点での累計台数
@@ -118,6 +119,7 @@ SELECT
     gwa.week as week,
     gwa.delta_day as delta_day,
     gwa.delta_week as delta_week,
+    gwa.delta_month as delta_month,
     gwa.delta_year as delta_year,
     gwa.avg_units as avg_units,
     gwa.sum_units as sum_units,

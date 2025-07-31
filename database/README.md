@@ -70,6 +70,7 @@
 | week          | INTEGER | `report_date` の週番号（ISO週番号）                                                        |
 | delta_day     | INTEGER | 発売日から何日後か（発売日と同じなら0）                                                    |
 | delta_week    | INTEGER | 発売日から何週間後か（発売週と同じなら0）                                                  |
+| delta_month   | INTEGER | 発売日から何ヶ月後か（発売月と同じなら0）                                                  |
 | delta_year    | INTEGER | 発売年から何年後か（発売年と同じなら0、翌年なら1、整数）                                   |
 | avg_units     | INTEGER | 1日あたりの販売台数。`units` の値を `period_date`の値で割ったもの。整数、小数点以下切り捨て   |
 | sum_units     | INTEGER | `report_date` 時点でのそのゲーム機の累計台数（その週の `units` も加算済み）                |
@@ -110,6 +111,7 @@
 | week          | INTEGER | report_dateの週番号（ISO週番号）  |  gamehard_weekly_analysis.week |
 | delta_day     | INTEGER | 発売日から何日後か                |  gamehard_weekly_analysis.delta_day|
 | delta_week    | INTEGER | 発売日から何週間後か              |  gamehard_weekly_analysis.delta_week|
+| delta_month   | INTEGER | 発売日から何ヶ月後か.            |  gamehard_weekly_analysis.delta_month|
 | delta_year    | INTEGER | 発売年から何年後か                |  gamehard_weekly_analysis.delta_year |
 | avg_units     | INTEGER | 1日あたりの販売台数               | gamehard_weekly_analysis.avg_units |
 | sum_units     | INTEGER | report_date時点での累計販売台数   | gamehard_weekly_analysis.sum_units |
@@ -143,6 +145,7 @@ load_hard_sales()はデータを読み込む際に、日付データをTEXTか�
 | week          | int64 | report_dateの週番号（ISO週番号）                             |
 | delta_day     | int64 | 発売日から何日後か                                           |
 | delta_week    | int64 | 発売日から何週間後か                                         |
+| delta_month   | int64 | 発売日から何ヶ月後か                                         |
 | delta_year    | int64 | 発売年から何年後か                                           |
 | avg_units     | int64 | 1日あたりの販売台数                                          |
 | sum_units     | int64 | report_date時点での累計販売台数                              |
@@ -196,6 +199,7 @@ erDiagram
         INTEGER week
         INTEGER delta_day
         INTEGER delta_week
+        INTEGER delta_month
         INTEGER delta_year
         INTEGER avg_units
         INTEGER sum_units

@@ -46,6 +46,9 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = False) -> None:
         delta_day = (report_dt - launch_dt).days
         delta_week = delta_day // 7
         delta_year = report_dt.year - launch_dt.year
+        
+        # 発売からの月数差分（カレンダー月）
+        delta_month = (report_dt.year - launch_dt.year) * 12 + (report_dt.month - launch_dt.month)
 
         # 累計台数
         key = hw
@@ -57,15 +60,15 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = False) -> None:
         avg_units = units // period_date if period_date > 0 else 0
         
         analysis_data.append([
-            id, begin_date, year, month, mday, week, delta_day, delta_week, delta_year, avg_units, sum_units
+            id, begin_date, year, month, mday, week, delta_day, delta_week, delta_month, delta_year, avg_units, sum_units
         ])
 
     # 全件INSERT
     if analysis_data:
         cursor.executemany('''
             INSERT INTO gamehard_weekly_analysis
-            (id, begin_date, year, month, mday, week, delta_day, delta_week, delta_year, avg_units, sum_units)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (id, begin_date, year, month, mday, week, delta_day, delta_week, delta_month, delta_year, avg_units, sum_units)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', analysis_data)
         if debug_mode:
             print(f"{len(analysis_data)} 行を再構築しました。")
