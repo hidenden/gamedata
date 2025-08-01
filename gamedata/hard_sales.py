@@ -106,32 +106,6 @@ def extract_latest(df: pd.DataFrame) -> pd.DataFrame:
     return df[df['report_date'] == target_date]
 
 
-def extract_by_hw(df: pd.DataFrame, hw_names: List[str]) -> pd.DataFrame:
-    """
-    指定されたハードウェア名のデータのみを抽出する。
-    
-    Args:
-        df: load_hard_sales()の戻り値のDataFrame
-        hw_names: 抽出したいハードウェア名のリスト
-    
-    Returns:
-        pd.DataFrame: 指定されたハードウェア名のデータのみを含むDataFrame
-    """
-    return df[df['hw'].isin(hw_names)]
-
-def extract_by_maker(df: pd.DataFrame, makers: List[str]) -> pd.DataFrame:
-    """
-    指定されたメーカー名のデータのみを抽出する。
-    
-    Args:
-        df: load_hard_sales()の戻り値のDataFrame
-        makers: 抽出したいメーカー名のリスト
-    
-    Returns:
-        pd.DataFrame: 指定されたメーカー名のデータのみを含むDataFrame
-    """
-    return df[df['maker_name'].isin(makers)]
-
 def get_hw_names(df: pd.DataFrame) -> List[str]:
     """
     DataFrameからハードウェア名のユニークなリストを取得する。
@@ -151,22 +125,9 @@ def get_active_hw() -> List[str]:
     Returns:
         List[str]: アクティブなハードウェア名のリスト
     """
-    # ここでは、NSW, NS2, PS4, PS5, XSXをアクティブと仮定
-    return ['NSW', 'NS2', 'PS4', 'PS5', 'XSX']
+    # ここでは、NSW, NS2, PS5, XSXをアクティブと仮定
+    return ['NSW', 'NS2', 'PS5', 'XSX']
 
-
-def extract_by_year(df: pd.DataFrame, year: int) -> pd.DataFrame:
-    """
-    指定された年のデータのみを抽出する。
-    
-    Args:
-        df: load_hard_sales()の戻り値のDataFrame
-        year: 抽出したい年
-    
-    Returns:
-        pd.DataFrame: 指定された年のデータのみを含むDataFrame
-    """
-    return df[df['year'] == year]
 
 def aggregate_monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -193,44 +154,54 @@ def aggregate_monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
     return monthly_sales
 
 
-def pivot_sales(df: pd.DataFrame) -> pd.DataFrame:
+def pivot_sales(df: pd.DataFrame, hw:List[str] = []) -> pd.DataFrame:
     """
     ハードウェアの販売台数をピボットテーブル形式で返す。
 
     Args:
         df: load_hard_sales()で取得したDataFrame
+        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
 
     Returns:
         pd.DataFrame: report_dateをインデックス、hwを列、unitsを値とするピボットテーブル
     """
     # ピボットテーブルを作成
-    pivot_df = df.pivot(index='report_date', columns='hw', values='units')
-    return pivot_df
+    if len(hw) > 0:
+        filtered_df =  df[df['hw'].isin(hw)]
+    else:
+        filtered_df = df
+
+    return filtered_df.pivot(index='report_date', columns='hw', values='units')
 
 
-def pivot_cumulative_sales(df: pd.DataFrame) -> pd.DataFrame:
+def pivot_cumulative_sales(df: pd.DataFrame, hw:List[str] = []) -> pd.DataFrame:
     """
     ハードウェアの累計販売台数をピボットテーブル形式で返す。
     
     Args:
         df: load_hard_sales()で取得したDataFrame
+        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
     
     Returns:
         pd.DataFrame: report_dateをインデックス、hwを列、sum_unitsを値とするピボットテーブル
     """
-    
+
+    if len(hw) > 0:
+        filtered_df = df[df['hw'].isin(hw)]
+    else:
+        filtered_df = df
+
     # ピボットテーブルを作成
-    pivot_df = df.pivot(index='report_date', columns='hw', values='sum_units')
+    return filtered_df.pivot(index='report_date', columns='hw', values='sum_units')
 
-    return pivot_df
-
-def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week") -> pd.DataFrame:
+def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List[str] = []) -> pd.DataFrame:
     """
     ハードウェアの販売台数を発売日からの経過状況をインデックス、hwを列、unitsを値とするピボットテーブル形式で返す。
     
     Args:
         df: load_hard_sales()で取得したDataFrame
         mode: "week"、"month"または"year"を指定。週単位の集計なら"week"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
+        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
 
     Returns:
         pd.DataFrame: delta_week, delta_month, delta_yearのいずれかインデックス、hwを列、unitsを値とするピボットテーブル
@@ -245,30 +216,47 @@ def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week") -> pd.DataFrame:
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
     
-    return df.pivot(index=index_col, columns='hw', values='units')
+    if len(hw) > 0:
+        filtered_df = df[df['hw'].isin(hw)]
+    else:
+        filtered_df = df
+
+    return filtered_df.groupby(["hw", index_col])['units'].sum().unstack('hw')
 
 
-def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "day") -> pd.DataFrame:
+def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List[str] = []) -> pd.DataFrame:
     """
     ハードウェアの累計販売台数を発売日からの経過状況をインデックス、hwを列、unitsを値とするピボットテーブル形式で返す。
     Args:
         df: load_hard_sales()で取得したDataFrame
         mode: "day"、"month"または"year"を指定。日単位の集計なら"day"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
+        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
 
     Returns:
-        pd.DataFrame: delta_day, delta_week, delta_month, delta_yearのいずれかインデックス、hwを列、sum_unitsを値とするピボットテーブル
+        pd.DataFrame: delta_week, delta_month, delta_yearのいずれかインデックス、hwを列、sum_unitsを値とするピボットテーブル
     """
     # ピボットテーブルを作成
-    if mode == "day":
-        index_col = 'delta_day'
+    if mode == "week":
+        index_col = 'delta_week'
     elif mode == "month":
         index_col = 'delta_month'
     elif mode == "year":
         index_col = 'delta_year'
     else:
-        raise ValueError("modeは'day', 'month', 'year'のいずれかを指定してください。")
-    
-    return df.pivot(index=index_col, columns='hw', values='sum_units')
+        raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
+
+    if len(hw) > 0:
+        filtered_df = df[df['hw'].isin(hw)]
+    else:
+        filtered_df = df
+
+    return filtered_df.groupby(["hw", index_col])['sum_units'].last().unstack('hw')
+
+#    if len(hw) > 0:
+#        return df[df['hw'].isin(hw)].pivot(index=index_col, columns='hw', values='sum_units')
+#    else:
+#        return df.pivot(index=index_col, columns='hw', values='sum_units')
+
 
 def normalize_7days(df: pd.DataFrame) -> pd.DataFrame:
     """
