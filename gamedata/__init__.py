@@ -15,14 +15,9 @@ from .hard_sales import (
     extract_week_reached_units,
     extract_by_date,
     extract_latest,
-    extract_by_hw,
-    extract_by_maker,
-    extract_by_year,
     aggregate_monthly_sales,
+    pivot_sales,
     pivot_cumulative_sales,
-    pivot_cumulative_sales_monthly,
-    pivot_cumulative_sales_by_delta,
-    pivot_cumulative_sales_by_delta_month,
 )
 
 from .plot_hard import (
@@ -37,15 +32,13 @@ __all__ = [
     'extract_week_reached_units',
     'extract_by_date',
     'extract_latest',
-    'extract_by_hw',
-    'extract_by_maker',
-    'extract_by_year',
     'aggregate_monthly_sales',
+    'pivot_sales',
     'pivot_cumulative_sales',
-    'pivot_cumulative_sales_monthly',
-    'pivot_cumulative_sales_by_delta',
-    'pivot_cumulative_sales_by_delta_month',
-    'plot_deltaweek_cumulative_sales',
+    'plot_cumulative_sales_by_delta',
+    'plot_cumulative_sales',
+    'pivot_sales_by_delta',
+    'plot_cumulative_sales_by_delta',
     'plot_cumulative_sales',
 ]
 

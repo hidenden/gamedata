@@ -1,4 +1,4 @@
-# 標準ライブラリ
+ # 標準ライブラリ
 from datetime import datetime, timedelta
 from typing import List, Optional
 
@@ -12,25 +12,26 @@ from matplotlib.ticker import ScalarFormatter
 from gamedata import hard_sales as hs
 
 
-def plot_cumulative_sales_by_delta(df: pd.DataFrame, hw: Optional[List[str]], 
-                                monthly:bool = False, limit: int = 0) -> Figure:
+def plot_cumulative_sales_by_delta(df: pd.DataFrame, hw: List[str] = [], 
+                                   mode:str = "week", limit: int = 0) -> Figure:
     """
     各ハードウェアの発売日起点・累計販売台数推移をプロットする（週単位）
     
     Args:
         df: load_hard_sales()の戻り値のDataFrame
-        hw: プロットしたいハードウェア名のリスト。Noneの場合は全ハードウェアを対象
-        monthly: 月次の累計販売台数をプロットする場合はTrue、週単位の場合はFalse (defaultはFalse) 
-        limit: 表示する週数(月数)（この数まで表示する）。0の場合は全期間を表示
+        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
+        mode: "month"の場合は月次の、"week"の場合は週単位、"year"の場合は年単位の累計販売台数をプロットする、 (defaultは"week")
+        limit: 表示するデータ数（この数まで表示する）。0の場合は全期間を表示
         
     Returns:
         matplotlib.figure.Figure: グラフのFigureオブジェクト
     """
-    if monthly:
-        df = hs.pivot_cumulative_sales_by_delta_month(df, hw)
+    df = hs.pivot_cumulative_sales_by_delta(df, hw=hw, mode=mode)
+    if mode == "month":
         title_key = '月'
+    elif mode == "year":
+        title_key = '年'
     else:
-        df = hs.pivot_cumulative_sales_by_delta(df, hw)
         title_key = '週'
 
     if limit > 0:
@@ -63,22 +64,25 @@ def plot_cumulative_sales_by_delta(df: pd.DataFrame, hw: Optional[List[str]],
     return fig
 
 
-def plot_cumulative_sales(df: pd.DataFrame, hw: Optional[List[str]], monthly:bool = False) -> Figure:
+def plot_cumulative_sales(df: pd.DataFrame, hw: List[str] = [], mode:str="week") -> Figure:
     """
     各ハードウェアの累計販売台数をプロットする
     Args:
         df: load_hard_sales()の戻り値のDataFrame
-        hw: プロットしたいハードウェア名のリスト。Noneの場合は全ハードウェアを対象
-        monthly: 月次の累計販売台数をプロットする場合はTrue、週単位の場合はFalse (defaultはFalse)
+        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
+        mode: "month"の場合は月次の、"week"の場合は週単位、"year"の場合は年単位の累計販売台数をプロットする、 (defaultは"week")
     Returns:
         matplotlib.figure.Figure: グラフのFigureオブジェクト
     """
-    if monthly:
-        df = hs.pivot_cumulative_sales_monthly(df, hw)
-        title_key = '月'
-    else:
-        df = hs.pivot_cumulative_sales(df, hw)
+    df = hs.pivot_cumulative_sales(df, hw=hw)
+    if mode == "week":
         title_key = '週'
+    elif mode == "month":
+        df = df.resample('M').last()
+        title_key = '月'
+    elif mode == "year":
+        df = df.resample('Y').last()
+        title_key = '年'
 
     fig, ax = plt.subplots(figsize=(18, 9))
     plt.rcParams['font.family'] = 'Hiragino Sans'
