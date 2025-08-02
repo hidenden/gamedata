@@ -229,7 +229,7 @@ def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List
     ハードウェアの累計販売台数を発売日からの経過状況をインデックス、hwを列、unitsを値とするピボットテーブル形式で返す。
     Args:
         df: load_hard_sales()で取得したDataFrame
-        mode: "day"、"month"または"year"を指定。日単位の集計なら"day"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
+        mode: "week"、"month"または"year"を指定。週単位の集計なら"week"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
 
     Returns:
