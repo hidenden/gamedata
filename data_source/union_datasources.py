@@ -76,7 +76,7 @@ def clean_data(data: List) -> List:
         'GBA':'GBA',
         'GBASP':'GBA',
         'GBC':'GB',
-        'GBM':'GB',
+        'GBM':'GBA',
         'GC':'GC',
         'N64':'N64',
         'NGP':'NeoGeoP',
