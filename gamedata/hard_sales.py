@@ -154,7 +154,7 @@ def aggregate_monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
     return monthly_sales
 
 
-def pivot_sales(df: pd.DataFrame, hw:List[str] = []) -> pd.DataFrame:
+def pivot_sales(df: pd.DataFrame, hw:List[str] = [], full_name:bool = False) -> pd.DataFrame:
     """
     ハードウェアの販売台数をピボットテーブル形式で返す。
 
@@ -171,10 +171,13 @@ def pivot_sales(df: pd.DataFrame, hw:List[str] = []) -> pd.DataFrame:
     else:
         filtered_df = df
 
-    return filtered_df.pivot(index='report_date', columns='hw', values='units')
+    # 横軸のカラム
+    columns_name = 'full_name' if full_name else 'hw'
+
+    return filtered_df.pivot(index='report_date', columns=columns_name, values='units')
 
 
-def pivot_cumulative_sales(df: pd.DataFrame, hw:List[str] = []) -> pd.DataFrame:
+def pivot_cumulative_sales(df: pd.DataFrame, hw:List[str] = [], full_name:bool = False) -> pd.DataFrame:
     """
     ハードウェアの累計販売台数をピボットテーブル形式で返す。
     
@@ -191,10 +194,13 @@ def pivot_cumulative_sales(df: pd.DataFrame, hw:List[str] = []) -> pd.DataFrame:
     else:
         filtered_df = df
 
-    # ピボットテーブルを作成
-    return filtered_df.pivot(index='report_date', columns='hw', values='sum_units')
+    # 横軸のカラム
+    columns_name = 'full_name' if full_name else 'hw'
 
-def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List[str] = []) -> pd.DataFrame:
+    # ピボットテーブルを作成
+    return filtered_df.pivot(index='report_date', columns=columns_name, values='sum_units')
+
+def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List[str] = [], full_name:bool = False) -> pd.DataFrame:
     """
     ハードウェアの販売台数を発売日からの経過状況をインデックス、hwを列、unitsを値とするピボットテーブル形式で返す。
     
@@ -221,15 +227,18 @@ def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List[str] = [])
     else:
         filtered_df = df
 
+    # 横軸のカラム
+    columns_name = 'full_name' if full_name else 'hw'
+
     return filtered_df.pivot_table(
         index=index_col,
-        columns='hw',
+        columns=columns_name,
         values='units',
         aggfunc='sum'
     )
 
 
-def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List[str] = []) -> pd.DataFrame:
+def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List[str] = [], full_name:bool = False) -> pd.DataFrame:
     """
     ハードウェアの累計販売台数を発売日からの経過状況をインデックス、hwを列、unitsを値とするピボットテーブル形式で返す。
     Args:
@@ -255,9 +264,12 @@ def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List
     else:
         filtered_df = df
 
+    # 横軸のカラム
+    columns_name = 'full_name' if full_name else 'hw'
+
     return filtered_df.pivot_table(
         index=index_col,
-        columns='hw',
+        columns=columns_name,
         values='sum_units',
         aggfunc='last'
     )
