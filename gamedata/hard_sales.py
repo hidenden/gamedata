@@ -221,7 +221,12 @@ def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List[str] = [])
     else:
         filtered_df = df
 
-    return filtered_df.groupby(["hw", index_col])['units'].sum().unstack('hw')
+    return filtered_df.pivot_table(
+        index=index_col,
+        columns='hw',
+        values='units',
+        aggfunc='sum'
+    )
 
 
 def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List[str] = []) -> pd.DataFrame:
@@ -250,12 +255,12 @@ def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List
     else:
         filtered_df = df
 
-    return filtered_df.groupby(["hw", index_col])['sum_units'].last().unstack('hw')
-
-#    if len(hw) > 0:
-#        return df[df['hw'].isin(hw)].pivot(index=index_col, columns='hw', values='sum_units')
-#    else:
-#        return df.pivot(index=index_col, columns='hw', values='sum_units')
+    return filtered_df.pivot_table(
+        index=index_col,
+        columns='hw',
+        values='sum_units',
+        aggfunc='last'
+    )
 
 
 def normalize_7days(df: pd.DataFrame) -> pd.DataFrame:
