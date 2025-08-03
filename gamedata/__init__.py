@@ -18,6 +18,7 @@ from .hard_sales import (
     aggregate_monthly_sales,
     pivot_sales,
     pivot_cumulative_sales,
+    pivot_sales_by_delta,
 )
 
 from .plot_hard import (
@@ -35,8 +36,6 @@ __all__ = [
     'aggregate_monthly_sales',
     'pivot_sales',
     'pivot_cumulative_sales',
-    'plot_cumulative_sales_by_delta',
-    'plot_cumulative_sales',
     'pivot_sales_by_delta',
     'plot_cumulative_sales_by_delta',
     'plot_cumulative_sales',
