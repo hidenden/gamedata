@@ -106,7 +106,7 @@ def upsert_to_database(db_path: str, newdata: List, precheck: bool = False, dryr
         print(f"Data has been upserted to the database. {added_count} rows added (or replaced).")
     except sqlite3.Error as e:
         print(f"An error occurred: {e}")
-        if not dryrun
+        if not dryrun:
             conn.rollback()
         raise e
     finally:

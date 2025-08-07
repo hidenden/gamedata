@@ -7,7 +7,7 @@ import os
 import sys
 import csv
 from typing import List, Tuple
-from database.update.update_util import upsert_to_database
+import update_util as uu
 
 def read_csv_file(file_path: str) -> List[Tuple]:
     """
@@ -21,7 +21,7 @@ def read_csv_file(file_path: str) -> List[Tuple]:
     """
     with open(file_path, mode='r', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
-        data = [tuple(row) for row in reader]
+        data = [tuple(cell.strip() for cell in row) for row in reader]
     return data
 
 def main():
@@ -46,16 +46,16 @@ def main():
         sys.exit(1)
 
     # 環境変数からデータベースのパスを取得
-    db_path = os.getenv('DATABASE_PATH')
+    db_path = os.getenv('GAMEHARD_DB')
     if not db_path:
-        print("Error: DATABASE_PATH environment variable is not set.")
+        print("Error: GAMEHARD_DB environment variable is not set.")
         sys.exit(1)
 
     # CSVファイルを読み込み
     newdata = read_csv_file(csv_file_path)
 
     # データベースにアップサート
-    upsert_to_database(db_path, newdata, precheck=precheck, dryrun=dryrun)
+    uu.upsert_to_database(db_path, newdata, precheck=precheck, dryrun=dryrun)
     if dryrun:
         print("Dryrun: CSV data checked but not upserted to the database.")
     else:
