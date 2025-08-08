@@ -73,6 +73,9 @@ def clean_hwyear_data(rawdata:List) -> List:
         elif "月" in data[0]:
             numbers = data[2:]
             time_stamp = nth_aggregate_day(year, i - index_offset)
+        elif "不明週" in data[0]:
+            print(f"Warning: Unclear week data found at line {data}. Skipping this line.")
+            continue
         else:
             numbers = data[1:]
             time_stamp = nth_aggregate_day(year, i - index_offset)
@@ -243,6 +246,7 @@ def teiten_main(db_path:str, debug_mode = False):
     if debug_mode:
         # デバッグモードでは、データをCSVファイルに保存
         save_csv("teiten_hard_weekly.csv", latest_data)
+        print("Use -c option to commit changes to the database.")
         exit(0)
 
     # 本番モードでは、データベースにUPSERT
@@ -259,6 +263,11 @@ if __name__ == "__main__":
         print("Error: Environment variable GAMEHARD_DB is not set.")
         sys.exit(1)
 
-    teiten_main(db_path, debug_mode=False)
+    # コマンドラインオプション -c の有無で debug_mode を切り替え
+    debug_mode = True
+    if '-c' in sys.argv:
+        debug_mode = False
+
+    teiten_main(db_path, debug_mode=debug_mode)
     sys.exit(0)
 
