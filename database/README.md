@@ -65,7 +65,7 @@
 | year          | INTEGER | `report_date` の年                                                                         |
 | month         | INTEGER | `report_date` の月                                                                         |
 | mday          | INTEGER | `report_date` の日                                                                         |
-| week          | INTEGER | `report_date` の週番号（ISO週番号）                                                        |
+| week          | INTEGER | `report_date` がその月の何番目の日曜日か　　　                                             |
 | delta_day     | INTEGER | 発売日から何日後か（発売日と同じなら0）                                                    |
 | delta_week    | INTEGER | 発売日から何週間後か（発売週と同じなら0）                                                  |
 | delta_month   | INTEGER | 発売日から何ヶ月後か（発売月と同じなら0）                                                  |
@@ -106,7 +106,7 @@
 | year          | INTEGER | report_dateの年                         |  gamehard_weekly_analysis.year  |
 | month         | INTEGER | report_dateの月                         |  gamehard_weekly_analysis.month |
 | mday          | INTEGER | report_dateの日                         |  gamehard_weekly_analysis.mday  |
-| week          | INTEGER | report_dateの週番号（ISO週番号）         |  gamehard_weekly_analysis.week |
+| week          | INTEGER | report_dateがその月の何番目の日曜日か　　　　 |  gamehard_weekly_analysis.week |
 | delta_day     | INTEGER | 発売日から何日後か                      |  gamehard_weekly_analysis.delta_day|
 | delta_week    | INTEGER | 発売日から何週間後か                    |  gamehard_weekly_analysis.delta_week|
 | delta_month   | INTEGER | 発売日から何ヶ月後か                    |  gamehard_weekly_analysis.delta_month|
@@ -139,7 +139,7 @@ pandas.DataFrame型でデータを読み込むことが出来ます。
 | year          | int64 | report_dateの年                                              |
 | month         | int64 | report_dateの月                                              |
 | mday          | int64 | report_dateの日                                              |
-| week          | int64 | report_dateの週番号（ISO週番号）                             |
+| week          | int64 | report_dateがその月の何番目の日曜日か（0始まり）                   |
 | delta_day     | int64 | 発売日から何日後か                                           |
 | delta_week    | int64 | 発売日から何週間後か                                         |
 | delta_month   | int64 | 発売日から何ヶ月後か                                         |
