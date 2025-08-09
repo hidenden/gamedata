@@ -23,7 +23,7 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = True) -> None:
         - gamehard_weekly_analysis をDELETEで全消去。
         - 各行について以下を算出し一括INSERT:
           - begin_date = report_date - (period_date - 1)
-          - year, month, mday, week(ISO)
+          - year, month, mday, week(report_dateがその月で何回目の日曜日か)
           - delta_day/week/month/year（発売日との差分）
           - avg_units = units // period_date（整数除算）
           - sum_units = ハード別の累計台数（昇順で加算）
@@ -69,7 +69,9 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = True) -> None:
         year = report_dt.year
         month = report_dt.month
         mday = report_dt.day
-        week = int(report_dt.isocalendar()[1])
+        
+        # 週番号、report_dateがその月で何回目の日曜日か
+        week = ((report_dt - report_dt.replace(day=1)).days // 7) + 1
 
         # 発売からの差分
         delta_day = (report_dt - launch_dt).days
@@ -97,8 +99,7 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = True) -> None:
         if debug_mode:
             for rec in analysis_data:
                 print(f"[INSERT] id={rec[0]}, begin_date={rec[1]}, year={rec[2]}, month={rec[3]}, mday={rec[4]}, week={rec[5]}, delta_day={rec[6]}, delta_week={rec[7]}, delta_month={rec[8]}, delta_year={rec[9]}, avg_units={rec[10]}, sum_units={rec[11]}")
-            print(f"
-                  予定INSERT: {len(analysis_data)} 行")
+            print(f"予定INSERT: {len(analysis_data)} 行")
         else:
             cursor.executemany('''
                 INSERT INTO gamehard_weekly_analysis
