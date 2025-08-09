@@ -1,7 +1,7 @@
 ---
 applyTo: '**'
 description: 'このプロジェクトで扱う具体的なゲームハードウェアの情報。'
-version: 1.0.1
+version: 1.1.0
 ---
 # 概要
 
