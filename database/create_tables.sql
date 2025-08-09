@@ -54,6 +54,12 @@ create table if not exists gamehard_weekly (
     units INTEGER NOT NULL CHECK(units >= 0),
     -- 売上台数。売上金額ではない
 
+    flag INTEGER,
+    -- フラグ。アプリケーションが定めるビットマップフラグが格納される。
+
+    update_at TEXT DEFAULT (CURRENT_TIMESTAMP),
+    -- 最終更新日時。レコードが最後に更新された日時が格納される。
+
     FOREIGN KEY (hw) REFERENCES gamehard_info(id) ON DELETE CASCADE
     /* 外部キー制約。hw gamehard_infoのidを参照する。
      * ON DELETE CASCADEは、gamehard_infoの行が削除された場合、
@@ -61,6 +67,17 @@ create table if not exists gamehard_weekly (
      */
 );
 
+DROP TRIGGER IF EXISTS update_gamehard_weekly_update_at;
+CREATE TRIGGER IF NOT EXISTS update_gamehard_weekly_update_at
+AFTER UPDATE ON gamehard_weekly
+FOR EACH ROW
+-- 明示的に update_at を更新していない更新のみ反応（再帰防止にもなる）
+WHEN NEW.update_at = OLD.update_at
+BEGIN
+    UPDATE gamehard_weekly
+    SET update_at = CURRENT_TIMESTAMP
+    WHERE id = NEW.id;
+END;
 
 create table if not exists gamehard_events (
     id TEXT PRIMARY KEY,
