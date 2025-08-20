@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS gamehard_weekly_analysis (
     year INTEGER NOT NULL,      -- report_dateの年
     month INTEGER NOT NULL,     -- report_dateの月
     mday INTEGER NOT NULL,      -- report_dateの日
-    week INTEGER NOT NULL,      -- report_dateの週番号（ISO週番号）
+    week INTEGER NOT NULL,      -- report_dateがその月の何回目の日曜日か
     delta_day INTEGER NOT NULL, -- 発売から何日後か
     delta_week INTEGER NOT NULL,-- 発売から何週間後か
     delta_month INTEGER NOT NULL,-- 発売から何ヶ月後か
