@@ -26,6 +26,11 @@ from .plot_hard import (
     plot_cumulative_sales,
 )
 
+from .hard_info import (
+    get_hard_colors,
+    get_maker_colors,
+)
+
 # Make commonly used functions available at package level
 __all__ = [
     'load_hard_sales',
@@ -39,5 +44,7 @@ __all__ = [
     'pivot_sales_by_delta',
     'plot_cumulative_sales_by_delta',
     'plot_cumulative_sales',
+    'get_hard_colors',
+    'get_maker_colors',
 ]
 

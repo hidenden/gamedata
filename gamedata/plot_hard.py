@@ -10,6 +10,7 @@ from matplotlib.ticker import ScalarFormatter
 
 # プロジェクト内モジュール
 from gamedata import hard_sales as hs
+from gamedata import hard_info as hi
 
 
 def plot_cumulative_sales_by_delta(df: pd.DataFrame, hw: List[str] = [], 
@@ -40,13 +41,15 @@ def plot_cumulative_sales_by_delta(df: pd.DataFrame, hw: List[str] = [],
     fig, ax = plt.subplots(figsize=(18, 9))
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
-
+    color_table = hi.get_hard_colors(df.columns.tolist())
+               
     # 折れ線グラフ（細い線のみ）
     df.plot(
         ax=ax,
         kind='line',
         linestyle='-',
-        linewidth=2
+        linewidth=2,
+        color=color_table
     )
 
     ax.set_title(f'各ハードウェアの発売日起点・累計販売台数推移（{title_key}単位）')
@@ -88,12 +91,15 @@ def plot_cumulative_sales(df: pd.DataFrame, hw: List[str] = [], mode:str="week")
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
 
+    color_table = hi.get_hard_colors(df.columns.tolist())              
+
     # 折れ線グラフ
     df.plot(
         ax=ax,
         kind='line',
         linestyle='-',
-        linewidth=2
+        linewidth=2,
+        color=color_table
     )
 
     ax.set_title(f'各ハードウェアの{title_key}次累計販売台数推移')
