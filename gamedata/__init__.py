@@ -29,6 +29,7 @@ from .plot_hard import (
 from .hard_info import (
     get_hard_colors,
     get_maker_colors,
+    get_hard_names,
 )
 
 # Make commonly used functions available at package level
@@ -46,5 +47,6 @@ __all__ = [
     'plot_cumulative_sales',
     'get_hard_colors',
     'get_maker_colors',
+    'get_hard_names',
 ]
 

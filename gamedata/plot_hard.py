@@ -38,7 +38,7 @@ def plot_cumulative_sales_by_delta(df: pd.DataFrame, hw: List[str] = [],
     if limit > 0:
         df = df.head(limit)
 
-    fig, ax = plt.subplots(figsize=(18, 9))
+    fig, ax = plt.subplots(figsize=(8, 4))
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
     color_table = hi.get_hard_colors(df.columns.tolist())
@@ -87,7 +87,7 @@ def plot_cumulative_sales(df: pd.DataFrame, hw: List[str] = [], mode:str="week")
         df = df.resample('Y').last()
         title_key = '年'
 
-    fig, ax = plt.subplots(figsize=(18, 9))
+    fig, ax = plt.subplots(figsize=(8, 4))
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
 
