@@ -35,6 +35,10 @@ from .hard_info import (
     get_hard_names,
 )
 
+from .hard_event import (
+    load_hard_event,
+)
+
 # Make commonly used functions available at package level
 __all__ = [
     'load_hard_sales',
@@ -54,5 +58,6 @@ __all__ = [
     'current_report_date',
     'get_figsize',
     'set_figsize',
+    'load_hard_event',
 ]
 
