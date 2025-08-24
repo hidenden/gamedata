@@ -64,22 +64,25 @@ def extract_week_reached_units(df: pd.DataFrame, threshold_units: int) -> pd.Dat
         return df.iloc[0:0]
 
 
-def extract_by_date(df: pd.DataFrame, date_str: str, hw_names: Optional[List[str]] = None) -> pd.DataFrame:
+def extract_by_date(df: pd.DataFrame, date_str, hw_names: Optional[List[str]] = None) -> pd.DataFrame:
     """
     指定された日付の週に該当するデータを抽出する関数。
     
     Args:
         df: load_hard_sales()の戻り値のDataFrame（begin_date, end_date, report_dateはdatetime64[ns]型に変換済み）
-        date_str: 抽出したい日付の文字列
+        date_str: 抽出したい日付の文字列またはdatetime型
         hw_names: 省略可能なハードウェア名のリスト。指定すると、そのハードウェアに限定して抽出
     
     Returns:
         pd.DataFrame: 指定された日付がbegin_dateからend_dateの範囲にある行を抽出したDataFrame
     """
-    target_date = pd.to_datetime(date_str)
+    # date_strがstr型ならto_datetimeで変換、datetime型ならそのまま
+    if isinstance(date_str, str):
+        target_date = pd.to_datetime(date_str)
+    else:
+        target_date = date_str
 
     # target_dateがbegin_dateからend_dateの範囲にある行を抽出
-    # begin_dateとend_dateはdatetime64[ns]型なので、比較可能
     filtered_df = df[(df['begin_date'] <= target_date) & (df['end_date'] >= target_date)]
 
     # hw_namesが指定されている場合は、さらにフィルタリング
@@ -87,6 +90,19 @@ def extract_by_date(df: pd.DataFrame, date_str: str, hw_names: Optional[List[str
         filtered_df = filtered_df[filtered_df['hw'].isin(hw_names)]
     return filtered_df
 
+def find_row_after_date(df:pd.DataFrame, date:datetime) -> pd.Series:
+    """
+    指定された日付以後でもっとも近い日付の行を返す
+    （indexがdateよりも大きいうちで、最小のindexの行を返す）
+
+    Args:
+        df: indexがdatetime64型のDataFrame
+        date: 抽出したい日付
+
+    Returns:
+        pd.Series: 指定された日付以後でもっとも近い日付の行
+    """
+    return df.loc[df.index >= date].iloc[0]
 
 def extract_latest(df: pd.DataFrame, weeks: int = 1) -> pd.DataFrame:
     """
