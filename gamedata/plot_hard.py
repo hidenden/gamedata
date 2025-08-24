@@ -12,6 +12,14 @@ from matplotlib.ticker import ScalarFormatter
 from gamedata import hard_sales as hs
 from gamedata import hard_info as hi
 
+_FigSize = (10, 5)
+
+def get_figsize() -> tuple[int, int]:
+    return _FigSize
+
+def set_figsize(width: int, height: int) -> None:
+    global _FigSize
+    _FigSize = (width, height)
 
 def plot_cumulative_sales_by_delta(df: pd.DataFrame, hw: List[str] = [], 
                                    mode:str = "week", limit: int = 0) -> Figure:
@@ -38,7 +46,7 @@ def plot_cumulative_sales_by_delta(df: pd.DataFrame, hw: List[str] = [],
     if limit > 0:
         df = df.head(limit)
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=_FigSize)
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
     color_table = hi.get_hard_colors(df.columns.tolist())
@@ -87,7 +95,7 @@ def plot_cumulative_sales(df: pd.DataFrame, hw: List[str] = [], mode:str="week")
         df = df.resample('Y').last()
         title_key = '年'
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=_FigSize)
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
 

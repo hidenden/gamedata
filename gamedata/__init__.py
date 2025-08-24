@@ -19,9 +19,12 @@ from .hard_sales import (
     pivot_sales,
     pivot_cumulative_sales,
     pivot_sales_by_delta,
+    current_report_date
 )
 
 from .plot_hard import (
+    get_figsize,
+    set_figsize,
     plot_cumulative_sales_by_delta,
     plot_cumulative_sales,
 )
@@ -48,5 +51,8 @@ __all__ = [
     'get_hard_colors',
     'get_maker_colors',
     'get_hard_names',
+    'current_report_date',
+    'get_figsize',
+    'set_figsize',
 ]
 

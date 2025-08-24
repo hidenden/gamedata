@@ -88,7 +88,7 @@ def extract_by_date(df: pd.DataFrame, date_str: str, hw_names: Optional[List[str
     return filtered_df
 
 
-def extract_latest(df: pd.DataFrame) -> pd.DataFrame:
+def extract_latest(df: pd.DataFrame, weeks: int = 1) -> pd.DataFrame:
     """
     DataFrameから最新の週を抽出する関数。
     
@@ -98,8 +98,23 @@ def extract_latest(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: 最新のreport_dateを持つ行のDataFrame
     """
-    target_date = df['report_date'].max()
-    return df[df['report_date'] == target_date]
+    target_date = current_report_date(df)
+    if (1 < weeks):
+        target_date -= timedelta(weeks=weeks-1)
+    return df.loc[df['report_date'] >= target_date]
+
+
+def current_report_date(df: pd.DataFrame) -> datetime:
+    """
+    DataFrameから最新の報告日を取得する関数。
+
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+
+    Returns:
+        datetime: 最新の報告日
+    """
+    return df['report_date'].max()
 
 
 def get_hw_names(df: pd.DataFrame) -> List[str]:
