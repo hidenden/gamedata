@@ -69,3 +69,53 @@ def filter_event(df: pd.DataFrame,
     filtered = filtered[filtered['priority'] <= priority]
 
     return filtered
+
+
+def add_event_positions(event_df: pd.DataFrame, pivot_df: pd.DataFrame, priority: int = 3) -> pd.DataFrame:
+    """
+    event_dfにx_pos（event_date）とy_pos（該当ハードの販売数）を追加し、条件に合わない行は除外した新しいDataFrameを返す。
+
+    Args:
+        event_df (pd.DataFrame): ゲームイベントデータ
+        pivot_df (pd.DataFrame): 週次販売データのピボット
+        priority (int): この値以下のpriorityのイベントのみ残す
+
+    Returns:
+        pd.DataFrame: x_pos, y_posを追加したイベントデータ（条件に合わない行は除外）
+    """
+    # priorityでフィルタ（指定値以下のみ残す）
+    filtered_events = event_df[event_df['priority'] <= priority].copy()
+    x_pos_list = []
+    y_pos_list = []
+    drop_indices = []
+
+    for idx, event_row in filtered_events.iterrows():
+        report_date = idx
+        hw = event_row['hw']
+        hw2 = event_row['hw2']
+        y_pos = None
+
+        # report_dateがpivot_dfのindexに存在しない場合は除外
+        if report_date not in pivot_df.index:
+            drop_indices.append(idx)
+            continue
+
+        pivot_row = pivot_df.loc[report_date]
+
+        # hwの値がNAでなく、pivot_rowに存在する場合
+        if pd.notna(hw) and hw in pivot_row and not pd.isna(pivot_row[hw]):
+            y_pos = pivot_row[hw]
+        # hw2の値がNAでなく、pivot_rowに存在する場合
+        elif pd.notna(hw2) and hw2 in pivot_row and not pd.isna(pivot_row[hw2]):
+            y_pos = pivot_row[hw2]
+        else:
+            drop_indices.append(idx)
+            continue
+
+        x_pos_list.append(event_row['event_date'])
+        y_pos_list.append(y_pos)
+
+    # drop_indicesで行を除外
+    filtered_events = filtered_events.drop(index=drop_indices)
+    filtered_events = filtered_events.assign(x_pos=x_pos_list, y_pos=y_pos_list)
+    return filtered_events

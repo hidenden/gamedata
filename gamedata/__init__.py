@@ -37,7 +37,8 @@ from .hard_info import (
 
 from .hard_event import (
     load_hard_event,
-    filter_event
+    filter_event,
+    add_event_positions
 )
 
 # Make commonly used functions available at package level
@@ -60,6 +61,7 @@ __all__ = [
     'get_figsize',
     'set_figsize',
     'load_hard_event',
-    'filter_event'
+    'filter_event',
+    'add_event_positions'
 ]
 
