@@ -37,3 +37,35 @@ def load_hard_event() -> pd.DataFrame:
     df.set_index('report_date', inplace=True)
     return df
 
+def filter_event(df: pd.DataFrame, 
+                 start_date: Optional[datetime] = None, 
+                 end_date: Optional[datetime] = None, 
+                 hw: List[str] = [], priority:int = 3) -> pd.DataFrame:
+    """
+    ハードウェアイベントデータをフィルタリングする関数。
+
+    Args:
+        df (pd.DataFrame): フィルタリング対象のDataFrame。
+        start_date (datetime): フィルタリング開始日。(始端にこの日付を含む) 指定されない場合は始端なし。
+        end_date (datetime): フィルタリング終了日。(終端にこの日付を含む) 指定されない場合は終端なし。
+        hw (Optional[str], optional): フィルタリングするハードウェア名。デフォルトはフィルタなし。
+        priority (int, optional): フィルタリングする優先度。デフォルトは3。1,2,3のいずれかの値を指定すること(優先度1>2>3)
+
+    Returns:
+        pd.DataFrame: フィルタリング後のDataFrame。
+    """
+    filtered = df.copy()
+
+    if start_date is not None:
+        filtered = filtered.loc[filtered.index >= start_date]
+    if end_date is not None:
+        filtered = filtered.loc[filtered.index <= end_date]
+
+    if len(hw) > 0:
+        hw_mask = filtered['hw'].isin(hw)
+        hw2_mask = filtered['hw2'].isin(hw)
+        filtered = filtered.loc[hw_mask | hw2_mask]
+
+    filtered = filtered[filtered['priority'] <= priority]
+
+    return filtered
