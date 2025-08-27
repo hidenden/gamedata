@@ -64,3 +64,43 @@ def get_maker_colors(maker:list[str]) -> list[str]:
     """
     return [MAKER_COLORS.get(m, 'black') for m in maker]
 
+HARD_NAMES = {
+    "PS5": "PlayStation5",
+    "XSX": "Xbox Series X|S",
+    "NSW": "Nintendo Switch",
+    "NS2": "Nintendo Switch2",
+    "XBOne": "Xbox One",
+    "PS4": "PlayStation4",
+    "WiiU": "Wii U",
+    "Vita": "PlayStation Vita",
+    "3DS": "Nintendo 3DS",
+    "Wii": "Wii",
+    "PS3": "PlayStation3",
+    "XB360": "Xbox 360",
+    "DS": "Nintendo DS",
+    "PSP": "PlayStation Portable",
+    "Xbox": "Xbox",
+    "GC": "Nintendo GAMECUBE",
+    "GBA": "GAME BOY ADVANCE",
+    "PS2": "PlayStation2",
+    "WS": "WonderSwan",
+    "PKS": "PocketStation",
+    "DC": "DreamCast",
+    "NeoGeoP": "NeoGeo Pocket",
+    "GB": "GAME BOY",
+    "N64": "NINTENDO64",
+    "PS": "PlayStation",
+    "SATURN": "SEGA SATURN"
+}
+
+def get_hard_names(hw:list[str]) -> list[str]:
+    """
+    Returns a list of hardware names corresponding to the given hardware identifiers.
+
+    Args:
+        hw (list[str]): A list of hardware identifier strings.
+
+    Returns:
+        list[str]: A list of hardware names. If an identifier is not found, 'unknown' is used.
+    """
+    return [HARD_NAMES.get(h, 'unknown') for h in hw]
