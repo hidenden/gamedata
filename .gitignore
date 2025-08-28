@@ -138,8 +138,6 @@ _webcache/
 # Inogores define depends on the project
 # Add any additional files or directories that should be ignored here
 
-# image files
-*.png
 
 # parquet related files
 *.parquet
