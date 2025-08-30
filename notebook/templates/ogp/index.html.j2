@@ -1,0 +1,17 @@
+{# templates/ogp/index.html.j2 #}
+{% extends 'lab/index.html.j2' %}
+
+{% block html_head %}
+{{ super() }}
+{% set ogp = nb.metadata.get('ogp', {}) %}
+<meta property="og:site_name" content="gamehardreport">
+<meta property="og:type" content="website">
+{% if ogp.get('title') %}<meta property="og:title" content="{{ ogp['title'] | e }}">{% endif %}
+{% if ogp.get('description') %}<meta property="og:description" content="{{ ogp['description'] | e }}">{% endif %}
+{% if ogp.get('url') %}<meta property="og:url" content="{{ ogp['url'] | e }}">{% endif %}
+{% if ogp.get('image') %}<meta property="og:image" content="{{ ogp['image'] | e }}">{% endif %}
+{% if ogp.get('twitter_card') %}<meta name="twitter:card" content="{{ ogp['twitter_card'] | e }}">{% endif %}
+{% if ogp.get('title') %}<meta name="twitter:title" content="{{ ogp['title'] | e }}">{% endif %}
+{% if ogp.get('description') %}<meta name="twitter:description" content="{{ ogp['description'] | e }}">{% endif %}
+{% if ogp.get('image') %}<meta name="twitter:image" content="{{ ogp['image'] | e }}">{% endif %}
+{% endblock html_head %}
