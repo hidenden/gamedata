@@ -2,8 +2,12 @@
 {% extends 'lab/index.html.j2' %}
 
 {% block html_head %}
-{{ super() }}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{# OGPメタタグを追加 #}
 {% set ogp = nb.metadata.get('ogp', {}) %}
+<title>{{ ogp['title'] }}</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <meta property="og:site_name" content="gamehardreport">
 <meta property="og:type" content="website">
 {% if ogp.get('title') %}<meta property="og:title" content="{{ ogp['title'] | e }}">{% endif %}
@@ -14,4 +18,7 @@
 {% if ogp.get('title') %}<meta name="twitter:title" content="{{ ogp['title'] | e }}">{% endif %}
 {% if ogp.get('description') %}<meta name="twitter:description" content="{{ ogp['description'] | e }}">{% endif %}
 {% if ogp.get('image') %}<meta name="twitter:image" content="{{ ogp['image'] | e }}">{% endif %}
+
+{# lab がインラインで埋める巨大CSSを消して、外部CSSリンクだけにする #}
+<link rel="stylesheet" href="notebook.css">
 {% endblock html_head %}
