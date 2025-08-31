@@ -124,7 +124,7 @@ body.jp-Notebook {
 }
 
 /* データフレーム（テーブル）スタイル - 幅をコンテンツに合わせる */
-table.dataframe {
+table {
   width: auto;
   max-width: 100%;
   margin: 1rem 0;
@@ -133,7 +133,7 @@ table.dataframe {
   font-size: 0.9rem;
 }
 
-table.dataframe thead th {
+table thead th {
   background-color: #f6f8fa;
   border-bottom: 1px solid #dfe2e5;
   padding: 0.25rem 0.75rem;  /* Changed from 0.5rem to 0.25rem for smaller vertical padding */
@@ -142,24 +142,34 @@ table.dataframe thead th {
   white-space: nowrap;
 }
 
-table.dataframe tbody tr:nth-child(even) {
+table tbody tr:nth-child(even) {
   background-color: #f8f9fa;
 }
 
-table.dataframe tbody tr:hover {
+table tbody tr:hover {
   background-color: #f0f4f8;
 }
 
-table.dataframe tbody td,
-table.dataframe tbody th {
+table tbody td,
+table tbody th {
   padding: 0.25rem 0.75rem;  /* Changed from 0.5rem to 0.25rem for smaller vertical padding */
   border-top: 1px solid #e1e4e8;
   white-space: nowrap;
 }
 
 /* 複数レベルのインデックスを持つテーブル */
-table.dataframe th.row_heading.level0 {
+table tbody tr th.level0 {
   font-weight: 600;
+}
+
+/* 複数レベルのインデックスを持つテーブル */
+table tbody tr th.level1 {
+  text-align: left;
+}
+
+table tbody tr td.data {
+  text-align: right;
+  font-variant-numeric: tabular-nums; /* 等幅数字で揃える */
 }
 
 /* プロンプト出力エリア */
