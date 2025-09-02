@@ -15,11 +15,13 @@ from .hard_sales import (
     extract_week_reached_units,
     extract_by_date,
     extract_latest,
-    aggregate_monthly_sales,
+    monthly_sales,
+    yearly_sales,
+    delta_yearly_sales,
     pivot_sales,
     pivot_cumulative_sales,
     pivot_sales_by_delta,
-    current_report_date
+    current_report_date,
 )
 
 from .plot_hard import (
@@ -27,6 +29,9 @@ from .plot_hard import (
     set_figsize,
     plot_cumulative_sales_by_delta,
     plot_cumulative_sales,
+    plot_monthly_histogram,
+    plot_yearly_histogram,
+    plot_delta_yearly_histogram,
 )
 
 from .hard_info import (
@@ -48,12 +53,17 @@ __all__ = [
     'extract_week_reached_units',
     'extract_by_date',
     'extract_latest',
-    'aggregate_monthly_sales',
+    'monthly_sales',
+    'yearly_sales',
+    'delta_yearly_sales',
     'pivot_sales',
     'pivot_cumulative_sales',
     'pivot_sales_by_delta',
     'plot_cumulative_sales_by_delta',
     'plot_cumulative_sales',
+    'plot_monthly_histogram',
+    'plot_yearly_histogram',
+    'plot_delta_yearly_histogram',
     'get_hard_colors',
     'get_maker_colors',
     'get_hard_names',

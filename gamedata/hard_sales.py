@@ -156,7 +156,7 @@ def get_active_hw() -> List[str]:
     return ['NSW', 'NS2', 'PS5', 'XSX']
 
 
-def aggregate_monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
+def monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
     """
     月毎の販売台数と、その月までの累計販売台数（sum_units）を集計して返す。
     
@@ -180,6 +180,52 @@ def aggregate_monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
 
     return monthly_sales
 
+def yearly_sales(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    年毎の販売台数と、その年までの累計販売台数（sum_units）を集計して返す。
+
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+    
+    Returns:
+        pd.DataFrame: 年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame
+    """
+    # 年ごとの販売台数を集計
+    yearly_sales = df.groupby(['year', 'hw']).agg({'units': 'sum'}).reset_index()
+    yearly_sales.rename(columns={'units': 'yearly_units'}, inplace=True)
+
+    # 年ごとの累計販売台数を計算
+    yearly_sales['sum_units'] = (
+        yearly_sales
+        .sort_values(['hw', 'year'])
+        .groupby('hw')['yearly_units']
+        .cumsum()
+    )
+
+    return yearly_sales
+
+def delta_yearly_sales(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    販売開始からの経過年毎の販売台数と、その経過年までの累計販売台数（sum_units）を集計して返す。
+
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+    
+    Returns:
+        pd.DataFrame: 経過年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame
+    """
+    # 年ごとの販売台数を集計
+    delta_yearly_sales = df.groupby(['delta_year', 'hw']).agg({'units': 'sum'}).reset_index()
+    delta_yearly_sales.rename(columns={'units': 'yearly_units'}, inplace=True)
+
+    # 年ごとの累計販売台数を計算
+    delta_yearly_sales['sum_units'] = (
+        delta_yearly_sales
+        .sort_values(['hw', 'delta_year'])
+        .groupby('hw')['yearly_units']
+        .cumsum()
+    )
+    return delta_yearly_sales
 
 def pivot_sales(df: pd.DataFrame, hw:List[str] = [], full_name:bool = False) -> pd.DataFrame:
     """
