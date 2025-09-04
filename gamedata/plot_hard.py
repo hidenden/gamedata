@@ -24,7 +24,11 @@ def set_figsize(width: int, height: int) -> None:
 
 def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
                                    xgrid: Optional[int] = None, ygrid: Optional[int] = None,
-                                   mode:str = "week", limit: int = 0) -> tuple[Figure, pd.DataFrame]:
+                                   mode:str = "week",
+                                   begin:Optional[int] = None,
+                                   end:Optional[int] = None,
+                                   event_priority: int = 2,
+                                   event_flag:bool = False) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの発売日起点・累計販売台数推移をプロットする（週単位）
     
@@ -38,16 +42,13 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
         pd.DataFrame: プロットに使用したデータのDataFrame
     """
     df = hs.load_hard_sales()
-    df = hs.pivot_cumulative_sales_by_delta(df, hw=hw, mode=mode)
+    df = hs.pivot_cumulative_sales_by_delta(df, hw=hw, mode=mode, begin=begin, end=end)
     if mode == "month":
         title_key = '月'
     elif mode == "year":
         title_key = '年'
     else:
         title_key = '週'
-
-    if limit > 0:
-        df = df.head(limit)
 
     fig, ax = plt.subplots(figsize=_FigSize)
     plt.rcParams['font.family'] = 'Hiragino Sans'
@@ -63,6 +64,20 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
         color=color_table
     )
 
+    if event_flag:
+        # event_dfの情報をannotationとしてグラフに追加する
+        event_df = he.load_hard_event()
+        event_df = he.delta_event(event_df, hi.load_hard_info())
+        filtered_events = he.add_event_positions_delta(event_df, df, priority=event_priority)
+        for idx, event_row in filtered_events.iterrows():
+            color=hi.get_hard_color(event_row['hw'])
+            ax.annotate(event_row['event_name'], 
+                        xy=(event_row['x_pos'], event_row['y_pos']), 
+                        xytext=(8, 2),
+                        textcoords='offset points',
+                        fontsize=8, color=color, fontweight='bold')
+
+
     ax.set_title(f'発売日起点累計販売台数')
     ax.set_xlabel(f'発売からの{title_key}数')
     ax.set_ylabel('累計販売台数')
@@ -71,7 +86,8 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
     # Y軸の上限設定
     if ymax is not None:
         ax.set_ylim(top=ymax)
-    ax.set_ylim(bottom=0)
+    if begin is None:
+        ax.set_ylim(bottom=0)
     
     # Y軸 ygrid 毎にグリッド線
     if ygrid is not None:
@@ -96,7 +112,8 @@ def plot_sales(hw: List[str] = [], begin: Optional[datetime] = None,
                end: Optional[datetime] = None, ymax:Optional[int]=None, 
                xgrid: Optional[int] = None, ygrid: Optional[int] = None,
                mode: Optional[str] = "week",
-               event_priority: int = 2
+               event_priority: int = 2,
+               event_flag: bool = False
                ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの販売台数推移をプロットする（default = 週単位）
@@ -141,15 +158,17 @@ def plot_sales(hw: List[str] = [], begin: Optional[datetime] = None,
         color=color_table
     )
 
-    # event_dfの情報をannotationとしてグラフに追加する
-    event_df = he.load_hard_event()
-    filtered_events = he.add_event_positions(event_df, df, priority=event_priority)
-    for report_date, event_row in filtered_events.iterrows():
-        ax.annotate(event_row['event_name'], 
+    if event_flag:
+        # event_dfの情報をannotationとしてグラフに追加する
+        event_df = he.load_hard_event()
+        filtered_events = he.add_event_positions(event_df, df, priority=event_priority)
+        for report_date, event_row in filtered_events.iterrows():
+            color = hi.get_hard_color(event_row['hw'])
+            ax.annotate(event_row['event_name'], 
                     xy=(event_row['x_pos'], event_row['y_pos']), 
                     xytext=(8, 8),
                     textcoords='offset points',
-                    fontsize=9, color='black')
+                    fontsize=8, color=color, fontweight='bold')
 
     ax.set_title(f'販売台数（{title_key}単位）')
     ax.set_ylabel('販売台数')
@@ -182,7 +201,10 @@ def plot_sales(hw: List[str] = [], begin: Optional[datetime] = None,
 
 def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
                         xgrid: Optional[int] = None, ygrid: Optional[int] = None,
-                        mode:str = "week", limit: int = 0) -> tuple[Figure, pd.DataFrame]:
+                        mode:str = "week", 
+                        begin:Optional[int] = None,
+                        end:Optional[int] = None,
+                        event_priority: int = 2, event_flag: bool = False) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの発売日起点・販売台数推移をプロットする（default = 週単位）
     
@@ -199,16 +221,13 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
         pd.DataFrame: プロットに使用したデータのDataFrame
     """
     df = hs.load_hard_sales()
-    df = hs.pivot_sales_by_delta(df, hw=hw, mode=mode)
+    df = hs.pivot_sales_by_delta(df, hw=hw, mode=mode, begin=begin, end=end)
     if mode == "month":
         title_key = '月'
     elif mode == "year":
         title_key = '年'
     else:
         title_key = '週'
-
-    if limit > 0:
-        df = df.head(limit)
 
     fig, ax = plt.subplots(figsize=_FigSize)
     plt.rcParams['font.family'] = 'Hiragino Sans'
@@ -224,6 +243,18 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
         color=color_table
     )
 
+    if event_flag:
+        event_df = he.load_hard_event()
+        event_df = he.delta_event(event_df, hi.load_hard_info())
+        filtered_events = he.add_event_positions_delta(event_df, df, priority=event_priority)
+        for idx, event_row in filtered_events.iterrows():
+            color = hi.get_hard_color(event_row['hw'])
+            ax.annotate(event_row['event_name'], 
+                        xy=(event_row['x_pos'], event_row['y_pos']), 
+                        xytext=(8, 8),
+                        textcoords='offset points',
+                        fontsize=8, color=color, fontweight='bold')
+            
     ax.set_title(f'発売日起点販売台数（{title_key}単位）')
     ax.set_xlabel(f'発売からの{title_key}数')
     ax.set_ylabel('販売台数')
@@ -257,6 +288,8 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
                           begin: Optional[datetime] = None,
                           end: Optional[datetime] = None,
                           ymax:Optional[int]=None, xgrid: Optional[int] = None,
+                          event_priority: int = 2,
+                          event_flag: bool = False,
                           ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの累計販売台数をプロットする
@@ -292,6 +325,18 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         linewidth=2,
         color=color_table
     )
+
+    if event_flag:
+        # event_dfの情報をannotationとしてグラフに追加する
+        event_df = he.load_hard_event()
+        filtered_events = he.add_event_positions(event_df, df, priority=event_priority)
+        for report_date, event_row in filtered_events.iterrows():
+            color = hi.get_hard_color(event_row['hw'])
+            ax.annotate(event_row['event_name'], 
+                    xy=(event_row['x_pos'], event_row['y_pos']), 
+                    xytext=(8, 8),
+                    textcoords='offset points',
+                    fontsize=8, color=color, fontweight='bold')
 
     ax.set_title(f'累計販売台数')
     ax.set_xlabel(title_key)

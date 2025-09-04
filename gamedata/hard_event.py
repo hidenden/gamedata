@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 from typing import List, Optional
 import warnings
+from gamedata import hard_info as hi
 
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
@@ -36,6 +37,20 @@ def load_hard_event() -> pd.DataFrame:
     )
     df.set_index('report_date', inplace=True)
     return df
+
+def delta_event(event_df: pd.DataFrame,
+                info_df: pd.DataFrame) -> pd.DataFrame:
+    
+    event_df = event_df.reset_index()
+    df_event_merged = event_df.merge(info_df, left_on='hw', right_on="id", how='left')
+    df_event_merged['delta_week'] = (df_event_merged['report_date'] - df_event_merged['launch_date']).dt.days // 7
+
+    df_event_merged = df_event_merged[['report_date', 'event_date', 
+                                       'hw', 'hw2', 'event_name', 
+                                       'priority', 'delta_week']]
+    df_event_merged.set_index('report_date', inplace=True)
+    return df_event_merged
+
 
 def filter_event(df: pd.DataFrame, 
                  start_date: Optional[datetime] = None, 
@@ -113,6 +128,56 @@ def add_event_positions(event_df: pd.DataFrame, pivot_df: pd.DataFrame, priority
             continue
 
         x_pos_list.append(event_row['event_date'])
+        y_pos_list.append(y_pos)
+
+    # drop_indicesで行を除外
+    filtered_events = filtered_events.drop(index=drop_indices)
+    filtered_events = filtered_events.assign(x_pos=x_pos_list, y_pos=y_pos_list)
+    return filtered_events
+
+
+def add_event_positions_delta(event_df: pd.DataFrame, pivot_delta_df: pd.DataFrame, priority: int = 3) -> pd.DataFrame:
+    """
+    event_dfにx_pos（event_date）とy_pos（該当ハードの販売数）を追加し、条件に合わない行は除外した新しいDataFrameを返す。
+
+    Args:
+        event_df (pd.DataFrame): ゲームイベントデータ
+        pivot_delta_df (pd.DataFrame): 累積週次販売データのピボット
+        priority (int): この値以下のpriorityのイベントのみ残す
+
+    Returns:
+        pd.DataFrame: x_pos, y_posを追加したイベントデータ（条件に合わない行は除外）
+    """
+    # priorityでフィルタ（指定値以下のみ残す）
+    filtered_events = event_df[event_df['priority'] <= priority].copy()
+    x_pos_list = []
+    y_pos_list = []
+    drop_indices = []
+    
+    for idx, event_row in filtered_events.iterrows():
+        delta_week = event_row['delta_week']
+        hw = event_row['hw']
+        hw2 = event_row['hw2']
+        y_pos = None
+
+        # delta_weekがpivot_delta_dfのindexに存在しない場合は除外
+        if delta_week not in pivot_delta_df.index:
+            drop_indices.append(idx)
+            continue
+
+        pivot_row = pivot_delta_df.loc[delta_week]
+
+        # hwの値がNAでなく、pivot_rowに存在する場合
+        if pd.notna(hw) and hw in pivot_row and not pd.isna(pivot_row[hw]):
+            y_pos = pivot_row[hw]
+        # hw2の値がNAでなく、pivot_rowに存在する場合
+        elif pd.notna(hw2) and hw2 in pivot_row and not pd.isna(pivot_row[hw2]):
+            y_pos = pivot_row[hw2]
+        else:
+            drop_indices.append(idx)
+            continue
+
+        x_pos_list.append(delta_week)
         y_pos_list.append(y_pos)
 
     # drop_indicesで行を除外
