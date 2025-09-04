@@ -38,15 +38,19 @@ from .plot_hard import (
 )
 
 from .hard_info import (
+    load_hard_info,
     get_hard_colors,
+    get_hard_color,
     get_maker_colors,
     get_hard_names,
 )
 
 from .hard_event import (
     load_hard_event,
+    delta_event,
     filter_event,
-    add_event_positions
+    add_event_positions,
+    add_event_positions_delta,
 )
 
 # Make commonly used functions available at package level
@@ -69,7 +73,9 @@ __all__ = [
     'plot_monthly_histogram',
     'plot_yearly_histogram',
     'plot_delta_yearly_histogram',
+    'load_hard_info',
     'get_hard_colors',
+    'get_hard_color',
     'get_maker_colors',
     'get_hard_names',
     'current_report_date',
@@ -77,7 +83,9 @@ __all__ = [
     'plot_maker_share_pie',
     'set_figsize',
     'load_hard_event',
+    'delta_event',
     'filter_event',
-    'add_event_positions'
+    'add_event_positions',
+    'add_event_positions_delta',
 ]
 

@@ -1,4 +1,26 @@
 # ゲームハードおよびゲームメーカーの情報を返すライブラリ
+import sqlite3
+import pandas as pd
+from typing import Optional
+
+DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
+
+def load_hard_info() -> pd.DataFrame:
+    """ハード情報の読み込み
+
+    Returns:
+        pd.DataFrame: ハード情報
+    """
+    # SQLite3データベースに接続
+    conn = sqlite3.connect(DB_PATH)
+    # SQLクエリを実行してデータをDataFrameに読み込む
+    query = "SELECT * FROM gamehard_info;"
+    df = pd.read_sql_query(query, conn)
+    df['launch_date'] = pd.to_datetime(df['launch_date'])
+    # 接続を閉じる
+    conn.close()
+    return df
+
 
 HARD_COLORS = {
     'PS5': "#0070d1",
@@ -50,6 +72,19 @@ def get_hard_colors(hw:list[str]) -> list[str]:
         list[str]: ハードウェア名に対応する色のリスト
     """
     return [HARD_COLORS.get(h, 'black') for h in hw]
+
+
+def get_hard_color(hw:str) -> str:
+    """
+    ハードウェア名から対応する色を取得する。
+
+    Args:
+        hw: ハードウェア名
+
+    Returns:
+        str: ハードウェア名に対応する色
+    """
+    return HARD_COLORS.get(hw, 'black')
 
 
 def get_maker_colors(maker:list[str]) -> list[str]:
