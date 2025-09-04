@@ -156,16 +156,24 @@ def get_active_hw() -> List[str]:
     return ['NSW', 'NS2', 'PS5', 'XSX']
 
 
-def monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
+def monthly_sales(df: pd.DataFrame, 
+                  begin: Optional[datetime] = None, end: Optional[datetime] = None) -> pd.DataFrame:
     """
     月毎の販売台数と、その月までの累計販売台数（sum_units）を集計して返す。
     
     Args:
         df: load_hard_sales()の戻り値のDataFrame
-    
+        begin: 集計開始日
+        end: 集計終了日
+
     Returns:
         pd.DataFrame: 月毎の販売台数（monthly_units）と累計販売台数（sum_units）を含むDataFrame
     """
+    if begin is not None:
+        df = df[df['report_date'] >= begin]
+    if end is not None:
+        df = df[df['report_date'] <= end]
+
     # 月ごとの販売台数を集計
     monthly_sales = df.groupby(['year', 'month', 'hw']).agg({'units': 'sum'}).reset_index()
     monthly_sales.rename(columns={'units': 'monthly_units'}, inplace=True)
@@ -180,16 +188,24 @@ def monthly_sales(df: pd.DataFrame) -> pd.DataFrame:
 
     return monthly_sales
 
-def yearly_sales(df: pd.DataFrame) -> pd.DataFrame:
+def yearly_sales(df: pd.DataFrame, 
+                 begin: Optional[datetime] = None, end: Optional[datetime] = None) -> pd.DataFrame:
     """
     年毎の販売台数と、その年までの累計販売台数（sum_units）を集計して返す。
 
     Args:
         df: load_hard_sales()の戻り値のDataFrame
-    
+        begin: 集計開始日
+        end: 集計終了日
+
     Returns:
         pd.DataFrame: 年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame
     """
+    if begin is not None:
+        df = df[df['report_date'] >= begin]
+    if end is not None:
+        df = df[df['report_date'] <= end]
+
     # 年ごとの販売台数を集計
     yearly_sales = df.groupby(['year', 'hw']).agg({'units': 'sum'}).reset_index()
     yearly_sales.rename(columns={'units': 'yearly_units'}, inplace=True)
@@ -203,6 +219,31 @@ def yearly_sales(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     return yearly_sales
+
+
+def yearly_maker_sales(df: pd.DataFrame, 
+                begin: Optional[datetime] = None, end: Optional[datetime] = None) -> pd.DataFrame:
+    """
+    年毎、メーカー毎の販売台数と、その年までの累計販売台数（sum_units）を集計して返す。
+
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+        begin: 集計開始日
+        end: 集計終了日
+
+    Returns:
+        pd.DataFrame: 年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame
+    """
+    if begin is not None:
+        df = df[df['report_date'] >= begin]
+    if end is not None:
+        df = df[df['report_date'] <= end]
+
+    # 年ごとの販売台数を集計
+    yearly_sales = df.groupby(['year', 'maker_name']).agg({'units': 'sum'}).reset_index()
+    yearly_sales.rename(columns={'units': 'yearly_units'}, inplace=True)
+    return yearly_sales
+
 
 def delta_yearly_sales(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -227,30 +268,82 @@ def delta_yearly_sales(df: pd.DataFrame) -> pd.DataFrame:
     )
     return delta_yearly_sales
 
-def pivot_sales(df: pd.DataFrame, hw:List[str] = [], full_name:bool = False) -> pd.DataFrame:
+def pivot_sales(df: pd.DataFrame, hw:List[str] = [],
+                begin: Optional[datetime] = None,
+                end: Optional[datetime] = None) -> pd.DataFrame:
     """
-    ハードウェアの販売台数をピボットテーブル形式で返す。
+    ハードウェアの週単位の販売台数をピボットテーブル形式で返す。
 
     Args:
         df: load_hard_sales()で取得したDataFrame
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
-
+        begin: 集計開始日
+        end: 集計終了日
+        full_name: フルネームを使用するかどうか
+        
     Returns:
         pd.DataFrame: report_dateをインデックス、hwを列、unitsを値とするピボットテーブル
     """
-    # ピボットテーブルを作成
+    # begin/endでフィルタリング
+    if begin is not None:
+        df = df[df['report_date'] >= begin]
+    if end is not None:
+        df = df[df['report_date'] <= end]
+
+    # HWでフィルタリング
     if len(hw) > 0:
-        filtered_df =  df[df['hw'].isin(hw)]
-    else:
-        filtered_df = df
+        df =  df.loc[df['hw'].isin(hw)]
 
-    # 横軸のカラム
-    columns_name = 'full_name' if full_name else 'hw'
+    return df.pivot(index='report_date', columns='hw', values='units')
 
-    return filtered_df.pivot(index='report_date', columns=columns_name, values='units')
+def pivot_monthly_sales(df: pd.DataFrame, hw:List[str] = [],
+                begin: Optional[datetime] = None, 
+                end: Optional[datetime] = None) -> pd.DataFrame:
+    """
+    ハードウェアの月単位の販売台数をピボットテーブル形式で返す。
+
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
+        begin: 集計開始日
+        end: 集計終了日
+        
+    Returns:
+        pd.DataFrame: year, monthをインデックス、hwを列、monthly_unitsを値とするピボットテーブル
+    """
+    df = monthly_sales(df, begin=begin, end=end)
+    if len(hw) > 0:
+        df =  df.loc[df['hw'].isin(hw)]
+
+    return df.pivot(index=['year', 'month'], columns='hw', values='monthly_units')
+
+def pivot_yearly_sales(df: pd.DataFrame, hw:List[str] = [],
+                begin: Optional[datetime] = None, 
+                end: Optional[datetime] = None) -> pd.DataFrame:
+    """
+    ハードウェアの年単位の販売台数をピボットテーブル形式で返す。
+
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
+        begin: 集計開始日
+        end: 集計終了日
+        
+    Returns:
+        pd.DataFrame: yearをインデックス、hwを列、yearly_unitsを値とするピボットテーブル
+    """
+    df = yearly_sales(df, begin=begin, end=end)
+    # HWでフィルタリング
+    if len(hw) > 0:
+        df =  df.loc[df['hw'].isin(hw)]
+
+    return df.pivot(index='year', columns='hw', values='yearly_units')
 
 
-def pivot_cumulative_sales(df: pd.DataFrame, hw:List[str] = [], full_name:bool = False) -> pd.DataFrame:
+def pivot_cumulative_sales(df: pd.DataFrame, hw:List[str] = [], 
+                           begin: Optional[datetime] = None,
+                           end: Optional[datetime] = None,
+                           full_name:bool = False) -> pd.DataFrame:
     """
     ハードウェアの累計販売台数をピボットテーブル形式で返す。
     
@@ -261,7 +354,12 @@ def pivot_cumulative_sales(df: pd.DataFrame, hw:List[str] = [], full_name:bool =
     Returns:
         pd.DataFrame: report_dateをインデックス、hwを列、sum_unitsを値とするピボットテーブル
     """
-
+    # begin/endでフィルタリング
+    if begin is not None:
+        df = df[df['report_date'] >= begin]
+    if end is not None:
+        df = df[df['report_date'] <= end]
+    # HWでフィルタリング
     if len(hw) > 0:
         filtered_df = df[df['hw'].isin(hw)]
     else:
@@ -348,30 +446,42 @@ def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", hw:List
     )
 
 
-def pivot_maker(df: pd.DataFrame, maker:List[str] = [], hw:List[str] = []) -> pd.DataFrame:
+def pivot_maker(df: pd.DataFrame, begin_year: Optional[int] = None, end_year: Optional[int] = None) -> pd.DataFrame:
     """
-    メーカー毎のハードウェアの販売台数をピボットテーブル形式で返す。
+    ハードウェアのメーカー別販売データをピボットテーブル形式に変換する
 
-    Args:
-        df: load_hard_sales()で取得したDataFrame
-        maker: プロットしたいメーカー名のリスト。[]の場合は全メーカーを対象
-        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
+    Parameters
+    ----------
+    df : pd.DataFrame
+        load_hard_sales()で取得した週次販売データ
+    begin_year : int, optional
+        開始年（デフォルト: None）
+    end_year : int, optional
+        終了年（デフォルト: None）
 
-    Returns:
-        pd.DataFrame: report_dateをインデックス、maker_nameを列、unitsを値とするピボットテーブル
+    Returns
+    -------
+    pd.DataFrame
+        メーカー別の販売データをピボットテーブル形式に変換したDataFrame
     """
-    # hwでフィルタリング
-    if len(hw) > 0:
-        df = df[df['hw'].isin(hw)]
+    begin = None if begin_year is None else datetime(begin_year, 1, 1)
+    end = None if end_year is None else datetime(end_year, 12, 31)
 
-    # makerでフィルタリング
-    if len(maker) > 0:
-        df =  df[df['maker_name'].isin(maker)]
-
-    # ピボットテーブルを作成
-    return df.pivot_table(index='report_date',
-                          columns='maker_name',
-                          values='units',
-                          aggfunc='sum')
-
-
+    df = yearly_maker_sales(df, begin=begin, end=end)
+    pivot_df = df.pivot(index='year', columns='maker_name', values='yearly_units')
+    
+        # カラムの順序を調整
+    desired_order = ['Nintendo', 'SONY', 'Microsoft', 'SEGA']
+    existing_columns = pivot_df.columns.tolist()
+    
+    # 指定した順序でカラムを並べ替え
+    ordered_columns = []
+    for maker in desired_order:
+        if maker in existing_columns:
+            ordered_columns.append(maker)
+    
+    # その他のカラムを追加
+    other_columns = [col for col in existing_columns if col not in desired_order]
+    ordered_columns.extend(other_columns)
+    
+    return pivot_df[ordered_columns]

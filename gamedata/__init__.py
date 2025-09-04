@@ -17,10 +17,11 @@ from .hard_sales import (
     extract_latest,
     monthly_sales,
     yearly_sales,
+    yearly_maker_sales,
     delta_yearly_sales,
     pivot_sales,
     pivot_cumulative_sales,
-    pivot_sales_by_delta,
+    pivot_sales_by_delta,    
     current_report_date,
 )
 
@@ -28,10 +29,12 @@ from .plot_hard import (
     get_figsize,
     set_figsize,
     plot_cumulative_sales_by_delta,
+    plot_sales_by_delta,
     plot_cumulative_sales,
     plot_monthly_histogram,
     plot_yearly_histogram,
     plot_delta_yearly_histogram,
+    plot_maker_share_pie,
 )
 
 from .hard_info import (
@@ -55,11 +58,13 @@ __all__ = [
     'extract_latest',
     'monthly_sales',
     'yearly_sales',
+    'yearly_maker_sales',
     'delta_yearly_sales',
     'pivot_sales',
     'pivot_cumulative_sales',
     'pivot_sales_by_delta',
     'plot_cumulative_sales_by_delta',
+    'plot_sales_by_delta',
     'plot_cumulative_sales',
     'plot_monthly_histogram',
     'plot_yearly_histogram',
@@ -69,6 +74,7 @@ __all__ = [
     'get_hard_names',
     'current_report_date',
     'get_figsize',
+    'plot_maker_share_pie',
     'set_figsize',
     'load_hard_event',
     'filter_event',
