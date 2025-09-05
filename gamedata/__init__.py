@@ -15,30 +15,42 @@ from .hard_sales import (
     extract_week_reached_units,
     extract_by_date,
     extract_latest,
-    aggregate_monthly_sales,
+    monthly_sales,
+    yearly_sales,
+    yearly_maker_sales,
+    delta_yearly_sales,
     pivot_sales,
     pivot_cumulative_sales,
-    pivot_sales_by_delta,
-    current_report_date
+    pivot_sales_by_delta,    
+    current_report_date,
 )
 
 from .plot_hard import (
     get_figsize,
     set_figsize,
     plot_cumulative_sales_by_delta,
+    plot_sales_by_delta,
     plot_cumulative_sales,
+    plot_monthly_histogram,
+    plot_yearly_histogram,
+    plot_delta_yearly_histogram,
+    plot_maker_share_pie,
 )
 
 from .hard_info import (
+    load_hard_info,
     get_hard_colors,
+    get_hard_color,
     get_maker_colors,
     get_hard_names,
 )
 
 from .hard_event import (
     load_hard_event,
+    delta_event,
     filter_event,
-    add_event_positions
+    add_event_positions,
+    add_event_positions_delta,
 )
 
 # Make commonly used functions available at package level
@@ -48,20 +60,32 @@ __all__ = [
     'extract_week_reached_units',
     'extract_by_date',
     'extract_latest',
-    'aggregate_monthly_sales',
+    'monthly_sales',
+    'yearly_sales',
+    'yearly_maker_sales',
+    'delta_yearly_sales',
     'pivot_sales',
     'pivot_cumulative_sales',
     'pivot_sales_by_delta',
     'plot_cumulative_sales_by_delta',
+    'plot_sales_by_delta',
     'plot_cumulative_sales',
+    'plot_monthly_histogram',
+    'plot_yearly_histogram',
+    'plot_delta_yearly_histogram',
+    'load_hard_info',
     'get_hard_colors',
+    'get_hard_color',
     'get_maker_colors',
     'get_hard_names',
     'current_report_date',
     'get_figsize',
+    'plot_maker_share_pie',
     'set_figsize',
     'load_hard_event',
+    'delta_event',
     'filter_event',
-    'add_event_positions'
+    'add_event_positions',
+    'add_event_positions_delta',
 ]
 
