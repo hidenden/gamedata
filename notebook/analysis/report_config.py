@@ -6,6 +6,6 @@ def get_config() -> dict:
     
     return {
         "date": the_date,
-        "large": False,
-        "description": f"{date_str}時点の国内ゲームハードの週販データを分析したレポートです。"
+        "large": True,
+        "description": f"PS5の障壁は無い、ハード台数的には:{date_str}ハード週販レポート",
     }
