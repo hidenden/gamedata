@@ -172,7 +172,6 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
         labeler=labeler,
         annotation_positioner=annotation_positioner,
         ymax=ymax,
-        ybottom=0,
         xgrid=xgrid,
         ygrid=ygrid,
         plot_style={'marker': None}
@@ -247,7 +246,7 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
                         mode:str = "week", 
                         begin:Optional[int] = None,
                         end:Optional[int] = None,
-                        event_priority: int = 2, event_flag: bool = False) -> tuple[Figure, pd.DataFrame]:
+                        event_priority: int = 2, event_flag: bool = True) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの発売日起点・販売台数推移をプロットする（default = 週単位）
     
@@ -263,69 +262,42 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
         matplotlib.figure.Figure: グラフのFigureオブジェクト
         pd.DataFrame: プロットに使用したデータのDataFrame
     """
-    df = hs.load_hard_sales()
-    df = hs.pivot_sales_by_delta(df, hw=hw, mode=mode, begin=begin, end=end)
-    if mode == "month":
-        title_key = '月'
-    elif mode == "year":
-        title_key = '年'
+    def data_source() -> tuple[pd.DataFrame, str]:
+        df = hs.load_hard_sales()
+        df = hs.pivot_sales_by_delta(df, hw=hw, mode=mode, begin=begin, end=end)
+        if mode == "month":
+            title_key = '月'
+        elif mode == "year":
+            title_key = '年'
+        else:
+            title_key = '週'
+        return (df, title_key)
+    
+    def labeler(title_key: str) -> AxisLabels:
+        return AxisLabels(
+            title=f'発売日起点販売台数（{title_key}単位）',
+            xlabel=f'発売からの{title_key}数',
+            ylabel='販売台数',
+            legend='ハード'
+        )
+        
+    if event_flag:
+        def annotation_positioner(event_df, df):
+            event_df = he.delta_event(event_df, hi.load_hard_info())
+            return he.add_event_positions_delta(event_df, df, priority=event_priority)
     else:
-        title_key = '週'
-
-    fig, ax = plt.subplots(figsize=_FigSize)
-    plt.rcParams['font.family'] = 'Hiragino Sans'
-    plt.rcParams['axes.unicode_minus'] = False
-    color_table = hi.get_hard_colors(df.columns.tolist())
-               
-    # 折れ線グラフ
-    df.plot(
-        ax=ax,
-        kind='line',
-        marker='o',
-        linewidth=2,
-        color=color_table
+        annotation_positioner = None
+        
+    return _plot_sales(
+        data_source=data_source,
+        labeler=labeler,
+        annotation_positioner=annotation_positioner,
+        ymax=ymax,
+        ybottom=0,
+        xgrid=xgrid,
+        ygrid=ygrid
     )
 
-    if event_flag:
-        event_df = he.load_hard_event()
-        event_df = he.delta_event(event_df, hi.load_hard_info())
-        filtered_events = he.add_event_positions_delta(event_df, df, priority=event_priority)
-        for idx, event_row in filtered_events.iterrows():
-            color = hi.get_hard_color(event_row['hw'])
-            ax.annotate(event_row['event_name'], 
-                        xy=(event_row['x_pos'], event_row['y_pos']), 
-                        xytext=(8, 8),
-                        textcoords='offset points',
-                        fontsize=8, color=color, fontweight='bold')
-            
-    ax.set_title(f'発売日起点販売台数（{title_key}単位）')
-    ax.set_xlabel(f'発売からの{title_key}数')
-    ax.set_ylabel('販売台数')
-    ax.legend(title='ハード')
-
-    # Y軸の上限設定
-    if ymax is not None:
-        ax.set_ylim(top=ymax)
-    ax.set_ylim(bottom=0)
-    
-    # Y軸 ygrid 毎にグリッド線
-    if ygrid is not None:
-        ax.yaxis.set_major_locator(MultipleLocator(ygrid))
-        ax.yaxis.set_minor_locator(MultipleLocator(ygrid / 2))
-
-    # X軸 xgrid毎にグリッド線
-    if xgrid is not None:
-        ax.xaxis.set_major_locator(MultipleLocator(xgrid))
-        ax.xaxis.set_minor_locator(MultipleLocator(xgrid / 2))
-
-    # 縦軸の表示を指数表示から整数表示に変更
-    ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-    ax.ticklabel_format(style='plain', axis='y')
-
-    ax.grid(True)
-    fig.tight_layout()
-
-    return (fig, df)
 
 def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
                           begin: Optional[datetime] = None,
