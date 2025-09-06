@@ -298,13 +298,12 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
         ygrid=ygrid
     )
 
-
 def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
                           begin: Optional[datetime] = None,
                           end: Optional[datetime] = None,
                           ymax:Optional[int]=None, xgrid: Optional[int] = None,
                           event_priority: int = 2,
-                          event_flag: bool = False,
+                          event_flag: bool = True,
                           ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの累計販売台数をプロットする
@@ -315,72 +314,44 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
     Returns:
         matplotlib.figure.Figure: グラフのFigureオブジェクト
     """
-    df = hs.load_hard_sales()
-    df = hs.pivot_cumulative_sales(df, hw=hw, begin=begin, end=end)
-    if mode == "week":
-        title_key = '週'
-    elif mode == "month":
-        df = df.resample('M').last()
-        title_key = '月'
-    elif mode == "year":
-        df = df.resample('Y').last()
-        title_key = '年'
-
-    fig, ax = plt.subplots(figsize=_FigSize)
-    plt.rcParams['font.family'] = 'Hiragino Sans'
-    plt.rcParams['axes.unicode_minus'] = False
-
-    color_table = hi.get_hard_colors(df.columns.tolist())              
-
-    # 折れ線グラフ
-    df.plot(
-        ax=ax,
-        kind='line',
-        linestyle='-',
-        linewidth=2,
-        color=color_table
-    )
-
+    
+    def data_source() -> tuple[pd.DataFrame, str]:
+        df = hs.load_hard_sales()
+        df = hs.pivot_cumulative_sales(df, hw=hw, begin=begin, end=end)
+        if mode == "week":
+            title_key = '週'
+        elif mode == "month":
+            df = df.resample('M').last()
+            title_key = '月'
+        elif mode == "year":
+            df = df.resample('Y').last()
+            title_key = '年'
+        return (df, title_key)
+    
+    def labeler(title_key: str) -> AxisLabels:
+        return AxisLabels(
+            title=f'累計販売台数',
+            xlabel=title_key,
+            ylabel='累計販売台数',
+            legend='ハード'
+        )
+        
     if event_flag:
-        # event_dfの情報をannotationとしてグラフに追加する
-        event_df = he.load_hard_event()
-        filtered_events = he.add_event_positions(event_df, df, priority=event_priority)
-        for report_date, event_row in filtered_events.iterrows():
-            color = hi.get_hard_color(event_row['hw'])
-            ax.annotate(event_row['event_name'], 
-                    xy=(event_row['x_pos'], event_row['y_pos']), 
-                    xytext=(8, 8),
-                    textcoords='offset points',
-                    fontsize=8, color=color, fontweight='bold')
-
-    ax.set_title(f'累計販売台数')
-    ax.set_xlabel(title_key)
-    ax.set_ylabel('累計販売台数')
-    ax.legend(title='ハード')
-
-    # Y軸の上限設定
-    if ymax is not None:
-        ax.set_ylim(top=ymax)
-    ax.set_ylim(bottom=0)
-    
-    # Y軸 ygrid 毎にグリッド線
-    if ygrid is not None:
-        ax.yaxis.set_major_locator(MultipleLocator(ygrid))
-        ax.yaxis.set_minor_locator(MultipleLocator(ygrid / 2))
-
-    # X軸 xgrid毎にグリッド線
-    if xgrid is not None:
-        ax.xaxis.set_major_locator(MultipleLocator(xgrid))
-        ax.xaxis.set_minor_locator(MultipleLocator(xgrid / 2))
-
-    # 縦軸の表示を指数表示から整数表示に変更
-    ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-    ax.ticklabel_format(style='plain', axis='y')
-
-    ax.grid(True)
-    fig.tight_layout()
-    
-    return (fig, df)
+        def annotation_positioner(event_df, df):
+            return he.add_event_positions(event_df, df, priority=event_priority)
+    else:
+        annotation_positioner = None
+        
+    return _plot_sales(
+        data_source=data_source,
+        labeler=labeler,
+        annotation_positioner=annotation_positioner,
+        ymax=ymax,
+        ybottom=0,
+        xgrid=xgrid,
+        ygrid=ygrid,
+        plot_style={'marker': None}
+    )
 
 
 def plot_monthly_histogram(hw:str, begin:Optional[datetime] = None, 
