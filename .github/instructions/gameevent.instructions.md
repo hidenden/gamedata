@@ -12,8 +12,7 @@ version: 1.1.0
 event_date: datetime イベントが発生した日付
 event_name: str イベントの名前
 hw: str イベント売り上げに影響を与えたハードウェアの識別子
-hw2: str イベント売り上げに影響を与えたハードウェアの識別子 その2（hwよりは影響が小さい場合に使用）
-priority: int イベントの重要度。重要性順に 1 > 2 > 3
+priority: float イベントの重要度。小さいほど重要
 report_date: datetime 発生したイベントが売り上げに影響を与えた集計日(index)
 
 
