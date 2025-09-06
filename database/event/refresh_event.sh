@@ -21,7 +21,7 @@ echo "Event table created successfully."
 # 1行目はヘッダーとして無視し、残りの行をインポートする。
 if ! sqlite3 "$GAMEHARD_DB" <<EOF
 .mode csv
-.import --skip 1 ./game_event.csv gamehard_event
+.import ./game_event.csv gamehard_event
 EOF
 then
     echo "Error: Failed to import initial data into gamehard_event table."
