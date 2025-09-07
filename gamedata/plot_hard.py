@@ -353,32 +353,42 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         plot_style={'marker': None}
     )
 
-
-def plot_monthly_histogram(hw:str, begin:Optional[datetime] = None, 
-                           end:Optional[datetime] = None,
-                           ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+def _plot_histogram(
+    data_aggregator,
+    color_generator = None,
+    labeler=None,
+    begin:Optional[datetime] = None, 
+    end:Optional[datetime] = None,
+    ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+    
     hard_sales_df = hs.load_hard_sales()
     if begin is not None:
         hard_sales_df = hard_sales_df.loc[hard_sales_df["report_date"] >= begin]
     if end is not None:
         hard_sales_df = hard_sales_df.loc[hard_sales_df["report_date"] <= end]
-    
-    monthly_df = hs.monthly_sales(hard_sales_df)
-    # 特定の機種に絞る
-    hw_df = monthly_df.loc[monthly_df["hw"] == hw].copy()
-    pivot_hw_df = hw_df.pivot(index="month", columns="year", values="monthly_units")
-    pivot_hw_df.fillna(0, inplace=True)
+
+    df = data_aggregator(hard_sales_df)
+    df.fillna(0, inplace=True)
 
     fig, ax = plt.subplots(figsize=get_figsize())
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
-    pivot_hw_df.plot(kind='bar', ax=ax)
-    ax.set_title(f"{hw} 月間販売台数")
-    ax.set_xlabel("月")
-    ax.set_ylabel("販売台数")
-    ax.set_xticks(range(len(pivot_hw_df.index)))
-    ax.set_xticklabels(pivot_hw_df.index, rotation=0)
-    ax.legend(title="年")
+    
+    if color_generator is not None:
+        color_table = color_generator(df.columns.tolist())
+    else:
+        color_table = None
+
+    df.plot(kind='bar', ax=ax, color=color_table)
+    if labeler is not None:
+        labels = labeler()
+        if labels.title: ax.set_title(labels.title)
+        if labels.xlabel: ax.set_xlabel(labels.xlabel)
+        if labels.ylabel: ax.set_ylabel(labels.ylabel)
+        if labels.legend: ax.legend(title=labels.legend)
+
+    ax.set_xticks(range(len(df.index)))
+    ax.set_xticklabels(df.index, rotation=0)
 
     # Y軸の上限設定
     if ymax is not None:
@@ -389,88 +399,95 @@ def plot_monthly_histogram(hw:str, begin:Optional[datetime] = None,
     ax.ticklabel_format(style='plain', axis='y')
 
     ax.grid(axis='y')
-    return fig, pivot_hw_df
+    return fig, df
+
+def plot_monthly_histogram(hw:str, begin:Optional[datetime] = None, 
+                           end:Optional[datetime] = None,
+                           ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+
+    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+        monthly_df = hs.monthly_sales(hard_sales_df)
+        hw_df = monthly_df.loc[monthly_df["hw"] == hw].copy()
+        pivot_hw_df = hw_df.pivot(index="month", columns="year", values="monthly_units")
+        return pivot_hw_df
+    
+    def labeler() -> AxisLabels:
+        return AxisLabels(
+            title=f"{hw} 月間販売台数",
+            xlabel="月",
+            ylabel="販売台数",
+            legend="年"
+        )
+    return _plot_histogram(
+        data_aggregator=data_aggregator,
+        labeler=labeler,
+        begin=begin,
+        end=end,
+        ymax=ymax
+    )
+
 
 
 def plot_yearly_histogram(hw:list[str], begin:Optional[datetime] = None, 
                            end:Optional[datetime] = None,
                            ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
-    hard_sales_df = hs.load_hard_sales()
-    if begin is not None:
-        hard_sales_df = hard_sales_df.loc[hard_sales_df["report_date"] >= begin]
-    if end is not None:
-        hard_sales_df = hard_sales_df.loc[hard_sales_df["report_date"] <= end]
 
-    yearly_df = hs.yearly_sales(hard_sales_df)
-    # 特定の機種に絞る
-    hw_df = yearly_df.loc[yearly_df["hw"].isin(hw)].copy()
-    pivot_hw_df = hw_df.pivot(index="year", columns="hw", values="yearly_units")
-    pivot_hw_df.fillna(0, inplace=True)
-
-    fig, ax = plt.subplots(figsize=get_figsize())
-    plt.rcParams['font.family'] = 'Hiragino Sans'
-    plt.rcParams['axes.unicode_minus'] = False
-
-    color_table = hi.get_hard_colors(pivot_hw_df.columns.tolist())
-    pivot_hw_df.plot(kind='bar', ax=ax, color=color_table)
-    ax.set_title(f"年間販売台数")
-    ax.set_xlabel("年")
-    ax.set_ylabel("販売台数")
-    ax.set_xticks(range(len(pivot_hw_df.index)))
-    ax.set_xticklabels(pivot_hw_df.index, rotation=0)
-    ax.legend(title="ハード")
-
-    # Y軸の上限設定
-    if ymax is not None:
-        ax.set_ylim(top=ymax)
-
-    # 縦軸の表示を指数表示から整数表示に変更
-    ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-    ax.ticklabel_format(style='plain', axis='y')
-
-    ax.grid(axis='y')
-    return fig, pivot_hw_df
-
+    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+        yearly_df = hs.yearly_sales(hard_sales_df)
+        hw_df = yearly_df.loc[yearly_df["hw"].isin(hw)].copy()
+        pivot_hw_df = hw_df.pivot(index="year", columns="hw", values="yearly_units")
+        return pivot_hw_df
+    
+    def color_generator(hard_list: List[str]) -> List[str]:
+        return hi.get_hard_colors(hard_list)
+    
+    def labeler() -> AxisLabels:
+        return AxisLabels(
+            title=f"年間販売台数",
+            xlabel="年",
+            ylabel="販売台数",
+            legend="ハード"
+        )
+        
+    return _plot_histogram(
+        data_aggregator=data_aggregator,
+        color_generator=color_generator,
+        labeler=labeler,
+        begin=begin,
+        end=end,
+        ymax=ymax
+    )
 
 def plot_delta_yearly_histogram(hw:list[str],
                                 delta_begin:Optional[int] = None, 
                                 delta_end:Optional[int] = None,
                                 ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
-    hard_sales_df = hs.load_hard_sales()
-    if delta_begin is not None:
-        hard_sales_df = hard_sales_df.loc[hard_sales_df["delta_year"] >= delta_begin]
-    if delta_end is not None:
-        hard_sales_df = hard_sales_df.loc[hard_sales_df["delta_year"] <= delta_end]
-
-    delta_yearly_df = hs.delta_yearly_sales(hard_sales_df)
-    # 特定の機種に絞る
-    hw_df = delta_yearly_df.loc[delta_yearly_df["hw"].isin(hw)].copy()
-    pivot_hw_df = hw_df.pivot(index="delta_year", columns="hw", values="yearly_units")
-    pivot_hw_df.fillna(0, inplace=True)
-
-    fig, ax = plt.subplots(figsize=get_figsize())
-    plt.rcParams['font.family'] = 'Hiragino Sans'
-    plt.rcParams['axes.unicode_minus'] = False
-
-    color_table = hi.get_hard_colors(pivot_hw_df.columns.tolist())
-    pivot_hw_df.plot(kind='bar', ax=ax, color=color_table)
-    ax.set_title(f"経過年毎販売台数")
-    ax.set_xlabel("経過年")
-    ax.set_ylabel("販売台数")
-    ax.set_xticks(range(len(pivot_hw_df.index)))
-    ax.set_xticklabels(pivot_hw_df.index, rotation=0)
-    ax.legend(title="ハード")
-
-    # Y軸の上限設定
-    if ymax is not None:
-        ax.set_ylim(top=ymax)
-
-    # 縦軸の表示を指数表示から整数表示に変更
-    ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-    ax.ticklabel_format(style='plain', axis='y')
-
-    ax.grid(axis='y')
-    return fig, pivot_hw_df
+    
+    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+        delta_yearly_df = hs.delta_yearly_sales(hard_sales_df)
+        # 特定の機種に絞る
+        hw_df = delta_yearly_df.loc[delta_yearly_df["hw"].isin(hw)].copy()
+        pivot_hw_df = hw_df.pivot(index="delta_year", columns="hw", values="yearly_units")
+        return pivot_hw_df
+    
+    def color_generator(hard_list: List[str]) -> List[str]:
+        return hi.get_hard_colors(hard_list)
+    
+    def labeler() -> AxisLabels:
+        return AxisLabels(
+            title=f"経過年毎販売台数",
+            xlabel="経過年",
+            ylabel="販売台数",
+            legend="ハード"
+        )
+    return _plot_histogram(
+        data_aggregator=data_aggregator,
+        color_generator=color_generator,
+        labeler=labeler,
+        begin=delta_begin,
+        end=delta_end,
+        ymax=ymax
+    )  
 
 
 def plot_maker_share_pie(begin_year:Optional[int] = None, 
