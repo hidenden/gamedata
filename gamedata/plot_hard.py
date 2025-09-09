@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter, MultipleLocator
+import mplcursors
 
 # プロジェクト内モジュール
 from gamedata import hard_sales as hs
@@ -74,7 +75,7 @@ def _plot_sales(
     plot_style = default_style | plot_style
     # 折れ線グラフ
     df.plot(**plot_style)
-
+    
     if annotation_positioner is not None:
         # event_dfの情報をannotationとしてグラフに追加する
         event_df = he.load_hard_event()
@@ -116,6 +117,9 @@ def _plot_sales(
 
     ax.grid(True)
     fig.tight_layout()
+
+    # カーソル表示
+    mplcursors.cursor(ax.lines, hover=True)
 
     return (fig, df)
 
