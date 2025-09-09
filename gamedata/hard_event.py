@@ -35,7 +35,7 @@ def load_hard_event() -> pd.DataFrame:
     df['report_date'] = df['event_date'].apply(
         lambda d: d if d.weekday() == 6 else d + pd.offsets.Week(weekday=6)
     )
-    df.set_index('report_date', inplace=True)
+    df.reset_index(inplace=True)
     return df
 
 def delta_event(event_df: pd.DataFrame,
@@ -48,7 +48,7 @@ def delta_event(event_df: pd.DataFrame,
     df_event_merged = df_event_merged[['report_date', 'event_date', 
                                        'hw', 'event_name', 
                                        'priority', 'delta_week']]
-    df_event_merged.set_index('report_date', inplace=True)
+    df_event_merged.reset_index(inplace=True)
     return df_event_merged
 
 
@@ -72,9 +72,9 @@ def filter_event(df: pd.DataFrame,
     filtered = df.copy()
 
     if start_date is not None:
-        filtered = filtered.loc[filtered.index >= start_date]
+        filtered = filtered.loc[filtered["report_date"] >= start_date]
     if end_date is not None:
-        filtered = filtered.loc[filtered.index <= end_date]
+        filtered = filtered.loc[filtered["report_date"] <= end_date]
 
     if len(hw) > 0:
         hw_mask = filtered['hw'].isin(hw)
@@ -104,7 +104,7 @@ def add_event_positions(event_df: pd.DataFrame, pivot_df: pd.DataFrame, priority
     drop_indices = []
 
     for idx, event_row in filtered_events.iterrows():
-        report_date = idx
+        report_date = event_row['report_date']
         hw = event_row['hw']
         y_pos = None
 
