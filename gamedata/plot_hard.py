@@ -1,5 +1,5 @@
 # 標準ライブラリ
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import List, Optional
 
 # サードパーティライブラリ
@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter, MultipleLocator
+import matplotlib.dates as mdates
 import mplcursors
 
 # プロジェクト内モジュール
@@ -15,6 +16,35 @@ from gamedata import hard_info as hi
 from gamedata import hard_event as he
 
 _FigSize = (10, 5)
+
+
+BASE_SUNDAY = date(1970, 1, 4)  # 週番号1に対応する日曜日
+
+def weekfloat_to_datetime(x: float) -> datetime:
+    """
+    浮動小数点の週番号を datetime に変換する。
+    1.0 -> 1970-01-04 00:00:00（日曜）
+    2878.0 -> 2025-02-23 00:00:00
+    2878.5 -> 2025-02-26 12:00:00（水曜昼）
+    """
+    if x < 0:
+        raise ValueError("値は0以上である必要があります。")
+    # 1週 = 7日
+    days = (x - 1.0) * 7.0
+    return datetime.combine(BASE_SUNDAY, datetime.min.time()) + timedelta(days=days)
+
+def weekly_plot_on_add(sel):
+    ax = sel.artist.axes
+    line = sel.artist
+    label = line.get_label()
+
+    x, y = sel.target
+    if 1500 < x:
+        x_str = weekfloat_to_datetime(x).strftime("%Y-%m-%d")
+    else:
+        x_str = f"{x:,.2f}"
+    sel.annotation.set_text(f"{label}\n{y:,.0f}台\n{x_str}")
+    sel.annotation.get_bbox_patch().set(fc="lightgreen", alpha=0.5)
 
 class AxisLabels:
     def __init__(self, title=None, xlabel=None, ylabel=None, legend=None):
@@ -119,7 +149,8 @@ def _plot_sales(
     fig.tight_layout()
 
     # カーソル表示
-    mplcursors.cursor(ax.lines, hover=True)
+    cursor = mplcursors.cursor(ax.lines, hover=True)
+    cursor.connect("add", weekly_plot_on_add)
 
     return (fig, df)
 
