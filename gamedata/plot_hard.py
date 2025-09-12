@@ -436,7 +436,7 @@ def _plot_histogram(
     ax.grid(axis='y')
     return fig, df
 
-def plot_monthly_histogram(hw:str, begin:Optional[datetime] = None, 
+def plot_monthly_histogram_by_year(hw:str, begin:Optional[datetime] = None, 
                            end:Optional[datetime] = None,
                            ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
 
@@ -461,9 +461,36 @@ def plot_monthly_histogram(hw:str, begin:Optional[datetime] = None,
         ymax=ymax
     )
 
+def plot_monthly_histogram_by_hard(hw:list[str], year:int,
+                           ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
 
+    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+        monthly_df = hs.monthly_sales(hard_sales_df)
+        hw_df = monthly_df.loc[monthly_df["hw"].isin(hw)].copy()
+        pivot_hw_df = hw_df.pivot(index="month", columns="hw", values="monthly_units")
+        return pivot_hw_df
 
-def plot_yearly_histogram(hw:list[str], begin:Optional[datetime] = None, 
+    def color_generator(hard_list: List[str]) -> List[str]:
+        return hi.get_hard_colors(hard_list)
+    
+    def labeler() -> AxisLabels:
+        return AxisLabels(
+            title=f"月間販売台数",
+            xlabel="月",
+            ylabel="販売台数",
+            legend="ハード"
+        )
+        
+    return _plot_histogram(
+        data_aggregator=data_aggregator,
+        color_generator=color_generator,
+        labeler=labeler,
+        begin=datetime(year, 1, 1),
+        end=datetime(year, 12, 31),
+        ymax=ymax
+    )
+
+def plot_yearly_histogram_by_hard(hw:list[str], begin:Optional[datetime] = None, 
                            end:Optional[datetime] = None,
                            ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
 
