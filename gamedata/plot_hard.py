@@ -20,7 +20,7 @@ _FigSize = (10, 5)
 
 BASE_SUNDAY = date(1970, 1, 4)  # 週番号1に対応する日曜日
 
-def weekfloat_to_datetime(x: float) -> datetime:
+def _weekfloat_to_datetime(x: float) -> datetime:
     """
     浮動小数点の週番号を datetime に変換する。
     1.0 -> 1970-01-04 00:00:00（日曜）
@@ -33,18 +33,44 @@ def weekfloat_to_datetime(x: float) -> datetime:
     days = (x - 1.0) * 7.0
     return datetime.combine(BASE_SUNDAY, datetime.min.time()) + timedelta(days=days)
 
-def weekly_plot_on_add(sel):
+def _weekly_plot_on_add(sel):
     ax = sel.artist.axes
     line = sel.artist
     label = line.get_label()
 
     x, y = sel.target
     if 1500 < x:
-        x_str = weekfloat_to_datetime(x).strftime("%Y-%m-%d")
+        x_str = _weekfloat_to_datetime(x).strftime("%Y-%m-%d")
     else:
         x_str = f"{x:,.2f}"
     sel.annotation.set_text(f"{label}\n{y:,.0f}台\n{x_str}")
     sel.annotation.get_bbox_patch().set(fc="lightgreen", alpha=0.5)
+
+def _bar_on_add(sel, df: pd.DataFrame, color2label: dict):
+    rect = sel.artist
+    ax = rect.axes
+    x = rect.get_x()
+    w = rect.get_width()
+    h = rect.get_height()
+
+    # x座標からカテゴリ名を推定
+    idx = int(x + w/2 + 0.5)  # 四捨五入
+    if idx < len(df.index):
+        x_label = df.index[idx]
+        if int(x_label) <= 12:
+            x_label = f"{x_label}月"
+        else:
+            x_label = f"{x_label}年"
+    else:
+        x_label = ""
+
+    # 棒の色から系列名を特定
+    fc = rect.get_facecolor()
+    series = color2label.get(fc, "unknown")
+
+    # 注釈テキスト
+    sel.annotation.set_text(f"{series}: {x_label}\n{h:,.0f}台")
+    sel.annotation.get_bbox_patch().set(fc="lightyellow", alpha=0.85)
 
 class AxisLabels:
     def __init__(self, title=None, xlabel=None, ylabel=None, legend=None):
@@ -69,7 +95,8 @@ def _plot_sales(
     ybottom: Optional[int] = None,
     xgrid: Optional[int] = None,
     ygrid: Optional[int] = None,
-    plot_style: dict = {}
+    plot_style: dict = {},
+    area: bool = False,
 ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの販売台数をプロット共通関数
@@ -102,10 +129,17 @@ def _plot_sales(
         'linewidth': 2,
         'color': color_table
     }
+    if area:
+        default_style['kind'] = 'area'
+        default_style['stacked'] = True
+        del default_style['linewidth']
+        del default_style['marker']
+        del default_style['linestyle']
+
     plot_style = default_style | plot_style
     # 折れ線グラフ
     df.plot(**plot_style)
-    
+
     if annotation_positioner is not None:
         # event_dfの情報をannotationとしてグラフに追加する
         event_df = he.load_hard_event()
@@ -150,7 +184,7 @@ def _plot_sales(
 
     # カーソル表示
     cursor = mplcursors.cursor(ax.lines, hover=True)
-    cursor.connect("add", weekly_plot_on_add)
+    cursor.connect("add", _weekly_plot_on_add)
 
     return (fig, df)
 
@@ -217,7 +251,8 @@ def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
                begin: Optional[datetime] = None, end: Optional[datetime] = None,
                ymax: Optional[int] = None,
                xgrid: Optional[int] = None, ygrid: Optional[int] = None,
-               event_priority: int = 2, event_flag: bool = True
+               event_priority: int = 2, event_flag: bool = True,
+               area: bool = False,
                ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの販売台数推移をプロットする（default = 週単位）
@@ -273,6 +308,7 @@ def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
         ybottom=0,
         xgrid=xgrid,
         ygrid=ygrid,
+        area=area,
     )
 
 
@@ -388,14 +424,23 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         plot_style={'marker': None}
     )
 
-def _plot_histogram(
-    data_aggregator,
-    color_generator = None,
-    labeler=None,
-    begin:Optional[datetime] = None, 
-    end:Optional[datetime] = None,
-    ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
-    
+def _plot_bar(data_aggregator, color_generator=None, labeler=None,
+              begin: Optional[datetime] = None,
+              end: Optional[datetime] = None,
+              ymax: Optional[int] = None, stacked: bool = False) -> tuple[Figure, pd.DataFrame]:
+    """
+    棒グラフをプロットする共通関数  
+    Args:
+        data_aggregator: データ集計関数。引数は (hard_sales_df: pd.DataFrame) -> pd.DataFrame
+        color_generator: 色生成関数。引数は (hard_list: List[str]) -> List[str]
+        labeler: ラベル付け関数。戻り値は AxisLabels オブジェクト
+        begin: 集計開始日
+        end: 集計終了日
+        ymax: Y軸の上限値   
+    Returns:
+        matplotlib.figure.Figure: グラフのFigureオブジェクト
+        pd.DataFrame: プロットに使用したデータのDataFrame
+    """
     hard_sales_df = hs.load_hard_sales()
     if begin is not None:
         hard_sales_df = hard_sales_df.loc[hard_sales_df["report_date"] >= begin]
@@ -414,7 +459,7 @@ def _plot_histogram(
     else:
         color_table = None
 
-    df.plot(kind='bar', ax=ax, color=color_table)
+    df.plot(kind='bar', ax=ax, color=color_table, stacked=stacked)
     if labeler is not None:
         labels = labeler()
         if labels.title: ax.set_title(labels.title)
@@ -432,11 +477,25 @@ def _plot_histogram(
     # 縦軸の表示を指数表示から整数表示に変更
     ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
     ax.ticklabel_format(style='plain', axis='y')
-
     ax.grid(axis='y')
+    
+    # 凡例のハンドルとラベルを取得し、色とラベルの対応表を作成
+    handles, labels = ax.get_legend_handles_labels()
+    color2label = {}
+    for h, l in zip(handles, labels):
+        if hasattr(h, "patches") and len(h.patches) > 0:
+            fc = h.patches[0].get_facecolor()  # 1つ目のバーの色
+            color2label[fc] = l
+
+    # カーソル表示　（棒グラフではpatchesを設定する）
+    cursor = mplcursors.cursor(ax.patches, hover=True)
+    @cursor.connect("add")
+    def on_add(sel):
+        _bar_on_add(sel, df, color2label)
+
     return fig, df
 
-def plot_monthly_histogram_by_year(hw:str, begin:Optional[datetime] = None, 
+def plot_monthly_bar_by_year(hw:str, begin:Optional[datetime] = None, 
                            end:Optional[datetime] = None,
                            ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
 
@@ -453,7 +512,7 @@ def plot_monthly_histogram_by_year(hw:str, begin:Optional[datetime] = None,
             ylabel="販売台数",
             legend="年"
         )
-    return _plot_histogram(
+    return _plot_bar(
         data_aggregator=data_aggregator,
         labeler=labeler,
         begin=begin,
@@ -461,8 +520,18 @@ def plot_monthly_histogram_by_year(hw:str, begin:Optional[datetime] = None,
         ymax=ymax
     )
 
-def plot_monthly_histogram_by_hard(hw:list[str], year:int,
+def plot_monthly_bar_by_hard(hw:list[str], year:int, stacked:bool=False,
                            ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+    """
+    指定した年の月間販売台数をハード別に棒グラフで表示する
+    Args:
+        hw: プロットしたいハードウェア名のリスト
+        year: 対象年
+        stacked: 棒グラフを積み上げ表示するかどうか
+        ymax: Y軸の上限値
+    Returns:
+        (Figure, pd.DataFrame): 作成したグラフとデータフレーム
+    """
 
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
         monthly_df = hs.monthly_sales(hard_sales_df)
@@ -481,19 +550,30 @@ def plot_monthly_histogram_by_hard(hw:list[str], year:int,
             legend="ハード"
         )
         
-    return _plot_histogram(
+    return _plot_bar(
         data_aggregator=data_aggregator,
         color_generator=color_generator,
         labeler=labeler,
         begin=datetime(year, 1, 1),
         end=datetime(year, 12, 31),
-        ymax=ymax
+        ymax=ymax,
+        stacked=stacked
     )
 
-def plot_yearly_histogram_by_hard(hw:list[str], begin:Optional[datetime] = None, 
-                           end:Optional[datetime] = None,
+def plot_yearly_bar_by_hard(hw:list[str], begin:Optional[datetime] = None, 
+                           end:Optional[datetime] = None, stacked:bool=False,
                            ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
-
+    """
+    指定した期間の年間販売台数をハード別に棒グラフで表示する
+    Args:
+        hw: プロットしたいハードウェア名のリスト
+        begin: 集計開始日(通常は年初めに設定する)
+        end: 集計終了日(通常は年末に設定する)
+        stacked: 棒グラフを積み上げ表示するかどうか
+        ymax: Y軸の上限値
+    Returns:
+        (Figure, pd.DataFrame): 作成したグラフとデータフレーム
+    """
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
         yearly_df = hs.yearly_sales(hard_sales_df)
         hw_df = yearly_df.loc[yearly_df["hw"].isin(hw)].copy()
@@ -511,25 +591,41 @@ def plot_yearly_histogram_by_hard(hw:list[str], begin:Optional[datetime] = None,
             legend="ハード"
         )
         
-    return _plot_histogram(
+    return _plot_bar(
         data_aggregator=data_aggregator,
         color_generator=color_generator,
         labeler=labeler,
         begin=begin,
         end=end,
-        ymax=ymax
+        ymax=ymax,
+        stacked=stacked,
     )
 
-def plot_delta_yearly_histogram(hw:list[str],
+def plot_delta_yearly_bar(hw:list[str],
                                 delta_begin:Optional[int] = None, 
                                 delta_end:Optional[int] = None,
                                 ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+    """
+    指定した機種の経過年毎販売台数をハード別に棒グラフで表示する
+    Args:
+        hw: プロットしたいハードウェア名のリスト
+        delta_begin: 経過年の開始（指定しない場合は0年）
+        delta_end: 経過年の終了（指定しない場合は全期間）
+        ymax: Y軸の上限値
+    Returns:
+        (Figure, pd.DataFrame): 作成したグラフとデータフレーム
+    """
     
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
         delta_yearly_df = hs.delta_yearly_sales(hard_sales_df)
         # 特定の機種に絞る
         hw_df = delta_yearly_df.loc[delta_yearly_df["hw"].isin(hw)].copy()
         pivot_hw_df = hw_df.pivot(index="delta_year", columns="hw", values="yearly_units")
+        
+        if delta_begin is not None:
+            pivot_hw_df = pivot_hw_df.loc[pivot_hw_df.index >= delta_begin]
+        if delta_end is not None:
+            pivot_hw_df = pivot_hw_df.loc[pivot_hw_df.index <= delta_end]
         return pivot_hw_df
     
     def color_generator(hard_list: List[str]) -> List[str]:
@@ -542,12 +638,10 @@ def plot_delta_yearly_histogram(hw:list[str],
             ylabel="販売台数",
             legend="ハード"
         )
-    return _plot_histogram(
+    return _plot_bar(
         data_aggregator=data_aggregator,
         color_generator=color_generator,
         labeler=labeler,
-        begin=delta_begin,
-        end=delta_end,
         ymax=ymax
     )  
 
