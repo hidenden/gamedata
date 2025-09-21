@@ -40,7 +40,15 @@ def load_hard_event() -> pd.DataFrame:
 
 def delta_event(event_df: pd.DataFrame,
                 info_df: pd.DataFrame) -> pd.DataFrame:
-    
+    """
+    event_dfにinfo_dfのlaunch_dateを結合し、report_dateとlaunch_dateの
+    差分からdelta_weekを計算して追加する関数。
+    Args:
+        event_df (pd.DataFrame): ハードウェアイベントデータ
+        info_df (pd.DataFrame): ハードウェア情報データ
+    Returns:
+        pd.DataFrame: delta_weekが追加されたハードウェアイベントデータ
+    """
     event_df = event_df.reset_index()
     df_event_merged = event_df.merge(info_df, left_on='hw', right_on="id", how='left')
     df_event_merged['delta_week'] = (df_event_merged['report_date'] - df_event_merged['launch_date']).dt.days // 7
@@ -51,11 +59,26 @@ def delta_event(event_df: pd.DataFrame,
     df_event_merged.reset_index(inplace=True)
     return df_event_merged
 
+DEFAULT_EVENT_MASK = {
+    'soft': 1.0,
+    'hard': 2.0,
+    'price': 2.0,
+    'sale': 1.0,
+    'event': 3.0,
+}
+
+def mask_event(df: pd.DataFrame, 
+               event_mask:dict = DEFAULT_EVENT_MASK) -> pd.DataFrame:
+    # 以下の全ての条件に合致する行を残す。それ以外は除外したDataFrameを返す。
+    # 1. df['event_type']がevent_maskのキーに含まれている。
+    # 2. df['priority'] <= event_mask[df['event_type']]
+    mask = df['event_type'].isin(event_mask.keys()) & (df['priority'] <= df['event_type'].map(event_mask))
+    return df[mask]
 
 def filter_event(df: pd.DataFrame, 
                  start_date: Optional[datetime] = None, 
                  end_date: Optional[datetime] = None, 
-                 hw: List[str] = [], priority:int = 3) -> pd.DataFrame:
+                 hw: List[str] = [], event_mask:dict = DEFAULT_EVENT_MASK) -> pd.DataFrame:
     """
     ハードウェアイベントデータをフィルタリングする関数。
 
@@ -80,12 +103,13 @@ def filter_event(df: pd.DataFrame,
         hw_mask = filtered['hw'].isin(hw)
         filtered = filtered.loc[hw_mask]
 
-    filtered = filtered[filtered['priority'] <= priority]
+    filtered = mask_event(filtered, event_mask=event_mask)
 
     return filtered
 
 
-def add_event_positions(event_df: pd.DataFrame, pivot_df: pd.DataFrame, priority: int = 3) -> pd.DataFrame:
+def add_event_positions(event_df: pd.DataFrame, pivot_df: pd.DataFrame, 
+                        event_mask:dict = DEFAULT_EVENT_MASK) -> pd.DataFrame:
     """
     event_dfにx_pos（event_date）とy_pos（該当ハードの販売数）を追加し、条件に合わない行は除外した新しいDataFrameを返す。
 
@@ -98,7 +122,8 @@ def add_event_positions(event_df: pd.DataFrame, pivot_df: pd.DataFrame, priority
         pd.DataFrame: x_pos, y_posを追加したイベントデータ（条件に合わない行は除外）
     """
     # priorityでフィルタ（指定値以下のみ残す）
-    filtered_events = event_df[event_df['priority'] <= priority].copy()
+    filtered_events = event_df.copy()
+    filtered_events = mask_event(filtered_events, event_mask=event_mask)
     x_pos_list = []
     y_pos_list = []
     drop_indices = []
@@ -131,20 +156,22 @@ def add_event_positions(event_df: pd.DataFrame, pivot_df: pd.DataFrame, priority
     return filtered_events
 
 
-def add_event_positions_delta(event_df: pd.DataFrame, pivot_delta_df: pd.DataFrame, priority: int = 3) -> pd.DataFrame:
+def add_event_positions_delta(event_df: pd.DataFrame, 
+                              pivot_delta_df: pd.DataFrame, 
+                              event_mask:dict = DEFAULT_EVENT_MASK) -> pd.DataFrame:
     """
     event_dfにx_pos（event_date）とy_pos（該当ハードの販売数）を追加し、条件に合わない行は除外した新しいDataFrameを返す。
 
     Args:
         event_df (pd.DataFrame): ゲームイベントデータ
         pivot_delta_df (pd.DataFrame): 累積週次販売データのピボット
-        priority (int): この値以下のpriorityのイベントのみ残す
+        event_mask (dict, optional): イベントマスク。デフォルトはDEFAULT_EVENT_MASK。
 
     Returns:
         pd.DataFrame: x_pos, y_posを追加したイベントデータ（条件に合わない行は除外）
     """
-    # priorityでフィルタ（指定値以下のみ残す）
-    filtered_events = event_df[event_df['priority'] <= priority].copy()
+    filtered_events = event_df.copy()
+    filtered_events = mask_event(filtered_events, event_mask=event_mask)
     x_pos_list = []
     y_pos_list = []
     drop_indices = []
