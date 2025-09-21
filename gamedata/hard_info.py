@@ -139,3 +139,12 @@ def get_hard_names(hw:list[str]) -> list[str]:
         list[str]: A list of hardware names. If an identifier is not found, 'unknown' is used.
     """
     return [HARD_NAMES.get(h, 'unknown') for h in hw]
+
+def get_hard_dict() -> dict[str, str]:
+    """
+    Returns a dictionary mapping hardware identifiers to their names.
+
+    Returns:
+        dict[str, str]: A dictionary where keys are hardware identifiers and values are hardware names.
+    """
+    return HARD_NAMES
