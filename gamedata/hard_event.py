@@ -22,7 +22,7 @@ def load_hard_event() -> pd.DataFrame:
     # SQLite3データベースに接続
     conn = sqlite3.connect(DB_PATH)
     # SQLクエリを実行してデータをDataFrameに読み込む
-    query = "SELECT event_date,hw,event_name,priority FROM gamehard_event ORDER BY event_date;"
+    query = "SELECT event_date,hw,event_name,event_type,priority FROM gamehard_event ORDER BY event_date;"
     df = pd.read_sql_query(query, conn)
     
     # 接続を閉じる
@@ -46,7 +46,7 @@ def delta_event(event_df: pd.DataFrame,
     df_event_merged['delta_week'] = (df_event_merged['report_date'] - df_event_merged['launch_date']).dt.days // 7
 
     df_event_merged = df_event_merged[['report_date', 'event_date', 
-                                       'hw', 'event_name', 
+                                       'hw', 'event_name', 'event_type',
                                        'priority', 'delta_week']]
     df_event_merged.reset_index(inplace=True)
     return df_event_merged
