@@ -48,6 +48,7 @@ from .hard_info import (
 
 from .hard_event import (
     load_hard_event,
+    mask_event,
     delta_event,
     filter_event,
     add_event_positions,
@@ -92,6 +93,7 @@ __all__ = [
     'plot_maker_share_pie',
     'set_figsize',
     'load_hard_event',
+    'mask_event',
     'delta_event',
     'filter_event',
     'add_event_positions',

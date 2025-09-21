@@ -23,6 +23,9 @@ create table if not exists gamehard_event (
     event_name TEXT NOT NULL PRIMARY KEY,
     -- イベント名。例えば、"ドンキーコングバナンザ発売"や　"PS5値下げセール開始"など。
 
+    event_type TEXT NOT NULL,
+    -- イベントの種類。soft, hard, sale, price, eventなど。
+
     priority REAL NOT NULL,
     -- イベントの優先度。1が最も高い。
 
