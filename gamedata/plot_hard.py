@@ -223,7 +223,7 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
     
     def labeler(title_key: str) -> AxisLabels:
         return AxisLabels(
-            title=f'発売からの日起点累計販売台数',
+            title=f'発売日起点累計販売台数',
             xlabel=f'発売からの{title_key}数',
             ylabel='累計販売台数',
             legend='ハード'
