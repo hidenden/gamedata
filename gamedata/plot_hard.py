@@ -195,8 +195,8 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
             
                                    begin:Optional[int] = None,
                                    end:Optional[int] = None,
-                                   event_priority: int = 2,
-                                   event_flag:bool = True) -> tuple[Figure, pd.DataFrame]:
+                                   event_mask : Optional[dict] = None,
+                                   ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの発売日起点・累計販売台数推移をプロットする（週単位）
     
@@ -223,16 +223,16 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
     
     def labeler(title_key: str) -> AxisLabels:
         return AxisLabels(
-            title=f'発売からの日起点累計販売台数',
+            title=f'発売日起点累計販売台数',
             xlabel=f'発売からの{title_key}数',
             ylabel='累計販売台数',
             legend='ハード'
         )
 
-    if event_flag:
+    if event_mask:
         def annotation_positioner(event_df, df):
             event_df = he.delta_event(event_df, hi.load_hard_info())
-            return he.add_event_positions_delta(event_df, df, priority=event_priority)
+            return he.add_event_positions_delta(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
         
@@ -251,7 +251,7 @@ def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
                begin: Optional[datetime] = None, end: Optional[datetime] = None,
                ymax: Optional[int] = None,
                xgrid: Optional[int] = None, ygrid: Optional[int] = None,
-               event_priority: int = 2, event_flag: bool = True,
+               event_mask: Optional[dict] = None,
                area: bool = False,
                ) -> tuple[Figure, pd.DataFrame]:
     """
@@ -295,8 +295,8 @@ def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
             legend='ハード'
         )
 
-    if event_flag:
-        annotation_positioner = lambda event_df, df: he.add_event_positions(event_df, df, priority=event_priority)
+    if event_mask:
+        annotation_positioner = lambda event_df, df: he.add_event_positions(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
 
@@ -317,7 +317,8 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
                         mode:str = "week", 
                         begin:Optional[int] = None,
                         end:Optional[int] = None,
-                        event_priority: int = 2, event_flag: bool = True) -> tuple[Figure, pd.DataFrame]:
+                        event_mask:Optional[dict] = None,
+                        ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの発売日起点・販売台数推移をプロットする（default = 週単位）
     
@@ -352,10 +353,10 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
             legend='ハード'
         )
         
-    if event_flag:
+    if event_mask:
         def annotation_positioner(event_df, df):
             event_df = he.delta_event(event_df, hi.load_hard_info())
-            return he.add_event_positions_delta(event_df, df, priority=event_priority)
+            return he.add_event_positions_delta(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
         
@@ -373,8 +374,7 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
                           begin: Optional[datetime] = None,
                           end: Optional[datetime] = None,
                           ymax:Optional[int]=None, xgrid: Optional[int] = None,
-                          event_priority: int = 2,
-                          event_flag: bool = True,
+                          event_mask:Optional[dict] = None,
                           ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの累計販売台数をプロットする
@@ -406,10 +406,10 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
             ylabel='累計販売台数',
             legend='ハード'
         )
-        
-    if event_flag:
+
+    if event_mask:
         def annotation_positioner(event_df, df):
-            return he.add_event_positions(event_df, df, priority=event_priority)
+            return he.add_event_positions(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
         

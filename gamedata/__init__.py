@@ -43,14 +43,23 @@ from .hard_info import (
     get_hard_color,
     get_maker_colors,
     get_hard_names,
+    get_hard_dict,
 )
 
 from .hard_event import (
     load_hard_event,
+    mask_event,
     delta_event,
     filter_event,
     add_event_positions,
     add_event_positions_delta,
+)
+
+from .chart_hard import (
+    rename_columns,
+    rename_index,
+    rename_index_title,
+    chart_units_by_date_hw
 )
 
 # Make commonly used functions available at package level
@@ -78,14 +87,20 @@ __all__ = [
     'get_hard_color',
     'get_maker_colors',
     'get_hard_names',
+    'get_hard_dict',
     'current_report_date',
     'get_figsize',
     'plot_maker_share_pie',
     'set_figsize',
     'load_hard_event',
+    'mask_event',
     'delta_event',
     'filter_event',
     'add_event_positions',
     'add_event_positions_delta',
+    'rename_columns',
+    'rename_index',
+    'rename_index_title',
+    'chart_units_by_date_hw',
 ]
 
