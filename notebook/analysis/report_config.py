@@ -1,7 +1,7 @@
 from datetime import datetime
 
 def get_config() -> dict:
-    the_date = datetime(2025, 9, 21)
+    the_date = datetime(2025, 9, 28)
     date_str = the_date.strftime("%Y.%m.%d")
     
     return {
