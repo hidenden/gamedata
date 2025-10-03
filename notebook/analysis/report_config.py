@@ -6,6 +6,6 @@ def get_config() -> dict:
     
     return {
         "date": the_date,
-        "large": False,
+        "large": True,
         "description": f"サイレントヒルf効果でPS5が9月前年比超え:{date_str}ハード週販レポート",
     }
