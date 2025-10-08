@@ -79,6 +79,12 @@ class AxisLabels:
         self.ylabel = ylabel
         self.legend = legend
 
+class TickParams:
+    def __init__(self, axis='x', which='major', labelsize=10, rotation=None):
+        self.axis = axis
+        self.which = which
+        self.labelsize = labelsize
+        self.rotation = rotation
 
 def get_figsize() -> tuple[int, int]:
     return _FigSize
@@ -90,6 +96,7 @@ def set_figsize(width: int, height: int) -> None:
 def _plot_sales(
     data_source,
     labeler=None,
+    tick_params_fn=None,
     annotation_positioner=None,
     ymax: Optional[int] = None,
     ybottom: Optional[int] = None,
@@ -159,6 +166,10 @@ def _plot_sales(
         if labels.ylabel: ax.set_ylabel(labels.ylabel)
         if labels.legend: ax.legend(title=labels.legend)
 
+    if tick_params_fn is not None:
+        params = tick_params_fn()
+        ax.tick_params(axis=params.axis, which=params.which, labelsize=params.labelsize, rotation=params.rotation)
+        
     # Y軸の上限設定
     if ymax is not None:
         ax.set_ylim(top=ymax)
@@ -195,7 +206,7 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
             
                                    begin:Optional[int] = None,
                                    end:Optional[int] = None,
-                                   event_mask : Optional[dict] = None,
+                                   event_mask : Optional[he.EventMasks] = None,
                                    ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの発売日起点・累計販売台数推移をプロットする（週単位）
@@ -251,8 +262,9 @@ def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
                begin: Optional[datetime] = None, end: Optional[datetime] = None,
                ymax: Optional[int] = None,
                xgrid: Optional[int] = None, ygrid: Optional[int] = None,
-               event_mask: Optional[dict] = None,
+               event_mask: Optional[he.EventMasks] = None,
                area: bool = False,
+               ticklabelsize: Optional[int] = None,
                ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの販売台数推移をプロットする（default = 週単位）
@@ -300,9 +312,14 @@ def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
     else:
         annotation_positioner = None
 
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+            
     return _plot_sales(
         data_source=data_source,
         labeler=labeler,
+        tick_params_fn=tick_params_fn,
         annotation_positioner=annotation_positioner,
         ymax=ymax,
         ybottom=0,
@@ -317,7 +334,7 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
                         mode:str = "week", 
                         begin:Optional[int] = None,
                         end:Optional[int] = None,
-                        event_mask:Optional[dict] = None,
+                        event_mask:Optional[he.EventMasks] = None,
                         ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの発売日起点・販売台数推移をプロットする（default = 週単位）
@@ -374,7 +391,7 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
                           begin: Optional[datetime] = None,
                           end: Optional[datetime] = None,
                           ymax:Optional[int]=None, xgrid: Optional[int] = None,
-                          event_mask:Optional[dict] = None,
+                          event_mask:Optional[he.EventMasks] = None,
                           ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの累計販売台数をプロットする
@@ -425,6 +442,7 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
     )
 
 def _plot_bar(data_aggregator, color_generator=None, labeler=None,
+              tick_params_fn=None,
               begin: Optional[datetime] = None,
               end: Optional[datetime] = None,
               ymax: Optional[int] = None, stacked: bool = False) -> tuple[Figure, pd.DataFrame]:
@@ -453,6 +471,9 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
     fig, ax = plt.subplots(figsize=get_figsize())
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
+    if tick_params_fn is not None:
+        params = tick_params_fn()
+        ax.tick_params(axis=params.axis, which=params.which, labelsize=params.labelsize, rotation=params.rotation)
     
     if color_generator is not None:
         color_table = color_generator(df.columns.tolist())
@@ -497,7 +518,8 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
 
 def plot_monthly_bar_by_year(hw:str, begin:Optional[datetime] = None, 
                            end:Optional[datetime] = None,
-                           ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                           ymax:Optional[int] = None,
+                           ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
 
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
         monthly_df = hs.monthly_sales(hard_sales_df)
@@ -512,16 +534,23 @@ def plot_monthly_bar_by_year(hw:str, begin:Optional[datetime] = None,
             ylabel="販売台数",
             legend="年"
         )
+        
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+            
     return _plot_bar(
         data_aggregator=data_aggregator,
         labeler=labeler,
+        tick_params_fn=tick_params_fn,
         begin=begin,
         end=end,
         ymax=ymax
     )
 
 def plot_monthly_bar_by_hard(hw:list[str], year:int, stacked:bool=False,
-                           ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                           ymax:Optional[int] = None,
+                           ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     指定した年の月間販売台数をハード別に棒グラフで表示する
     Args:
@@ -549,11 +578,16 @@ def plot_monthly_bar_by_hard(hw:list[str], year:int, stacked:bool=False,
             ylabel="販売台数",
             legend="ハード"
         )
-        
+
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+            
     return _plot_bar(
         data_aggregator=data_aggregator,
         color_generator=color_generator,
         labeler=labeler,
+        tick_params_fn=tick_params_fn,
         begin=datetime(year, 1, 1),
         end=datetime(year, 12, 31),
         ymax=ymax,
@@ -562,7 +596,9 @@ def plot_monthly_bar_by_hard(hw:list[str], year:int, stacked:bool=False,
 
 def plot_yearly_bar_by_hard(hw:list[str], begin:Optional[datetime] = None, 
                            end:Optional[datetime] = None, stacked:bool=False,
-                           ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                           ymax:Optional[int] = None,
+                           ticklabelsize:Optional[int] = None
+                           ) -> tuple[Figure, pd.DataFrame]:
     """
     指定した期間の年間販売台数をハード別に棒グラフで表示する
     Args:
@@ -590,11 +626,16 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:Optional[datetime] = None,
             ylabel="販売台数",
             legend="ハード"
         )
-        
+
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+
     return _plot_bar(
         data_aggregator=data_aggregator,
         color_generator=color_generator,
         labeler=labeler,
+        tick_params_fn=tick_params_fn,
         begin=begin,
         end=end,
         ymax=ymax,
@@ -604,7 +645,8 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:Optional[datetime] = None,
 def plot_delta_yearly_bar(hw:list[str],
                                 delta_begin:Optional[int] = None, 
                                 delta_end:Optional[int] = None,
-                                ymax:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                                ymax:Optional[int] = None,
+                                ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     指定した機種の経過年毎販売台数をハード別に棒グラフで表示する
     Args:
@@ -638,10 +680,16 @@ def plot_delta_yearly_bar(hw:list[str],
             ylabel="販売台数",
             legend="ハード"
         )
+
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+
     return _plot_bar(
         data_aggregator=data_aggregator,
         color_generator=color_generator,
         labeler=labeler,
+        tick_params_fn=tick_params_fn,
         ymax=ymax
     )  
 
