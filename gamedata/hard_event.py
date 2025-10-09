@@ -68,7 +68,7 @@ class EventMasks:
         self.event = event
 
 def mask_event(df: pd.DataFrame, 
-               event_mask:EventMasks = EventMasks()) -> pd.DatFrame:
+               event_mask:EventMasks = EventMasks()) -> pd.DataFrame:
     # 以下の全ての条件に合致する行を残す。それ以外は除外したDataFrameを返す。
     # 1. df['event_type']がevent_maskのキーに含まれている。
     # 2. df['priority'] <= event_mask[df['event_type']]
