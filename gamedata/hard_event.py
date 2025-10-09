@@ -59,26 +59,26 @@ def delta_event(event_df: pd.DataFrame,
     df_event_merged.reset_index(inplace=True)
     return df_event_merged
 
-DEFAULT_EVENT_MASK = {
-    'soft': 1.0,
-    'hard': 2.0,
-    'price': 2.0,
-    'sale': 1.0,
-    'event': 3.0,
-}
+class EventMasks:
+    def __init__(self, soft:float=1.0, hard:float=2.0, price:float=2.0, sale:float=1.0, event:float=3.0):
+        self.soft = soft
+        self.hard = hard
+        self.price = price
+        self.sale = sale
+        self.event = event
 
 def mask_event(df: pd.DataFrame, 
-               event_mask:dict = DEFAULT_EVENT_MASK) -> pd.DataFrame:
+               event_mask:EventMasks = EventMasks()) -> pd.DataFrame:
     # 以下の全ての条件に合致する行を残す。それ以外は除外したDataFrameを返す。
     # 1. df['event_type']がevent_maskのキーに含まれている。
     # 2. df['priority'] <= event_mask[df['event_type']]
-    mask = df['event_type'].isin(event_mask.keys()) & (df['priority'] <= df['event_type'].map(event_mask))
+    mask = df['event_type'].isin(event_mask.__dict__.keys()) & (df['priority'] <= df['event_type'].map(lambda x: event_mask.__dict__.get(x, 0)))
     return df[mask]
 
 def filter_event(df: pd.DataFrame, 
                  start_date: Optional[datetime] = None, 
                  end_date: Optional[datetime] = None, 
-                 hw: List[str] = [], event_mask:dict = DEFAULT_EVENT_MASK) -> pd.DataFrame:
+                 hw: List[str] = [], event_mask:EventMasks = EventMasks()) -> pd.DataFrame:
     """
     ハードウェアイベントデータをフィルタリングする関数。
 
@@ -109,7 +109,7 @@ def filter_event(df: pd.DataFrame,
 
 
 def add_event_positions(event_df: pd.DataFrame, pivot_df: pd.DataFrame, 
-                        event_mask:dict = DEFAULT_EVENT_MASK) -> pd.DataFrame:
+                        event_mask:EventMasks = EventMasks()) -> pd.DataFrame:
     """
     event_dfにx_pos（event_date）とy_pos（該当ハードの販売数）を追加し、条件に合わない行は除外した新しいDataFrameを返す。
 
@@ -158,7 +158,7 @@ def add_event_positions(event_df: pd.DataFrame, pivot_df: pd.DataFrame,
 
 def add_event_positions_delta(event_df: pd.DataFrame, 
                               pivot_delta_df: pd.DataFrame, 
-                              event_mask:dict = DEFAULT_EVENT_MASK) -> pd.DataFrame:
+                              event_mask:EventMasks = EventMasks()) -> pd.DataFrame:
     """
     event_dfにx_pos（event_date）とy_pos（該当ハードの販売数）を追加し、条件に合わない行は除外した新しいDataFrameを返す。
 
