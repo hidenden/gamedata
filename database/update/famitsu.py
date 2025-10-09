@@ -87,6 +87,7 @@ def normalize_hw_units(hard_sales: List[List[str]]) -> List[List[str]]:
         "Switch": "NSW",
         "Switch Lite": "NSW",
         "Nintendo Switch（有機ELモデル）": "NSW",
+        "Switch（有機ELモデル）": "NSW",
         "PS5": "PS5",
         "PS5 デジタル・エディション": "PS5",
         "PS5 Pro": "PS5",
