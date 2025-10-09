@@ -7,5 +7,5 @@ def get_config() -> dict:
     return {
         "date": the_date,
         "large": False,
-        "description": f":{date_str}ハード週販レポート",
+        "description": f"Ghost of YoteiでPS5躍進:{date_str}ハード週販レポート",
     }
