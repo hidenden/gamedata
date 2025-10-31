@@ -7,5 +7,5 @@ def get_config() -> dict:
     return {
         "date": the_date,
         "large": True,
-        "description": f"Switch2 大量出荷継続:{date_str}ハード週販レポート",
+        "description": f"Switch2はスパイク的出荷作戦？:{date_str}ハード週販レポート",
     }
