@@ -13,7 +13,7 @@ def validate_row(row) -> bool:
     指定されたrowが登録条件を満たすかどうかを判定する。
 
     条件:
-    - 要素数が5つであること
+    - 要素数が6つであること
     - 2つ目の要素が 'YYYY-MM-DD' 形式の日付文字列であること
     - 3つ目の要素が0以上の整数（数値または数値文字列）であること
     - 5つ目の要素が0以上の整数（数値または数値文字列）であること
@@ -25,7 +25,7 @@ def validate_row(row) -> bool:
         bool: 条件をすべて満たす場合はTrue、そうでない場合はFalse
     """
     # 要素数が5つ
-    if len(row) != 5:
+    if len(row) != 6:
         print(f"Skip: Row does not have 5 elements: {row}")
         return False
     # 2つ目の要素: YYYY-MM-DD形式の日付
@@ -50,6 +50,13 @@ def validate_row(row) -> bool:
     except Exception:
         print(f"Skip: Fifth element is not a non-negative integer: {row}")
         return False
+    # 6つ目の要素: 整数(負数を許容)
+    try:
+        val6 = int(row[5])
+    except Exception:
+        print(f"Skip: Sixth element is not an integer: {row}")
+        return False
+
     return True
 
 
@@ -92,8 +99,8 @@ def upsert_to_database(db_path: str, newdata: List, precheck: bool = False, dryr
                 continue
 
             cursor.execute('''
-                INSERT OR REPLACE INTO gamehard_weekly (id, report_date, period_date, hw, units)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT OR REPLACE INTO gamehard_weekly (id, report_date, period_date, hw, units, adjust_units)
+                VALUES (?, ?, ?, ?, ?, ?)
             ''', row)
 
         conn.commit()
