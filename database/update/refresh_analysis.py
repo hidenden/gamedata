@@ -40,7 +40,7 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = True) -> None:
     launch_map = {row[0]: row[1] for row in cursor.fetchall()}
 
     # gamehard_weeklyをreport_date昇順（古い順）で取得
-    cursor.execute("SELECT id, report_date, hw, units, period_date FROM gamehard_weekly ORDER BY report_date ASC, hw")
+    cursor.execute("SELECT id, report_date, hw, units, adjust_units, period_date FROM gamehard_weekly ORDER BY report_date ASC, hw")
     rows = cursor.fetchall()
 
     # テーブル全体を削除
@@ -54,9 +54,11 @@ def insert_weekly_analysis(db_path: str, debug_mode: bool = True) -> None:
 
     analysis_data = []
     for row in rows:
-        id, report_date, hw, units, period_date = row
+        id, report_date, hw, units, adjust_units, period_date = row
 
         units = int(units)
+        adjust_units = int(adjust_units)
+        units += adjust_units  # 調整値を加算
         period_date = int(period_date)
         launch_date_str = launch_map[hw]
         launch_dt = datetime.strptime(launch_date_str, "%Y-%m-%d").date()
