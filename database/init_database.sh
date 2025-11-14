@@ -27,6 +27,15 @@ if ! sqlite3 "$GAMEHARD_DB" < ./create_tables.sql; then
     exit 1
 fi
 
+# SQLスクリプトを実行してテーブルの更新を行う。
+# エラーが発生した場合はエラーメッセージを表示してスクリプトを終了する。
+# テーブル更新のSQLスクリプトは ./update_tables.sql に保存されている。
+
+if ! sqlite3 "$GAMEHARD_DB" < ./update_tables.sql; then
+    echo "Error: Failed to update tables in the database."
+    exit 1
+fi
+
 echo "Database tables and views created successfully."
 
 # table: gamehard_infoに初期データを投入する
