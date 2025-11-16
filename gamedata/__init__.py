@@ -23,6 +23,7 @@ from .hard_sales import (
     pivot_cumulative_sales,
     pivot_sales_by_delta,    
     current_report_date,
+    cumsum_diffs,
 )
 
 from .plot_hard import (
@@ -35,6 +36,7 @@ from .plot_hard import (
     plot_yearly_bar_by_hard,
     plot_delta_yearly_bar,
     plot_maker_share_pie,
+    plot_cumsum_diffs,
 )
 
 from .hard_info import (
@@ -76,12 +78,14 @@ __all__ = [
     'pivot_sales',
     'pivot_cumulative_sales',
     'pivot_sales_by_delta',
+    'cumsum_diffs',
     'plot_cumulative_sales_by_delta',
     'plot_sales_by_delta',
     'plot_cumulative_sales',
     'plot_monthly_bar_by_year',
     'plot_yearly_bar_by_hard',
     'plot_delta_yearly_bar',
+    'plot_cumsum_diffs',
     'load_hard_info',
     'get_hard_colors',
     'get_hard_color',

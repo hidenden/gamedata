@@ -127,7 +127,10 @@ def _plot_sales(
     plt.rcParams['axes.unicode_minus'] = False
     
     color_table = hi.get_hard_colors(df.columns.tolist())
-    
+    # color_tableの内容がblackのみの場合、デフォルトのカラーマップを使用する
+    if all(c == 'black' for c in color_table):
+        color_table = plt.rcParams['axes.prop_cycle'].by_key()['color'][:len(df.columns)]
+
     default_style = {
         'ax': ax,
         'kind': 'line',
@@ -434,6 +437,46 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         data_source=data_source,
         labeler=labeler,
         annotation_positioner=annotation_positioner,
+        ymax=ymax,
+        ybottom=0,
+        xgrid=xgrid,
+        ygrid=ygrid,
+        plot_style={'marker': None}
+    )
+
+def plot_cumsum_diffs(cmplist: list[tuple[str, str]],
+                      ymax:Optional[int]=None,
+                      xgrid: Optional[int] = None,
+                      ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+    """
+    通販差分の折れ線グラフをプロットする
+    Args:
+        cmplist: 比較対象のHWのタプルのリスト
+        ymax: Y軸の最大値
+        xgrid: X軸のメジャーグリッドの間隔
+        ygrid: Y軸のメジャーグリッドの間隔
+    Returns:
+        (matplotlib.figure.Figure, pd.DataFrame): グラフのFigureオブジェクトとDataFrameのタプル
+    """
+    
+    def data_source() -> tuple[pd.DataFrame, str]:
+        df = hs.load_hard_sales()
+        df = hs.cumsum_diffs(df, cmplist)
+        title_key = '週'
+        return (df, title_key)
+    
+    def labeler(title_key: str) -> AxisLabels:
+        return AxisLabels(
+            title=f'累計販売台数差',
+            xlabel='販売開始からの週数',
+            ylabel='累計販売台数の差',
+            legend='販売台数差分'
+        )
+        
+    return _plot_sales(
+        data_source=data_source,
+        labeler=labeler,
+
         ymax=ymax,
         ybottom=0,
         xgrid=xgrid,
