@@ -499,3 +499,41 @@ def pivot_maker(df: pd.DataFrame, begin_year: Optional[int] = None, end_year: Op
     ordered_columns.extend(other_columns)
     
     return pivot_df[ordered_columns]
+
+
+
+def cumsum_diffs(df:pd.DataFrame,
+                       cmplist: list[tuple[str, str]]) -> pd.DataFrame:
+    """cmplistの各タプル(base_hw, cmp_hw)について週販差分を計算したDataFrameを返す"""
+
+    def cumsum_diff_frame(df:pd.DataFrame, base_hw: str, cmp_hw: str) -> pd.DataFrame:
+        """base_hwとcmp_hwの週販差分を計算したDataFrameを返す"""
+        pivot_df = pivot_cumulative_sales(df, hw=[base_hw, cmp_hw])
+    
+        # pivot_dfのbase_hw列の値がNaNでない行で最も小さいindexの行の直前の行のbase_hw列の値を0に設定
+        # なおindexはtimestamp型である
+        first_valid_index = pivot_df[pivot_df[base_hw].notna()].index.min()
+        if first_valid_index is not None:
+            prior_index = pivot_df.index[pivot_df.index.get_loc(first_valid_index) - 1]
+            pivot_df.at[prior_index, base_hw] = 0
+  
+        # カラム　base_hwがNaNでない行を抽出
+        pivot_df = pivot_df[pivot_df[base_hw].notna()]
+        diff_col_name = f"{cmp_hw}_{base_hw}差"
+        pivot_df[diff_col_name] = pivot_df[cmp_hw] - pivot_df[base_hw]
+    
+        # pivot_df[diff_col_name]の値が　-10000より小さな行を削除
+        pivot_df = pivot_df[pivot_df[diff_col_name] >= -10000]
+        # pivot_dfのindexを0からのシリアル番号にする
+        pivot_df.reset_index(drop=True, inplace=True)
+    
+        # diff_col_name列のみを返す
+        return pivot_df[[diff_col_name]]
+
+    diff_dfs = []
+    for base_hw, cmp_hw in cmplist:
+        diff_df = cumsum_diff_frame(df, base_hw, cmp_hw)
+        diff_dfs.append(diff_df)
+    # diff_dfsを結合する
+    result_df = pd.concat(diff_dfs, axis=1)
+    return result_df
