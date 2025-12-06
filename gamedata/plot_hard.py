@@ -591,9 +591,12 @@ def plot_monthly_bar_by_year(hw:str, begin:Optional[datetime] = None,
         ymax=ymax
     )
 
-def plot_monthly_bar_by_hard(hw:list[str], year:int, stacked:bool=False,
-                           ymax:Optional[int] = None,
-                           ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+def plot_monthly_bar_by_hard(hw:list[str], 
+                             begin:Optional[datetime] = None, 
+                             end:Optional[datetime] = None,
+                             stacked:bool=False,
+                             ymax:Optional[int] = None,
+                             ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     指定した年の月間販売台数をハード別に棒グラフで表示する
     Args:
@@ -607,8 +610,14 @@ def plot_monthly_bar_by_hard(hw:list[str], year:int, stacked:bool=False,
 
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
         monthly_df = hs.monthly_sales(hard_sales_df)
+        monthly_df["year_month"] = pd.to_datetime(
+            dict(year=monthly_df["year"], month=monthly_df["month"], day=1)
+        )
         hw_df = monthly_df.loc[monthly_df["hw"].isin(hw)].copy()
-        pivot_hw_df = hw_df.pivot(index="month", columns="hw", values="monthly_units")
+        hw_df.sort_values("year_month", inplace=True)
+        pivot_hw_df = hw_df.pivot(index="year_month", columns="hw", values="monthly_units")
+        pivot_hw_df.sort_index(inplace=True)
+        pivot_hw_df.index = pivot_hw_df.index.strftime("%Y-%m")
         return pivot_hw_df
 
     def color_generator(hard_list: List[str]) -> List[str]:
@@ -631,8 +640,8 @@ def plot_monthly_bar_by_hard(hw:list[str], year:int, stacked:bool=False,
         color_generator=color_generator,
         labeler=labeler,
         tick_params_fn=tick_params_fn,
-        begin=datetime(year, 1, 1),
-        end=datetime(year, 12, 31),
+        begin=begin,
+        end=end,
         ymax=ymax,
         stacked=stacked
     )

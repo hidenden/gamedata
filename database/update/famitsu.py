@@ -17,7 +17,7 @@ import sqlite3
 
 
 # ファミ通のハードウェア売上ページから、今週のハード売上リストと集計期間を取得する
-def get_famitsu_hwsales_page(url: str) -> Tuple[List[str], str]:
+def get_famitsu_hwsales_page(url: str) -> Tuple[List[str], List[str]]:
     """
     Fetch the Famitsu hardware sales page and extract the hardware sales list and reporting period.
 
@@ -41,9 +41,9 @@ def get_famitsu_hwsales_page(url: str) -> Tuple[List[str], str]:
     annotations = soup.find_all("span", attrs={"class": "article_detail_annotation"})
 
     raw_hard_sales = [item.get_text(strip=True) for item in items]
-    raw_report_date = annotations[-1].get_text(strip=True)
+    raw_report_dates = [annotation.get_text(strip=True) for annotation in annotations if "集計期間" in annotation.get_text()]
 
-    return raw_hard_sales, raw_report_date
+    return raw_hard_sales, raw_report_dates
 
 
 def parse_hard_sales_lines(lines: List[str]) -> List[List[str]]:
@@ -109,7 +109,7 @@ def normalize_hw_units(hard_sales: List[List[str]]) -> List[List[str]]:
     return normalized_list
 
 
-def extract_date_range(date_string: str) -> Tuple[datetime, datetime]:
+def extract_date_range(date_strings: List[str]) -> Tuple[datetime, datetime]:
     """
     Extract the start and end dates from a date range string.
 
@@ -123,9 +123,16 @@ def extract_date_range(date_string: str) -> Tuple[datetime, datetime]:
         ValueError: If the date range string is invalid or cannot be parsed.
     """
     # 正規表現で日付を抽出
-    match = re.search(r"(\d{4}年\d{1,2}月\d{1,2}日)～(\d{1,2}月\d{1,2}日|\d{4}年\d{1,2}月\d{1,2}日)", date_string)
+    # date_stringsの末尾の要素から順に正規表現に一致しているか確認し、一致していたらその値を使用。
+    # 一致していなかったらdata_stringsの前の要素を確認。
+    # 最終的に一致する要素がなければ　ValueErrorを発生させる。
+    match = False
+    for ds in reversed(date_strings):
+        if match := re.search(r"(\d{4}年\d{1,2}月\d{1,2}日)～(\d{1,2}月\d{1,2}日|\d{4}年\d{1,2}月\d{1,2}日)", ds):
+            break
+
     if not match:
-        raise ValueError("日付範囲が見つかりませんでした。")
+        raise ValueError("有効な日付範囲が見つかりませんでした。")
 
     start_date_str, end_date_str = match.groups()
 
@@ -200,12 +207,12 @@ def famitsu_main(db_path: str, target_url: str, dry_run: bool = False) -> None:
     Returns:
         None
     """
-    raw_sales, raw_report_date = get_famitsu_hwsales_page(target_url)
+    raw_sales, raw_report_dates = get_famitsu_hwsales_page(target_url)
 
     parsed_list = parse_hard_sales_lines(raw_sales)
     normalized_list = normalize_hw_units(parsed_list)
 
-    start_date, end_date = extract_date_range(raw_report_date)
+    start_date, end_date = extract_date_range(raw_report_dates)
     end_date, period_date = calculate_date_range_days(start_date, end_date)
     end_date_str = end_date.strftime("%Y-%m-%d")
 

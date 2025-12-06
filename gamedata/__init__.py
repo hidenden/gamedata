@@ -64,6 +64,14 @@ from .chart_hard import (
     chart_units_by_date_hw
 )
 
+from .util import (
+    # Utility functions can be added here
+    report_begin,
+    years_ago,
+    weeks_before
+)
+
+
 # Make commonly used functions available at package level
 __all__ = [
     'load_hard_sales',
@@ -106,5 +114,8 @@ __all__ = [
     'rename_index',
     'rename_index_title',
     'chart_units_by_date_hw',
+    'report_begin',
+    'years_ago',
+    'weeks_before',
 ]
 
