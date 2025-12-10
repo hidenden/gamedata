@@ -33,6 +33,11 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
     df = df.rename(columns=hard_dict)
     return df
 
+def rename_hw(df: pd.DataFrame) -> pd.DataFrame:
+    hard_dict = hi.get_hard_dict()
+    df['hw'] = df['hw'].map(hard_dict).fillna(df['hw'])
+    return df
+
 def rename_index(df: pd.DataFrame) -> pd.DataFrame:
     hard_dict = hi.get_hard_dict()
     df = df.rename(index=hard_dict)
@@ -127,6 +132,8 @@ def _chart_periodic_ranking(rank_n:int = 10,
     df_sorted_top = df_sorted.head(top_n)[[*headers, key_column, sort_column]]
     df_sorted_top = df_sorted_top.reset_index(drop=True)
     df_sorted_top.index += 1
+    if (not maker):
+        df_sorted_top = rename_hw(df_sorted_top)
     df_sorted_top = rename_columns(df_sorted_top)
     return df_sorted_top
 
