@@ -15,6 +15,7 @@ from .hard_sales import (
     extract_week_reached_units,
     extract_by_date,
     extract_latest,
+    weekly_sales,
     monthly_sales,
     yearly_sales,
     yearly_maker_sales,
@@ -61,7 +62,10 @@ from .chart_hard import (
     rename_columns,
     rename_index,
     rename_index_title,
-    chart_units_by_date_hw
+    chart_units_by_date_hw,
+    chart_weekly_ranking,
+    chart_monthly_ranking,
+    chart_yearly_ranking,
 )
 
 from .util import (
@@ -79,6 +83,7 @@ __all__ = [
     'extract_week_reached_units',
     'extract_by_date',
     'extract_latest',
+    'weekly_sales',
     'monthly_sales',
     'yearly_sales',
     'yearly_maker_sales',
@@ -114,6 +119,9 @@ __all__ = [
     'rename_index',
     'rename_index_title',
     'chart_units_by_date_hw',
+    'chart_weekly_ranking',
+    'chart_monthly_ranking',
+    'chart_yearly_ranking',
     'report_begin',
     'years_ago',
     'weeks_before',
