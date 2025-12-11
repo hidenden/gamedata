@@ -1,11 +1,11 @@
 from datetime import datetime
 
 def get_config() -> dict:
-    the_date = datetime(2025, 11, 30)
+    the_date = datetime(2025, 12, 7)
     date_str = the_date.strftime("%Y.%m.%d")
     
     return {
         "date": the_date,
         "large": True,
-        "description": f"Switch2 12万台 年末商戦独走:{date_str}ハード週販レポート",
+        "description": f"Switch2 300万台到達!:{date_str}ハード週販レポート",
     }
