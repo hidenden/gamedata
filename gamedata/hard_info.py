@@ -30,7 +30,7 @@ HARD_COLORS = {
     'XBOne': "#59B06A",
     'PS4': "#003087",
     'WiiU': "#1CD3CA",
-    'Vita': "#C1D9FA",
+    'Vita': "#E787EC",
     '3DS': "#FA7D00",
     'Wii': "#00fbff",
     'PS3': "#D60C59",
