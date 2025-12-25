@@ -694,6 +694,60 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:Optional[datetime] = None,
         stacked=stacked,
     )
 
+def plot_yearly_bar_by_month(month:int,
+                           begin:Optional[datetime] = None, 
+                           end:Optional[datetime] = None,
+                           ymax:Optional[int] = None,
+                           stacked:bool=True,
+                           ticklabelsize:Optional[int] = None
+                           ) -> tuple[Figure, pd.DataFrame]:
+    """
+    指定した月の年ごとの移り変わりをメーカーごとの棒グラフで表示する
+    Args:
+        hw: プロットしたいハードウェア名のリスト
+        begin: 集計開始日(通常は年初めに設定する)
+        end: 集計終了日(通常は年末に設定する)
+        stacked: 棒グラフを積み上げ表示するかどうか
+        ymax: Y軸の上限値
+    Returns:
+        (Figure, pd.DataFrame): 作成したグラフとデータフレーム
+    """
+    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+        hard_sales_df = hs.load_hard_sales()
+        monthly_df = hs.monthly_sales(hard_sales_df, begin=begin, end=end, maker_mode=True)
+        target_month_df = monthly_df.loc[monthly_df["month"] == month].copy()
+        target_month_df = target_month_df.set_index("year")
+        target_month_df = target_month_df.loc[:, ["monthly_units", 'maker_name']]
+        target_month_wide_df = target_month_df.pivot_table(index="year", columns="maker_name", 
+                                                           values="monthly_units", fill_value=0)
+        return target_month_wide_df
+    
+    def color_generator(maker_list: List[str]) -> List[str]:
+        return hi.get_maker_colors(maker_list)                                  
+    
+    def labeler() -> AxisLabels:
+        return AxisLabels(
+            title=f"{month}月ハード販売台数",
+            xlabel="年",
+            ylabel="販売台数",
+            legend="メーカー"
+        )
+
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+
+    return _plot_bar(
+        data_aggregator=data_aggregator,
+        color_generator=color_generator,
+        labeler=labeler,
+        tick_params_fn=tick_params_fn,
+        begin=begin,
+        end=end,
+        ymax=ymax,
+        stacked=stacked,
+    )
+
 def plot_delta_yearly_bar(hw:list[str],
                                 delta_begin:Optional[int] = None, 
                                 delta_end:Optional[int] = None,
