@@ -197,3 +197,20 @@ def chart_yearly_ranking(rank_n:int = 10,
                                   data_source_fn=hs.yearly_sales, 
                                   sort_column='yearly_units', 
                                   headers=['year'])
+
+    
+def chart_delta_week(delta_week:int) -> pd.DataFrame:
+    """指定された週数のランキングチャートを出力
+    Args:
+        delta_week (int): 週数
+    """
+
+    df = hs.load_hard_sales()
+    df = df.loc[df["delta_week"] == delta_week, :]
+    df = df.loc[:, ['report_date', 'delta_week', 'hw', 'full_name', 'sum_units']]
+    # dfを絡む sum_unitsの多い順にソートする
+    df = df.sort_values(by='sum_units', ascending=False)
+    df.reset_index(drop=True, inplace=True)
+    df.index += 1
+    return df
+

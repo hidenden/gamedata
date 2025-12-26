@@ -35,6 +35,7 @@ from .plot_hard import (
     plot_cumulative_sales,
     plot_monthly_bar_by_year,
     plot_yearly_bar_by_hard,
+    plot_yearly_bar_by_month,
     plot_delta_yearly_bar,
     plot_maker_share_pie,
     plot_cumsum_diffs,
@@ -66,6 +67,7 @@ from .chart_hard import (
     chart_weekly_ranking,
     chart_monthly_ranking,
     chart_yearly_ranking,
+    chart_delta_week
 )
 
 from .util import (
@@ -97,6 +99,7 @@ __all__ = [
     'plot_cumulative_sales',
     'plot_monthly_bar_by_year',
     'plot_yearly_bar_by_hard',
+    'plot_yearly_bar_by_month',
     'plot_delta_yearly_bar',
     'plot_cumsum_diffs',
     'load_hard_info',
@@ -122,6 +125,7 @@ __all__ = [
     'chart_weekly_ranking',
     'chart_monthly_ranking',
     'chart_yearly_ranking',
+    'chart_delta_week',
     'report_begin',
     'years_ago',
     'weeks_before',
