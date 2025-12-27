@@ -5,7 +5,7 @@ app = marimo.App()
 
 
 @app.cell
-def _():
+def _(mo):
     ### 週販レポート
     # 標準ライブラリ
     import os
@@ -35,11 +35,7 @@ def _():
     report_date = config["date"]
     report_event_mask = he.EventMasks(hard=1.5, price=3, sale=2, soft=1.5, event=1)
 
-    def show_title(d:datetime) -> None:
-        last_updated_str = d.strftime("%Y-%m-%d")
-        display(Markdown(f"# 国内ゲームハード週販レポート ({last_updated_str})"))
-
-    show_title(report_date)
+    mo.md(f"# 国内ゲームハード週販レポート ({report_date.strftime('%Y-%m-%d')})")
     return ch, datetime, gu, he, hs, ph, report_date, report_event_mask
 
 
@@ -90,8 +86,8 @@ def _(mo):
 
 @app.cell
 def _(gu, ph, report_date, report_event_mask):
-    (fig, df) = ph.plot_sales(begin=gu.report_begin(report_date), end=report_date, event_mask=report_event_mask)
-    fig
+    (fig_weekly, _) = ph.plot_sales(begin=gu.report_begin(report_date), end=report_date, event_mask=report_event_mask)
+    fig_weekly
     return
 
 
@@ -117,8 +113,8 @@ def _(mo):
 
 @app.cell
 def _(gu, ph, report_date, report_event_mask):
-    fig_1, df_1 = ph.plot_sales(begin=gu.report_begin(report_date), end=report_date, ymax=230000, event_mask=report_event_mask)
-    fig_1
+    fig_weekly_big, _ = ph.plot_sales(begin=gu.report_begin(report_date), end=report_date, ymax=230000, event_mask=report_event_mask)
+    fig_weekly_big
     return
 
 
@@ -132,10 +128,10 @@ def _(mo):
 
 @app.cell
 def _(gu, ph, report_date):
-    fig_2, df_2 = ph.plot_monthly_bar_by_hard(hw=['NS2', 'PS5', 'NSW', 'XSX'], 
+    (fig_monthly, df_monthly) = ph.plot_monthly_bar_by_hard(hw=['NS2', 'PS5', 'NSW', 'XSX'], 
                         begin=gu.report_begin(report_date), end=report_date, stacked=False)
-    fig_2
-    return (df_2,)
+    fig_monthly
+    return (df_monthly,)
 
 
 @app.cell(hide_code=True)
@@ -148,9 +144,9 @@ def _(mo):
 
 
 @app.cell
-def _(df_2):
-    df_3 = df_2.style.format({'NS2': '{:,.0f}', 'NSW': '{:,.0f}', 'PS5': '{:,.0f}', 'XSX': '{:,.0f}'})
-    df_3
+def _(df_monthly):
+    df_monthly_styled = df_monthly.style.format({'NS2': '{:,.0f}', 'NSW': '{:,.0f}', 'PS5': '{:,.0f}', 'XSX': '{:,.0f}'})
+    df_monthly_styled
     return
 
 
@@ -167,18 +163,18 @@ def _(mo):
 
 @app.cell
 def _(gu, ph, report_date):
-    fig_3, df_4 = ph.plot_monthly_bar_by_year(hw='NSW', ymax=480000, begin=gu.years_ago(report_date), end=report_date)
-    fig_3
-    return (df_4,)
+    switch_monthly_bar_by_year, df_switch_monthly_bar_by_year = ph.plot_monthly_bar_by_year(hw='NSW', ymax=480000, begin=gu.years_ago(report_date), end=report_date)
+    switch_monthly_bar_by_year
+    return (df_switch_monthly_bar_by_year,)
 
 
 @app.cell
-def _(df_4, report_date):
+def _(df_switch_monthly_bar_by_year, report_date):
     this_year = report_date.year
-    df_5 = df_4.drop(columns=[2023])
-    df_5.loc[:, 'YoY'] = df_5.loc[:, this_year] / df_5.loc[:, this_year - 1]
-    style_df5 = df_5.style.format({'YoY': '{:.1%}'})
-    style_df5
+    df_switch_2024_2025 = df_switch_monthly_bar_by_year.drop(columns=[2023])
+    df_switch_2024_2025.loc[:, 'YoY'] = df_switch_2024_2025.loc[:, this_year] / df_switch_2024_2025.loc[:, this_year - 1]
+    style_df_switch_2024_2025 = df_switch_2024_2025.style.format({'YoY': '{:.1%}'})
+    style_df_switch_2024_2025
     return
 
 
@@ -196,18 +192,18 @@ def _(mo):
 
 @app.cell
 def _(gu, ph, report_date):
-    fig_4, df_6 = ph.plot_monthly_bar_by_year(hw='PS5', ymax=480000, begin=gu.years_ago(report_date), end=report_date)
-    fig_4
-    return (df_6,)
+    fig_ps5_monthly_bar_by_year, df_ps5_monthly_bar_by_year = ph.plot_monthly_bar_by_year(hw='PS5', ymax=480000, begin=gu.years_ago(report_date), end=report_date)
+    fig_ps5_monthly_bar_by_year
+    return (df_ps5_monthly_bar_by_year,)
 
 
 @app.cell
-def _(df_6, report_date):
+def _(df_ps5_monthly_bar_by_year, report_date):
     this_year_1 = report_date.year
-    df_7 = df_6.drop(columns=[2023])
-    df_7.loc[:, 'YoY'] = df_7.loc[:, this_year_1] / df_7.loc[:, this_year_1 - 1]
-    style_df7 = df_7.style.format({'YoY': '{:.1%}'})
-    style_df7
+    df_ps5_2024_2025 = df_ps5_monthly_bar_by_year.drop(columns=[2023])
+    df_ps5_2024_2025.loc[:, 'YoY'] = df_ps5_2024_2025.loc[:, this_year_1] / df_ps5_2024_2025.loc[:, this_year_1 - 1]
+    style_df_ps5_2024_2025 = df_ps5_2024_2025.style.format({'YoY': '{:.1%}'})
+    style_df_ps5_2024_2025
     return
 
 
@@ -222,16 +218,16 @@ def _(mo):
 @app.cell
 def _(datetime, he, ph):
     long_range_event_mask = he.EventMasks(hard=0.5, soft=0, event=0, price=0, sale=0)
-    fig_5, df_8 = ph.plot_cumulative_sales(hw=['PS4', 'NS2', 'PS5', 'NSW', 'XSX'], 
+    fig_cumulative_sales, _ = ph.plot_cumulative_sales(hw=['PS4', 'NS2', 'PS5', 'NSW', 'XSX'], 
                     begin=datetime(2017, 3, 1), event_mask=long_range_event_mask)
-    fig_5
+    fig_cumulative_sales
     return
 
 
 @app.cell
 def _(ph, report_event_mask):
-    fig_6, df_9 = ph.plot_cumulative_sales_by_delta(hw=['PS4', 'NS2', 'PS5', 'NSW', 'XSX'], end=40, event_mask=report_event_mask)
-    fig_6
+    fig_cumulative_sales_by_delta, _ = ph.plot_cumulative_sales_by_delta(hw=['PS4', 'NS2', 'PS5', 'NSW', 'XSX'], end=40, event_mask=report_event_mask)
+    fig_cumulative_sales_by_delta
     return
 
 
@@ -248,14 +244,14 @@ def _(mo):
 
 @app.cell
 def _(ph):
-    (fig4, d4) = ph.plot_cumsum_diffs(cmplist = [('NS2', 'PS5'), ('NSW', 'PS4')], xgrid=10)
-    fig4
-    return
+    fig_diff_ps5_ns2, df_diff_ps5_ns2 = ph.plot_cumsum_diffs(cmplist = [('NS2', 'PS5'), ('NSW', 'PS4')], xgrid=10)
+    fig_diff_ps5_ns2
+    return (df_diff_ps5_ns2,)
 
 
 @app.cell
-def _():
-    # d4.head(35)
+def _(df_diff_ps5_ns2, mo):
+    mo.ui.table(df_diff_ps5_ns2.head(30))
     return
 
 
@@ -274,8 +270,8 @@ def _(mo):
 @app.cell
 def _(he, ph):
     middle_range_event_mask = he.EventMasks(hard=1.5, soft=0, event=1, price=1, sale=0)
-    fig_7, df_10 = ph.plot_cumulative_sales_by_delta(hw=['PS4', 'PS5'], end=280, event_mask=middle_range_event_mask)
-    fig_7
+    fig_diff_ps4_ps5, _ = ph.plot_cumulative_sales_by_delta(hw=['PS4', 'PS5'], end=280, event_mask=middle_range_event_mask)
+    fig_diff_ps4_ps5
     return
 
 
@@ -297,22 +293,22 @@ def _(mo):
 
 @app.cell
 def _(ph, report_event_mask):
-    fig_8, df_11 = ph.plot_cumulative_sales_by_delta(hw=['GBA', 'NS2', 'DS', 'PS2', 'Wii', '3DS', 'NSW', 'PS5'], 
+    fig_ns2_initial, df_ns2_initial = ph.plot_cumulative_sales_by_delta(hw=['GBA', 'NS2', 'DS', 'PS2', 'Wii', '3DS', 'NSW', 'PS5'], 
                         mode='week', xgrid=2, end=39, event_mask=report_event_mask)
-    fig_8
-    return (df_11,)
+    fig_ns2_initial
+    return (df_ns2_initial,)
 
 
 @app.cell
-def _(df_11):
-    df12 = df_11.iloc[df_11.index == 28]
+def _(df_ns2_initial):
+    df_ns2_initial_h = df_ns2_initial.iloc[df_ns2_initial.index == 28]
     # df12をunpivotして、列名を"ハード"、"販売数"にする
-    df12_unpivot = df12.unstack().reset_index()
-    df12_unpivot.columns = ['ハード', '週数', '販売数']
-    df12_unpivot.sort_values(by='販売数', ascending=False, inplace=True)
-    df12_unpivot.set_index('ハード', inplace=True)
-    style_df12 = df12_unpivot.style.format({'販売数': '{:,.0f}'})
-    style_df12
+    df_ns2_initial_h_unpivot = df_ns2_initial_h.unstack().reset_index()
+    df_ns2_initial_h_unpivot.columns = ['ハード', '週数', '販売数']
+    df_ns2_initial_h_unpivot.sort_values(by='販売数', ascending=False, inplace=True)
+    df_ns2_initial_h_unpivot.set_index('ハード', inplace=True)
+    style_df_ns2_initial_h = df_ns2_initial_h_unpivot.style.format({'販売数': '{:,.0f}'})
+    style_df_ns2_initial_h
     return
 
 
@@ -332,16 +328,16 @@ def _(mo):
 
 @app.cell
 def _(gu, ph, report_date):
-    fig_9, df_12 = ph.plot_yearly_bar_by_hard(hw=['PS4', 'PS5', 'NSW', 'NS2', '3DS', 'WiiU', 'Vita', 'XSX', 'XBOne'],
+    fig_yearly_bar, df_yearly_bar = ph.plot_yearly_bar_by_hard(hw=['PS4', 'PS5', 'NSW', 'NS2', '3DS', 'WiiU', 'Vita', 'XSX', 'XBOne'],
              begin=gu.years_ago(report_date, 10), end=report_date, stacked=True)
-    fig_9
-    return
+    fig_yearly_bar
+    return (df_yearly_bar,)
 
 
 @app.cell
-def _():
-    # df["sum"] = df.sum(axis=1)
-    # df
+def _(df_yearly_bar):
+    df_yearly_bar["sum"] = df_yearly_bar.sum(axis=1)
+    df_yearly_bar
     return
 
 
@@ -364,14 +360,14 @@ def _(mo):
 
 @app.cell
 def _(gu, ph, report_date):
-    fig_10, df_13 = ph.plot_yearly_bar_by_hard(hw=['PS5'], begin=gu.years_ago(report_date, 10), end=report_date, stacked=True)
-    fig_10
-    return (df_13,)
+    fig_yearly_ps5, df_yearly_ps5 = ph.plot_yearly_bar_by_hard(hw=['PS5'], begin=gu.years_ago(report_date, 10), end=report_date, stacked=True)
+    fig_yearly_ps5
+    return (df_yearly_ps5,)
 
 
 @app.cell
-def _(df_13):
-    df_13
+def _(df_yearly_ps5):
+    df_yearly_ps5
     return
 
 
@@ -388,15 +384,15 @@ def _(mo):
 
 @app.cell
 def _(datetime, ph):
-    fig_11, df_14 = ph.plot_yearly_bar_by_hard(hw=['PS4'], begin=datetime(2005, 1, 1), stacked=True, ticklabelsize=8)
-    fig_11
+    fig_yearly_ps4, _ = ph.plot_yearly_bar_by_hard(hw=['PS4'], begin=datetime(2005, 1, 1), stacked=True, ticklabelsize=8)
+    fig_yearly_ps4
     return
 
 
 @app.cell
 def _(datetime, ph):
-    fig_12, df_15 = ph.plot_yearly_bar_by_hard(hw=['PS3'], begin=datetime(2005, 1, 1), stacked=True, ticklabelsize=8)
-    fig_12
+    fig_yearly_ps3, _ = ph.plot_yearly_bar_by_hard(hw=['PS3'], begin=datetime(2005, 1, 1), stacked=True, ticklabelsize=8)
+    fig_yearly_ps3
     return
 
 
@@ -417,8 +413,8 @@ def _(mo):
 
 @app.cell
 def _(datetime, ph):
-    fig_13, df_16 = ph.plot_yearly_bar_by_hard(hw=['PS3', 'PS4', 'PS5'], begin=datetime(2005, 1, 1), stacked=True, ticklabelsize=8)
-    fig_13
+    fig_yearly_ps, _ = ph.plot_yearly_bar_by_hard(hw=['PS3', 'PS4', 'PS5'], begin=datetime(2005, 1, 1), stacked=True, ticklabelsize=8)
+    fig_yearly_ps
     return
 
 
@@ -434,8 +430,8 @@ def _(mo):
 
 @app.cell
 def _(gu, ph, report_date):
-    fig_14, df_17 = ph.plot_maker_share_pie(begin_year=gu.years_ago(report_date, 2).year, end_year=report_date.year)
-    fig_14
+    fig_share, df_share = ph.plot_maker_share_pie(begin_year=gu.years_ago(report_date, 2).year, end_year=report_date.year)
+    fig_share
     return
 
 
@@ -449,8 +445,8 @@ def _(mo):
 
 @app.cell
 def _(ph):
-    fig_15, df_18 = ph.plot_maker_share_pie(begin_year=2020, end_year=2020)
-    fig_15
+    fig_share_2020, _ = ph.plot_maker_share_pie(begin_year=2020, end_year=2020)
+    fig_share_2020
     return
 
 
