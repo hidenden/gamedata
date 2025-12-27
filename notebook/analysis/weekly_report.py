@@ -17,6 +17,7 @@ def _(mo):
     import pandas as pd
     from pandas import Timedelta
     import matplotlib.pyplot as plt
+    import japanize_matplotlib
     from matplotlib.ticker import ScalarFormatter
     from IPython.display import Markdown, display
 
