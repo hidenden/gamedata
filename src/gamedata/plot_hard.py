@@ -484,6 +484,50 @@ def plot_cumsum_diffs(cmplist: list[tuple[str, str]],
         plot_style={'marker': None}
     )
 
+def plot_sales_pase_diff(base_hw: str,
+                         compare_hw: str,
+                         ymax:Optional[int]=None,
+                         ybottom:Optional[int]=None,
+                         xgrid: Optional[int] = None,
+                         ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+    """
+    販売ペース差分の折れ線グラフをプロットする
+    Args:
+        base_hw: 基準ハードウェア名
+        compare_hw: 比較ハードウェア名
+        ymax: Y軸の最大値
+        xgrid: X軸のメジャーグリッドの間隔
+        ygrid: Y軸のメジャーグリッドの間隔
+    Returns:
+        (matplotlib.figure.Figure, pd.DataFrame): グラフのFigureオブジェクトとDataFrameのタプル
+    """
+    
+    def data_source() -> tuple[pd.DataFrame, str]:
+        df = hs.load_hard_sales()
+        pv1 = hs.pivot_cumulative_sales_by_delta(df, hw=[base_hw, compare_hw])
+        pv1[f'{compare_hw}累計_{base_hw}累計差'] = pv1[compare_hw] - pv1[base_hw]
+        pv2 = pv1.loc[:, [f'{compare_hw}累計_{base_hw}累計差']]
+        title_key = '週'
+        return (pv2, title_key)
+    
+    def labeler(title_key: str) -> AxisLabels:
+        return AxisLabels(
+            title=f'販売ペース差分',
+            xlabel='販売開始からの週数',
+            ylabel='販売ペースの差（台/週）',
+            legend='販売ペース差分'
+        )
+        
+    return _plot_sales(
+        data_source=data_source,
+        labeler=labeler,
+        ymax=ymax,
+        ybottom=ybottom,
+        xgrid=xgrid,
+        ygrid=ygrid,
+        plot_style={'marker': None}
+    )
+
 def _plot_bar(data_aggregator, color_generator=None, labeler=None,
               tick_params_fn=None,
               begin: Optional[datetime] = None,
