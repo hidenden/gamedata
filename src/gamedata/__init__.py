@@ -11,7 +11,7 @@ __author__ = "Hidenari Miwa"
 # Import main functions from modules
 from .hard_sales import (
     load_hard_sales,
-    get_hw_names,
+    get_hw,
     extract_week_reached_units,
     extract_by_date,
     extract_latest,
@@ -81,7 +81,7 @@ from .util import (
 # Make commonly used functions available at package level
 __all__ = [
     'load_hard_sales',
-    'get_hw_names',
+    'get_hw',
     'extract_week_reached_units',
     'extract_by_date',
     'extract_latest',
