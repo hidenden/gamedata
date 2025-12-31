@@ -318,9 +318,6 @@ def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
         elif mode == "year":
             df = hs.pivot_yearly_sales(df, hw=hw, begin=begin, end=end)
             title_key = '年'
-        elif mode == "year":
-            df = hs.pivot_yearly_sales(df, hw=hw, begin=begin, end=end)
-            title_key = '年'
         else:
             df = hs.pivot_sales(df, hw=hw, begin=begin, end=end)
             title_key = '週'
@@ -454,7 +451,7 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         if mode == "week":
             title_key = '週'
         elif mode == "month":
-            df = df.resample('M').last()
+            df = df.resample('ME').last()
             title_key = '月'
         elif mode == "year":
             df = df.resample('Y').last()
@@ -563,6 +560,8 @@ def plot_sales_pase_diff(base_hw: str,
         pv1 = hs.pivot_cumulative_sales_by_delta(df, hw=[base_hw, compare_hw])
         pv1[f'{compare_hw}累計_{base_hw}累計差'] = pv1[compare_hw] - pv1[base_hw]
         pv2 = pv1.loc[:, [f'{compare_hw}累計_{base_hw}累計差']]
+        # カラムの値がNaNの行を取り除く
+        pv2.dropna(inplace=True)
         title_key = '週'
         return (pv2, title_key)
     

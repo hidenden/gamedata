@@ -60,8 +60,6 @@ def load_hard_sales() -> pd.DataFrame:
     return df
 
 
-
-
 def extract_week_reached_units(df: pd.DataFrame, threshold_units: int) -> pd.DataFrame:
     """
     累計販売台数が指定の値を超えた最初の週を見つける関数。
@@ -220,6 +218,7 @@ def get_hw(df: pd.DataFrame) -> List[str]:
     """
     return df['hw'].unique().tolist()
 
+
 def get_active_hw() -> List[str]:
     """
     直近1年間のデータを元にアクティブなハードウェア名のリストを取得する。
@@ -233,6 +232,7 @@ def get_active_hw() -> List[str]:
     recent_df = base_df.loc[base_df['report_date'] >= one_year_ago, :]
     active_hw = get_hw(recent_df)
     return active_hw    
+
 
 def weekly_sales(src_df: pd.DataFrame, 
                   begin: Optional[datetime] = None, end: Optional[datetime] = None,
@@ -256,11 +256,14 @@ def weekly_sales(src_df: pd.DataFrame,
         - weekly_units (int64): 週次販売台数
         - sum_units (int64): report_date時点での累計販売台数
     """
-    if begin is not None:
+    
+    if begin is not None and end is not None:
+        df = src_df.loc[(src_df['report_date'] >= begin) & (src_df['report_date'] <= end), :]
+    elif begin is not None:
         df = src_df.loc[src_df['report_date'] >= begin, :]
-    if end is not None:
+    elif end is not None:
         df = src_df.loc[src_df['report_date'] <= end, :]
-    if begin is None and end is None:
+    else:
         df = src_df.copy()
 
     # 週ごとの販売台数を集計
@@ -280,6 +283,7 @@ def weekly_sales(src_df: pd.DataFrame,
         .cumsum()
     )
     return weekly_sales
+
 
 def monthly_sales(src_df: pd.DataFrame, 
                   begin: Optional[datetime] = None, end: Optional[datetime] = None,
@@ -304,11 +308,13 @@ def monthly_sales(src_df: pd.DataFrame,
         - monthly_units (int64): 月次販売台数
         - sum_units (int64): その月時点での累計販売台数
     """
-    if begin is not None:
+    if begin is not None and end is not None:
+        df = src_df.loc[(src_df['report_date'] >= begin) & (src_df['report_date'] <= end), :]
+    elif begin is not None:
         df = src_df.loc[src_df['report_date'] >= begin, :]
-    if end is not None:
+    elif end is not None:
         df = src_df.loc[src_df['report_date'] <= end, :]
-    if begin is None and end is None:
+    else:
         df = src_df.copy()
 
     # 月ごとの販売台数を集計
@@ -328,6 +334,7 @@ def monthly_sales(src_df: pd.DataFrame,
         .cumsum()
     )
     return monthly_sales
+
 
 def yearly_sales(src_df: pd.DataFrame, 
                  begin: Optional[datetime] = None, end: Optional[datetime] = None,
@@ -351,11 +358,13 @@ def yearly_sales(src_df: pd.DataFrame,
         - yearly_units (int64): 年次販売台数
         - sum_units (int64): その年時点での累計販売台数
     """
-    if begin is not None:
+    if bergin is not None and end is not None:
+        df = src_df.loc[(src_df['report_date'] >= begin) & (src_df['report_date'] <= end), :]
+    elif begin is not None:
         df = src_df.loc[src_df['report_date'] >= begin, :]
-    if end is not None:
+    elif end is not None:
         df = src_df.loc[src_df['report_date'] <= end, :]
-    if begin is None and end is None:
+    else:
         df = src_df.copy()
 
     # 年ごとの販売台数を集計
@@ -430,7 +439,8 @@ def delta_yearly_sales(df: pd.DataFrame) -> pd.DataFrame:
     )
     return delta_yearly_sales
 
-def pivot_sales(df: pd.DataFrame, hw:List[str] = [],
+
+def pivot_sales(src_df: pd.DataFrame, hw:List[str] = [],
                 begin: Optional[datetime] = None,
                 end: Optional[datetime] = None) -> pd.DataFrame:
     """
@@ -452,16 +462,21 @@ def pivot_sales(df: pd.DataFrame, hw:List[str] = [],
         - values: units (int64): 週次販売台数
     """
     # begin/endでフィルタリング
-    if begin is not None:
-        df = df[df['report_date'] >= begin]
-    if end is not None:
-        df = df[df['report_date'] <= end]
-
+    if begin is not None and end is not None:
+        df = src_df.loc[(src_df['report_date'] >= begin) & (src_df['report_date'] <= end)]
+    elif begin is not None:
+        df = src_df.loc[src_df['report_date'] >= begin]
+    elif end is not None:
+        df = src_df.loc[src_df['report_date'] <= end]
+    else:
+        df = src_df.copy()
+        
     # HWでフィルタリング
     if len(hw) > 0:
         df =  df.loc[df['hw'].isin(hw)]
 
     return df.pivot(index='report_date', columns='hw', values='units')
+
 
 def pivot_monthly_sales(df: pd.DataFrame, hw:List[str] = [],
                 begin: Optional[datetime] = None, 
