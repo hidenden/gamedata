@@ -3,7 +3,7 @@ name = "gamedata"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10, <3.12"
 dependencies = [
     "bs4>=0.0.2",
     "cachecontrol>=0.14.4",
@@ -26,7 +26,4 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gamedata"]
-
-[tool.hatch.build.targets.wheel.sources]
-src = ""
 
