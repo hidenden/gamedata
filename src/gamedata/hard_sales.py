@@ -358,7 +358,7 @@ def yearly_sales(src_df: pd.DataFrame,
         - yearly_units (int64): 年次販売台数
         - sum_units (int64): その年時点での累計販売台数
     """
-    if bergin is not None and end is not None:
+    if begin is not None and end is not None:
         df = src_df.loc[(src_df['report_date'] >= begin) & (src_df['report_date'] <= end), :]
     elif begin is not None:
         df = src_df.loc[src_df['report_date'] >= begin, :]
