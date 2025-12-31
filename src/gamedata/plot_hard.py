@@ -212,16 +212,25 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
                                    event_mask : Optional[he.EventMasks] = None,
                                    ) -> tuple[Figure, pd.DataFrame]:
     """
-    各ハードウェアの発売日起点・累計販売台数推移をプロットする（週単位）
+    各ハードウェアの発売日起点・累計販売台数推移をプロットする
     
     Args:
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
-        mode: "month"の場合は月次の、"week"の場合は週単位、"year"の場合は年単位の累計販売台数をプロットする、 (defaultは"week")
-        limit: 表示するデータ数（この数まで表示する）。0の場合は全期間を表示
+        ymax: Y軸の上限値
+        xgrid: X軸のグリッド線の間隔
+        ygrid: Y軸のグリッド線の間隔
+        mode: "month"の場合は月次の、"week"の場合は週単位、"year"の場合は年単位の累計販売台数をプロットする (defaultは"week")
+        begin: 集計開始（経過期間の最小値）
+        end: 集計終了（経過期間の最大値）
+        event_mask: イベント注釈のマスク設定
         
     Returns:
-        matplotlib.figure.Figure: グラフのFigureオブジェクト
-        pd.DataFrame: プロットに使用したデータのDataFrame
+        tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: delta_week (int64) / delta_month (int64) / delta_year (int64): 発売日からの経過期間（modeにより変動）
+        - columns: hw (string): ゲームハードの識別子
+        - values: sum_units (int64): その経過期間時点での累計販売台数
     """
     
     def data_source() -> tuple[pd.DataFrame, str]:
@@ -274,17 +283,32 @@ def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
 
     Args:
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
-    Args:
-        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
-        mode: "month"の場合は月次の、"week"の場合は週単位、"year"の場合は年単位の累計販売台数をプロットする、 (defaultは"week")
-        limit: 表示するデータ数（この数まで表示する）。0の場合は全期間を表示
+        mode: "month"の場合は月次、"week"の場合は週単位、"year"の場合は年単位の販売台数をプロットする (defaultは"week")
+        begin: 集計開始日
+        end: 集計終了日
         ymax: Y軸の上限値
-        ygrid: Y軸のグリッド線の間隔
         xgrid: X軸のグリッド線の間隔
+        ygrid: Y軸のグリッド線の間隔
+        event_mask: イベント注釈のマスク設定
+        area: 面グラフとして表示するかどうか
+        ticklabelsize: 目盛りラベルのフォントサイズ
 
     Returns:
-        matplotlib.figure.Figure: グラフのFigureオブジェクト
-        pd.DataFrame: プロットに使用したデータのDataFrame
+        tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成（modeにより変動）:
+        - mode="week"の場合:
+            - index: report_date (datetime64): 集計期間の末日（日曜日）
+            - columns: hw (string): ゲームハードの識別子
+            - values: units (int64): 週次販売台数
+        - mode="month"の場合:
+            - index: year (int64), month (int64): report_dateの年と月
+            - columns: hw (string): ゲームハードの識別子
+            - values: monthly_units (int64): 月次販売台数
+        - mode="year"の場合:
+            - index: year (int64): report_dateの年
+            - columns: hw (string): ゲームハードの識別子
+            - values: yearly_units (int64): 年次販売台数
     """
     def data_source():
         df = hs.load_hard_sales()
@@ -344,15 +368,21 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
     
     Args:
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
-        mode: "month"の場合は月次の、"week"の場合は週単位、"year"の場合は年単位の累計販売台数をプロットする、 (defaultは"week")
-        limit: 表示するデータ数（この数まで表示する）。0の場合は全期間を表示
         ymax: Y軸の上限値
-        ygrid: Y軸のグリッド線の間隔
         xgrid: X軸のグリッド線の間隔
+        ygrid: Y軸のグリッド線の間隔
+        mode: "month"の場合は月次、"week"の場合は週単位、"year"の場合は年単位の販売台数をプロットする (defaultは"week")
+        begin: 集計開始（経過期間の最小値）
+        end: 集計終了（経過期間の最大値）
+        event_mask: イベント注釈のマスク設定
 
     Returns:
-        matplotlib.figure.Figure: グラフのFigureオブジェクト
-        pd.DataFrame: プロットに使用したデータのDataFrame
+        tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: delta_week (int64) / delta_month (int64) / delta_year (int64): 発売日からの経過期間（modeにより変動）
+        - columns: hw (string): ゲームハードの識別子
+        - values: units (int64): 販売台数
     """
     def data_source() -> tuple[pd.DataFrame, str]:
         df = hs.load_hard_sales()
@@ -398,12 +428,24 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
                           ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの累計販売台数をプロットする
+    
     Args:
-        df: load_hard_sales()の戻り値のDataFrame
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
-        mode: "month"の場合は月次の、"week"の場合は週単位、"year"の場合は年単位の累計販売台数をプロットする、 (defaultは"week")
+        mode: "month"の場合は月次、"week"の場合は週単位、"year"の場合は年単位の累計販売台数をプロットする (defaultは"week")
+        begin: 集計開始日
+        end: 集計終了日
+        ymax: Y軸の上限値
+        xgrid: X軸のグリッド線の間隔
+        ygrid: Y軸のグリッド線の間隔
+        event_mask: イベント注釈のマスク設定
+        
     Returns:
-        matplotlib.figure.Figure: グラフのFigureオブジェクト
+        tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: report_date (datetime64): 集計期間の末日（日曜日）。modeが"month"または"year"の場合はリサンプリングされた日付
+        - columns: hw (string): ゲームハードの識別子
+        - values: sum_units (int64): report_date時点での累計販売台数
     """
     
     def data_source() -> tuple[pd.DataFrame, str]:
@@ -449,14 +491,21 @@ def plot_cumsum_diffs(cmplist: list[tuple[str, str]],
                       xgrid: Optional[int] = None,
                       ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
-    通販差分の折れ線グラフをプロットする
+    累計販売台数差分の折れ線グラフをプロットする
+    
     Args:
-        cmplist: 比較対象のHWのタプルのリスト
+        cmplist: 比較対象のHWのタプルのリスト。各タプルは(base_hw, cmp_hw)の形式
         ymax: Y軸の最大値
         xgrid: X軸のメジャーグリッドの間隔
         ygrid: Y軸のメジャーグリッドの間隔
+        
     Returns:
-        (matplotlib.figure.Figure, pd.DataFrame): グラフのFigureオブジェクトとDataFrameのタプル
+        tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: 連番（0から始まる整数）
+        - columns: "{cmp_hw}_{base_hw}差" (int64): 各ペアの累計販売台数の差分
+                   例: "PS5_NSW差"は、PS5の累計販売台数からNSWの累計販売台数を引いた値
     """
     
     def data_source() -> tuple[pd.DataFrame, str]:
@@ -492,14 +541,21 @@ def plot_sales_pase_diff(base_hw: str,
                          ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     販売ペース差分の折れ線グラフをプロットする
+    
     Args:
         base_hw: 基準ハードウェア名
         compare_hw: 比較ハードウェア名
         ymax: Y軸の最大値
+        ybottom: Y軸の最小値
         xgrid: X軸のメジャーグリッドの間隔
         ygrid: Y軸のメジャーグリッドの間隔
+        
     Returns:
-        (matplotlib.figure.Figure, pd.DataFrame): グラフのFigureオブジェクトとDataFrameのタプル
+        tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: delta_week (int64): 発売日からの経過週数
+        - columns: "{compare_hw}累計_{base_hw}累計差" (int64): compare_hwの累計販売台数からbase_hwの累計販売台数を引いた差分
     """
     
     def data_source() -> tuple[pd.DataFrame, str]:
@@ -607,6 +663,24 @@ def plot_monthly_bar_by_year(hw:str, begin:Optional[datetime] = None,
                            end:Optional[datetime] = None,
                            ymax:Optional[int] = None,
                            ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+    """
+    指定したハードウェアの月間販売台数を年別に棒グラフで表示する
+    
+    Args:
+        hw: プロットしたいハードウェア名
+        begin: 集計開始日
+        end: 集計終了日
+        ymax: Y軸の上限値
+        ticklabelsize: 目盛りラベルのフォントサイズ
+        
+    Returns:
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: month (int64): 月（1-12）
+        - columns: year (int64): 年
+        - values: monthly_units (int64): 月次販売台数
+    """
 
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
         monthly_df = hs.monthly_sales(hard_sales_df)
@@ -642,14 +716,23 @@ def plot_monthly_bar_by_hard(hw:list[str],
                              ymax:Optional[int] = None,
                              ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
-    指定した年の月間販売台数をハード別に棒グラフで表示する
+    指定した期間の月間販売台数をハード別に棒グラフで表示する
+    
     Args:
         hw: プロットしたいハードウェア名のリスト
-        year: 対象年
+        begin: 集計開始日
+        end: 集計終了日
         stacked: 棒グラフを積み上げ表示するかどうか
         ymax: Y軸の上限値
+        ticklabelsize: 目盛りラベルのフォントサイズ
+        
     Returns:
-        (Figure, pd.DataFrame): 作成したグラフとデータフレーム
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: year_month (string): 年月（"YYYY-MM"形式）
+        - columns: hw (string): ゲームハードの識別子
+        - values: monthly_units (int64): 月次販売台数
     """
 
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
@@ -697,14 +780,22 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:Optional[datetime] = None,
                            ) -> tuple[Figure, pd.DataFrame]:
     """
     指定した期間の年間販売台数をハード別に棒グラフで表示する
+    
     Args:
         hw: プロットしたいハードウェア名のリスト
         begin: 集計開始日(通常は年初めに設定する)
         end: 集計終了日(通常は年末に設定する)
         stacked: 棒グラフを積み上げ表示するかどうか
         ymax: Y軸の上限値
+        ticklabelsize: 目盛りラベルのフォントサイズ
+        
     Returns:
-        (Figure, pd.DataFrame): 作成したグラフとデータフレーム
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: year (int64): report_dateの年
+        - columns: hw (string): ゲームハードの識別子
+        - values: yearly_units (int64): 年次販売台数
     """
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
         yearly_df = hs.yearly_sales(hard_sales_df)
@@ -747,14 +838,22 @@ def plot_yearly_bar_by_month(month:int,
                            ) -> tuple[Figure, pd.DataFrame]:
     """
     指定した月の年ごとの移り変わりをメーカーごとの棒グラフで表示する
+    
     Args:
-        hw: プロットしたいハードウェア名のリスト
+        month: 対象月（1-12）
         begin: 集計開始日(通常は年初めに設定する)
         end: 集計終了日(通常は年末に設定する)
-        stacked: 棒グラフを積み上げ表示するかどうか
         ymax: Y軸の上限値
+        stacked: 棒グラフを積み上げ表示するかどうか
+        ticklabelsize: 目盛りラベルのフォントサイズ
+        
     Returns:
-        (Figure, pd.DataFrame): 作成したグラフとデータフレーム
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: year (int64): report_dateの年
+        - columns: maker_name (string): メーカー名
+        - values: monthly_units (int64): 月次販売台数
     """
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
         hard_sales_df = hs.load_hard_sales()
@@ -799,13 +898,21 @@ def plot_delta_yearly_bar(hw:list[str],
                                 ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
     """
     指定した機種の経過年毎販売台数をハード別に棒グラフで表示する
+    
     Args:
         hw: プロットしたいハードウェア名のリスト
         delta_begin: 経過年の開始（指定しない場合は0年）
         delta_end: 経過年の終了（指定しない場合は全期間）
         ymax: Y軸の上限値
+        ticklabelsize: 目盛りラベルのフォントサイズ
+        
     Returns:
-        (Figure, pd.DataFrame): 作成したグラフとデータフレーム
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: delta_year (int64): 発売年から何年後か（同じ年なら0）
+        - columns: hw (string): ゲームハードの識別子
+        - values: yearly_units (int64): 経過年次販売台数
     """
     
     def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
@@ -849,12 +956,17 @@ def plot_maker_share_pie(begin_year:Optional[int] = None,
     """
     年ごとのメーカーシェアを円グラフで可視化する
 
-    Parameters
-    ----------
-    hard_sales_df : pd.DataFrame
-        load_hard_sales()で取得した週次販売データ
-    start_year : int
-        表示する最初の年（デフォルト: 2023）
+    Args:
+        begin_year: 表示する最初の年
+        end_year: 表示する最後の年
+        
+    Returns:
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: year (int64): report_dateの年
+        - columns: maker_name (string): メーカー名（Nintendo, SONY, Microsoft, SEGA等）
+        - values: yearly_units (int64): 年次販売台数
     """
     df = hs.load_hard_sales()
     maker_sales = hs.pivot_maker(df, begin_year=begin_year, end_year=end_year)
