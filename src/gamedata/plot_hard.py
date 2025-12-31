@@ -552,7 +552,10 @@ def plot_sales_pase_diff(base_hw: str,
         
         DataFrameのカラム構成:
         - index: delta_week (int64): 発売日からの経過週数
-        - columns: "{compare_hw}累計_{base_hw}累計差" (int64): compare_hwの累計販売台数からbase_hwの累計販売台数を引いた差分
+        - columns: 
+            - "{compare_hw}累計_{base_hw}累計差" (int64): compare_hwの累計販売台数からbase_hwの累計販売台数を引いた差分
+            - "{base_hw.lower()}_report_date" (datetime64): base_hwの集計日
+            - "{compare_hw.lower()}_report_date" (datetime64): compare_hwの集計日
     """
     
     def data_source() -> tuple[pd.DataFrame, str]:
@@ -572,8 +575,27 @@ def plot_sales_pase_diff(base_hw: str,
             ylabel='販売ペースの差（台/週）',
             legend='販売ペース差分'
         )
+
+    def combine_report_dates(diff_df:pd.DataFrame, base_hw:str, compare_hw:str) -> pd.DataFrame:
+        base_df = hs.load_hard_sales()
+        delta_weeks = diff_df.index
+        week_list = delta_weeks.to_list()
+
+        for hw in [base_hw, compare_hw]:
+            if hw not in base_df['hw'].unique():
+                raise ValueError(f"Invalid hardware: {hw}")
+            
+            hw_df = base_df.loc[base_df['hw'] == hw, :]
+            if not all(week in hw_df['delta_week'].values for week in week_list):
+                raise ValueError(f"Hardware {hw} does not have all required delta_week values.")
+            
+            filtered_hw_df = hw_df[hw_df["delta_week"].isin(week_list)].sort_values(by="delta_week")
+            hw_report_date = filtered_hw_df.loc[:, "report_date"]
+            diff_df = pd.concat([diff_df.reset_index(drop=True), hw_report_date.reset_index(drop=True)], axis=1)
+            diff_df = diff_df.rename(columns={"report_date": f"{hw.lower()}_report_date"})
+        return diff_df
         
-    return _plot_sales(
+    (diff_fig, diff_df) = _plot_sales(
         data_source=data_source,
         labeler=labeler,
         ymax=ymax,
@@ -582,6 +604,8 @@ def plot_sales_pase_diff(base_hw: str,
         ygrid=ygrid,
         plot_style={'marker': None}
     )
+    diff_df = combine_report_dates(diff_df, base_hw, compare_hw)
+    return (diff_fig, diff_df)
 
 def _plot_bar(data_aggregator, color_generator=None, labeler=None,
               tick_params_fn=None,
