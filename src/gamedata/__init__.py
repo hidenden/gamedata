@@ -11,7 +11,7 @@ __author__ = "Hidenari Miwa"
 # Import main functions from modules
 from .hard_sales import (
     load_hard_sales,
-    get_hw_names,
+    get_hw,
     extract_week_reached_units,
     extract_by_date,
     extract_latest,
@@ -35,6 +35,7 @@ from .plot_hard import (
     plot_cumulative_sales,
     plot_monthly_bar_by_year,
     plot_yearly_bar_by_hard,
+    plot_monthly_bar_by_hard_year,
     plot_yearly_bar_by_month,
     plot_delta_yearly_bar,
     plot_maker_share_pie,
@@ -81,7 +82,7 @@ from .util import (
 # Make commonly used functions available at package level
 __all__ = [
     'load_hard_sales',
-    'get_hw_names',
+    'get_hw',
     'extract_week_reached_units',
     'extract_by_date',
     'extract_latest',
@@ -99,6 +100,7 @@ __all__ = [
     'plot_cumulative_sales',
     'plot_monthly_bar_by_year',
     'plot_yearly_bar_by_hard',
+    'plot_monthly_bar_by_hard_year',
     'plot_yearly_bar_by_month',
     'plot_delta_yearly_bar',
     'plot_cumsum_diffs',

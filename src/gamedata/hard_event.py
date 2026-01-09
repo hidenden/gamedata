@@ -202,3 +202,7 @@ def add_event_positions_delta(event_df: pd.DataFrame,
     filtered_events = filtered_events.drop(index=drop_indices)
     filtered_events = filtered_events.assign(x_pos=x_pos_list, y_pos=y_pos_list)
     return filtered_events
+
+EVENT_MASK_MIDDLE = EventMasks(hard=1.5, price=3, sale=2, soft=1.5, event=1)
+EVENT_MASK_LONG = EventMasks(hard=0.5, soft=0, event=0, price=0, sale=0)
+EVENT_MASK_SHORT = EventMasks(hard=2, soft=4, event=2, price=4, sale=5)

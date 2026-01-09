@@ -147,3 +147,6 @@ hard_weekly.pkl
 ._SUCCESS*
 _SUCCESS*
 
+# marimo session cache
+__marimo__/
+

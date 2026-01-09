@@ -14,6 +14,15 @@ from gamedata import hard_info as hi
 from gamedata import hard_sales as hs
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    DataFrameの列名を日本語に変換する
+    
+    Args:
+        df: 変換対象のDataFrame
+        
+    Returns:
+        pd.DataFrame: 列名が日本語に変換されたDataFrame
+    """
     df = df.rename(columns={
         'full_name': 'ハード',
         'hw': 'ハード',
@@ -34,16 +43,43 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def rename_hw(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    DataFrameのhw列の値をフルネームに変換する
+    
+    Args:
+        df: hw列を持つDataFrame
+        
+    Returns:
+        pd.DataFrame: hw列がフルネームに変換されたDataFrame
+    """
     hard_dict = hi.get_hard_dict()
     df['hw'] = df['hw'].map(hard_dict).fillna(df['hw'])
     return df
 
 def rename_index(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    DataFrameのインデックスのハード名をフルネームに変換する
+    
+    Args:
+        df: ハード名をインデックスに持つDataFrame
+        
+    Returns:
+        pd.DataFrame: インデックスがフルネームに変換されたDataFrame
+    """
     hard_dict = hi.get_hard_dict()
     df = df.rename(index=hard_dict)
     return df
 
 def rename_index_title(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    DataFrameのインデックス名を日本語に変換する
+    
+    Args:
+        df: 変換対象のDataFrame
+        
+    Returns:
+        pd.DataFrame: インデックス名が日本語に変換されたDataFrame
+    """
     index_dict = {'hw': 'ハード',
                   'report_date': '集計日',
                   'full_name': 'ハード',
@@ -68,6 +104,21 @@ def rename_index_title(df: pd.DataFrame) -> pd.DataFrame:
 def chart_units_by_date_hw(df: pd.DataFrame, 
                            begin:Optional[datetime]=None, end:Optional[datetime]=None
                            ) -> tuple[pd.DataFrame, pd.io.formats.style.Styler]:
+    """
+    日付とハード別の販売台数チャートを出力する
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+        begin: 集計開始日
+        end: 集計終了日
+        
+    Returns:
+        tuple[pd.DataFrame, Styler]: データフレームとスタイル適用済みのStylerオブジェクトのタプル
+        
+        DataFrameのカラム構成:
+        - index: 集計日 (datetime64), ハード (string): 日付とハード名のマルチインデックス
+        - columns: 販売台数 (int64), 累計台数 (int64)
+    """
     if begin is not None:
         df = df[df['report_date'] >= begin]
     if end is not None:
@@ -95,15 +146,26 @@ def _chart_periodic_ranking(rank_n:int = 10,
                          sort_column:str = 'monthly_units',
                          headers:List[str] = ['year', 'month']
                          ) -> pd.DataFrame:
-    """ある期間のランキングチャートを出力
+    """
+    ある期間のランキングチャートを出力する共通関数
 
     Args:
-        rank_n (int, optional): 上位n件. Defaults to 10.
-            マイナスだった場合は下位n件.
-        begin (Optional[datetime], optional): 開始日. Defaults to None.
-        end (Optional[datetime], optional): 終了日. Defaults to None.
-        hw (List[str], optional): ハード名リスト. Defaults to [].
-        maker (List[str], optional): メーカー名リスト. Defaults to [].
+        rank_n: 上位n件。マイナスの場合は下位n件
+        begin: 集計開始日
+        end: 集計終了日
+        hw: ハード名リスト（指定時はハードモード）
+        maker: メーカー名リスト（指定時はメーカーモード）
+        data_source_fn: データソース関数（weekly_sales, monthly_sales, yearly_salesなど）
+        sort_column: ソートに使用する列名
+        headers: 出力に含めるヘッダー列のリスト
+        
+    Returns:
+        pd.DataFrame: ランキングデータのDataFrame。インデックスは順位（1から開始）
+        
+        DataFrameのカラム構成（headersとsort_columnにより変動）:
+        - 週間: 集計日, ハード/メーカー, 週間販売台数
+        - 月間: 年, 月, ハード/メーカー, 月間販売台数
+        - 年間: 年, ハード/メーカー, 年間販売台数
     """
     df_all = hs.load_hard_sales()
     if (not hw) and maker:
@@ -143,14 +205,22 @@ def chart_weekly_ranking(rank_n:int = 10,
                          end:Optional[datetime] = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pd.DataFrame:
-    """週間ランキングチャートを出力
+    """
+    週間ランキングチャートを出力する
+    
     Args:
-        rank_n (int, optional): 上位n件. Defaults to 10.
-            マイナスだった場合は下位n件.
-        begin (Optional[datetime], optional): 開始日. Defaults to None.
-        end (Optional[datetime], optional): 終了日. Defaults to None.
-        hw (List[str], optional): ハード名リスト. Defaults to [].
-        maker (List[str], optional): メーカー名リスト. Defaults to [].
+        rank_n: 上位n件。マイナスの場合は下位n件（デフォルト: 10）
+        begin: 集計開始日
+        end: 集計終了日
+        hw: ハード名リスト（空の場合は全ハード）
+        maker: メーカー名リスト（空の場合は全メーカー）
+        
+    Returns:
+        pd.DataFrame: 週間ランキングのDataFrame
+        
+        DataFrameのカラム構成:
+        - index: 順位（1から開始）
+        - columns: 集計日 (datetime64), ハード/メーカー (string), 週間販売台数 (int64)
     """
     return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
@@ -163,14 +233,22 @@ def chart_monthly_ranking(rank_n:int = 10,
                          end:Optional[datetime] = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pd.DataFrame:
-    """月間ランキングチャートを出力
+    """
+    月間ランキングチャートを出力する
+    
     Args:
-        rank_n (int, optional): 上位n件. Defaults to 10.
-            マイナスだった場合は下位n件.
-        begin (Optional[datetime], optional): 開始日. Defaults to None.
-        end (Optional[datetime], optional): 終了日. Defaults to None.
-        hw (List[str], optional): ハード名リスト. Defaults to [].
-        maker (List[str], optional): メーカー名リスト. Defaults to [].
+        rank_n: 上位n件。マイナスの場合は下位n件（デフォルト: 10）
+        begin: 集計開始日
+        end: 集計終了日
+        hw: ハード名リスト（空の場合は全ハード）
+        maker: メーカー名リスト（空の場合は全メーカー）
+        
+    Returns:
+        pd.DataFrame: 月間ランキングのDataFrame
+        
+        DataFrameのカラム構成:
+        - index: 順位（1から開始）
+        - columns: 年 (int64), 月 (int64), ハード/メーカー (string), 月間販売台数 (int64)
     """
     return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
@@ -183,14 +261,22 @@ def chart_yearly_ranking(rank_n:int = 10,
                          end:Optional[datetime] = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pd.DataFrame:
-    """年間ランキングチャートを出力
+    """
+    年間ランキングチャートを出力する
+    
     Args:
-        rank_n (int, optional): 上位n件. Defaults to 10.
-            マイナスだった場合は下位n件.
-        begin (Optional[datetime], optional): 開始日. Defaults to None.
-        end (Optional[datetime], optional): 終了日. Defaults to None.
-        hw (List[str], optional): ハード名リスト. Defaults to [].
-        maker (List[str], optional): メーカー名リスト. Defaults to [].
+        rank_n: 上位n件。マイナスの場合は下位n件（デフォルト: 10）
+        begin: 集計開始日
+        end: 集計終了日
+        hw: ハード名リスト（空の場合は全ハード）
+        maker: メーカー名リスト（空の場合は全メーカー）
+        
+    Returns:
+        pd.DataFrame: 年間ランキングのDataFrame
+        
+        DataFrameのカラム構成:
+        - index: 順位（1から開始）
+        - columns: 年 (int64), ハード/メーカー (string), 年間販売台数 (int64)
     """
     return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
@@ -200,9 +286,18 @@ def chart_yearly_ranking(rank_n:int = 10,
 
     
 def chart_delta_week(delta_week:int) -> pd.DataFrame:
-    """指定された週数のランキングチャートを出力
+    """
+    指定された発売後の経過週数での累計販売台数ランキングを出力する
+    
     Args:
-        delta_week (int): 週数
+        delta_week: 発売日から何週間後か
+        
+    Returns:
+        pd.DataFrame: 経過週数時点での累計販売台数ランキングのDataFrame
+        
+        DataFrameのカラム構成:
+        - index: 順位（1から開始）
+        - columns: 集計日 (datetime64), 週数 (int64), hw (string), ハード (string), 累計台数 (int64)
     """
 
     df = hs.load_hard_sales()
