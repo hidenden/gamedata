@@ -1,37 +1,204 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Game Hardware Sales Weekly Report in Japan</title>
+    <title>Japan Weekly Video Game Hardware Sales Report</title>
     <link rel="stylesheet" href="notebook.css" />
+
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #111;
+            --muted: #666;
+            --card: #f6f7f9;
+            --card-border: #e5e7eb;
+            --hover: #eef2ff;
+            --focus: #111;
+            --link: #0b57d0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0b0f14;
+                --fg: #e6edf3;
+                --muted: #9aa4af;
+                --card: #121826;
+                --card-border: #223044;
+                --hover: #1b2a44;
+                --link: #7db0ff;
+            }
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji";
+        }
+
+        header,
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        h1.title {
+            text-align : center;
+            font-weight: normal;
+        }
+        /* 年セクションをカード化 */
+        .year-section {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            padding: 12px 14px;
+            margin: 12px 0;
+        }
+
+        .year-section h2 {
+            margin: 0;
+        }
+
+        /* 既存の year-toggle は活かしつつ、当たり判定を大きく */
+        .year-toggle {
+            padding: 6px 4px;
+        }
+
+        /* リンクリストの見やすさ */
+        .report-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 10px 0 0 0;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .report-list li {
+            margin: 0;
+        }
+
+        .report-list a {
+            display: block;
+            padding: 2px 8px 2px 8px;
+            color: var(--link);
+            text-decoration: none;
+            /* border-radius: 4px; */
+        }
+
+        .report-list a:hover {
+            background: var(--hover);
+        }
+
+        .report-list a:focus-visible {
+            outline: 2px solid var(--link);
+            outline-offset: 2px;
+        }
+
+        /* hr は不要なら非表示に */
+        hr {
+            display: none;
+        }
+
+        /* 年見出しをクリック可能に見せる */
+        .year-toggle {
+            all: unset;
+            cursor: pointer;
+            font: inherit;
+            color: inherit;
+            text-decoration: underline;
+
+            /* 追加: アイコン表示のため */
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .year-toggle:focus-visible {
+            outline: 2px solid #666;
+            outline-offset: 2px;
+        }
+
+        /* 追加: 開閉状態の見た目 */
+        .year-toggle::before {
+            content: "▾";
+            /* 展開中 */
+            width: 1em;
+            text-decoration: none;
+            /* 下線がアイコンに乗らないように */
+            opacity: 0.9;
+        }
+
+        .year-toggle[aria-expanded="false"] {
+            color: #657594;
+            text-decoration: none;
+            /* 折りたたみ中は下線なし */
+        }
+
+        .year-toggle[aria-expanded="false"]::before {
+            content: "▸";
+            /* 折りたたみ中 */
+            opacity: 0.8;
+        }
+    </style>
 </head>
+
 <body>
     <header>
-        <h1>Game Hardware Sales Weekly Report in Japan</h1>
+        <h1 class="title">国内ゲームハード週販レポート 保管所</h1>
     </header>
     <main>
-        <ul>
-            <li><a href="weekly_report_20250817.html">ゲームハード週販レポート 2025.08.17</a></li>
-            <li><a href="weekly_report_20250824.html">ゲームハード週販レポート 2025.08.24</a></li>
-            <li><a href="weekly_report_20250831.html">ゲームハード週販レポート 2025.08.31</a></li>
-            <li><a href="weekly_report_20250907.html">ゲームハード週販レポート 2025.09.07</a></li>
-            <li><a href="weekly_report_20250914.html">ゲームハード週販レポート 2025.09.14</a></li>
-            <li><a href="weekly_report_20250921.html">ゲームハード週販レポート 2025.09.21</a></li>
-            <li><a href="weekly_report_20250928.html">ゲームハード週販レポート 2025.09.28</a></li>
-            <li><a href="weekly_report_20251005.html">ゲームハード週販レポート 2025.10.05</a></li>
-            <li><a href="weekly_report_20251012.html">ゲームハード週販レポート 2025.10.12</a></li>
-            <li><a href="weekly_report_20251019.html">ゲームハード週販レポート 2025.10.19</a></li>
-            <li><a href="weekly_report_20251026.html">ゲームハード週販レポート 2025.10.26</a></li>
-            <li><a href="weekly_report_20251102.html">ゲームハード週販レポート 2025.11.02</a></li>
-            <li><a href="weekly_report_20251109.html">ゲームハード週販レポート 2025.11.09</a></li>
-            <li><a href="weekly_report_20251116.html">ゲームハード週販レポート 2025.11.16</a></li>
-            <li><a href="weekly_report_20251123.html">ゲームハード週販レポート 2025.11.23</a></li>
-            <li><a href="weekly_report_20251130.html">ゲームハード週販レポート 2025.11.30</a></li>
-            <li><a href="weekly_report_20251207.html">ゲームハード週販レポート 2025.12.07</a></li>
-            <li><a href="weekly_report_20251214.html">ゲームハード週販レポート 2025.12.14</a></li>
-            <li><a href="weekly_report_20251221.html">ゲームハード週販レポート 2025.12.21</a></li>
-            <li><a href="weekly_report_20251228.html">ゲームハード週販レポート 2025.12.28</a></li>
-        </ul>
+        <section class="year-section">
+            <h2>
+                <button class="year-toggle" type="button" aria-expanded="true" aria-controls="year-2025">2025</button>
+            </h2>
+            <ul id="year-2025" class="report-list">
+                <li><a href="2025/weekly_report_20250817.html">2025.08.17 Switch2は8万6千台</a></li>
+                <li><a href="2025/weekly_report_20250824.html">2025.08.24 Switch2の販売台数が3万5千台に落ち込み。今後出荷状況に注目</a></li>
+                <li><a href="2025/weekly_report_20250831.html">2025.08.31 PS5の障壁は存在しない。ハード台数的には</a></li>
+                <li><a href="weekly_report_20250907.html">2025.09.07 PS5 オータムセールで急伸、700万台突破!</a></li>
+                <li><a href="weekly_report_20250914.html">2025.09.14 Switch2 200万台到達</a></li>
+                <li><a href="weekly_report_20250921.html">2025.09.21 Switch 3600万台到達</a></li>
+                <li><a href="weekly_report_20250928.html">2025.09.28 サイレントヒルf効果でPS5が9月前年比超え</a></li>
+                <li><a href="weekly_report_20251005.html">2025.10.05 Ghost of YoteiでPS5躍進</a></li>
+                <li><a href="weekly_report_20251012.html">2025.10.12 嵐の前の静けさ</a></li>
+                <li><a href="weekly_report_20251019.html">2025.10.19 ZAでSwitch2が大躍進 20万台</a></li>
+                <li><a href="weekly_report_20251026.html">2025.10.26 Switch2はスパイク的出荷作戦？</a></li>
+                <li><a href="weekly_report_20251102.html">2025.11.02 Switch2は8万台超、多めの出荷が続きます</a></li>
+                <li><a href="weekly_report_20251109.html">2025.11.09 Switch2年末商戦に突入｡PS5値下げ発表!</a></li>
+                <li><a href="weekly_report_20251116.html">2025.11.16 Switch2 10万台</a></li>
+                <li><a href="weekly_report_20251123.html">2025.11.23 Switch2 12万台 年末商戦独走</a></li>
+                <li><a href="weekly_report_20251130.html">2025.11.30 Switch2 10万台弱を維持,PS5値下げで大躍進</a></li>
+                <li><a href="weekly_report_20251207.html">2025.12.07 Switch2 300万台到達!</a></li>
+                <li><a href="weekly_report_20251214.html">2025.12.14 Switch2 20万台出荷継続中</a></li>
+                <li><a href="weekly_report_20251221.html">2025.12.21 Switch2 史上2位の22万台</a></li>
+                <li><a href="weekly_report_20251228.html">2025.12.28 年間確定:Switch2 387万､PS5 88万</a></li>
+            </ul>
+        </section>
+
+        <section class="year-section">
+            <h2>
+                <button class="year-toggle" type="button" aria-expanded="true" aria-controls="year-2026">2026</button>
+            </h2>
+            <ul id="year-2026" class="report-list">
+                <li>2026.01.04</li>
+            </ul>
+        </section>
     </main>
     <footer>
     </footer>
+
+    <script>
+        document.querySelectorAll(".year-toggle").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const targetId = btn.getAttribute("aria-controls");
+                if (!targetId) return;
+
+                const ul = document.getElementById(targetId);
+                if (!ul) return;
+
+                const willExpand = ul.hidden; // hiddenなら開く
+                ul.hidden = !willExpand;
+                btn.setAttribute("aria-expanded", String(willExpand));
+            });
+        });
+    </script>
 </body>
