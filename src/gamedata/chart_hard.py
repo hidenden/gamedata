@@ -313,7 +313,7 @@ def chart_delta_week(delta_week:int) -> pd.DataFrame:
     return df
 
 def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
-                date_column:Optional[str] = None,
+                date_columns:Optional[List[str]] = None,
                 percent_column:Optional[str] = None,
                 datetime_index:bool = False,
                 highlight:Optional[str] = None,
@@ -326,7 +326,7 @@ def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
     Args:
         df: 販売台数データフレーム
         columns: スタイルを適用する列名のリスト（Noneの場合は全列）
-        date_column: 日付フォーマットを適用する列名
+        date_columns: 日付フォーマットを適用する列名のリスト
         percent_column: パーセントフォーマットを適用する列名
         datetime_index: インデックスがdatetime型の場合に日付フォーマットを適用するかどうか(level=0のみ対応)
         highlight: 強調表示する列名
@@ -343,9 +343,9 @@ def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
     styled = styled.format('{:,.0f}', subset=columns)
     styled = styled.set_properties(**{'text-align': 'right'}, subset=columns)
     
-    if date_column is not None:
-        styled = styled.format(subset=[date_column], formatter=lambda t: t.strftime('%Y-%m-%d')) 
-        styled = styled.set_properties(**{'text-align': 'left'}, subset=[date_column])        
+    if date_columns is not None:
+        styled = styled.format(subset=date_columns, formatter=lambda t: t.strftime('%Y-%m-%d')) 
+        styled = styled.set_properties(**{'text-align': 'left'}, subset=date_columns)        
     
     if percent_column is not None:
         styled = styled.format(subset=[percent_column], formatter='{:.1%}')
