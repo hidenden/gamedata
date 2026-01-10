@@ -133,7 +133,10 @@ def chart_units_by_date_hw(df: pd.DataFrame,
 
     styled = (df_out.style
         .format({'販売台数': '{:,}', '累計台数': '{:,}'})
-        .format_index(lambda t: t.strftime('%Y-%m-%d'),  level=0, axis=0))
+        .set_properties(**{'text-align': 'right'}, subset=['販売台数', '累計台数'])
+        .format_index(lambda t: t.strftime('%Y-%m-%d'),  level=0, axis=0)
+        .bar(subset=['販売台数'], color="#18ba06")
+        )
     return (df_out, styled)
 
 
@@ -310,19 +313,21 @@ def chart_delta_week(delta_week:int) -> pd.DataFrame:
     return df
 
 def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
-                date_column:Optional[str] = None,
+                date_columns:Optional[List[str]] = None,
+                percent_column:Optional[str] = None,
                 datetime_index:bool = False,
                 highlight:Optional[str] = None,
                 gradient:Optional[str] = None,
                 bar:Optional[str] = None,
-                bar_color:str = "#18ba06") -> Styler:
+                bar_color:str = "#18ba06dd") -> Styler:
     """
     販売台数データフレームにスタイルを適用する
     
     Args:
         df: 販売台数データフレーム
         columns: スタイルを適用する列名のリスト（Noneの場合は全列）
-        date_column: 日付フォーマットを適用する列名
+        date_columns: 日付フォーマットを適用する列名のリスト
+        percent_column: パーセントフォーマットを適用する列名
         datetime_index: インデックスがdatetime型の場合に日付フォーマットを適用するかどうか(level=0のみ対応)
         highlight: 強調表示する列名
         gradient: グラデーションを適用する列名
@@ -335,11 +340,17 @@ def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
     styled = df.style
     if columns is None:
         columns = df.columns.tolist()
-    styled = styled.format('{:,}', subset=columns)
+    styled = styled.format('{:,.0f}', subset=columns)
+    styled = styled.set_properties(**{'text-align': 'right'}, subset=columns)
     
-    if date_column is not None:
-        styled = styled.format(subset=[date_column], formatter=lambda t: t.strftime('%Y-%m-%d'))        
+    if date_columns is not None:
+        styled = styled.format(subset=date_columns, formatter=lambda t: t.strftime('%Y-%m-%d')) 
+        styled = styled.set_properties(**{'text-align': 'left'}, subset=date_columns)        
     
+    if percent_column is not None:
+        styled = styled.format(subset=[percent_column], formatter='{:.1%}')
+        styled = styled.set_properties(**{'text-align': 'right'}, subset=[percent_column])
+        
     if highlight is not None and highlight in columns:
         styled = styled.highlight_max(subset=[highlight], color="#b31d15")
         

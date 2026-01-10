@@ -8,5 +8,5 @@ def get_config() -> dict:
         "date": the_date,
         "year": the_date.year,
         "large": True,
-        "description": f"Switch2 2025年は378万台:{date_str}ハード週販レポート",
+        "description": f"2026年もSwitch2の快進撃でスタート:{date_str}ハード週販レポート",
     }
