@@ -309,3 +309,47 @@ def chart_delta_week(delta_week:int) -> pd.DataFrame:
     df.index += 1
     return df
 
+def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
+                date_column:Optional[str] = None,
+                datetime_index:bool = False,
+                highlight:Optional[str] = None,
+                gradient:Optional[str] = None,
+                bar:Optional[str] = None,
+                bar_color:str = "#18ba06") -> Styler:
+    """
+    販売台数データフレームにスタイルを適用する
+    
+    Args:
+        df: 販売台数データフレーム
+        columns: スタイルを適用する列名のリスト（Noneの場合は全列）
+        date_column: 日付フォーマットを適用する列名
+        datetime_index: インデックスがdatetime型の場合に日付フォーマットを適用するかどうか(level=0のみ対応)
+        highlight: 強調表示する列名
+        gradient: グラデーションを適用する列名
+        bar: 棒グラフを適用する列名
+        bar_color: 棒グラフの色（デフォルト: "#5fba7d"）
+        
+    Returns:
+        Styler: スタイルが適用されたStylerオブジェクト
+    """
+    styled = df.style
+    if columns is None:
+        columns = df.columns.tolist()
+    styled = styled.format('{:,}', subset=columns)
+    
+    if date_column is not None:
+        styled = styled.format(subset=[date_column], formatter=lambda t: t.strftime('%Y-%m-%d'))        
+    
+    if highlight is not None and highlight in columns:
+        styled = styled.highlight_max(subset=[highlight], color="#b31d15")
+        
+    if gradient is not None and gradient in columns:
+        styled = styled.background_gradient(subset=[gradient], cmap='Blues')
+        
+    if bar is not None and bar in columns:
+        styled = styled.bar(subset=[bar], color=bar_color)
+        
+    if datetime_index:
+        styled = styled.format_index(lambda t: t.strftime('%Y-%m-%d'), axis=0, level=0)
+    
+    return styled
