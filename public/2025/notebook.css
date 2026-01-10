@@ -1,0 +1,330 @@
+/* GitHub風スタイル - 文書形式の表示に最適化 */
+
+/* 全体レイアウトとフォント */
+.jp-Notebook {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif, "Apple Color Emoji";
+  line-height: 1.4;
+  color: #24292e;
+  background-color: #ffffff;
+  max-width: 900px;  /* 幅を少し狭くして可読性を高める */
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+body.jp-Notebook {
+  padding-top: 1.5rem;
+  text-autospace: normal;
+  line-break: strict;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* カードセルをシンプルな文書スタイルに変更 */
+.jp-Cell {
+  margin-bottom: 0.1rem;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.jp-Cell:hover {
+  box-shadow: none;
+}
+
+.jp-Cell-inputWrapper {
+  padding: 0.2rem 0;
+  background-color: transparent;
+  border: none;
+}
+
+.jp-Cell-outputWrapper {
+  padding: 0.2rem 0;
+  background-color: transparent;
+  border-top: none;
+}
+
+/* マークダウンセルのスタイルを標準的な文書に */
+.jp-MarkdownCell {
+  padding: 5px 0;
+}
+
+/* 見出しスタイル - GitHubライクだがよりシンプルに */
+.jp-RenderedMarkdown h1,
+.jp-RenderedHTMLCommon h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #eaecef;
+  color: #24292e;
+}
+
+.jp-RenderedMarkdown h2,
+.jp-RenderedHTMLCommon h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.2rem;
+  color: #24292e;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.jp-RenderedMarkdown h3,
+.jp-RenderedHTMLCommon h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: #24292e;
+}
+
+.jp-RenderedMarkdown h4,
+.jp-RenderedHTMLCommon h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #24292e;
+}
+
+/* アンカーリンク */
+.anchor-link {
+  visibility: hidden;
+  color: #0366d6;
+  margin-left: 0.2em;
+  font-size: 0.8em;
+}
+
+.jp-RenderedMarkdown h1:hover .anchor-link,
+.jp-RenderedMarkdown h2:hover .anchor-link,
+.jp-RenderedMarkdown h3:hover .anchor-link,
+.jp-RenderedMarkdown h4:hover .anchor-link,
+.jp-RenderedHTMLCommon h1:hover .anchor-link,
+.jp-RenderedHTMLCommon h2:hover .anchor-link,
+.jp-RenderedHTMLCommon h3:hover .anchor-link,
+.jp-RenderedHTMLCommon h4:hover .anchor-link {
+  visibility: visible;
+}
+
+/* テキストコンテンツ */
+.jp-RenderedMarkdown p,
+.jp-RenderedHTMLCommon p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.jp-RenderedMarkdown ul,
+.jp-RenderedHTMLCommon ul {
+  margin-bottom: 1rem;
+}
+
+.jp-RenderedMarkdown li,
+.jp-RenderedHTMLCommon li {
+  margin-bottom: 0.25rem;
+}
+
+/* データフレーム（テーブル）スタイル - 幅をコンテンツに合わせる */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  border: 1px solid #dfe2e5;
+  font-size: 0.9rem;
+}
+
+table thead th {
+  background-color: #f6f8fa;
+  border-bottom: 1px solid #dfe2e5;
+  padding: 0.25rem 0.75rem;  /* Changed from 0.5rem to 0.25rem for smaller vertical padding */
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+table tbody tr:hover {
+  background-color: #f0f4f8;
+}
+
+table tbody td,
+table tbody th {
+  padding: 0.25rem 0.75rem;  /* Changed from 0.5rem to 0.25rem for smaller vertical padding */
+  border-top: 1px solid #e1e4e8;
+  white-space: nowrap;
+}
+
+/* 複数レベルのインデックスを持つテーブル */
+table tbody tr th.level0 {
+  font-weight: 600;
+}
+
+/* 複数レベルのインデックスを持つテーブル */
+table tbody tr th.level1 {
+  text-align: left;
+}
+
+table tbody tr td.data {
+  text-align: right;
+  font-variant-numeric: tabular-nums; /* 等幅数字で揃える */
+}
+
+/* プロンプト出力エリア */
+.jp-OutputPrompt.jp-OutputArea-prompt {
+  color: #6a737d;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  padding: 0.3rem 0;
+}
+
+.jp-OutputArea-child {
+  margin-top: 0.25rem;
+}
+
+/* コードセル */
+.jp-CodeCell {
+  background-color: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+.jp-CodeCell .jp-Cell-inputWrapper {
+  border-left: 2px solid #e1e4e8;
+  padding-left: 0.75rem;
+}
+
+/* 画像出力 */
+.jp-RenderedImage {
+  text-align: center;
+  padding: 0.1rem 0;
+}
+
+.jp-RenderedImage img,
+.jp-RenderedHTMLCommon img {
+  max-width: 100%;
+  height: auto;
+  border: none;
+  margin: 0 auto;
+}
+
+/* 出力領域の調整 */
+.jp-OutputArea {
+  margin: 0;
+  padding: 0;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+  .jp-Notebook {
+    padding: 1rem 0.5rem;
+  }
+  
+  .jp-Cell {
+    margin-bottom: 0.75rem;
+  }
+  
+  .jp-Cell-inputWrapper,
+  .jp-Cell-outputWrapper {
+    padding: 0.5rem 0;
+  }
+  
+  table.dataframe thead th,
+  table.dataframe tbody td,
+  table.dataframe tbody th {
+    padding: 0.4rem;
+  }
+  
+  .jp-RenderedMarkdown h1,
+  .jp-RenderedHTMLCommon h1 {
+    font-size: 1.5rem;
+  }
+  
+  .jp-RenderedMarkdown h2,
+  .jp-RenderedHTMLCommon h2 {
+    font-size: 1.2rem;
+  }
+}
+
+/* ページ先頭のタイトル部分 */
+.jp-Cell:first-child .jp-RenderedHTMLCommon h1:first-child {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-top: 0.5rem;
+  padding-bottom: 0.75rem;
+  color: #24292e;
+  border-bottom: 1px solid #eaecef;
+}
+
+/* リンクスタイル */
+.jp-RenderedMarkdown a,
+.jp-RenderedHTMLCommon a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.jp-RenderedMarkdown a:hover,
+.jp-RenderedHTMLCommon a:hover {
+  text-decoration: underline;
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  body.jp-Notebook[data-jp-theme-light="false"] {
+    background-color: #0d1117;
+    color: #c9d1d9;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] .jp-Cell {
+    background-color: transparent;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] .jp-Cell-outputWrapper {
+    background-color: transparent;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] .jp-RenderedMarkdown h1,
+  body.jp-Notebook[data-jp-theme-light="false"] .jp-RenderedHTMLCommon h1 {
+    color: #e6edf3;
+    border-color: #30363d;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] .jp-RenderedMarkdown h2,
+  body.jp-Notebook[data-jp-theme-light="false"] .jp-RenderedHTMLCommon h2 {
+    color: #58a6ff;
+    border-color: #30363d;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe {
+    border-color: #30363d;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe thead th {
+    background-color: #1c2128;
+    color: #e6edf3;
+    border-color: #30363d;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe tbody tr:nth-child(even) {
+    background-color: #161b22;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe tbody tr:hover {
+    background-color: #1f2937;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe tbody td,
+  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe tbody th {
+    border-color: #30363d;
+  }
+  
+  body.jp-Notebook[data-jp-theme-light="false"] .jp-CodeCell .jp-Cell-inputWrapper {
+    border-color: #30363d;
+  }
+}
