@@ -39,19 +39,23 @@
         main {
             max-width: 900px;
             margin: 0 auto;
-            padding: 16px;
+            padding: 4px;
         }
 
         h1.title {
             text-align : center;
             font-weight: normal;
+            font-size: clamp(1.1rem, 4vw, 2rem);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         /* 年セクションをカード化 */
         .year-section {
             background: var(--card);
             border: 1px solid var(--card-border);
             border-radius: 4px;
-            padding: 12px 14px;
+            padding: 8px 8px;
             margin: 12px 0;
         }
 
@@ -80,7 +84,7 @@
             display: block;
             padding: 2px 8px 2px 8px;
             color: var(--link);
-            text-decoration: none;
+            text-decoration: underline;
             /* border-radius: 4px; */
         }
 
@@ -138,6 +142,21 @@
             /* 折りたたみ中 */
             opacity: 0.8;
         }
+
+        /* 折りたたみ時だけ件数を表示 */
+        .year-toggle[aria-expanded="false"]::after {
+            content: " (" attr(data-count) ")";
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.95em;
+        }
+
+        li {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
     </style>
 </head>
 
@@ -187,6 +206,18 @@
     </footer>
 
     <script>
+        // 年ボタンに件数(data-count)を付与
+        document.querySelectorAll(".year-toggle").forEach((btn) => {
+            const targetId = btn.getAttribute("aria-controls");
+            if (!targetId) return;
+
+            const ul = document.getElementById(targetId);
+            if (!ul) return;
+
+            const count = ul.querySelectorAll("li").length;
+            btn.setAttribute("data-count", String(count));
+        });
+
         document.querySelectorAll(".year-toggle").forEach((btn) => {
             btn.addEventListener("click", () => {
                 const targetId = btn.getAttribute("aria-controls");
