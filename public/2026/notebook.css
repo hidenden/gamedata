@@ -2,24 +2,30 @@
 
 /* 全体レイアウトとフォント */
 .jp-Notebook {
+  /* GitHub(Primer)寄りにトーン調整 */
   --nb-bg: #ffffff;
-  --nb-fg: #24292e;
-  --nb-muted: #6a737d;
-  --nb-link: #0366d6;
-  --nb-h1: #24292e;
-  --nb-h1-border: #eaecef;
-  --nb-h2: #24292e;
-  --nb-h2-border: #edf2f7;
-  --nb-h3: #24292e;
-  --nb-h4: #24292e;
-  --nb-table-border: #dfe2e5;
-  --nb-td-border: #e1e4e8;
-  --nb-table-head-bg: #f6f8fa;
-  --nb-row-even: #f8f9fa;
-  --nb-row-hover: #f0f4f8;
-  --nb-code-border: #e1e4e8;
+  --nb-fg: #1f2328;          /* 旧: #24292e */
+  --nb-muted: #656d76;       /* 旧: #6a737d */
+  --nb-link: #0969da;        /* 旧: #0366d6 */
 
-  /* 追加: UA部品もライト/ダークに追従させる */
+  --nb-h1: #1f2328;
+  --nb-h2: #1f2328;
+  --nb-h3: #1f2328;
+  --nb-h4: #1f2328;
+
+  --nb-h1-border: #d0d7de;   /* GitHubのborderトーン */
+  --nb-h2-border: #d8dee4;
+
+  --nb-table-border: #d0d7de;
+  --nb-td-border: #d8dee4;
+  --nb-table-head-bg: #f6f8fa;
+  --nb-row-even: #f4f6fa;
+  --nb-row-hover: #e8eaf0;
+  --nb-code-border: #d0d7de;
+
+  /* 追加: フォーカスリング色を変数化 */
+  --nb-focus-ring: #0969da;
+
   color-scheme: light dark;
 
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif, "Apple Color Emoji";
@@ -44,25 +50,30 @@
   }
 }
 
-/* ダークモード対応（セレクタを統一: body.jp-Notebook -> .jp-Notebook） */
+/* ダークモード対応 */
 @media (prefers-color-scheme: dark) {
   .jp-Notebook {
     --nb-bg: #0d1117;
-    --nb-fg: #c9d1d9;
-    --nb-muted: #9aa4af;
-    --nb-link: #58a6ff;
+    --nb-fg: #e6edf3;
+    --nb-muted: #8b949e;
+    --nb-link: #2f81f7;
+
     --nb-h1: #e6edf3;
     --nb-h1-border: #30363d;
-    --nb-h2: #58a6ff;
+    --nb-h2: #e6edf3;
     --nb-h2-border: #30363d;
     --nb-h3: #e6edf3;
     --nb-h4: #e6edf3;
+
     --nb-table-border: #30363d;
     --nb-td-border: #30363d;
-    --nb-table-head-bg: #1c2128;
+    --nb-table-head-bg: #161b22;
     --nb-row-even: #161b22;
     --nb-row-hover: #1f2937;
+
     --nb-code-border: #30363d;
+
+    --nb-focus-ring: #2f81f7;
   }
 }
 
@@ -174,7 +185,8 @@
   margin-bottom: 0.25rem;
 }
 
-/* データフレーム（テーブル）スタイル - 幅をコンテンツに合わせる */
+/* データフレーム（テーブル）スタイル
+   NOTE: 横スクロールを table / table.dataframe 両方に適用（幅が小さい表は内容幅に追従） */
 table,
 table.dataframe {
   width: auto;
@@ -184,8 +196,8 @@ table.dataframe {
   border: 1px solid var(--nb-table-border);
   font-size: 0.9rem;
 
-  /* 追加: nowrap 前提でも崩れないよう横スクロールを許可 */
-  display: block;
+  /* 横スクロール対応（表が横に長い場合） */
+  display: inline-table;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -194,7 +206,7 @@ table thead th,
 table.dataframe thead th {
   background-color: var(--nb-table-head-bg);
   border-bottom: 1px solid var(--nb-table-border);
-  padding: 0.25rem 0.75rem;  /* Changed from 0.5rem to 0.25rem for smaller vertical padding */
+  padding: 0.25rem 0.75rem;
   font-weight: 600;
   text-align: left;
   white-space: nowrap;
@@ -320,15 +332,24 @@ table tbody tr td.data {
   border-bottom: 1px solid var(--nb-h1-border);
 }
 
-/* リンクスタイル */
+/* リンクスタイル（GitHub寄りの下線挙動＋フォーカスリング） */
 .jp-RenderedMarkdown a,
 .jp-RenderedHTMLCommon a {
   color: var(--nb-link);
   text-decoration: none;
+  text-underline-offset: 0.18em;
 }
 
 .jp-RenderedMarkdown a:hover,
 .jp-RenderedHTMLCommon a:hover {
   text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.jp-RenderedMarkdown a:focus-visible,
+.jp-RenderedHTMLCommon a:focus-visible {
+  outline: 2px solid var(--nb-focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
