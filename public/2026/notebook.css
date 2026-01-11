@@ -3,7 +3,7 @@
 /* 全体レイアウトとフォント */
 .jp-Notebook {
   /* GitHub(Primer)寄りにトーン調整 */
-  --nb-bg: #ffffff;
+  --nb-bg: #ffffff;       /* 旧: #fafbfc */
   --nb-fg: #1f2328;          /* 旧: #24292e */
   --nb-muted: #656d76;       /* 旧: #6a737d */
   --nb-link: #0969da;        /* 旧: #0366d6 */
@@ -74,6 +74,9 @@
     --nb-code-border: #30363d;
 
     --nb-focus-ring: #2f81f7;
+  }
+  .jp-RenderedImage img, .output_png img {
+    filter: invert(1) hue-rotate(180deg) brightness(0.8);
   }
 }
 
