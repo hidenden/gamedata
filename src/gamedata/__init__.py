@@ -38,6 +38,7 @@ from .plot_hard import (
     plot_monthly_bar_by_hard_year,
     plot_yearly_bar_by_month,
     plot_delta_yearly_bar,
+    plot_maker_share_bar,
     plot_maker_share_pie,
     plot_cumsum_diffs,
 )
@@ -104,6 +105,7 @@ __all__ = [
     'plot_monthly_bar_by_hard_year',
     'plot_yearly_bar_by_month',
     'plot_delta_yearly_bar',
+    'plot_maker_share_bar',
     'plot_cumsum_diffs',
     'load_hard_info',
     'get_hard_colors',
