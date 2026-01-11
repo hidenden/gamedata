@@ -19,21 +19,51 @@
   --nb-row-hover: #f0f4f8;
   --nb-code-border: #e1e4e8;
 
+  /* 追加: UA部品もライト/ダークに追従させる */
+  color-scheme: light dark;
+
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif, "Apple Color Emoji";
   line-height: 1.4;
   color: var(--nb-fg);
   background-color: var(--nb-bg);
-  max-width: 900px;  /* 幅を少し狭くして可読性を高める */
+  max-width: 900px;
   margin: 0 auto;
   padding: 2rem 1rem;
-}
 
-body.jp-Notebook {
+  /* ここに集約（body.jp-Notebook から移動） */
   padding-top: 1.5rem;
-  text-autospace: normal;
   line-break: strict;
   overflow-wrap: anywhere;
   word-break: normal;
+}
+
+/* 実装状況が限定的なプロパティは @supports でガード */
+@supports (text-autospace: normal) {
+  .jp-Notebook {
+    text-autospace: normal;
+  }
+}
+
+/* ダークモード対応（セレクタを統一: body.jp-Notebook -> .jp-Notebook） */
+@media (prefers-color-scheme: dark) {
+  .jp-Notebook {
+    --nb-bg: #0d1117;
+    --nb-fg: #c9d1d9;
+    --nb-muted: #9aa4af;
+    --nb-link: #58a6ff;
+    --nb-h1: #e6edf3;
+    --nb-h1-border: #30363d;
+    --nb-h2: #58a6ff;
+    --nb-h2-border: #30363d;
+    --nb-h3: #e6edf3;
+    --nb-h4: #e6edf3;
+    --nb-table-border: #30363d;
+    --nb-td-border: #30363d;
+    --nb-table-head-bg: #1c2128;
+    --nb-row-even: #161b22;
+    --nb-row-hover: #1f2937;
+    --nb-code-border: #30363d;
+  }
 }
 
 /* カードセルをシンプルな文書スタイルに変更 */
@@ -153,6 +183,11 @@ table.dataframe {
   border-collapse: collapse;
   border: 1px solid var(--nb-table-border);
   font-size: 0.9rem;
+
+  /* 追加: nowrap 前提でも崩れないよう横スクロールを許可 */
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 table thead th,
@@ -297,24 +332,3 @@ table tbody tr td.data {
   text-decoration: underline;
 }
 
-/* ダークモード対応 */
-@media (prefers-color-scheme: dark) {
-  body.jp-Notebook {
-    --nb-bg: #0d1117;
-    --nb-fg: #c9d1d9;
-    --nb-muted: #9aa4af;
-    --nb-link: #58a6ff;
-    --nb-h1: #e6edf3;
-    --nb-h1-border: #30363d;
-    --nb-h2: #58a6ff;
-    --nb-h2-border: #30363d;
-    --nb-h3: #e6edf3;
-    --nb-h4: #e6edf3;
-    --nb-table-border: #30363d;
-    --nb-td-border: #30363d;
-    --nb-table-head-bg: #1c2128;
-    --nb-row-even: #161b22;
-    --nb-row-hover: #1f2937;
-    --nb-code-border: #30363d;
-  }
-}
