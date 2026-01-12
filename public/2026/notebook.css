@@ -76,7 +76,7 @@
     --nb-focus-ring: #2f81f7;
   }
   .jp-RenderedImage img, .output_png img {
-    filter: invert(1) hue-rotate(180deg) brightness(0.85);
+    filter: invert(1) hue-rotate(180deg) brightness(0.8) saturate(2.5);
   }
 }
 
