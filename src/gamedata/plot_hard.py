@@ -57,10 +57,12 @@ def _bar_on_add(sel, df: pd.DataFrame, color2label: dict):
     idx = int(x + w/2 + 0.5)  # 四捨五入
     if idx < len(df.index):
         x_label = df.index[idx]
-        if int(x_label) <= 12:
-            x_label = f"{x_label}月"
-        else:
-            x_label = f"{x_label}年"
+        # x_labelの型がintの場合、月または年のラベルに変換
+        if isinstance(x_label, int):
+            if x_label <= 12:
+                x_label = f"{x_label}月"
+            else:
+                x_label = f"{x_label}年"
     else:
         x_label = ""
 
