@@ -1,12 +1,21 @@
 from datetime import datetime, timedelta
 
-# 4半期単位で約1年前の日付を計算して返す関数
-# 引数にはdatetimeオブジェクトを渡す
-# 入力が　1月から3月の日付なら前年の4月1日を返す
-# 入力が4月から6月の日付なら前年の7月1日を返す
-# 入力が7月から9月の日付なら前年の10月1日を返す
-# 入力が10月から12月の日付ならその年の1月1日を返す
 def report_begin(date: datetime) -> datetime:
+    """4半期単位で「約1年前」に相当するレポート開始日を返す。
+
+    入力月に応じて、以下の日付（いずれも月初）を返す。
+
+    - 1〜3月: 前年 4/1
+    - 4〜6月: 前年 7/1
+    - 7〜9月: 前年 10/1
+    - 10〜12月: 当年 1/1
+
+    Args:
+        date: 基準となる日付。
+
+    Returns:
+        レポート開始日（datetime、時刻は 00:00:00）。
+    """
     year = date.year
     month = date.month
 
@@ -20,10 +29,28 @@ def report_begin(date: datetime) -> datetime:
         return datetime(year, 1, 1)
 
 
-# 引数で与えられた日付のn年前の1月1日のdatetimeオブジェクトを返す関数
-def years_ago(date: datetime, diff_year:int = 2) -> datetime:
+def years_ago(date: datetime, diff_year: int = 2) -> datetime:
+    """指定年数だけ遡った年の1月1日を返す。
+
+    Args:
+        date: 基準となる日付。
+        diff_year: 何年前にするか（年数）。
+
+    Returns:
+        (date.year - diff_year) 年の 1/1（datetime、時刻は 00:00:00）。
+    """
     year = date.year
     return datetime(year - diff_year, 1, 1)
 
-def weeks_before(date: datetime, diff_week:int = 4) -> datetime:
+
+def weeks_before(date: datetime, diff_week: int = 4) -> datetime:
+    """指定週数だけ前の日付を返す。
+
+    Args:
+        date: 基準となる日付。
+        diff_week: 何週間前にするか（週数）。
+
+    Returns:
+        date から diff_week 週間前の datetime。
+    """
     return date - timedelta(weeks=diff_week)
