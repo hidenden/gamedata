@@ -1,6 +1,5 @@
 {
   // Use this repository's uv-managed virtual environment
-  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
 
   // Ensure Jupyter uses the selected interpreter for notebooks
   "jupyter.kernels.excludePythonEnvironments": []

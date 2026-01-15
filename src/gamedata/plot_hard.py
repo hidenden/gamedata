@@ -57,10 +57,12 @@ def _bar_on_add(sel, df: pd.DataFrame, color2label: dict):
     idx = int(x + w/2 + 0.5)  # 四捨五入
     if idx < len(df.index):
         x_label = df.index[idx]
-        if int(x_label) <= 12:
-            x_label = f"{x_label}月"
-        else:
-            x_label = f"{x_label}年"
+        # x_labelの型がintの場合、月または年のラベルに変換
+        if isinstance(x_label, int):
+            if x_label <= 12:
+                x_label = f"{x_label}月"
+            else:
+                x_label = f"{x_label}年"
     else:
         x_label = ""
 
@@ -125,7 +127,10 @@ def _plot_sales(
     fig, ax = plt.subplots(figsize=_FigSize)
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
-    
+    # 背景の透明化
+    plt.rcParams['figure.facecolor'] = 'none'
+    plt.rcParams['axes.facecolor'] = 'none'
+
     color_table = hi.get_hard_colors(df.columns.tolist())
     # color_tableの内容がblackのみの場合、デフォルトのカラーマップを使用する
     if all(c == 'black' for c in color_table):
@@ -611,7 +616,12 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
               tick_params_fn=None,
               begin: Optional[datetime] = None,
               end: Optional[datetime] = None,
-              ymax: Optional[int] = None, stacked: bool = False) -> tuple[Figure, pd.DataFrame]:
+              ymax: Optional[int] = None, 
+              stacked: bool = False,
+              horizontal: bool = False,
+              show_values: bool = False,
+              value_color: str = 'black',
+              bar_width: float = 0.5) -> tuple[Figure, pd.DataFrame]:
     """
     棒グラフをプロットする共通関数  
     Args:
@@ -621,6 +631,11 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
         begin: 集計開始日
         end: 集計終了日
         ymax: Y軸の上限値   
+        stacked: 棒グラフを積み上げ表示するかどうか
+        horizontal: 横棒グラフにするかどうか
+        show_values: 各棒の上に値を表示するかどうか
+        value_color: 棒の上に表示する値の色
+        bar_width: 棒グラフの棒の幅（0.0～1.0）
     Returns:
         matplotlib.figure.Figure: グラフのFigureオブジェクト
         pd.DataFrame: プロットに使用したデータのDataFrame
@@ -637,6 +652,10 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
     fig, ax = plt.subplots(figsize=get_figsize())
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
+    # 背景の透明化
+    plt.rcParams['figure.facecolor'] = 'none'
+    plt.rcParams['axes.facecolor'] = 'none'
+    
     if tick_params_fn is not None:
         params = tick_params_fn()
         ax.tick_params(axis=params.axis, which=params.which, labelsize=params.labelsize, rotation=params.rotation)
@@ -646,7 +665,25 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
     else:
         color_table = None
 
-    df.plot(kind='bar', ax=ax, color=color_table, stacked=stacked)
+    if horizontal:
+        kind = 'barh'
+    else:
+        kind = 'bar'
+    
+    df.plot(kind=kind, ax=ax, color=color_table, stacked=stacked, width=bar_width)
+    
+    if show_values:
+        if stacked:
+            # 積み上げの場合、各コンテナの個々の値を表示
+            for container in ax.containers:
+                ax.bar_label(container, fmt='%.1f', color=value_color, label_type='center' if horizontal else 'edge')
+        else:
+            # 非積み上げの場合、最後のコンテナのみ
+            if horizontal:
+                ax.bar_label(ax.containers[-1], fmt='%.1f', color=value_color, label_type='edge')
+            else:
+                ax.bar_label(ax.containers[-1], fmt='%.1f', color=value_color, label_type='edge')
+    
     if labeler is not None:
         labels = labeler()
         if labels.title: ax.set_title(labels.title)
@@ -654,17 +691,22 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
         if labels.ylabel: ax.set_ylabel(labels.ylabel)
         if labels.legend: ax.legend(title=labels.legend)
 
-    ax.set_xticks(range(len(df.index)))
-    ax.set_xticklabels(df.index, rotation=0)
+    if not horizontal:
+        ax.set_xticks(range(len(df.index)))
+        ax.set_xticklabels(df.index, rotation=0)
+    else:
+        ax.set_yticks(range(len(df.index)))
+        ax.set_yticklabels(df.index)
 
     # Y軸の上限設定
     if ymax is not None:
         ax.set_ylim(top=ymax)
 
     # 縦軸の表示を指数表示から整数表示に変更
-    ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-    ax.ticklabel_format(style='plain', axis='y')
-    ax.grid(axis='y')
+    if not horizontal:
+        ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+        ax.ticklabel_format(style='plain', axis='y')
+        ax.grid(axis='y')
     
     # 凡例のハンドルとラベルを取得し、色とラベルの対応表を作成
     handles, labels = ax.get_legend_handles_labels()
@@ -1039,6 +1081,60 @@ def plot_delta_yearly_bar(hw:list[str],
         ymax=ymax
     )  
 
+def plot_maker_share_bar(begin:Optional[datetime] = None, 
+                         end:Optional[datetime] = None,
+                         ticklabelsize:Optional[int] = None
+                        ) -> tuple[Figure, pd.DataFrame]:
+    """指定した期間のメーカー別シェアを棒グラフで表示する
+    
+    Args:
+        begin: 集計開始日(通常は年初めに設定する)
+        end: 集計終了日(通常は年末に設定する)
+        
+    Returns:
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: year (int64): report_dateの年
+        - columns: hw (string): ゲームハードの識別子
+        - values: yearly_units (int64): 年次販売台数
+    """
+    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+        pvmaker_df = hs.pivot_maker(hard_sales_df, 
+                                    begin_year=begin.year if begin else None,
+                                    end_year=end.year if end else None)
+        # pvmaker_dfはカラム名がメーカーのDFである｡これをシェア率に変換する
+        pvshare_df = pvmaker_df.div(pvmaker_df.sum(axis=1), axis=0) * 100.0
+        return pvshare_df
+    
+    def color_generator(maker_list: List[str]) -> List[str]:
+        return hi.get_maker_colors(maker_list)
+    
+    def labeler() -> AxisLabels:
+        return AxisLabels(
+            title=f"メーカーシェア",
+            xlabel="シェア (%)",
+            ylabel="年",
+            legend="メーカー"
+        )
+
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+
+    return _plot_bar(
+        data_aggregator=data_aggregator,
+        color_generator=color_generator,
+        labeler=labeler,
+        tick_params_fn=tick_params_fn,
+        begin=begin,
+        end=end,
+        stacked=True,
+        horizontal=True,
+        show_values=True,
+        value_color="#D0E5D8",
+        bar_width=0.8
+    )
 
 def plot_maker_share_pie(begin_year:Optional[int] = None, 
                          end_year:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
@@ -1064,6 +1160,9 @@ def plot_maker_share_pie(begin_year:Optional[int] = None,
     fig, axes = plt.subplots(1, n, figsize=(4*n, 4))
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
+    # 背景の透明化
+    plt.rcParams['figure.facecolor'] = 'none'
+    plt.rcParams['axes.facecolor'] = 'none'
 
     if n == 1:
         axes = [axes]

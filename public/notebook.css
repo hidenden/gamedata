@@ -2,10 +2,27 @@
 
 /* 全体レイアウトとフォント */
 .jp-Notebook {
+  --nb-bg: #ffffff;
+  --nb-fg: #24292e;
+  --nb-muted: #6a737d;
+  --nb-link: #0366d6;
+  --nb-h1: #24292e;
+  --nb-h1-border: #eaecef;
+  --nb-h2: #24292e;
+  --nb-h2-border: #edf2f7;
+  --nb-h3: #24292e;
+  --nb-h4: #24292e;
+  --nb-table-border: #dfe2e5;
+  --nb-td-border: #e1e4e8;
+  --nb-table-head-bg: #f6f8fa;
+  --nb-row-even: #f8f9fa;
+  --nb-row-hover: #f0f4f8;
+  --nb-code-border: #e1e4e8;
+
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif, "Apple Color Emoji";
   line-height: 1.4;
-  color: #24292e;
-  background-color: #ffffff;
+  color: var(--nb-fg);
+  background-color: var(--nb-bg);
   max-width: 900px;  /* 幅を少し狭くして可読性を高める */
   margin: 0 auto;
   padding: 2rem 1rem;
@@ -57,8 +74,8 @@ body.jp-Notebook {
   margin-top: 1.5rem;
   margin-bottom: 1rem;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid #eaecef;
-  color: #24292e;
+  border-bottom: 1px solid var(--nb-h1-border);
+  color: var(--nb-h1);
 }
 
 .jp-RenderedMarkdown h2,
@@ -68,8 +85,8 @@ body.jp-Notebook {
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.2rem;
-  color: #24292e;
-  border-bottom: 1px solid #edf2f7;
+  color: var(--nb-h2);
+  border-bottom: 1px solid var(--nb-h2-border);
 }
 
 .jp-RenderedMarkdown h3,
@@ -78,7 +95,7 @@ body.jp-Notebook {
   font-weight: 600;
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
-  color: #24292e;
+  color: var(--nb-h3);
 }
 
 .jp-RenderedMarkdown h4,
@@ -87,13 +104,13 @@ body.jp-Notebook {
   font-weight: 600;
   margin-top: 1rem;
   margin-bottom: 0.5rem;
-  color: #24292e;
+  color: var(--nb-h4);
 }
 
 /* アンカーリンク */
 .anchor-link {
   visibility: hidden;
-  color: #0366d6;
+  color: var(--nb-link);
   margin-left: 0.2em;
   font-size: 0.8em;
 }
@@ -128,36 +145,42 @@ body.jp-Notebook {
 }
 
 /* データフレーム（テーブル）スタイル - 幅をコンテンツに合わせる */
-table {
+table,
+table.dataframe {
   width: auto;
   max-width: 100%;
   margin: 1rem 0;
   border-collapse: collapse;
-  border: 1px solid #dfe2e5;
+  border: 1px solid var(--nb-table-border);
   font-size: 0.9rem;
 }
 
-table thead th {
-  background-color: #f6f8fa;
-  border-bottom: 1px solid #dfe2e5;
+table thead th,
+table.dataframe thead th {
+  background-color: var(--nb-table-head-bg);
+  border-bottom: 1px solid var(--nb-table-border);
   padding: 0.25rem 0.75rem;  /* Changed from 0.5rem to 0.25rem for smaller vertical padding */
   font-weight: 600;
   text-align: left;
   white-space: nowrap;
 }
 
-table tbody tr:nth-child(even) {
-  background-color: #f8f9fa;
+table tbody tr:nth-child(even),
+table.dataframe tbody tr:nth-child(even) {
+  background-color: var(--nb-row-even);
 }
 
-table tbody tr:hover {
-  background-color: #f0f4f8;
+table tbody tr:hover,
+table.dataframe tbody tr:hover {
+  background-color: var(--nb-row-hover);
 }
 
 table tbody td,
-table tbody th {
+table tbody th,
+table.dataframe tbody td,
+table.dataframe tbody th {
   padding: 0.25rem 0.75rem;  /* Changed from 0.5rem to 0.25rem for smaller vertical padding */
-  border-top: 1px solid #e1e4e8;
+  border-top: 1px solid var(--nb-td-border);
   white-space: nowrap;
 }
 
@@ -178,7 +201,7 @@ table tbody tr td.data {
 
 /* プロンプト出力エリア */
 .jp-OutputPrompt.jp-OutputArea-prompt {
-  color: #6a737d;
+  color: var(--nb-muted);
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.85rem;
   padding: 0.3rem 0;
@@ -196,7 +219,7 @@ table tbody tr td.data {
 }
 
 .jp-CodeCell .jp-Cell-inputWrapper {
-  border-left: 2px solid #e1e4e8;
+  border-left: 2px solid var(--nb-code-border);
   padding-left: 0.75rem;
 }
 
@@ -258,14 +281,14 @@ table tbody tr td.data {
   font-size: 1.8rem;
   margin-top: 0.5rem;
   padding-bottom: 0.75rem;
-  color: #24292e;
-  border-bottom: 1px solid #eaecef;
+  color: var(--nb-h1);
+  border-bottom: 1px solid var(--nb-h1-border);
 }
 
 /* リンクスタイル */
 .jp-RenderedMarkdown a,
 .jp-RenderedHTMLCommon a {
-  color: #0366d6;
+  color: var(--nb-link);
   text-decoration: none;
 }
 
@@ -276,55 +299,22 @@ table tbody tr td.data {
 
 /* ダークモード対応 */
 @media (prefers-color-scheme: dark) {
-  body.jp-Notebook[data-jp-theme-light="false"] {
-    background-color: #0d1117;
-    color: #c9d1d9;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] .jp-Cell {
-    background-color: transparent;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] .jp-Cell-outputWrapper {
-    background-color: transparent;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] .jp-RenderedMarkdown h1,
-  body.jp-Notebook[data-jp-theme-light="false"] .jp-RenderedHTMLCommon h1 {
-    color: #e6edf3;
-    border-color: #30363d;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] .jp-RenderedMarkdown h2,
-  body.jp-Notebook[data-jp-theme-light="false"] .jp-RenderedHTMLCommon h2 {
-    color: #58a6ff;
-    border-color: #30363d;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe {
-    border-color: #30363d;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe thead th {
-    background-color: #1c2128;
-    color: #e6edf3;
-    border-color: #30363d;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe tbody tr:nth-child(even) {
-    background-color: #161b22;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe tbody tr:hover {
-    background-color: #1f2937;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe tbody td,
-  body.jp-Notebook[data-jp-theme-light="false"] table.dataframe tbody th {
-    border-color: #30363d;
-  }
-  
-  body.jp-Notebook[data-jp-theme-light="false"] .jp-CodeCell .jp-Cell-inputWrapper {
-    border-color: #30363d;
+  body.jp-Notebook {
+    --nb-bg: #0d1117;
+    --nb-fg: #c9d1d9;
+    --nb-muted: #9aa4af;
+    --nb-link: #58a6ff;
+    --nb-h1: #e6edf3;
+    --nb-h1-border: #30363d;
+    --nb-h2: #58a6ff;
+    --nb-h2-border: #30363d;
+    --nb-h3: #e6edf3;
+    --nb-h4: #e6edf3;
+    --nb-table-border: #30363d;
+    --nb-td-border: #30363d;
+    --nb-table-head-bg: #1c2128;
+    --nb-row-even: #161b22;
+    --nb-row-hover: #1f2937;
+    --nb-code-border: #30363d;
   }
 }
