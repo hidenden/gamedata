@@ -314,11 +314,12 @@ def chart_delta_week(delta_week:int) -> pd.DataFrame:
 
 def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
                 date_columns:Optional[List[str]] = None,
-                percent_column:Optional[str] = None,
+                percent_columns:Optional[List[str]] = None,
                 datetime_index:bool = False,
-                highlight:Optional[str] = None,
-                gradient:Optional[str] = None,
-                bar:Optional[str] = None,
+                highlights:Optional[List[str]] = None,
+                gradients:Optional[List[str]] = None,
+                gradient_horizontal:bool = False,
+                bars:Optional[List[str]] = None,
                 bar_color:str = "#18ba06dd") -> Styler:
     """
     販売台数データフレームにスタイルを適用する
@@ -327,11 +328,12 @@ def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
         df: 販売台数データフレーム
         columns: スタイルを適用する列名のリスト（Noneの場合は全列）
         date_columns: 日付フォーマットを適用する列名のリスト
-        percent_column: パーセントフォーマットを適用する列名
+        percent_columns: パーセントフォーマットを適用する列名のリスト
         datetime_index: インデックスがdatetime型の場合に日付フォーマットを適用するかどうか(level=0のみ対応)
-        highlight: 強調表示する列名
-        gradient: グラデーションを適用する列名
-        bar: 棒グラフを適用する列名
+        highlights: 強調表示する列名のリスト
+        gradients: グラデーションを適用する列名のリスト
+        gradient_horizontal: 行方向にグラデーションを適用するかどうか
+        bars: 棒グラフを適用する列名のリスト
         bar_color: 棒グラフの色（デフォルト: "#5fba7d"）
         
     Returns:
@@ -347,18 +349,27 @@ def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
         styled = styled.format(subset=date_columns, formatter=lambda t: t.strftime('%Y-%m-%d')) 
         styled = styled.set_properties(**{'text-align': 'left'}, subset=date_columns)        
     
-    if percent_column is not None:
-        styled = styled.format(subset=[percent_column], formatter='{:.1%}')
-        styled = styled.set_properties(**{'text-align': 'right'}, subset=[percent_column])
+    if percent_columns is not None:
+        styled = styled.format(subset=percent_columns, formatter='{:.1%}')
+        styled = styled.set_properties(**{'text-align': 'right'}, subset=percent_columns)
         
-    if highlight is not None and highlight in columns:
-        styled = styled.highlight_max(subset=[highlight], color="#b31d15")
+    if highlights is not None:
+        for highlight in highlights:
+            if highlight in columns:
+                styled = styled.highlight_max(subset=[highlight], color="#b31d15")
         
-    if gradient is not None and gradient in columns:
-        styled = styled.background_gradient(subset=[gradient], cmap='Blues')
+    if gradients is not None:
+        for gradient in gradients:
+            if gradient in columns:
+                styled = styled.background_gradient(subset=[gradient], cmap='Blues')
         
-    if bar is not None and bar in columns:
-        styled = styled.bar(subset=[bar], color=bar_color)
+    if gradient_horizontal:
+        styled = styled.background_gradient(axis=1, cmap='Blues')
+        
+    if bars is not None:
+        for bar in bars:
+            if bar in columns:
+                styled = styled.bar(subset=[bar], color=bar_color)
         
     if datetime_index:
         styled = styled.format_index(lambda t: t.strftime('%Y-%m-%d'), axis=0, level=0)
