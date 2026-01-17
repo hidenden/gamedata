@@ -11,9 +11,9 @@ import matplotlib.dates as mdates
 import mplcursors
 
 # プロジェクト内モジュール
-from gamedata import hard_sales as hs
-from gamedata import hard_info as hi
-from gamedata import hard_event as he
+from . import hard_sales as hs
+from . import hard_info as hi
+from . import hard_event as he
 
 _FigSize = (10, 5)
 
