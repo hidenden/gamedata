@@ -1,22 +1,17 @@
 # 標準ライブラリ
-from datetime import datetime, timedelta, date
-from typing import List, Optional
 
 # サードパーティライブラリ
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.ticker import ScalarFormatter, MultipleLocator
-import matplotlib.dates as mdates
-import mplcursors
 
 # プロジェクト内モジュール
 from . import hard_sales as hs
 from . import hard_sales_pivot as pv
 from . import hard_info as hi
 
-def plot_maker_share_pie(begin_year:Optional[int] = None, 
-                         end_year:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+def plot_maker_share_pie(begin_year:int | None = None, 
+                         end_year:int | None = None) -> tuple[Figure, pd.DataFrame]:
     """
     年ごとのメーカーシェアを円グラフで可視化する
 

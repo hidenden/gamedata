@@ -1,13 +1,12 @@
 # 標準ライブラリ
-from datetime import datetime, timedelta, date
-from typing import List, Optional
+from datetime import datetime
+from typing import List
 
 # サードパーティライブラリ
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.ticker import ScalarFormatter, MultipleLocator
-import matplotlib.dates as mdates
+from matplotlib.ticker import ScalarFormatter
 import mplcursors
 
 # プロジェクト内モジュール
@@ -16,7 +15,6 @@ from . import hard_sales as hs
 from . import hard_sales_filter as hsf
 from . import hard_sales_pivot as pv
 from . import hard_info as hi
-from . import hard_event as he
 
 
 def _bar_on_add(sel, df: pd.DataFrame, color2label: dict):
@@ -50,9 +48,9 @@ def _bar_on_add(sel, df: pd.DataFrame, color2label: dict):
 
 def _plot_bar(data_aggregator, color_generator=None, labeler=None,
               tick_params_fn=None,
-              begin: Optional[datetime] = None,
-              end: Optional[datetime] = None,
-              ymax: Optional[int] = None, 
+              begin: datetime | None = None,
+              end: datetime | None = None,
+              ymax: int | None = None, 
               stacked: bool = False,
               horizontal: bool = False,
               show_values: bool = False,
@@ -160,10 +158,10 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
 
     return fig, df
 
-def plot_monthly_bar_by_year(hw:str, begin:Optional[datetime] = None, 
-                           end:Optional[datetime] = None,
-                           ymax:Optional[int] = None,
-                           ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None, 
+                           end:datetime | None = None,
+                           ymax:int | None = None,
+                           ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
     """
     指定したハードウェアの月間販売台数を年別に棒グラフで表示する
     
@@ -211,11 +209,11 @@ def plot_monthly_bar_by_year(hw:str, begin:Optional[datetime] = None,
     )
 
 def plot_monthly_bar_by_hard(hw:list[str], 
-                             begin:Optional[datetime] = None, 
-                             end:Optional[datetime] = None,
+                             begin:datetime | None = None, 
+                             end:datetime | None = None,
                              stacked:bool=False,
-                             ymax:Optional[int] = None,
-                             ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                             ymax:int | None = None,
+                             ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
     """
     指定した期間の月間販売台数をハード別に棒グラフで表示する
     
@@ -276,8 +274,8 @@ def plot_monthly_bar_by_hard(hw:list[str],
 
 def plot_monthly_bar_by_hard_year(hwy:list[tuple[str, int]], 
                              stacked:bool=False,
-                             ymax:Optional[int] = None,
-                             ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                             ymax:int | None = None,
+                             ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
     """
     指定したハードウェアと年の組み合わせの月間販売台数を棒グラフで表示する
     
@@ -340,10 +338,10 @@ def plot_monthly_bar_by_hard_year(hwy:list[tuple[str, int]],
         stacked=stacked
     )
 
-def plot_yearly_bar_by_hard(hw:list[str], begin:Optional[datetime] = None, 
-                           end:Optional[datetime] = None, stacked:bool=False,
-                           ymax:Optional[int] = None,
-                           ticklabelsize:Optional[int] = None
+def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None, 
+                           end:datetime | None = None, stacked:bool=False,
+                           ymax:int | None = None,
+                           ticklabelsize:int | None = None
                            ) -> tuple[Figure, pd.DataFrame]:
     """
     指定した期間の年間販売台数をハード別に棒グラフで表示する
@@ -397,11 +395,11 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:Optional[datetime] = None,
     )
 
 def plot_yearly_bar_by_month(month:int,
-                           begin:Optional[datetime] = None, 
-                           end:Optional[datetime] = None,
-                           ymax:Optional[int] = None,
+                           begin:datetime | None = None, 
+                           end:datetime | None = None,
+                           ymax:int | None = None,
                            stacked:bool=True,
-                           ticklabelsize:Optional[int] = None
+                           ticklabelsize:int | None = None
                            ) -> tuple[Figure, pd.DataFrame]:
     """
     指定した月の年ごとの移り変わりをメーカーごとの棒グラフで表示する
@@ -459,10 +457,10 @@ def plot_yearly_bar_by_month(month:int,
     )
 
 def plot_delta_yearly_bar(hw:list[str],
-                                delta_begin:Optional[int] = None, 
-                                delta_end:Optional[int] = None,
-                                ymax:Optional[int] = None,
-                                ticklabelsize:Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                                delta_begin:int | None = None, 
+                                delta_end:int | None = None,
+                                ymax:int | None = None,
+                                ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
     """
     指定した機種の経過年毎販売台数をハード別に棒グラフで表示する
     
@@ -517,9 +515,9 @@ def plot_delta_yearly_bar(hw:list[str],
         ymax=ymax
     )  
 
-def plot_maker_share_bar(begin:Optional[datetime] = None, 
-                         end:Optional[datetime] = None,
-                         ticklabelsize:Optional[int] = None
+def plot_maker_share_bar(begin:datetime | None = None, 
+                         end:datetime | None = None,
+                         ticklabelsize:int | None = None
                         ) -> tuple[Figure, pd.DataFrame]:
     """指定した期間のメーカー別シェアを棒グラフで表示する
     

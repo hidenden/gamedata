@@ -1,14 +1,6 @@
 # 標準ライブラリ
-from datetime import datetime, timedelta, date
-from typing import List, Optional
 
 # サードパーティライブラリ
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.ticker import ScalarFormatter, MultipleLocator
-import matplotlib.dates as mdates
-import mplcursors
 
 
 _FigSize = (10, 5)

@@ -1,6 +1,6 @@
 # 標準ライブラリ
 from datetime import datetime, timedelta, date
-from typing import List, Optional
+from typing import List
 
 # サードパーティライブラリ
 import pandas as pd
@@ -51,10 +51,10 @@ def _plot_sales(
     labeler=None,
     tick_params_fn=None,
     annotation_positioner=None,
-    ymax: Optional[int] = None,
-    ybottom: Optional[int] = None,
-    xgrid: Optional[int] = None,
-    ygrid: Optional[int] = None,
+    ymax: int | None = None,
+    ybottom: int | None = None,
+    xgrid: int | None = None,
+    ygrid: int | None = None,
     plot_style: dict = {},
     area: bool = False,
 ) -> tuple[Figure, pd.DataFrame]:
@@ -159,13 +159,13 @@ def _plot_sales(
     return (fig, df)
 
 
-def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
-                                   xgrid: Optional[int] = None, ygrid: Optional[int] = None,
+def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
+                                   xgrid: int | None = None, ygrid: int | None = None,
                                    mode:str = "week",
             
-                                   begin:Optional[int] = None,
-                                   end:Optional[int] = None,
-                                   event_mask : Optional[he.EventMasks] = None,
+                                   begin:int | None = None,
+                                   end:int | None = None,
+                                   event_mask : he.EventMasks | None = None,
                                    ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの発売日起点・累計販売台数推移をプロットする
@@ -226,13 +226,13 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
     )
 
 
-def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
-               begin: Optional[datetime] = None, end: Optional[datetime] = None,
-               ymax: Optional[int] = None,
-               xgrid: Optional[int] = None, ygrid: Optional[int] = None,
-               event_mask: Optional[he.EventMasks] = None,
+def plot_sales(hw: List[str] = [], mode: str | None = "week",
+               begin: datetime | None = None, end: datetime | None = None,
+               ymax: int | None = None,
+               xgrid: int | None = None, ygrid: int | None = None,
+               event_mask: he.EventMasks | None = None,
                area: bool = False,
-               ticklabelsize: Optional[int] = None,
+               ticklabelsize: int | None = None,
                ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの販売台数推移をプロットする（default = 週単位）
@@ -309,12 +309,12 @@ def plot_sales(hw: List[str] = [], mode: Optional[str] = "week",
     )
 
 
-def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
-                        xgrid: Optional[int] = None, ygrid: Optional[int] = None,
+def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
+                        xgrid: int | None = None, ygrid: int | None = None,
                         mode:str = "week", 
-                        begin:Optional[int] = None,
-                        end:Optional[int] = None,
-                        event_mask:Optional[he.EventMasks] = None,
+                        begin:int | None = None,
+                        end:int | None = None,
+                        event_mask:he.EventMasks | None = None,
                         ) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの発売日起点・販売台数推移をプロットする（default = 週単位）
@@ -374,11 +374,11 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:Optional[int]=None,
     )
 
 def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
-                          begin: Optional[datetime] = None,
-                          end: Optional[datetime] = None,
-                          ymax:Optional[int]=None, xgrid: Optional[int] = None,
-                          event_mask:Optional[he.EventMasks] = None,
-                          ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                          begin: datetime | None = None,
+                          end: datetime | None = None,
+                          ymax:int | None=None, xgrid: int | None = None,
+                          event_mask:he.EventMasks | None = None,
+                          ygrid: int | None = None) -> tuple[Figure, pd.DataFrame]:
     """
     各ハードウェアの累計販売台数をプロットする
     
@@ -440,9 +440,9 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
     )
 
 def plot_cumsum_diffs(cmplist: list[tuple[str, str]],
-                      ymax:Optional[int]=None,
-                      xgrid: Optional[int] = None,
-                      ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                      ymax:int | None=None,
+                      xgrid: int | None = None,
+                      ygrid: int | None = None) -> tuple[Figure, pd.DataFrame]:
     """
     累計販売台数差分の折れ線グラフをプロットする
     
@@ -488,10 +488,10 @@ def plot_cumsum_diffs(cmplist: list[tuple[str, str]],
 
 def plot_sales_pase_diff(base_hw: str,
                          compare_hw: str,
-                         ymax:Optional[int]=None,
-                         ybottom:Optional[int]=None,
-                         xgrid: Optional[int] = None,
-                         ygrid: Optional[int] = None) -> tuple[Figure, pd.DataFrame]:
+                         ymax:int | None=None,
+                         ybottom:int | None=None,
+                         xgrid: int | None = None,
+                         ygrid: int | None = None) -> tuple[Figure, pd.DataFrame]:
     """
     販売ペース差分の折れ線グラフをプロットする
     

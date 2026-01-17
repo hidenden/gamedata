@@ -1,12 +1,9 @@
 # 標準ライブラリ
-import os
-from datetime import datetime, timedelta
-from typing import Optional, List, Callable
+from datetime import datetime
+from typing import List, Callable
 
 # サードパーティライブラリ
 import pandas as pd
-from pandas import Timedelta
-from pandas import MultiIndex
 from pandas.io.formats.style import Styler
 
 # プロジェクト内モジュール
@@ -103,7 +100,7 @@ def rename_index_title(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def chart_units_by_date_hw(df: pd.DataFrame, 
-                           begin:Optional[datetime]=None, end:Optional[datetime]=None
+                           begin:datetime | None=None, end:datetime | None=None
                            ) -> tuple[pd.DataFrame, pd.io.formats.style.Styler]:
     """
     日付とハード別の販売台数チャートを出力する
@@ -142,8 +139,8 @@ def chart_units_by_date_hw(df: pd.DataFrame,
 
 
 def _chart_periodic_ranking(rank_n:int = 10, 
-                         begin:Optional[datetime] = None, 
-                         end:Optional[datetime] = None,
+                         begin:datetime | None = None, 
+                         end:datetime | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = [],
                          data_source_fn:Callable = hsf.monthly_sales,
@@ -205,8 +202,8 @@ def _chart_periodic_ranking(rank_n:int = 10,
 
 
 def chart_weekly_ranking(rank_n:int = 10, 
-                         begin:Optional[datetime] = None, 
-                         end:Optional[datetime] = None,
+                         begin:datetime | None = None, 
+                         end:datetime | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pd.DataFrame:
     """
@@ -233,8 +230,8 @@ def chart_weekly_ranking(rank_n:int = 10,
                                   headers=['report_date'])
     
 def chart_monthly_ranking(rank_n:int = 10, 
-                         begin:Optional[datetime] = None, 
-                         end:Optional[datetime] = None,
+                         begin:datetime | None = None, 
+                         end:datetime | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pd.DataFrame:
     """
@@ -261,8 +258,8 @@ def chart_monthly_ranking(rank_n:int = 10,
                                   headers=['year', 'month'])
 
 def chart_yearly_ranking(rank_n:int = 10, 
-                         begin:Optional[datetime] = None, 
-                         end:Optional[datetime] = None,
+                         begin:datetime | None = None, 
+                         end:datetime | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pd.DataFrame:
     """
@@ -313,14 +310,14 @@ def chart_delta_week_ranking(delta_week:int) -> pd.DataFrame:
     df.index += 1
     return df
 
-def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
-                date_columns:Optional[List[str]] = None,
-                percent_columns:Optional[List[str]] = None,
+def style_sales(df: pd.DataFrame, columns:List[str] | None = None,
+                date_columns:List[str] | None = None,
+                percent_columns:List[str] | None = None,
                 datetime_index:bool = False,
-                highlights:Optional[List[str]] = None,
-                gradients:Optional[List[str]] = None,
+                highlights:List[str] | None = None,
+                gradients:List[str] | None = None,
                 gradient_horizontal:bool = False,
-                bars:Optional[List[str]] = None,
+                bars:List[str] | None = None,
                 bar_color:str = "#18ba06dd") -> Styler:
     """
     販売台数データフレームにスタイルを適用する

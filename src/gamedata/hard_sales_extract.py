@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import pandas as pd
-from typing import List, Optional
+from typing import List
 
 from . import hard_sales as hs
 
@@ -53,7 +53,7 @@ def extract_week_reached_units(df: pd.DataFrame, threshold_units: int) -> pd.Dat
         return df.iloc[0:0]
 
 
-def extract_by_date(df: pd.DataFrame, target_date:datetime, hw: Optional[List[str]] = None) -> pd.DataFrame:
+def extract_by_date(df: pd.DataFrame, target_date:datetime, hw: List[str] | None = None) -> pd.DataFrame:
     """
     指定された日付の週に該当するデータを抽出する関数。
     

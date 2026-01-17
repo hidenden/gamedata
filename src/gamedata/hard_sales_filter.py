@@ -1,10 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import pandas as pd
-from typing import List, Optional
 
 
 def weekly_sales(src_df: pd.DataFrame, 
-                  begin: Optional[datetime] = None, end: Optional[datetime] = None,
+                  begin: datetime | None = None, end: datetime | None = None,
                   maker_mode:bool = False) -> pd.DataFrame:
     """
     週毎の販売台数と、その週までの累計販売台数（sum_units）を集計して返す。
@@ -55,7 +54,7 @@ def weekly_sales(src_df: pd.DataFrame,
 
 
 def monthly_sales(src_df: pd.DataFrame, 
-                  begin: Optional[datetime] = None, end: Optional[datetime] = None,
+                  begin: datetime | None = None, end: datetime | None = None,
                   maker_mode:bool = False) -> pd.DataFrame:
     """
     月毎の販売台数と、その月までの累計販売台数（sum_units）を集計して返す。
@@ -106,7 +105,7 @@ def monthly_sales(src_df: pd.DataFrame,
 
 
 def yearly_sales(src_df: pd.DataFrame, 
-                 begin: Optional[datetime] = None, end: Optional[datetime] = None,
+                 begin: datetime | None = None, end: datetime | None = None,
                  maker_mode:bool = False) -> pd.DataFrame:
     """
     年毎の販売台数と、その年までの累計販売台数（sum_units）を集計して返す。
@@ -157,7 +156,7 @@ def yearly_sales(src_df: pd.DataFrame,
 
 
 def yearly_maker_sales(src_df: pd.DataFrame, 
-                begin: Optional[datetime] = None, end: Optional[datetime] = None) -> pd.DataFrame:
+                begin: datetime | None = None, end: datetime | None = None) -> pd.DataFrame:
     """
     年毎、メーカー毎の販売台数を集計して返す。
 

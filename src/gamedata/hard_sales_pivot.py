@@ -1,13 +1,13 @@
 from datetime import datetime
 import pandas as pd
-from typing import List, Optional
+from typing import List
 
 # プロジェクト内モジュール
 from . import hard_sales_filter as hsf
 
 def pivot_sales(src_df: pd.DataFrame, hw:List[str] = [],
-                begin: Optional[datetime] = None,
-                end: Optional[datetime] = None) -> pd.DataFrame:
+                begin: datetime | None = None,
+                end: datetime | None = None) -> pd.DataFrame:
     """
     ハードウェアの週単位の販売台数をピボットテーブル形式で返す。
 
@@ -44,8 +44,8 @@ def pivot_sales(src_df: pd.DataFrame, hw:List[str] = [],
 
 
 def pivot_monthly_sales(df: pd.DataFrame, hw:List[str] = [],
-                begin: Optional[datetime] = None, 
-                end: Optional[datetime] = None) -> pd.DataFrame:
+                begin: datetime | None = None, 
+                end: datetime | None = None) -> pd.DataFrame:
     """
     ハードウェアの月単位の販売台数をピボットテーブル形式で返す。
 
@@ -70,8 +70,8 @@ def pivot_monthly_sales(df: pd.DataFrame, hw:List[str] = [],
     return df.pivot(index=['year', 'month'], columns='hw', values='monthly_units')
 
 def pivot_yearly_sales(df: pd.DataFrame, hw:List[str] = [],
-                begin: Optional[datetime] = None, 
-                end: Optional[datetime] = None) -> pd.DataFrame:
+                begin: datetime | None = None, 
+                end: datetime | None = None) -> pd.DataFrame:
     """
     ハードウェアの年単位の販売台数をピボットテーブル形式で返す。
 
@@ -98,8 +98,8 @@ def pivot_yearly_sales(df: pd.DataFrame, hw:List[str] = [],
 
 
 def pivot_cumulative_sales(df: pd.DataFrame, hw:List[str] = [], 
-                           begin: Optional[datetime] = None,
-                           end: Optional[datetime] = None,
+                           begin: datetime | None = None,
+                           end: datetime | None = None,
                            full_name:bool = False) -> pd.DataFrame:
     """
     ハードウェアの累計販売台数をピボットテーブル形式で返す。
@@ -137,8 +137,8 @@ def pivot_cumulative_sales(df: pd.DataFrame, hw:List[str] = [],
     return filtered_df.pivot(index='report_date', columns=columns_name, values='sum_units')
 
 def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week", 
-                         begin:Optional[int] = None,
-                         end:Optional[int] = None,
+                         begin:int | None = None,
+                         end:int | None = None,
                          hw:List[str] = [], full_name:bool = False) -> pd.DataFrame:
     """
     ハードウェアの販売台数を発売日からの経過状況をインデックス、hwを列、unitsを値とするピボットテーブル形式で返す。
@@ -192,8 +192,8 @@ def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week",
 
 def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", 
                                     hw:List[str] = [],
-                                    begin:Optional[int] = None,
-                                    end:Optional[int] = None
+                                    begin:int | None = None,
+                                    end:int | None = None
                                     ) -> pd.DataFrame:
     """
     ハードウェアの累計販売台数を発売日からの経過状況をインデックス、hwを列、unitsを値とするピボットテーブル形式で返す。
@@ -240,7 +240,7 @@ def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week",
     )
 
 
-def pivot_maker(df: pd.DataFrame, begin_year: Optional[int] = None, end_year: Optional[int] = None) -> pd.DataFrame:
+def pivot_maker(df: pd.DataFrame, begin_year: int | None = None, end_year: int | None = None) -> pd.DataFrame:
     """
     ハードウェアのメーカー別販売データをピボットテーブル形式に変換する
 
