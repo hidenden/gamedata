@@ -23,6 +23,7 @@ def load_hard_sales() -> pd.DataFrame:
         - begin_date (datetime64): 集計開始日（週の初日）、月曜日である
         - end_date (datetime64): 集計終了日（週の末日、=report_date）
         - report_date (datetime64): 集計期間の末日、日曜日である
+        - quarter (Period): report_dateの四半期（Period型）
         - period_date (int64): 集計日数(通常は7, 稀に14)
         - hw (string): ゲームハードの識別子
         - units (int64): 週次販売台数
@@ -55,6 +56,9 @@ def load_hard_sales() -> pd.DataFrame:
     df['report_date'] = pd.to_datetime(df['report_date'])
     df['end_date'] = pd.to_datetime(df['end_date'])
     df['launch_date'] = pd.to_datetime(df['launch_date'])
+    
+    # 四半期のPeriod型カラムを追加
+    df['quarter'] = df['report_date'].dt.to_period('Q')
 
     return df
 

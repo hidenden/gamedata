@@ -25,6 +25,7 @@ from .hard_sales_extract import (
 from .hard_sales_filter import (
     weekly_sales,
     monthly_sales,
+    quarterly_sales,
     yearly_sales,
     yearly_maker_sales,
     delta_yearly_sales,
@@ -33,6 +34,7 @@ from .hard_sales_filter import (
 from .hard_sales_pivot import (
     pivot_sales,
     pivot_monthly_sales,
+    pivot_quarterly_sales,
     pivot_yearly_sales,
     pivot_cumulative_sales,
     pivot_sales_by_delta,    
