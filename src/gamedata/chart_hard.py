@@ -10,8 +10,9 @@ from pandas import MultiIndex
 from pandas.io.formats.style import Styler
 
 # プロジェクト内モジュール
-from gamedata import hard_info as hi
-from gamedata import hard_sales as hs
+from . import hard_info as hi
+from . import hard_sales as hs
+from . import hard_sales_filter as hsf
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -145,7 +146,7 @@ def _chart_periodic_ranking(rank_n:int = 10,
                          end:Optional[datetime] = None,
                          hw:List[str] = [], 
                          maker:List[str] = [],
-                         data_source_fn:Callable = hs.monthly_sales,
+                         data_source_fn:Callable = hsf.monthly_sales,
                          sort_column:str = 'monthly_units',
                          headers:List[str] = ['year', 'month']
                          ) -> pd.DataFrame:
@@ -227,7 +228,7 @@ def chart_weekly_ranking(rank_n:int = 10,
     """
     return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
-                                  data_source_fn=hs.weekly_sales, 
+                                  data_source_fn=hsf.weekly_sales, 
                                   sort_column='weekly_units', 
                                   headers=['report_date'])
     
@@ -255,7 +256,7 @@ def chart_monthly_ranking(rank_n:int = 10,
     """
     return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
-                                  data_source_fn=hs.monthly_sales, 
+                                  data_source_fn=hsf.monthly_sales, 
                                   sort_column='monthly_units', 
                                   headers=['year', 'month'])
 
@@ -283,7 +284,7 @@ def chart_yearly_ranking(rank_n:int = 10,
     """
     return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
-                                  data_source_fn=hs.yearly_sales, 
+                                  data_source_fn=hsf.yearly_sales, 
                                   sort_column='yearly_units', 
                                   headers=['year'])
 

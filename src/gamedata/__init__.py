@@ -14,14 +14,23 @@ from .hard_sales import (
     get_hw,
     get_active_hw,
     current_report_date,
+)
+
+from .hard_sales_extract import (
     extract_week_reached_units,
     extract_by_date,
     extract_latest,
+)
+
+from .hard_sales_filter import (
     weekly_sales,
     monthly_sales,
     yearly_sales,
     yearly_maker_sales,
     delta_yearly_sales,
+)
+
+from .pivot_sales import (
     pivot_sales,
     pivot_monthly_sales,
     pivot_yearly_sales,
@@ -29,8 +38,9 @@ from .hard_sales import (
     pivot_sales_by_delta,    
     pivot_cumulative_sales_by_delta,
     pivot_maker,
-    cumsum_diffs,
+    cumsum_diffs,    
 )
+
 
 from .plot_hard import (
 #    AxisLabels,
