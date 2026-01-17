@@ -288,7 +288,7 @@ def chart_yearly_ranking(rank_n:int = 10,
                                   headers=['year'])
 
     
-def chart_delta_week(delta_week:int) -> pd.DataFrame:
+def chart_delta_week_ranking(delta_week:int) -> pd.DataFrame:
     """
     指定された発売後の経過週数での累計販売台数ランキングを出力する
     

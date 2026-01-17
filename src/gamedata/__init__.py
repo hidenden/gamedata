@@ -83,7 +83,7 @@ from .chart_hard import (
     chart_weekly_ranking,
     chart_monthly_ranking,
     chart_yearly_ranking,
-    chart_delta_week,
+    chart_delta_week_ranking,
     style_sales,
 )
 
