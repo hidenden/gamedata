@@ -3,8 +3,7 @@
 import sqlite3
 from datetime import datetime, timedelta
 import pandas as pd
-from typing import List, Optional
-import warnings
+from typing import List
 
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
