@@ -1,11 +1,9 @@
 # GameEvent取得用のユーティリティ関数群
 
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 import pandas as pd
 from typing import List, Optional
-import warnings
-from gamedata import hard_info as hi
 
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'

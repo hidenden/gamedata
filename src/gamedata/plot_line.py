@@ -7,7 +7,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter, MultipleLocator
-import matplotlib.dates as mdates
 import mplcursors
 
 # プロジェクト内モジュール
@@ -16,7 +15,6 @@ from . import hard_sales as hs
 from . import hard_sales_pivot as pv
 from . import hard_info as hi
 from . import hard_event as he
-# from .pivot_sales import (pivot_cumulative_sales_by_delta)
 
 
 _BASE_SUNDAY = date(1970, 1, 4)  # 週番号1に対応する日曜日
