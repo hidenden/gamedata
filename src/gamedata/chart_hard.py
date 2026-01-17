@@ -1,17 +1,15 @@
 # 標準ライブラリ
-import os
-from datetime import datetime, timedelta
-from typing import Optional, List, Callable
+from datetime import datetime
+from typing import List, Callable
 
 # サードパーティライブラリ
 import pandas as pd
-from pandas import Timedelta
-from pandas import MultiIndex
 from pandas.io.formats.style import Styler
 
 # プロジェクト内モジュール
-from gamedata import hard_info as hi
-from gamedata import hard_sales as hs
+from . import hard_info as hi
+from . import hard_sales as hs
+from . import hard_sales_filter as hsf
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -102,7 +100,7 @@ def rename_index_title(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def chart_units_by_date_hw(df: pd.DataFrame, 
-                           begin:Optional[datetime]=None, end:Optional[datetime]=None
+                           begin:datetime | None=None, end:datetime | None=None
                            ) -> tuple[pd.DataFrame, pd.io.formats.style.Styler]:
     """
     日付とハード別の販売台数チャートを出力する
@@ -141,11 +139,11 @@ def chart_units_by_date_hw(df: pd.DataFrame,
 
 
 def _chart_periodic_ranking(rank_n:int = 10, 
-                         begin:Optional[datetime] = None, 
-                         end:Optional[datetime] = None,
+                         begin:datetime | None = None, 
+                         end:datetime | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = [],
-                         data_source_fn:Callable = hs.monthly_sales,
+                         data_source_fn:Callable = hsf.monthly_sales,
                          sort_column:str = 'monthly_units',
                          headers:List[str] = ['year', 'month']
                          ) -> pd.DataFrame:
@@ -204,8 +202,8 @@ def _chart_periodic_ranking(rank_n:int = 10,
 
 
 def chart_weekly_ranking(rank_n:int = 10, 
-                         begin:Optional[datetime] = None, 
-                         end:Optional[datetime] = None,
+                         begin:datetime | None = None, 
+                         end:datetime | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pd.DataFrame:
     """
@@ -227,13 +225,13 @@ def chart_weekly_ranking(rank_n:int = 10,
     """
     return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
-                                  data_source_fn=hs.weekly_sales, 
+                                  data_source_fn=hsf.weekly_sales, 
                                   sort_column='weekly_units', 
                                   headers=['report_date'])
     
 def chart_monthly_ranking(rank_n:int = 10, 
-                         begin:Optional[datetime] = None, 
-                         end:Optional[datetime] = None,
+                         begin:datetime | None = None, 
+                         end:datetime | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pd.DataFrame:
     """
@@ -255,13 +253,13 @@ def chart_monthly_ranking(rank_n:int = 10,
     """
     return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
-                                  data_source_fn=hs.monthly_sales, 
+                                  data_source_fn=hsf.monthly_sales, 
                                   sort_column='monthly_units', 
                                   headers=['year', 'month'])
 
 def chart_yearly_ranking(rank_n:int = 10, 
-                         begin:Optional[datetime] = None, 
-                         end:Optional[datetime] = None,
+                         begin:datetime | None = None, 
+                         end:datetime | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pd.DataFrame:
     """
@@ -283,12 +281,12 @@ def chart_yearly_ranking(rank_n:int = 10,
     """
     return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
-                                  data_source_fn=hs.yearly_sales, 
+                                  data_source_fn=hsf.yearly_sales, 
                                   sort_column='yearly_units', 
                                   headers=['year'])
 
     
-def chart_delta_week(delta_week:int) -> pd.DataFrame:
+def chart_delta_week_ranking(delta_week:int) -> pd.DataFrame:
     """
     指定された発売後の経過週数での累計販売台数ランキングを出力する
     
@@ -312,14 +310,14 @@ def chart_delta_week(delta_week:int) -> pd.DataFrame:
     df.index += 1
     return df
 
-def style_sales(df: pd.DataFrame, columns:Optional[List[str]] = None,
-                date_columns:Optional[List[str]] = None,
-                percent_columns:Optional[List[str]] = None,
+def style_sales(df: pd.DataFrame, columns:List[str] | None = None,
+                date_columns:List[str] | None = None,
+                percent_columns:List[str] | None = None,
                 datetime_index:bool = False,
-                highlights:Optional[List[str]] = None,
-                gradients:Optional[List[str]] = None,
+                highlights:List[str] | None = None,
+                gradients:List[str] | None = None,
                 gradient_horizontal:bool = False,
-                bars:Optional[List[str]] = None,
+                bars:List[str] | None = None,
                 bar_color:str = "#18ba06dd") -> Styler:
     """
     販売台数データフレームにスタイルを適用する

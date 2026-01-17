@@ -1,7 +1,6 @@
 # ゲームハードおよびゲームメーカーの情報を返すライブラリ
 import sqlite3
 import pandas as pd
-from typing import Optional
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
 
