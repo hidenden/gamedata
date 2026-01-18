@@ -23,6 +23,7 @@ def extract_week_reached_units(df: pd.DataFrame, threshold_units: int) -> pd.Dat
         - begin_date (datetime64): 集計開始日（週の初日）、月曜日である
         - end_date (datetime64): 集計終了日（週の末日、=report_date）
         - report_date (datetime64): 集計期間の末日、日曜日である
+        - quarter (Period): report_dateの四半期（Period型）
         - period_date (int64): 集計日数(通常は7, 稀に14)
         - hw (string): ゲームハードの識別子
         - units (int64): 週次販売台数
@@ -70,6 +71,7 @@ def extract_by_date(df: pd.DataFrame, target_date:datetime, hw: List[str] | None
         - begin_date (datetime64): 集計開始日（週の初日）、月曜日である
         - end_date (datetime64): 集計終了日（週の末日、=report_date）
         - report_date (datetime64): 集計期間の末日、日曜日である
+        - quarter (Period): report_dateの四半期（Period型）
         - period_date (int64): 集計日数(通常は7, 稀に14)
         - hw (string): ゲームハードの識別子
         - units (int64): 週次販売台数
@@ -114,6 +116,7 @@ def extract_latest(df: pd.DataFrame, weeks: int = 1) -> pd.DataFrame:
         - begin_date (datetime64): 集計開始日（週の初日）、月曜日である
         - end_date (datetime64): 集計終了日（週の末日、=report_date）
         - report_date (datetime64): 集計期間の末日、日曜日である
+        - quarter (Period): report_dateの四半期（Period型）
         - period_date (int64): 集計日数(通常は7, 稀に14)
         - hw (string): ゲームハードの識別子
         - units (int64): 週次販売台数

@@ -226,7 +226,7 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
     )
 
 
-def plot_sales(hw: List[str] = [], mode: str | None = "week",
+def plot_sales(hw: List[str] = [], mode: str = "week",
                begin: datetime | None = None, end: datetime | None = None,
                ymax: int | None = None,
                xgrid: int | None = None, ygrid: int | None = None,
@@ -239,7 +239,8 @@ def plot_sales(hw: List[str] = [], mode: str | None = "week",
 
     Args:
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
-        mode: "month"の場合は月次、"week"の場合は週単位、"year"の場合は年単位の販売台数をプロットする (defaultは"week")
+        mode: "month"の場合は月次、"quarter"の場合は四半期、"week"の場合は週単位、
+            "year"の場合は年単位の販売台数をプロットする (defaultは"week")
         begin: 集計開始日
         end: 集計終了日
         ymax: Y軸の上限値
@@ -261,6 +262,10 @@ def plot_sales(hw: List[str] = [], mode: str | None = "week",
             - index: year (int64), month (int64): report_dateの年と月
             - columns: hw (string): ゲームハードの識別子
             - values: monthly_units (int64): 月次販売台数
+        - mode="quarter"の場合:
+            - index: year (int64), quarter (int64): report_dateの年と四半期
+            - columns: hw (string): ゲームハードの識別子
+            - values: quarterly_units (int64): 四半期販売台数
         - mode="year"の場合:
             - index: year (int64): report_dateの年
             - columns: hw (string): ゲームハードの識別子
@@ -271,6 +276,9 @@ def plot_sales(hw: List[str] = [], mode: str | None = "week",
         if mode == "month":
             df = pv.pivot_monthly_sales(df, hw=hw, begin=begin, end=end)
             title_key = '月'
+        if mode == "quarter":
+            df = pv.pivot_quarterly_sales(df, hw=hw, begin=begin, end=end)
+            title_key = '四半期'
         elif mode == "year":
             df = pv.pivot_yearly_sales(df, hw=hw, begin=begin, end=end)
             title_key = '年'
@@ -294,7 +302,7 @@ def plot_sales(hw: List[str] = [], mode: str | None = "week",
 
     tick_params_fn = None
     if ticklabelsize is not None:
-        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+        tick_params_fn = lambda: pu.TickParams(labelsize=ticklabelsize)
             
     return _plot_sales(
         data_source=data_source,

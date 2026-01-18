@@ -69,6 +69,34 @@ def pivot_monthly_sales(df: pd.DataFrame, hw:List[str] = [],
 
     return df.pivot(index=['year', 'month'], columns='hw', values='monthly_units')
 
+def pivot_quarterly_sales(df: pd.DataFrame, hw:List[str] = [],
+                begin: datetime | None = None, 
+                end: datetime | None = None) -> pd.DataFrame:
+    """
+    ハードウェアの四半期単位の販売台数をピボットテーブル形式で返す。
+
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
+        begin: 集計開始日
+        end: 集計終了日
+        
+    Returns:
+        pd.DataFrame: quarterをインデックス、hwを列、quarterly_unitsを値とするピボットテーブル
+        
+        DataFrameのカラム構成:
+        - index: quarter (Period): report_dateの四半期
+        - columns: hw (string): ゲームハードの識別子
+        - values: quarterly_units (int64): 四半期販売台数
+    """
+    df = hsf.quarterly_sales(df, begin=begin, end=end)
+    # HWでフィルタリング
+    if len(hw) > 0:
+        df =  df.loc[df['hw'].isin(hw)]
+
+    return df.pivot(index='quarter', columns='hw', values='quarterly_units')
+
+
 def pivot_yearly_sales(df: pd.DataFrame, hw:List[str] = [],
                 begin: datetime | None = None, 
                 end: datetime | None = None) -> pd.DataFrame:
