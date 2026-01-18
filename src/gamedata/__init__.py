@@ -60,8 +60,10 @@ from .plot_line import (
 )
 
 from .plot_bar import (
-    plot_monthly_bar_by_year,    
+    plot_monthly_bar_by_year,
+    plot_quarterly_bar_by_year,
     plot_monthly_bar_by_hard,
+    plot_quarterly_bar_by_hard,
     plot_monthly_bar_by_hard_year,
     plot_yearly_bar_by_hard,    
     plot_yearly_bar_by_month,

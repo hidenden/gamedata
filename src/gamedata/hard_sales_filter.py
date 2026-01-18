@@ -127,6 +127,8 @@ def quarterly_sales(src_df: pd.DataFrame,
         
         DataFrameのカラム詳細:
         - quarter (Period): report_dateの四半期（Period型）
+        - year (int64): report_dateの年
+        - q_num (int64): report_dateの四半期番号(1~4)
         - hw (string): ゲームハードの識別子 (maker_mode=Falseの場合) 
         - maker_name (string): メーカー名 (maker_mode=Trueの場合)
         - quarterly_units (int64): 四半期販売台数
@@ -142,6 +144,8 @@ def quarterly_sales(src_df: pd.DataFrame,
     
     quarterly_sales = df.groupby(['quarter', key_column]).agg({'units': 'sum'}).reset_index()
     quarterly_sales.rename(columns={'units': 'quarterly_units'}, inplace=True)
+    quarterly_sales['year'] = quarterly_sales['quarter'].dt.year
+    quarterly_sales['q_num'] = quarterly_sales['quarter'].dt.quarter
 
     # 四半期ごとの累計販売台数を計算
     quarterly_sales['sum_units'] = (

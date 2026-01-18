@@ -208,6 +208,52 @@ def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None,
         ymax=ymax
     )
 
+def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
+                               end:datetime | None = None,
+                                 ymax:int | None = None,
+                                 ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+    """
+    指定したハードウェアの四半期販売台数を年別に棒グラフで表示する
+    Args:
+        hw: プロットしたいハードウェア名
+        begin: 集計開始日
+        end: 集計終了日
+        ymax: Y軸の上限値
+        ticklabelsize: 目盛りラベルのフォントサイズ
+    Returns:
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        DataFrameのカラム構成:
+        - index: quarter (int64): 四半期（1-4）
+        - columns: year (int64): 年
+        - values: quarterly_units (int64): 四半期販売台数
+    """
+    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+        quarterly_df = hsf.quarterly_sales(hard_sales_df)
+        hw_df = quarterly_df.loc[quarterly_df["hw"] == hw].copy()
+        pivot_hw_df = hw_df.pivot(index="q_num", columns="year", values="quarterly_units")
+        return pivot_hw_df
+    
+    def labeler() -> pu.AxisLabels:
+        return pu.AxisLabels(
+            title=f"{hw} 四半期販売台数",
+            xlabel="四半期",
+            ylabel="販売台数",
+            legend="年"
+        )
+        
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: pu.TickParams(labelsize=ticklabelsize)
+        
+    return _plot_bar(
+        data_aggregator=data_aggregator,
+        labeler=labeler,
+        tick_params_fn=tick_params_fn,
+        begin=begin,
+        end=end,
+        ymax=ymax
+    )
+
 def plot_monthly_bar_by_hard(hw:list[str], 
                              begin:datetime | None = None, 
                              end:datetime | None = None,
@@ -261,6 +307,63 @@ def plot_monthly_bar_by_hard(hw:list[str],
     if ticklabelsize is not None:
         tick_params_fn = lambda: pu.TickParams(labelsize=ticklabelsize)
             
+    return _plot_bar(
+        data_aggregator=data_aggregator,
+        color_generator=color_generator,
+        labeler=labeler,
+        tick_params_fn=tick_params_fn,
+        begin=begin,
+        end=end,
+        ymax=ymax,
+        stacked=stacked
+    )
+    
+def plot_quarterly_bar_by_hard(hw:list[str], 
+                             begin:datetime | None = None, 
+                             end:datetime | None = None,
+                             stacked:bool=False,
+                             ymax:int | None = None,
+                             ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+    """
+    指定した期間の四半期販売台数をハード別に棒グラフで表示する
+    
+    Args:
+        hw: プロットしたいハードウェア名のリスト
+        begin: 集計開始日
+        end: 集計終了日
+        stacked: 棒グラフを積み上げ表示するかどうか
+        ymax: Y軸の上限値
+        ticklabelsize: 目盛りラベルのフォントサイズ
+        
+    Returns:
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: year_quarter (string): 年四半期（"YYYY-Qn"形式）
+        - columns: hw (string): ゲームハードの識別子
+        - values: quarterly_units (int64): 四半期販売台数
+    """
+    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+        yearly_df = hsf.quarterly_sales(hard_sales_df)
+        hw_df = yearly_df.loc[yearly_df["hw"].isin(hw)].copy()
+        pivot_hw_df = hw_df.pivot(index="quarter", columns="hw", values="quarterly_units")
+        return pivot_hw_df
+
+    def color_generator(hard_list: List[str]) -> List[str]:
+        return hi.get_hard_colors(hard_list)
+    
+    def labeler() -> pu.AxisLabels:
+        return pu.AxisLabels(
+            title=f"四半期販売台数",
+            xlabel="四半期",
+            ylabel="販売台数",
+            legend="ハード"
+        )
+
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: pu.TickParams(labelsize=ticklabelsize) 
+    
     return _plot_bar(
         data_aggregator=data_aggregator,
         color_generator=color_generator,
