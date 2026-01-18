@@ -441,6 +441,73 @@ def plot_monthly_bar_by_hard_year(hwy:list[tuple[str, int]],
         stacked=stacked
     )
 
+def plot_quarterly_bar_by_hard_year(hwy:list[tuple[str, int]], 
+                             stacked:bool=False,
+                             ymax:int | None = None,
+                             ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+    """
+    指定したハードウェアと年の組み合わせの四半期販売台数を棒グラフで表示する
+    
+    Args:
+        hwy: プロットしたいハードウェア名と年のタプルのリスト。例：[("PS5", 2020), ("NSW", 2017)]
+        stacked: 棒グラフを積み上げ表示するかどうか
+        ymax: Y軸の上限値
+        ticklabelsize: 目盛りラベルのフォントサイズ
+        
+    Returns:
+        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        
+        DataFrameのカラム構成:
+        - index: q_num (int64): 四半期（1-4）
+        - columns: "{hw}_{year}" (string): ハードウェア名と年を組み合わせた識別子（例："PS5_2020"）
+        - values: quarterly_units (int64): 四半期販売台数
+    """
+    color_hard_list = []
+    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+        quarterly_df = hsf.quarterly_sales(hard_sales_df)
+        hw_dfs = []
+        for hw, year in hwy:
+            temp_df = quarterly_df.loc[
+                (quarterly_df["hw"] == hw) & (quarterly_df["year"] == year)
+            ].copy()
+            temp_pivot_df = temp_df.pivot(index="q_num", columns="hw", values="quarterly_units")
+            temp_pivot_df.sort_index(inplace=True)
+
+            col_name = f"{hw}_{year}"
+            temp_pivot_df.rename(columns={hw: col_name}, inplace=True)
+            hw_dfs.append(temp_pivot_df)
+            color_hard_list.append(hw)
+            
+        # hw_dfsを結合
+        result_df = pd.concat(hw_dfs, axis=1)
+        result_df.fillna(0, inplace=True)
+        return result_df
+
+    def color_generator(hard_list: List[str]) -> List[str]:
+        return hi.get_hard_colors(color_hard_list)
+    
+    def labeler() -> pu.AxisLabels:
+        return pu.AxisLabels(
+            title=f"カレンダー四半期販売台数",
+            xlabel="カレンダー四半期",
+            ylabel="販売台数",
+            legend="ハード_年"
+        )
+
+    tick_params_fn = None
+    if ticklabelsize is not None:
+        tick_params_fn = lambda: pu.TickParams(labelsize=ticklabelsize)
+            
+    return _plot_bar(
+        data_aggregator=data_aggregator,
+        color_generator=color_generator,
+        labeler=labeler,
+        tick_params_fn=tick_params_fn,
+        ymax=ymax,
+        stacked=stacked
+    )
+
+
 def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None, 
                            end:datetime | None = None, stacked:bool=False,
                            ymax:int | None = None,

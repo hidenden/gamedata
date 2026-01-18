@@ -65,6 +65,7 @@ from .plot_bar import (
     plot_monthly_bar_by_hard,
     plot_quarterly_bar_by_hard,
     plot_monthly_bar_by_hard_year,
+    plot_quarterly_bar_by_hard_year,
     plot_yearly_bar_by_hard,    
     plot_yearly_bar_by_month,
     plot_delta_yearly_bar,
