@@ -235,8 +235,8 @@ def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
     
     def labeler() -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f"{hw} 四半期販売台数",
-            xlabel="四半期",
+            title=f"{hw} カレンダー四半期販売台数",
+            xlabel="カレンダー四半期",
             ylabel="販売台数",
             legend="年"
         )
@@ -354,8 +354,8 @@ def plot_quarterly_bar_by_hard(hw:list[str],
     
     def labeler() -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f"四半期販売台数",
-            xlabel="四半期",
+            title=f"カレンダー四半期販売台数",
+            xlabel="カレンダー四半期",
             ylabel="販売台数",
             legend="ハード"
         )
