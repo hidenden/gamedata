@@ -87,8 +87,9 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
     # 背景の透明化
-    plt.rcParams['figure.facecolor'] = 'none'
-    plt.rcParams['axes.facecolor'] = 'none'
+    if pu.get_transparent_mode():
+        plt.rcParams['figure.facecolor'] = 'none'
+        plt.rcParams['axes.facecolor'] = 'none'
     
     if tick_params_fn is not None:
         params = tick_params_fn()

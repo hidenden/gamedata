@@ -3,7 +3,8 @@
 # サードパーティライブラリ
 
 
-_FigSize = (10, 5)
+_FigSize = (12, 6)
+_Transparent = False
 
 class AxisLabels:
     def __init__(self, title=None, xlabel=None, ylabel=None, legend=None):
@@ -25,5 +26,12 @@ def get_figsize() -> tuple[int, int]:
 def set_figsize(width: int, height: int) -> None:
     global _FigSize
     _FigSize = (width, height)
+
+def get_transparent_mode() -> bool:
+    return _Transparent
+
+def set_transparent_mode(mode: bool) -> None:
+    global _Transparent
+    _Transparent = mode
 
 

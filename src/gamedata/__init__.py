@@ -48,6 +48,8 @@ from .plot_util import (
     TickParams,
     get_figsize,
     set_figsize,
+    get_transparent_mode,
+    set_transparent_mode
 )
 
 from .plot_line import (
