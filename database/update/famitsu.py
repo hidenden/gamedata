@@ -130,6 +130,9 @@ def extract_date_range(date_strings: List[str]) -> Tuple[datetime, datetime]:
     for ds in reversed(date_strings):
         if match := re.search(r"(\d{4}年\d{1,2}月\d{1,2}日)～(\d{1,2}月\d{1,2}日|\d{4}年\d{1,2}月\d{1,2}日)", ds):
             break
+        if match := re.search(r"(\d{4}年\d{1,2}月\d{1,2}日)～年(\d{1,2}月\d{1,2}日)", ds):
+            # 2026/01/22のミス表記対応
+            break
 
     if not match:
         raise ValueError("有効な日付範囲が見つかりませんでした。")
