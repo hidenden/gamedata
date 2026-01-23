@@ -1,11 +1,9 @@
 # GameEvent取得用のユーティリティ関数群
 
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 import pandas as pd
-from typing import List, Optional
-import warnings
-from gamedata import hard_info as hi
+from typing import List
 
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
@@ -76,8 +74,8 @@ def mask_event(df: pd.DataFrame,
     return df[mask]
 
 def filter_event(df: pd.DataFrame, 
-                 start_date: Optional[datetime] = None, 
-                 end_date: Optional[datetime] = None, 
+                 start_date: datetime | None = None, 
+                 end_date: datetime | None = None, 
                  hw: List[str] = [], event_mask:EventMasks = EventMasks()) -> pd.DataFrame:
     """
     ハードウェアイベントデータをフィルタリングする関数。

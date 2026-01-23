@@ -23,7 +23,7 @@ def _(mo):
 
     # プロジェクト内モジュール
     from gamedata import hard_sales as hs
-    from gamedata import plot_hard as ph
+    from gamedata import plot_bar as ph
     from gamedata import hard_info as hi
     from gamedata import hard_event as he
     from gamedata import chart_hard as ch
