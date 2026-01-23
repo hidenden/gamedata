@@ -3,7 +3,7 @@
 # サードパーティライブラリ
 
 
-_FigSize = (12, 6)
+_FigSize = (10, 5)
 _Transparent = False
 
 class AxisLabels:
