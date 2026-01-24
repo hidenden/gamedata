@@ -9,6 +9,7 @@ from matplotlib.figure import Figure
 from . import hard_sales as hs
 from . import hard_sales_pivot as pv
 from . import hard_info as hi
+from . import plot_util as pu
 
 def plot_maker_share_pie(begin_year:int | None = None, 
                          end_year:int | None = None) -> tuple[Figure, pd.DataFrame]:
@@ -31,12 +32,14 @@ def plot_maker_share_pie(begin_year:int | None = None,
     maker_sales = pv.pivot_maker(df, begin_year=begin_year, end_year=end_year)
 
     n = len(maker_sales)
+    plt.ioff()
     fig, axes = plt.subplots(1, n, figsize=(4*n, 4))
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
     # 背景の透明化
-    plt.rcParams['figure.facecolor'] = 'none'
-    plt.rcParams['axes.facecolor'] = 'none'
+    if pu.get_transparent_mode():
+        plt.rcParams['figure.facecolor'] = 'none'
+        plt.rcParams['axes.facecolor'] = 'none'
 
     if n == 1:
         axes = [axes]
@@ -55,6 +58,10 @@ def plot_maker_share_pie(begin_year:int | None = None,
     if legend_handles and legend_labels:
         fig.legend(legend_handles, legend_labels, loc='upper right', bbox_to_anchor=(1.05, 1))
     fig.tight_layout()
+    
+    dispfunc = pu.get_dispfunc()
+    if dispfunc is not None:
+        dispfunc(fig)
 
     return (fig, maker_sales)
 

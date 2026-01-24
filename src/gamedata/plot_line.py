@@ -75,12 +75,14 @@ def _plot_sales(
     """
     (df, title_key) = data_source()
 
+    plt.ioff()
     fig, ax = plt.subplots(figsize=pu.get_figsize())
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
     # 背景の透明化
-    plt.rcParams['figure.facecolor'] = 'none'
-    plt.rcParams['axes.facecolor'] = 'none'
+    if pu.get_transparent_mode():
+        plt.rcParams['figure.facecolor'] = 'none'
+        plt.rcParams['axes.facecolor'] = 'none'
 
     color_table = hi.get_hard_colors(df.columns.tolist())
     # color_tableの内容がblackのみの場合、デフォルトのカラーマップを使用する
@@ -155,6 +157,10 @@ def _plot_sales(
     # カーソル表示
     cursor = mplcursors.cursor(ax.lines, hover=True)
     cursor.connect("add", _weekly_plot_on_add)
+    
+    dispfunc = pu.get_dispfunc()
+    if dispfunc is not None:
+        dispfunc(fig)
 
     return (fig, df)
 

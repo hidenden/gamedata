@@ -49,7 +49,9 @@ from .plot_util import (
     get_figsize,
     set_figsize,
     get_transparent_mode,
-    set_transparent_mode
+    set_transparent_mode,
+    set_dispfunc,
+    get_dispfunc,
 )
 
 from .plot_line import (
