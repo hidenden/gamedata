@@ -1,9 +1,11 @@
+import matplotlib
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 from typing import Callable
+from IPython.display import display
 
 _FigSize = (10, 5)
 _Transparent = False
-_outfunc: Callable[[Figure], None] | None = None
 
 class AxisLabels:
     def __init__(self, title=None, xlabel=None, ylabel=None, legend=None):
@@ -32,6 +34,19 @@ def get_transparent_mode() -> bool:
 def set_transparent_mode(mode: bool) -> None:
     global _Transparent
     _Transparent = mode
+
+_outfunc: Callable[[Figure], None] | None = None
+
+def auto_dispfunc(fig: Figure) -> None:
+    backend = matplotlib.get_backend()
+    if 'backend_inline' in backend or 'inline' in backend:
+        display(fig)
+    elif 'ipympl' in backend or 'nbagg' in backend or 'widget' in backend:
+        plt.show()
+    else:
+        print(f"Unable to output figure:{backend}")
+        
+_outfunc = auto_dispfunc
 
 def set_dispfunc(func: Callable[[Figure], None]) -> None:
     global _outfunc
