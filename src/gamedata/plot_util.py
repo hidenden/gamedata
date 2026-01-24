@@ -1,10 +1,9 @@
-# 標準ライブラリ
-
-# サードパーティライブラリ
-
+from matplotlib.figure import Figure
+from typing import Callable
 
 _FigSize = (10, 5)
 _Transparent = False
+_outfunc: Callable[[Figure], None] | None = None
 
 class AxisLabels:
     def __init__(self, title=None, xlabel=None, ylabel=None, legend=None):
@@ -34,4 +33,10 @@ def set_transparent_mode(mode: bool) -> None:
     global _Transparent
     _Transparent = mode
 
+def set_dispfunc(func: Callable[[Figure], None]) -> None:
+    global _outfunc
+    _outfunc = func
+    
+def get_dispfunc() -> Callable[[Figure], None] | None:
+    return _outfunc
 

@@ -83,6 +83,7 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
     df = data_aggregator(hard_sales_df)
     df.fillna(0, inplace=True)
 
+    plt.ioff()
     fig, ax = plt.subplots(figsize=pu.get_figsize())
     plt.rcParams['font.family'] = 'Hiragino Sans'
     plt.rcParams['axes.unicode_minus'] = False
@@ -156,6 +157,10 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
     @cursor.connect("add")
     def on_add(sel):
         _bar_on_add(sel, df, color2label)
+
+    dispfunc = pu.get_dispfunc()
+    if dispfunc is not None:
+        dispfunc(fig)
 
     return fig, df
 
