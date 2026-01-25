@@ -282,7 +282,7 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
         if mode == "month":
             df = pv.pivot_monthly_sales(df, hw=hw, begin=begin, end=end)
             title_key = '月'
-        if mode == "quarter":
+        elif mode == "quarter":
             df = pv.pivot_quarterly_sales(df, hw=hw, begin=begin, end=end)
             title_key = '四半期'
         elif mode == "year":
