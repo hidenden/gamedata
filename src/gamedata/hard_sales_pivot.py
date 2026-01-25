@@ -43,6 +43,7 @@ def pivot_sales(src_df: pd.DataFrame, hw:List[str] = [],
     return df.pivot(index='report_date', columns='hw', values='units')
 
 
+
 def pivot_monthly_sales(df: pd.DataFrame, hw:List[str] = [],
                 begin: datetime | None = None, 
                 end: datetime | None = None) -> pd.DataFrame:
@@ -216,6 +217,69 @@ def pivot_sales_by_delta(df: pd.DataFrame, mode:str = "week",
         values='units',
         aggfunc='sum'
     )
+
+
+def pivot_sales_with_offset(src_df: pd.DataFrame, 
+                            hw_periods: List[dict], end:int = 52) -> pd.DataFrame:
+    """
+    複数のハードウェアの異なる期間のデータを、各期間の開始点を揃えてピボットテーブル形式で返す。
+    
+    Args:
+        src_df: load_hard_sales()で取得したDataFrame
+        hw_periods: 各ハードウェアの期間設定のリスト
+            各要素は以下のキーを持つ辞書:
+            - 'hw' (str, required): ハードウェアの識別子
+            - 'begin' (datetime, required): 集計開始日
+            - 'label' (str, optional): 列名（省略時はhw名を使用）
+        end: 各期間の最大週数（デフォルトは52週）
+    
+    Returns:
+        pd.DataFrame: offset_weekをインデックス、labelを列、unitsを値とするピボットテーブル
+        
+        DataFrameのカラム構成:
+        - index: offset_week (int64): 各期間の開始日からの経過週数
+        - columns: label (string): ハードウェアの識別ラベル
+        - values: units (int64): 週次販売台数
+        
+    Example:
+        >>> df = load_hard_sales()
+        >>> hw_periods = [
+        ...     {'hw': 'NSW', 'begin': datetime(2018, 1, 1), 'label': 'NSW 2018~'},
+        ...     {'hw': 'NS2', 'begin': datetime(2026, 3, 1), 'label': 'NS2 2026~'}
+        ... ]
+        >>> result = pivot_sales_with_offset(df, hw_periods)
+    """
+    all_data = []
+    
+    for period in hw_periods:
+        hw = period['hw']
+        begin = period['begin']
+        # defaultのlabelを生成､hw:YYYY.MM.DD〜形式
+        default_label = f"{hw}:{begin.strftime('%Y.%m.%d')}〜"
+        label = period.get('label', default_label)
+        
+        # 該当ハードウェアのデータを抽出
+        hw_df = src_df[src_df['hw'] == hw].copy()
+        
+        # 期間でフィルタリング
+        hw_df = hw_df[hw_df['report_date'] >= begin]
+        # endのデータ数で制限
+        hw_df = hw_df.sort_values('report_date').head(end)
+        
+        # 開始日からの経過週数を計算
+        hw_df['offset_week'] = ((hw_df['report_date'] - begin).dt.days / 7).astype(int)
+        
+        # 必要な列のみ抽出し、labelを付与
+        hw_df = hw_df[['offset_week', 'units']].copy()
+        hw_df['label'] = label
+        
+        all_data.append(hw_df)
+    
+    # すべてのデータを結合
+    combined_df = pd.concat(all_data, ignore_index=True)
+    
+    # ピボットテーブル化
+    return combined_df.pivot(index='offset_week', columns='label', values='units')
 
 
 def pivot_cumulative_sales_by_delta(df: pd.DataFrame, mode:str = "week", 

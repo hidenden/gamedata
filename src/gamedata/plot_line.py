@@ -387,6 +387,52 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         ygrid=ygrid
     )
 
+
+def plot_sales_with_offset(hw_periods: List[dict] = [], ymax:int | None=None,
+                            xgrid: int | None = None, ygrid: int | None = None,
+                            end:int = 52) -> tuple[Figure, pd.DataFrame]:
+    """
+    各ハードウェアの異なる期間の販売台数推移を、各期間の開始点を揃えてプロットする
+    Args:
+        hw_periods: プロットしたいハードウェア名と期間のリスト。各要素は以下のキーを持つ辞書:
+            - 'hw' (str, required): ハードウェアの識別子
+            - 'begin' (datetime, required): 集計開始日
+            - 'label' (str, optional): 列名（省略時はhw名を使用）
+        ymax: Y軸の上限値
+        xgrid: X軸のグリッド線の間隔
+        ygrid: Y軸のグリッド線の間隔
+        end: 各期間の最大週数（デフォルトは52週）
+    Returns:
+        tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        DataFrameのカラム構成:
+        - index: offset_week (int64): 各期間の開始日からの経過週数
+        - columns: label (string): 各ハードウェアの識別子または指定されたラベル
+        - values: units (int64): 販売台数
+    """
+    def data_source() -> tuple[pd.DataFrame, str]:
+        df = hs.load_hard_sales()
+        df = pv.pivot_sales_with_offset(df, hw_periods=hw_periods, end=end)
+        title_key = '週'
+        return (df, title_key)
+    
+    def labeler(title_key: str) -> pu.AxisLabels:
+        return pu.AxisLabels(
+            title=f'販売台数（開始点揃え）',
+            xlabel=f'開始からの{title_key}数',
+            ylabel='販売台数',
+            legend='ハード(時期)'
+        )
+        
+    return _plot_sales(
+        data_source=data_source,
+        labeler=labeler,
+        ymax=ymax,
+        ybottom=0,
+        xgrid=xgrid,
+        ygrid=ygrid
+    )
+
+
 def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
                           begin: datetime | None = None,
                           end: datetime | None = None,
