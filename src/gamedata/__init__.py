@@ -38,6 +38,7 @@ from .hard_sales_pivot import (
     pivot_yearly_sales,
     pivot_cumulative_sales,
     pivot_sales_by_delta,    
+    pivot_sales_with_offset,
     pivot_cumulative_sales_by_delta,
     pivot_maker,
     cumsum_diffs,    
@@ -49,13 +50,16 @@ from .plot_util import (
     get_figsize,
     set_figsize,
     get_transparent_mode,
-    set_transparent_mode
+    set_transparent_mode,
+    set_dispfunc,
+    get_dispfunc,
 )
 
 from .plot_line import (
     plot_cumulative_sales_by_delta,
     plot_sales,
     plot_sales_by_delta,
+    plot_sales_with_offset,
     plot_cumulative_sales,
     plot_cumsum_diffs,
     plot_sales_pase_diff,
