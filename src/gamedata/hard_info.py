@@ -1,21 +1,21 @@
 # ゲームハードおよびゲームメーカーの情報を返すライブラリ
 import sqlite3
-import pandas as pd
+import polars as pl
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
 
-def load_hard_info() -> pd.DataFrame:
+def load_hard_info() -> pl.DataFrame:
     """ハード情報の読み込み
 
     Returns:
-        pd.DataFrame: ハード情報
+        pl.DataFrame: ハード情報
     """
     # SQLite3データベースに接続
     conn = sqlite3.connect(DB_PATH)
     # SQLクエリを実行してデータをDataFrameに読み込む
     query = "SELECT * FROM gamehard_info;"
-    df = pd.read_sql_query(query, conn)
-    df['launch_date'] = pd.to_datetime(df['launch_date'])
+    df = pl.read_database(query, conn)
+    df = df.with_columns(pl.col('launch_date').str.to_datetime())
     # 接続を閉じる
     conn.close()
     return df

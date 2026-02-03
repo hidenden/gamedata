@@ -6,12 +6,16 @@ from typing import List, Callable
 import pandas as pd
 from pandas.io.formats.style import Styler
 
+import polars as pl
+from great_tables import GT, style, loc, google_font
+
+
 # プロジェクト内モジュール
 from . import hard_info as hi
 from . import hard_sales as hs
 from . import hard_sales_filter as hsf
 
-def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
+def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
     """
     DataFrameの列名を日本語に変換する
     
@@ -19,9 +23,9 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
         df: 変換対象のDataFrame
         
     Returns:
-        pd.DataFrame: 列名が日本語に変換されたDataFrame
+        pl.DataFrame: 列名が日本語に変換されたDataFrame
     """
-    df = df.rename(columns={
+    base_rename_dict = {
         'full_name': 'ハード',
         'hw': 'ハード',
         'report_date': '集計日',
@@ -35,12 +39,16 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
         'month': '月',
         'year': '年',
         'week': '週',
-    })
-    hard_dict = hi.get_hard_dict()
-    df = df.rename(columns=hard_dict)
+    }
+    hard_rename_dict = hi.get_hard_dict()
+    
+    # base_rename_dictとhard_rename_dictを結合
+    rename_dict = {**base_rename_dict, **hard_rename_dict}
+    
+    df = df.rename(rename_dict)
     return df
 
-def rename_hw(df: pd.DataFrame) -> pd.DataFrame:
+def rename_hw(df: pl.DataFrame) -> pl.DataFrame:
     """
     DataFrameのhw列の値をフルネームに変換する
     
@@ -48,10 +56,10 @@ def rename_hw(df: pd.DataFrame) -> pd.DataFrame:
         df: hw列を持つDataFrame
         
     Returns:
-        pd.DataFrame: hw列がフルネームに変換されたDataFrame
+        pl.DataFrame: hw列がフルネームに変換されたDataFrame
     """
     hard_dict = hi.get_hard_dict()
-    df['hw'] = df['hw'].map(hard_dict).fillna(df['hw'])
+    df = df.rename(hard_dict)
     return df
 
 def rename_index(df: pd.DataFrame) -> pd.DataFrame:
