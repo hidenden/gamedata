@@ -70,10 +70,19 @@ def pivot_monthly_sales(df: pl.DataFrame, hw:List[str] = [],
     if len(hw) > 0:
         df = df.filter(pl.col('hw').is_in(hw))
 
-    return df.pivot(index=['year', 'month'],
-                    on='hw',
-                    values='monthly_units',
-                    aggregate_function='sum').sort(by=['year', 'month'])
+    df = df.pivot(index=['year', 'month'],
+                 on='hw',
+                 values='monthly_units',
+                 aggregate_function='sum')
+    df = (df
+          .with_columns(
+              (pl.date(pl.col("year"), pl.col("month"), 1)
+               .dt.month_end())
+              .alias("month"))
+          .select(['month'] + [col for col in df.columns if col not in ['year', 'month']])
+          .sort(by='month')
+          )    
+    return df
 
 def pivot_quarterly_sales(df: pl.DataFrame, hw:List[str] = [],
                 begin: datetime | None = None, 
@@ -138,6 +147,7 @@ def pivot_yearly_sales(df: pl.DataFrame, hw:List[str] = [],
 def pivot_cumulative_sales(df: pl.DataFrame, hw:List[str] = [], 
                            begin: datetime | None = None,
                            end: datetime | None = None,
+                           mode:str = "week",
                            full_name:bool = False) -> pl.DataFrame:
     """
     ハードウェアの累計販売台数をピボットテーブル形式で返す。
@@ -147,6 +157,7 @@ def pivot_cumulative_sales(df: pl.DataFrame, hw:List[str] = [],
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
+        mode: "week"、"month"または"year"を指定。週単位の集計なら"week"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
         full_name: カラム名にフルネームを使用する
     
     Returns:
@@ -157,28 +168,41 @@ def pivot_cumulative_sales(df: pl.DataFrame, hw:List[str] = [],
         - 各hw/full_name (Int64): ゲームハード別の累計販売台数
     """
     # begin/endでフィルタリング
-    if begin is not None:
-        df = df.filter(pl.col('report_date') >= begin)
-    if end is not None:
-        df = df.filter(pl.col('report_date') <= end)
+    df = hsf.date_filter(df, begin=begin, end=end)
     # HWでフィルタリング
     if len(hw) > 0:
-        filtered_df = df.filter(pl.col('hw').is_in(hw))
-    else:
-        filtered_df = df
+        df = df.filter(pl.col('hw').is_in(hw))
 
     # 横軸のカラム
     columns_name = 'full_name' if full_name else 'hw'
-
     # ピボットテーブルを作成
-    return (
-        filtered_df
-        .pivot(index='report_date',
-               on=columns_name,
-               values='sum_units',
-               aggregate_function='last')
-        .sort('report_date')
+    df = (df
+          .pivot(index='report_date', on=columns_name, values='sum_units',
+                 aggregate_function='last')
+          .sort('report_date')
     )
+    if mode == "month":
+        df = (df
+              .group_by_dynamic(
+                  "report_date",
+                    every="1mo",
+                    closed="right",
+                    period="1mo"
+              ).agg(pl.exclude("report_date").last())
+              .sort('report_date')
+        )
+    elif mode == "year":
+        df = (df
+              .group_by_dynamic(
+                  "report_date",
+                    every="1y",
+                    closed="right",
+                    period="1y"
+              ).agg(pl.exclude("report_date").last())
+              .sort('report_date')
+        )
+    
+    return df
 
 def pivot_sales_by_delta(df: pl.DataFrame, mode:str = "week", 
                          begin:int | None = None,
