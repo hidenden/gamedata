@@ -3,7 +3,7 @@
 import sqlite3
 from datetime import datetime
 import polars as pl
-from typing import List
+from typing import List, TypedDict, Dict, Any
 
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
@@ -61,16 +61,19 @@ def delta_event(event_df: pl.DataFrame,
                                        'priority', 'delta_week'])
     return df_event_merged
 
-class EventMasks:
-    def __init__(self, soft:float=1.0, hard:float=2.0, price:float=2.0, sale:float=1.0, event:float=3.0):
-        self.soft = soft
-        self.hard = hard
-        self.price = price
-        self.sale = sale
-        self.event = event
+class EventMasks(TypedDict, total=True):
+    soft: float
+    hard: float
+    price: float
+    sale: float
+    event: float
+
+EVENT_MASK_MIDDLE:EventMasks = {"hard":1.5, "price":3, "sale":2, "soft":1.5, "event":1}
+EVENT_MASK_LONG:EventMasks = {"hard":0.5, "soft":0, "event":0, "price":0, "sale":0}
+EVENT_MASK_SHORT:EventMasks = {"hard":2, "soft":4, "event":2, "price":4, "sale":5}
 
 def mask_event(df: pl.DataFrame, 
-               event_mask: EventMasks = EventMasks()) -> pl.DataFrame:
+               event_mask: EventMasks) -> pl.DataFrame:
     """
     イベントタイプと優先度に基づいてイベントデータをフィルタリングする関数。
     
@@ -85,19 +88,24 @@ def mask_event(df: pl.DataFrame,
     Returns:
         pl.DataFrame: フィルタリング後のPolars DataFrame
     """
-    event_types = list(event_mask.__dict__.keys())
-    mask = pl.col('event_type').is_in(event_types) & (
-        pl.col('priority') <= pl.col('event_type').map_elements(
-            lambda x: event_mask.__dict__.get(x, 0), 
-            return_dtype=pl.Float64
-        )
+    event_types = list(event_mask.keys())
+    df = df.filter(pl.col('event_type').is_in(event_types))
+    # dfのevent_typeに対応するevent_mask[event_type]の値をmask_priorityカラムとして追加
+    df = df.with_columns(
+        pl.col('event_type')
+        .replace(event_mask, default=0.0)
+        .alias('mask_priority')
     )
-    return df.filter(mask)
+    # 追加したmask_priorityカラムを使用してフィルタリング
+    df = df.filter(pl.col('priority') <= pl.col('mask_priority'))
+    # 追加したmask_priorityカラムを削除
+    df = df.drop('mask_priority')
+    return df
 
 def filter_event(df: pl.DataFrame, 
                  start_date: datetime | None = None, 
                  end_date: datetime | None = None, 
-                 hw: List[str] = [], event_mask:EventMasks = EventMasks()) -> pl.DataFrame:
+                 hw: List[str] = [], event_mask:EventMasks = {} ) -> pl.DataFrame:
     """
     ハードウェアイベントデータをフィルタリングする関数。
 
@@ -139,9 +147,8 @@ def add_event_positions(event_df: pl.DataFrame, pivot_df: pl.DataFrame,
     """
     # priorityでフィルタ（指定値以下のみ残す）
     filtered_events = mask_event(event_df, event_mask=event_mask)
-    
-    # pivot_dfをPolarsとして扱う
-    # report_dateでインデックス化されていると仮定
+    print(filtered_events.tail(10))
+
     pivot_columns = pivot_df.columns
     
     result_rows = []
@@ -152,11 +159,15 @@ def add_event_positions(event_df: pl.DataFrame, pivot_df: pl.DataFrame,
         
         # report_dateがpivot_dfに存在するか確認
         pivot_row = pivot_df.filter(pl.col('report_date') == report_date)
+        print(f"Checking event: {row['event_name']} on {report_date}")
         
         if pivot_row.height == 0:
             continue
+        else:
+            print(f"Found matching report_date for event: {row['event_name']} on {report_date}")
         
         # hwカラムが存在し、値がNoneでない場合
+        print(f"Processing event: {row['event_name']} on {report_date} for hw: {hw}")
         if hw is not None and hw in pivot_columns:
             y_pos_value = pivot_row[hw][0]
             
@@ -193,12 +204,11 @@ def add_event_positions_delta(event_df: pl.DataFrame,
         pl.DataFrame: x_pos, y_posを追加したイベントデータ（条件に合わない行は除外）
     """
     filtered_events = mask_event(event_df, event_mask=event_mask)
+    print(filtered_events.tail(10))
     
     # pivot_delta_dfのカラムを取得
     pivot_columns = pivot_delta_df.columns
-    
     result_rows = []
-    
     for row in filtered_events.iter_rows(named=True):
         delta_week = row['delta_week']
         hw = row['hw']
@@ -230,6 +240,3 @@ def add_event_positions_delta(event_df: pl.DataFrame,
     
     return pl.DataFrame(result_rows)
 
-EVENT_MASK_MIDDLE = EventMasks(hard=1.5, price=3, sale=2, soft=1.5, event=1)
-EVENT_MASK_LONG = EventMasks(hard=0.5, soft=0, event=0, price=0, sale=0)
-EVENT_MASK_SHORT = EventMasks(hard=2, soft=4, event=2, price=4, sale=5)

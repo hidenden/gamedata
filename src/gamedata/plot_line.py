@@ -111,15 +111,13 @@ def _plot_sales(
     # 折れ線グラフ
     pd_df.plot(**plot_style)
 
-    # 開発中のためのガード処理
-    annotation_positioner = None
-    # 開発中のためのガード処理
-
     if annotation_positioner is not None:
         # event_dfの情報をannotationとしてグラフに追加する
         event_df = he.load_hard_event()
         filtered_events = annotation_positioner(event_df, df)
-        for report_date, event_row in filtered_events.iterrows():
+        print("-----ANNOTATION POSITIONER COMPLETED-----")
+        print(filtered_events)
+        for event_row in filtered_events.iter_rows(named=True):
             color = hi.get_hard_color(event_row['hw'])
             ax.annotate(event_row['event_name'], 
                     xy=(event_row['x_pos'], event_row['y_pos']), 
@@ -174,8 +172,7 @@ def _plot_sales(
 
 def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
                                    xgrid: int | None = None, ygrid: int | None = None,
-                                   mode:str = "week",
-            
+                                   mode:str = "week",            
                                    begin:int | None = None,
                                    end:int | None = None,
                                    event_mask : he.EventMasks | None = None,
@@ -224,7 +221,9 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
     if event_mask:
         def annotation_positioner(event_df, df):
             event_df = he.delta_event(event_df, hi.load_hard_info())
-            return he.add_event_positions_delta(event_df, df, event_mask=event_mask)
+            new_df = None
+            new_df = he.add_event_positions_delta(event_df, df, event_mask=event_mask)
+            return new_df
     else:
         annotation_positioner = None
         
@@ -309,7 +308,8 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
         )
 
     if event_mask:
-        annotation_positioner = lambda event_df, df: he.add_event_positions(event_df, df, event_mask=event_mask)
+        def annotation_positioner(event_df, df): 
+            return he.add_event_positions(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
 
