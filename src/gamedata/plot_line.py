@@ -4,6 +4,7 @@ from typing import List
 
 # サードパーティライブラリ
 import pandas as pd
+import polars as pl
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter, MultipleLocator
@@ -57,7 +58,7 @@ def _plot_sales(
     ygrid: int | None = None,
     plot_style: dict = {},
     area: bool = False,
-) -> tuple[Figure, pd.DataFrame]:
+) -> tuple[Figure, pl.DataFrame]:
     """
     各ハードウェアの販売台数をプロット共通関数
 
@@ -71,9 +72,11 @@ def _plot_sales(
 
     Returns:
         matplotlib.figure.Figure: グラフのFigureオブジェクト
-        pd.DataFrame: プロットに使用したデータのDataFrame
+        pl.DataFrame: プロットに使用したデータのDataFrame
     """
     (df, title_key) = data_source()
+    pd_df = df.to_pandas()
+    pd_df = pd_df.set_index(pd_df.columns[0])
 
     plt.ioff()
     fig, ax = plt.subplots(figsize=pu.get_figsize())
@@ -84,10 +87,10 @@ def _plot_sales(
         plt.rcParams['figure.facecolor'] = 'none'
         plt.rcParams['axes.facecolor'] = 'none'
 
-    color_table = hi.get_hard_colors(df.columns.tolist())
+    color_table = hi.get_hard_colors(pd_df.columns.tolist())
     # color_tableの内容がblackのみの場合、デフォルトのカラーマップを使用する
     if all(c == 'black' for c in color_table):
-        color_table = plt.rcParams['axes.prop_cycle'].by_key()['color'][:len(df.columns)]
+        color_table = plt.rcParams['axes.prop_cycle'].by_key()['color'][:len(pd_df.columns)]
 
     default_style = {
         'ax': ax,
@@ -106,7 +109,11 @@ def _plot_sales(
 
     plot_style = default_style | plot_style
     # 折れ線グラフ
-    df.plot(**plot_style)
+    pd_df.plot(**plot_style)
+
+    # 開発中のためのガード処理
+    annotation_positioner = None
+    # 開発中のためのガード処理
 
     if annotation_positioner is not None:
         # event_dfの情報をannotationとしてグラフに追加する
@@ -172,7 +179,7 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
                                    begin:int | None = None,
                                    end:int | None = None,
                                    event_mask : he.EventMasks | None = None,
-                                   ) -> tuple[Figure, pd.DataFrame]:
+                                   ) -> tuple[Figure, pl.DataFrame]:
     """
     各ハードウェアの発売日起点・累計販売台数推移をプロットする
     
@@ -187,7 +194,7 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         event_mask: イベント注釈のマスク設定
         
     Returns:
-        tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[matplotlib.figure.Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: delta_week (int64) / delta_month (int64) / delta_year (int64): 発売日からの経過期間（modeにより変動）
@@ -195,7 +202,7 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         - values: sum_units (int64): その経過期間時点での累計販売台数
     """
     
-    def data_source() -> tuple[pd.DataFrame, str]:
+    def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
         df = pv.pivot_cumulative_sales_by_delta(df, hw=hw, mode=mode, begin=begin, end=end)
         if mode == "month":
@@ -239,7 +246,7 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
                event_mask: he.EventMasks | None = None,
                area: bool = False,
                ticklabelsize: int | None = None,
-               ) -> tuple[Figure, pd.DataFrame]:
+               ) -> tuple[Figure, pl.DataFrame]:
     """
     各ハードウェアの販売台数推移をプロットする（default = 週単位）
 
@@ -257,7 +264,7 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
         ticklabelsize: 目盛りラベルのフォントサイズ
 
     Returns:
-        tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[matplotlib.figure.Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成（modeにより変動）:
         - mode="week"の場合:
@@ -277,7 +284,7 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
             - columns: hw (string): ゲームハードの識別子
             - values: yearly_units (int64): 年次販売台数
     """
-    def data_source():
+    def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
         if mode == "month":
             df = pv.pivot_monthly_sales(df, hw=hw, begin=begin, end=end)
@@ -329,7 +336,7 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
                         begin:int | None = None,
                         end:int | None = None,
                         event_mask:he.EventMasks | None = None,
-                        ) -> tuple[Figure, pd.DataFrame]:
+                        ) -> tuple[Figure, pl.DataFrame]:
     """
     各ハードウェアの発売日起点・販売台数推移をプロットする（default = 週単位）
     
