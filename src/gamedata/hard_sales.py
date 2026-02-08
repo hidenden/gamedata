@@ -5,6 +5,16 @@ from datetime import datetime, timedelta
 import polars as pl
 from typing import List
 
+# Polars Configuration
+(pl.Config.set_tbl_rows(30)
+    .set_tbl_cols(-1)
+    .set_float_precision(2)
+    .set_thousands_separator(',')
+    .set_trim_decimal_zeros(True)
+    .set_tbl_hide_column_data_types(True)
+    .set_tbl_hide_dataframe_shape(True)
+    .set_tbl_column_data_type_inline(True)
+)
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
 

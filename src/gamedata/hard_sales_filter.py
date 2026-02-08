@@ -2,7 +2,7 @@ from datetime import datetime
 import polars as pl
 
 
-def _date_filter(src_df: pl.DataFrame, 
+def date_filter(src_df: pl.DataFrame, 
                  begin: datetime | None = None, end: datetime | None = None) -> pl.DataFrame:
     """
     日付でDataFrameをフィルタリングする内部関数。
@@ -45,7 +45,7 @@ def weekly_sales(src_df: pl.DataFrame,
         - weekly_units (Int64): 週次販売台数
         - sum_units (Int64): report_date時点での累計販売台数
     """
-    df = _date_filter(src_df, begin=begin, end=end)
+    df = date_filter(src_df, begin=begin, end=end)
 
     # 週ごとの販売台数を集計
     if maker_mode:
@@ -87,7 +87,7 @@ def monthly_sales(src_df: pl.DataFrame,
         - monthly_units (Int64): 月次販売台数
         - sum_units (Int64): その月時点での累計販売台数
     """
-    df = _date_filter(src_df, begin=begin, end=end)
+    df = date_filter(src_df, begin=begin, end=end)
 
     # 月ごとの販売台数を集計
     if maker_mode:
@@ -130,7 +130,7 @@ def quarterly_sales(src_df: pl.DataFrame,
         - quarterly_units (Int64): 四半期販売台数
         - sum_units (Int64): その四半期時点での累計販売台数
     """
-    df = _date_filter(src_df, begin=begin, end=end)
+    df = date_filter(src_df, begin=begin, end=end)
 
     # 四半期ごとの販売台数を集計
     if maker_mode:
@@ -177,7 +177,7 @@ def yearly_sales(src_df: pl.DataFrame,
         - yearly_units (Int64): 年次販売台数
         - sum_units (Int64): その年時点での累計販売台数
     """
-    df = _date_filter(src_df, begin=begin, end=end)
+    df = date_filter(src_df, begin=begin, end=end)
 
     # 年ごとの販売台数を集計
     if maker_mode:
