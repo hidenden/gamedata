@@ -281,7 +281,7 @@ def chart_delta_week_ranking(delta_week:int) -> pl.DataFrame:
     )
     return rename_columns(df)
 
-def style_sales(df: pd.DataFrame, columns:List[str] | None = None,
+def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
                 date_columns:List[str] | None = None,
                 percent_columns:List[str] | None = None,
                 datetime_index:bool = False,
@@ -308,9 +308,14 @@ def style_sales(df: pd.DataFrame, columns:List[str] | None = None,
     Returns:
         Styler: スタイルが適用されたStylerオブジェクト
     """
-    styled = df.style
+
+    first_column = df.columns[0]
+    pd_df = df.to_pandas()
+    pd_df = pd_df.set_index(first_column)
+    
+    styled = pd_df.style
     if columns is None:
-        columns = df.columns.tolist()
+        columns = pd_df.columns.tolist()
     styled = styled.format('{:,.0f}', subset=columns)
     styled = styled.set_properties(**{'text-align': 'right'}, subset=columns)
     
