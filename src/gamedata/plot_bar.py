@@ -548,6 +548,10 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None,
         yearly_df = hsf.yearly_sales(hard_sales_df, begin=begin, end=end)
         hw_df = yearly_df.filter(pl.col("hw").is_in(hw))
         pivot_hw_df = hw_df.pivot(index="year", on="hw", values="yearly_units")
+        
+        column_list = pivot_hw_df.columns[1:]
+        select_list = [hw_name for hw_name in hw if hw_name in column_list]
+        pivot_hw_df = pivot_hw_df.select(["year"] + select_list)
         return pivot_hw_df
     
     def color_generator(hard_list: List[str]) -> List[str]:

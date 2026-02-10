@@ -59,7 +59,7 @@ def rename_hw(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def chart_units_by_date_hw(df: pl.DataFrame) -> pd.io.formats.style.Styler:
+def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:datetime|None = None) -> pd.io.formats.style.Styler:
     """
     日付とハード別の販売台数チャートを出力する
     
@@ -74,6 +74,7 @@ def chart_units_by_date_hw(df: pl.DataFrame) -> pd.io.formats.style.Styler:
         - index: 集計日 (datetime64), ハード (string): 日付とハード名のマルチインデックス
         - columns: 販売台数 (int64), 累計台数 (int64)
     """
+    df = hsf.date_filter(df, begin=begin, end=end)
     df = (df
           .sort(by=['report_date', 'units', 'hw'], descending=[False, True, False])
           .select(pl.col('report_date'), 
