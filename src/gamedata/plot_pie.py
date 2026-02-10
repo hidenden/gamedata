@@ -1,7 +1,7 @@
 # 標準ライブラリ
 
 # サードパーティライブラリ
-import pandas as pd
+import polars as pl
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
@@ -12,7 +12,7 @@ from . import hard_info as hi
 from . import plot_util as pu
 
 def plot_maker_share_pie(begin_year:int | None = None, 
-                         end_year:int | None = None) -> tuple[Figure, pd.DataFrame]:
+                         end_year:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
     年ごとのメーカーシェアを円グラフで可視化する
 
@@ -21,7 +21,7 @@ def plot_maker_share_pie(begin_year:int | None = None,
         end_year: 表示する最後の年
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: year (int64): report_dateの年
@@ -29,9 +29,10 @@ def plot_maker_share_pie(begin_year:int | None = None,
         - values: yearly_units (int64): 年次販売台数
     """
     df = hs.load_hard_sales()
-    maker_sales = pv.pivot_maker(df, begin_year=begin_year, end_year=end_year)
-
-    n = len(maker_sales)
+    maker_df = pv.pivot_maker(df, begin_year=begin_year, end_year=end_year)
+    n = maker_df.height
+ 
+    # n = len(maker_sales)
     plt.ioff()
     fig, axes = plt.subplots(1, n, figsize=(4*n, 4))
     plt.rcParams['font.family'] = 'Hiragino Sans'
@@ -45,16 +46,20 @@ def plot_maker_share_pie(begin_year:int | None = None,
         axes = [axes]
     legend_labels = None
     legend_handles = None
-    for i, (ax, (idx, s)) in enumerate(zip(axes, maker_sales.iterrows())):
-        s_data = s[s > 0]
-        colors = hi.get_maker_colors(s_data.index.to_list())
-        wedges, texts, autotexts = ax.pie(s_data, labels=None, autopct='%1.1f%%', colors=colors, startangle=90, counterclock=False)
+    
+    for i, (ax, s) in enumerate(zip(axes, maker_df.iter_rows(named=True))):
+        labels = list(s.keys())[1:]
+        values = list(s.values())[1:]
+        colors = hi.get_maker_colors(list(s.keys())[1:])
+        wedges, texts, autotexts = ax.pie(values, labels=labels, autopct='%1.1f%%', 
+                                          colors=colors, startangle=90, counterclock=False)
         for autotext in autotexts:
             autotext.set_color('white')
-        ax.set_title(f'メーカーシェア {s.name}')
+        ax.set_title(f'メーカーシェア {s["year"]}')
         if i == 0:
-            legend_labels = s_data.index.to_list()
+            legend_labels = labels
             legend_handles = wedges
+            
     if legend_handles and legend_labels:
         fig.legend(legend_handles, legend_labels, loc='upper right', bbox_to_anchor=(1.05, 1))
     fig.tight_layout()
@@ -63,5 +68,5 @@ def plot_maker_share_pie(begin_year:int | None = None,
     if dispfunc is not None:
         dispfunc(fig)
 
-    return (fig, maker_sales)
+    return (fig, maker_df)
 
