@@ -42,8 +42,7 @@ def pivot_sales(src_df: pl.DataFrame, hw:List[str] = [],
     return df.pivot(index='report_date',
                     on='hw',
                     values='units',
-                    aggregate_function='sum').sort('report_date')
-
+                    aggregate_function='last').sort('report_date')
 
 
 def pivot_monthly_sales(df: pl.DataFrame, hw:List[str] = [],
@@ -73,7 +72,7 @@ def pivot_monthly_sales(df: pl.DataFrame, hw:List[str] = [],
     df = df.pivot(index=['year', 'month'],
                  on='hw',
                  values='monthly_units',
-                 aggregate_function='sum')
+                 aggregate_function='last')
     df = (df
           .with_columns(
               (pl.date(pl.col("year"), pl.col("month"), 1)
@@ -111,7 +110,7 @@ def pivot_quarterly_sales(df: pl.DataFrame, hw:List[str] = [],
     return df.pivot(index='quarter',
                     on='hw',
                     values='quarterly_units',
-                    aggregate_function='sum').sort(by='quarter')
+                    aggregate_function='last').sort(by='quarter')
 
 
 def pivot_yearly_sales(df: pl.DataFrame, hw:List[str] = [],
@@ -141,7 +140,7 @@ def pivot_yearly_sales(df: pl.DataFrame, hw:List[str] = [],
     return df.pivot(index='year',
                     on='hw',
                     values='yearly_units',
-                    aggregate_function='sum').sort(by='year')
+                    aggregate_function='last').sort(by='year')
 
 
 def pivot_cumulative_sales(df: pl.DataFrame, hw:List[str] = [], 
@@ -257,7 +256,7 @@ def pivot_sales_by_delta(df: pl.DataFrame, mode:str = "week",
         .pivot(index=index_col, 
                on=on_columns, 
                values='units', 
-               aggregate_function='sum')
+               aggregate_function='last')
         .sort(by=[index_col])
     )
 
@@ -324,10 +323,12 @@ def pivot_sales_with_offset(src_df: pl.DataFrame,
     combined_df = pl.concat(all_data)
     
     # ピボットテーブル化
-    return combined_df.pivot(index='offset_week', 
-                             on='label', 
-                             values='units',
-                             aggregate_function='sum').sort('offset_week')
+    return (combined_df
+            .pivot(index='offset_week', 
+                   on='label', 
+                   values='units',
+                   aggregate_function='last')
+            .sort('offset_week'))
 
 
 def pivot_cumulative_sales_by_delta(df: pl.DataFrame, mode:str = "week", 
@@ -413,7 +414,7 @@ def pivot_maker(df: pl.DataFrame, begin_year: int | None = None, end_year: int |
     pivot_df = df.pivot(index='year',
                         on='maker_name', 
                         values='yearly_units',
-                        aggregate_function='sum')
+                        aggregate_function='last')
     
     # カラムの順序を調整
     desired_order = ['Nintendo', 'SONY', 'Microsoft', 'SEGA']
