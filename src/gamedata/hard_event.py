@@ -7,6 +7,9 @@ from typing import List, TypedDict, Dict, Any
 
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
+# ISO 8601形式の曜日定数
+ISO_MONDAY = 1
+ISO_SUNDAY = 7
 
 def load_hard_event() -> pl.DataFrame:
     """
@@ -31,9 +34,9 @@ def load_hard_event() -> pl.DataFrame:
     
     # report_dateカラムを作成する。event_dateが日曜日ならそのまま、そうでなければ直近の日曜日を設定
     df = df.with_columns(
-        pl.when(pl.col('event_date').dt.weekday() == 6)
+        pl.when(pl.col('event_date').dt.weekday() == ISO_SUNDAY)
           .then(pl.col('event_date'))
-          .otherwise(pl.col('event_date') + pl.duration(days=(6 - pl.col('event_date').dt.weekday())))
+          .otherwise(pl.col('event_date') + pl.duration(days=(ISO_SUNDAY - pl.col('event_date').dt.weekday())))
           .alias('report_date')
     )
     return df
@@ -147,7 +150,6 @@ def add_event_positions(event_df: pl.DataFrame, pivot_df: pl.DataFrame,
     """
     # priorityでフィルタ（指定値以下のみ残す）
     filtered_events = mask_event(event_df, event_mask=event_mask)
-    print(filtered_events.tail(10))
 
     pivot_columns = pivot_df.columns
     
@@ -159,15 +161,11 @@ def add_event_positions(event_df: pl.DataFrame, pivot_df: pl.DataFrame,
         
         # report_dateがpivot_dfに存在するか確認
         pivot_row = pivot_df.filter(pl.col('report_date') == report_date)
-        print(f"Checking event: {row['event_name']} on {report_date}")
         
         if pivot_row.height == 0:
             continue
-        else:
-            print(f"Found matching report_date for event: {row['event_name']} on {report_date}")
         
         # hwカラムが存在し、値がNoneでない場合
-        print(f"Processing event: {row['event_name']} on {report_date} for hw: {hw}")
         if hw is not None and hw in pivot_columns:
             y_pos_value = pivot_row[hw][0]
             
@@ -204,7 +202,6 @@ def add_event_positions_delta(event_df: pl.DataFrame,
         pl.DataFrame: x_pos, y_posを追加したイベントデータ（条件に合わない行は除外）
     """
     filtered_events = mask_event(event_df, event_mask=event_mask)
-    print(filtered_events.tail(10))
     
     # pivot_delta_dfのカラムを取得
     pivot_columns = pivot_delta_df.columns

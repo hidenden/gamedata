@@ -115,8 +115,6 @@ def _plot_sales(
         # event_dfの情報をannotationとしてグラフに追加する
         event_df = he.load_hard_event()
         filtered_events = annotation_positioner(event_df, df)
-        print("-----ANNOTATION POSITIONER COMPLETED-----")
-        print(filtered_events)
         for event_row in filtered_events.iter_rows(named=True):
             color = hi.get_hard_color(event_row['hw'])
             ax.annotate(event_row['event_name'], 
@@ -258,7 +256,7 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
         ymax: Y軸の上限値
         xgrid: X軸のグリッド線の間隔
         ygrid: Y軸のグリッド線の間隔
-        event_mask: イベント注釈のマスク設定
+        event_mask: イベント注釈のマスク設定 (modeが"week"の場合のみ有効)
         area: 面グラフとして表示するかどうか
         ticklabelsize: 目盛りラベルのフォントサイズ
 
@@ -307,11 +305,13 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
             legend='ハード'
         )
 
-    if event_mask:
+    if event_mask and mode == "week":
         def annotation_positioner(event_df, df): 
             return he.add_event_positions(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
+        if event_mask:
+            print("Warning: event_mask is ignored when mode is not 'week'.")
 
     tick_params_fn = None
     if ticklabelsize is not None:
@@ -377,12 +377,14 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
             legend='ハード'
         )
         
-    if event_mask:
+    if event_mask and mode == "week":
         def annotation_positioner(event_df, df):
             event_df = he.delta_event(event_df, hi.load_hard_info())
             return he.add_event_positions_delta(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
+        if event_mask:
+            print("Warning: event_mask is ignored when mode is not 'week'.")
         
     return _plot_sales(
         data_source=data_source,
@@ -487,11 +489,13 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
             legend='ハード'
         )
 
-    if event_mask:
+    if event_mask and mode == "week":
         def annotation_positioner(event_df, df):
             return he.add_event_positions(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
+        if event_mask:
+            print("Warning: event_mask is ignored when mode is not 'week'.")
         
     return _plot_sales(
         data_source=data_source,
