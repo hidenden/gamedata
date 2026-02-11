@@ -157,6 +157,7 @@ def _chart_periodic_ranking(rank_n:int = 10,
     actual_rows = len(df_src)
     df_src = (df_src
               .with_columns(pl.arange(1, actual_rows + 1).alias('順位')) # 通番のカラムを追加
+              .with_columns(pl.col("順位").cast(pl.Int16))  # ソート列をInt16にキャスト
               .select(['順位', *headers, key_column, sort_column])
     )
     
@@ -278,6 +279,7 @@ def chart_delta_week_ranking(delta_week:int) -> pl.DataFrame:
     row_num = len(df)
     df = (df
           .with_columns(pl.arange(1, row_num + 1).alias('順位')) # 通番のカラムを追加
+          .with_columns(pl.col("順位").cast(pl.Int16))  # ソート列をInt16にキャスト
           .select(['順位', 'report_date', 'delta_week', 'full_name', 'sum_units'])
     )
     return rename_columns(df)
@@ -350,3 +352,60 @@ def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
         styled = styled.format_index(lambda t: t.strftime('%Y-%m-%d'), axis=0, level=0)
     
     return styled
+
+
+def style(df: pl.DataFrame,
+           highlight:bool = False,
+           gradient:bool = False,
+           bar:bool = False,
+           gradient_horizontal:bool = False,
+           bar_color:str = "#18ba06dd") -> Styler:
+    """
+    DataFrameをPandasのStylerオブジェクトに変換する
+    
+    Args:
+        df: 変換対象のDataFrame
+        highlight: 数値列を自動的に強調表示するかどうか
+        gradient: 数値列に自動的にグラデーションを適用するかどうか
+        bar: 数値列に自動的に棒グラフを適用するかどうか
+        gradient_horizontal: 行方向にグラデーションを適用するかどうか
+        bar_color: 棒グラフの色
+    Returns:
+        Styler: 変換されたStylerオブジェクト
+    """
+    # df.columns[0]の値がユニークかどうかを確認する｡ユニークはないなら､行番号のカラムを一番左側に追加する
+    first_column = df.columns[0]
+    all_columns = df.columns
+    if df[first_column].n_unique() != df.height:
+        df = (df
+              .with_columns(pl.arange(0, df.height).alias('id'))
+              .with_columns(pl.col("id").cast(pl.Int32))
+              .select(['id'] + all_columns)
+              )
+    
+    num_columns = df.select(pl.col(pl.Int64)).columns
+    highlights = num_columns if highlight else None
+    gradients = num_columns if gradient or gradient_horizontal else None
+    bars = num_columns if bar else None
+        
+    date_columns = df.select(pl.col(pl.Date)).columns
+    percent_columns = df.select(pl.col(pl.Float64)).columns
+    
+    # date_columns[0]とdf.columns[0]が同じ場合、date_columnsから削除する
+    if date_columns and (date_columns[0] == df.columns[0]):
+        date_columns = date_columns[1:]
+        datetime_index = True
+    else:
+        datetime_index = False
+    
+    return style_sales(df,
+                columns = num_columns,
+                date_columns = date_columns,
+                percent_columns = percent_columns,
+                datetime_index = datetime_index,
+                highlights = highlights,
+                gradients = gradients,
+                gradient_horizontal = gradient_horizontal,
+                bars = bars,
+                bar_color = bar_color
+                )
