@@ -11,9 +11,9 @@ from typing import List
     .set_float_precision(2)
     .set_thousands_separator(',')
     .set_trim_decimal_zeros(True)
-    .set_tbl_hide_column_data_types(True)
+    .set_tbl_hide_column_data_types(False)
     .set_tbl_hide_dataframe_shape(True)
-    .set_tbl_column_data_type_inline(True)
+    # .set_tbl_column_data_type_inline(True)
 )
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
@@ -21,34 +21,33 @@ DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
 def load_hard_sales() -> pl.DataFrame:
     """
     sqlite3を使用してデータベースからハードウェア販売データを読み込む関数。
-    日付関係のカラムをdatetime型に変換して返す。
+    日付関係のカラムをdate型に変換し、整数カラムを適切なサイズにキャストして返す。
     
     Returns:
         pl.DataFrame: ハードウェア販売データのDataFrame。
-                      日付カラム（begin_date, report_date, end_date, launch_date）は
-                      datetime型に変換済み。
+                      日付カラムはDate型、整数カラムは最適なサイズに変換済み。
         
         DataFrameのカラム詳細:
         - weekly_id (String): 週次データのID（gamehard_weekly.id）
-        - begin_date (Datetime): 集計開始日（週の初日）、月曜日である
-        - end_date (Datetime): 集計終了日（週の末日、=report_date）
-        - report_date (Datetime): 集計期間の末日、日曜日である
+        - begin_date (Date): 集計開始日（週の初日）、月曜日である
+        - end_date (Date): 集計終了日（週の末日、=report_date）
+        - report_date (Date): 集計期間の末日、日曜日である
         - quarter (String): report_dateの四半期（例: "2024Q1"）
-        - period_date (Int64): 集計日数(通常は7, 稀に14)
+        - period_date (Int16): 集計日数(通常は7, 稀に14)
         - hw (String): ゲームハードの識別子
         - units (Int64): 週次販売台数
         - adjust_units (Int64): 週次販売台数の補正値(unitsは補正済みの値である)
-        - year (Int64): report_dateの年
-        - month (Int64): report_dateの月
-        - mday (Int64): report_dateの日
-        - week (Int64): report_dateがその月の何番目の日曜日か
-        - delta_day (Int64): 発売日から何日後か
-        - delta_week (Int64): 発売日から何週間後か
-        - delta_month (Int64): 発売日から何ヶ月後か
-        - delta_year (Int64): 発売年から何年後か(同じ年なら0)
+        - year (Int16): report_dateの年
+        - month (Int16): report_dateの月
+        - mday (Int16): report_dateの日
+        - week (Int16): report_dateがその月の何番目の日曜日か
+        - delta_day (Int32): 発売日から何日後か
+        - delta_week (Int32): 発売日から何週間後か
+        - delta_month (Int16): 発売日から何ヶ月後か
+        - delta_year (Int16): 発売年から何年後か(同じ年なら0)
         - avg_units (Int64): 1日あたりの販売台数 (units / period_date)
         - sum_units (Int64): report_date時点での累計販売台数
-        - launch_date (Datetime): 発売日
+        - launch_date (Date): 発売日
         - maker_name (String): メーカー名
         - full_name (String): ゲームハードの正式名称
     """
@@ -61,12 +60,21 @@ def load_hard_sales() -> pl.DataFrame:
     # 接続を閉じる
     conn.close()
 
-    # 日付をDatetime型に変換
+    # 日付をDate型に変換, 値の小さな整数はInt16にキャスト
     df = df.with_columns([
-        pl.col('begin_date').str.to_datetime(),
-        pl.col('report_date').str.to_datetime(),
-        pl.col('end_date').str.to_datetime(),
-        pl.col('launch_date').str.to_datetime(),
+        pl.col('begin_date').str.to_date(),
+        pl.col('report_date').str.to_date(),
+        pl.col('end_date').str.to_date(),
+        pl.col('launch_date').str.to_date(),
+        pl.col('period_date').cast(pl.Int16),
+        pl.col('year').cast(pl.Int16),
+        pl.col('month').cast(pl.Int16),
+        pl.col('mday').cast(pl.Int16),
+        pl.col('week').cast(pl.Int16),
+        pl.col('delta_day').cast(pl.Int32),
+        pl.col('delta_week').cast(pl.Int32),
+        pl.col('delta_month').cast(pl.Int16),
+        pl.col('delta_year').cast(pl.Int16),
     ])
     
     # 四半期のカラムを追加
@@ -117,6 +125,6 @@ def get_active_hw() -> List[str]:
     one_year_ago = now - timedelta(days=365)
     recent_df = base_df.filter(pl.col('report_date') >= one_year_ago)
     active_hw = get_hw(recent_df)
-    return active_hw    
+    return active_hw
 
 

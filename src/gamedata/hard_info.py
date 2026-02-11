@@ -15,7 +15,7 @@ def load_hard_info() -> pl.DataFrame:
     # SQLクエリを実行してデータをDataFrameに読み込む
     query = "SELECT * FROM gamehard_info;"
     df = pl.read_database(query, conn)
-    df = df.with_columns(pl.col('launch_date').str.to_datetime())
+    df = df.with_columns(pl.col('launch_date').str.to_date())
     # 接続を閉じる
     conn.close()
     return df

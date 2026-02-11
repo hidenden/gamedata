@@ -39,7 +39,7 @@ def weekly_sales(src_df: pl.DataFrame,
         pl.DataFrame: 週毎の販売台数（weekly_units）と累計販売台数（sum_units）を含むDataFrame
         
         DataFrameのカラム詳細:
-        - report_date (Datetime): 集計期間の末日、日曜日である
+        - report_date (Date): 集計期間の末日、日曜日である
         - hw (String): ゲームハードの識別子 (maker_mode=Falseの場合)
         - maker_name (String): メーカー名 (maker_mode=Trueの場合)
         - weekly_units (Int64): 週次販売台数
@@ -80,8 +80,8 @@ def monthly_sales(src_df: pl.DataFrame,
         pl.DataFrame: 月毎の販売台数（monthly_units）と累計販売台数（sum_units）を含むDataFrame
         
         DataFrameのカラム詳細:
-        - year (Int64): report_dateの年
-        - month (Int64): report_dateの月
+        - year (Int16): report_dateの年
+        - month (Int16): report_dateの月
         - hw (String): ゲームハードの識別子 (maker_mode=Falseの場合) 
         - maker_name (String): メーカー名 (maker_mode=Trueの場合)
         - monthly_units (Int64): 月次販売台数
@@ -123,8 +123,8 @@ def quarterly_sales(src_df: pl.DataFrame,
         
         DataFrameのカラム詳細:
         - quarter (String): report_dateの四半期（例: "2024Q1"）
-        - year (Int64): report_dateの年
-        - q_num (Int64): report_dateの四半期番号(1~4)
+        - year (Int16): report_dateの年
+        - q_num (Int16): report_dateの四半期番号(1~4)
         - hw (String): ゲームハードの識別子 (maker_mode=Falseの場合) 
         - maker_name (String): メーカー名 (maker_mode=Trueの場合)
         - quarterly_units (Int64): 四半期販売台数
@@ -171,7 +171,7 @@ def yearly_sales(src_df: pl.DataFrame,
         pl.DataFrame: 年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame
         
         DataFrameのカラム詳細:
-        - year (Int64): report_dateの年
+        - year (Int16): report_dateの年
         - hw (String): ゲームハードの識別子 (maker_mode=Falseの場合) 
         - maker_name (String): メーカー名 (maker_mode=Trueの場合)
         - yearly_units (Int64): 年次販売台数
@@ -212,7 +212,7 @@ def yearly_maker_sales(src_df: pl.DataFrame,
         pl.DataFrame: 年毎、メーカー毎の販売台数を含むDataFrame
 
         DataFrameのカラム詳細:
-        - year (Int64): report_dateの年
+        - year (Int16): report_dateの年
         - maker_name (String): メーカー名
         - yearly_units (Int64): 年次販売台数
     """
@@ -232,7 +232,7 @@ def delta_yearly_sales(df: pl.DataFrame) -> pl.DataFrame:
         pl.DataFrame: 経過年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame
         
         DataFrameのカラム詳細:
-        - delta_year (Int64): 発売年から何年後か(同じ年なら0)
+        - delta_year (Int16): 発売年から何年後か(同じ年なら0)
         - hw (String): ゲームハードの識別子
         - yearly_units (Int64): 経過年次販売台数
         - sum_units (Int64): その経過年時点での累計販売台数

@@ -237,6 +237,7 @@ def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
         quarterly_df = quarterly_df.filter(pl.col("hw") == hw)
         pivot_hw_df = quarterly_df.pivot(index="q_num", on="year",
                                          values="quarterly_units", aggregate_function="sum")
+        pivot_hw_df = pivot_hw_df.with_columns(pl.col("q_num").cast(pl.Int16))
         return pivot_hw_df
     
     def labeler() -> pu.AxisLabels:
@@ -426,6 +427,7 @@ def plot_monthly_bar_by_hard_year(hwy:list[tuple[str, int]],
         result_df = result_df.filter(
             pl.sum_horizontal(pl.col("*").exclude("month")) > 0
         )
+        result_df = result_df.with_columns(pl.col("month").cast(pl.Int16))
         return result_df
 
     def color_generator(hard_list: List[str]) -> List[str]:
@@ -493,7 +495,10 @@ def plot_quarterly_bar_by_hard_year(hwy:list[tuple[str, int]],
         result_df = pl.DataFrame({"q_num": list(range(1, 5))})
         for df in hw_dfs:
             result_df = result_df.join(df, on="q_num", how="left")
-        return result_df.fill_null(0)
+        return (result_df
+                .fill_null(0)
+                .with_columns(pl.col("q_num").cast(pl.Int16))
+        )
 
     def color_generator(hard_list: List[str]) -> List[str]:
         return hi.get_hard_colors(color_hard_list)
