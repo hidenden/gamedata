@@ -30,7 +30,9 @@ def load_hard_event() -> pl.DataFrame:
     conn.close()
 
     # 日付をdatetime64[ns]型に変換
-    df = df.with_columns(pl.col('event_date').str.to_datetime())
+    df = df.with_columns(
+        pl.col('event_date').str.to_date()
+        )
     
     # report_dateカラムを作成する。event_dateが日曜日ならそのまま、そうでなければ直近の日曜日を設定
     df = df.with_columns(
@@ -56,6 +58,7 @@ def delta_event(event_df: pl.DataFrame,
     df_event_merged = event_df.join(info_df, left_on='hw', right_on="id", how='left')
     df_event_merged = df_event_merged.with_columns(
         ((pl.col('report_date') - pl.col('launch_date')).dt.total_days() // 7)
+        .cast(pl.Int32)
         .alias('delta_week')
     )
 
@@ -74,6 +77,7 @@ class EventMasks(TypedDict, total=True):
 EVENT_MASK_MIDDLE:EventMasks = {"hard":1.5, "price":3, "sale":2, "soft":1.5, "event":1}
 EVENT_MASK_LONG:EventMasks = {"hard":0.5, "soft":0, "event":0, "price":0, "sale":0}
 EVENT_MASK_SHORT:EventMasks = {"hard":2, "soft":4, "event":2, "price":4, "sale":5}
+EVENT_MASK_ALL:EventMasks = {"hard":5.0, "soft":5.0, "event":5.0, "price":5.0, "sale":5.0}
 
 def mask_event(df: pl.DataFrame, 
                event_mask: EventMasks) -> pl.DataFrame:
@@ -136,7 +140,7 @@ def filter_event(df: pl.DataFrame,
     return df
 
 def add_event_positions(event_df: pl.DataFrame, pivot_df: pl.DataFrame, 
-                        event_mask:EventMasks = EventMasks()) -> pl.DataFrame:
+                        event_mask:EventMasks = EVENT_MASK_ALL) -> pl.DataFrame:
     """
     event_dfにx_pos（event_date）とy_pos（該当ハードの販売数）を追加し、条件に合わない行は除外した新しいDataFrameを返す。
 
@@ -180,7 +184,7 @@ def add_event_positions(event_df: pl.DataFrame, pivot_df: pl.DataFrame,
     if len(result_rows) == 0:
         # 空のDataFrameを返す（元のカラム + x_pos, y_posを持つ）
         return filtered_events.with_columns([
-            pl.lit(None).cast(pl.Datetime).alias('x_pos'),
+            pl.lit(None).cast(pl.Date).alias('x_pos'),
             pl.lit(None).cast(pl.Float64).alias('y_pos')
         ]).head(0)
     
@@ -189,7 +193,7 @@ def add_event_positions(event_df: pl.DataFrame, pivot_df: pl.DataFrame,
 
 def add_event_positions_delta(event_df: pl.DataFrame, 
                               pivot_delta_df: pl.DataFrame, 
-                              event_mask:EventMasks = EventMasks()) -> pl.DataFrame:
+                              event_mask:EventMasks = EVENT_MASK_ALL) -> pl.DataFrame:
     """
     event_dfにx_pos（delta_week）とy_pos（該当ハードの累積販売数）を追加し、条件に合わない行は除外した新しいDataFrameを返す。
 
@@ -235,5 +239,7 @@ def add_event_positions_delta(event_df: pl.DataFrame,
             pl.lit(None).cast(pl.Float64).alias('y_pos')
         ]).head(0)
     
-    return pl.DataFrame(result_rows)
+    result_df = pl.DataFrame(result_rows)
+    result_df = result_df.with_columns(pl.col('delta_week').cast(pl.Int32))
+    return result_df
 

@@ -22,7 +22,7 @@ def pivot_sales(src_df: pl.DataFrame, hw:List[str] = [],
         pl.DataFrame: report_dateをカラム、hwを列、unitsを値とするピボットテーブル
         
         DataFrameのカラム構成:
-        - report_date (Datetime): 集計期間の末日（日曜日）
+        - report_date (Date): 集計期間の末日（日曜日）
         - 各hw (Int64): ゲームハード別の週次販売台数
     """
     # begin/endでフィルタリング
@@ -61,8 +61,7 @@ def pivot_monthly_sales(df: pl.DataFrame, hw:List[str] = [],
         pl.DataFrame: year, monthをカラム、hwを列、monthly_unitsを値とするピボットテーブル
         
         DataFrameのカラム構成:
-        - year (Int64): report_dateの年
-        - month (Int64): report_dateの月
+        - month (Date): 月の末日
         - 各hw (Int64): ゲームハード別の月次販売台数
     """
     df = hsf.monthly_sales(df, begin=begin, end=end)
@@ -129,7 +128,7 @@ def pivot_yearly_sales(df: pl.DataFrame, hw:List[str] = [],
         pl.DataFrame: yearをカラム、hwを列、yearly_unitsを値とするピボットテーブル
         
         DataFrameのカラム構成:
-        - year (Int64): report_dateの年
+        - year (Int16): report_dateの年
         - 各hw (Int64): ゲームハード別の年次販売台数
     """
     df = hsf.yearly_sales(df, begin=begin, end=end)
@@ -163,7 +162,7 @@ def pivot_cumulative_sales(df: pl.DataFrame, hw:List[str] = [],
         pl.DataFrame: report_dateをカラム、hwを列、sum_unitsを値とするピボットテーブル
         
         DataFrameのカラム構成:
-        - report_date (Datetime): 集計期間の末日（日曜日）
+        - report_date (Date): 集計期間の末日（日曜日）
         - 各hw/full_name (Int64): ゲームハード別の累計販売台数
     """
     # begin/endでフィルタリング
@@ -222,7 +221,9 @@ def pivot_sales_by_delta(df: pl.DataFrame, mode:str = "week",
         pl.DataFrame: delta_week, delta_month, delta_yearのいずれかをカラム、hwを列、unitsを値とするピボットテーブル
         
         DataFrameのカラム構成:
-        - delta_week/delta_month/delta_year (Int64): 発売日からの経過期間（modeにより変動）
+        - delta_week (Int32): 発売日からの経過週数（modeが"week"の場合）
+        - delta_month (Int16): 発売日からの経過ヶ月数（modeが"month"の場合）
+        - delta_year (Int16): 発売年からの経過年数（modeが"year"の場合）
         - 各hw/full_name (Int64): ゲームハード別の販売台数
     """
     # ピボットテーブルを作成
@@ -279,7 +280,7 @@ def pivot_sales_with_offset(src_df: pl.DataFrame,
         pl.DataFrame: offset_weekをカラム、labelを列、unitsを値とするピボットテーブル
         
         DataFrameのカラム構成:
-        - offset_week (Int64): 各期間の開始日からの経過週数
+        - offset_week (Int32): 各期間の開始日からの経過週数
         - 各label (Int64): ハードウェア別の週次販売台数
         
     Example:
@@ -309,7 +310,7 @@ def pivot_sales_with_offset(src_df: pl.DataFrame,
         
         # 開始日からの経過週数を計算
         hw_df = hw_df.with_columns(
-            ((pl.col('report_date') - begin).dt.total_days() / 7).cast(pl.Int64).alias('offset_week')
+            ((pl.col('report_date') - begin).dt.total_days() / 7).cast(pl.Int32).alias('offset_week')
         )
         
         # 必要な列のみ抽出し、labelを付与
@@ -349,7 +350,9 @@ def pivot_cumulative_sales_by_delta(df: pl.DataFrame, mode:str = "week",
         pl.DataFrame: delta_week, delta_month, delta_yearのいずれかをカラム、hwを列、sum_unitsを値とするピボットテーブル
         
         DataFrameのカラム構成:
-        - delta_week/delta_month/delta_year (Int64): 発売日からの経過期間（modeにより変動）
+        - delta_week (Int32): 発売日からの経過週数（modeが"week"の場合）
+        - delta_month (Int16): 発売日からの経過ヶ月数（modeが"month"の場合）
+        - delta_year (Int16): 発売年からの経過年数（modeが"year"の場合）
         - 各hw (Int64): ゲームハード別の累計販売台数
     """
     # ピボットテーブルを作成
@@ -404,7 +407,7 @@ def pivot_maker(df: pl.DataFrame, begin_year: int | None = None, end_year: int |
         メーカー別の販売データをピボットテーブル形式に変換したDataFrame
         
         DataFrameのカラム構成:
-        - year (Int64): report_dateの年
+        - year (Int16): report_dateの年
         - 各maker_name (Int64): メーカー別の年次販売台数（Nintendo, SONY, Microsoft, SEGA等）
     """
     begin = None if begin_year is None else datetime(begin_year, 1, 1)
