@@ -74,9 +74,7 @@ def pivot_monthly_sales(df: pl.DataFrame, hw:List[str] = [],
                  aggregate_function='last')
     df = (df
           .with_columns(
-              (pl.date(pl.col("year"), pl.col("month"), 1)
-               .dt.month_end())
-              .alias("month"))
+              month = pl.date(pl.col("year"), pl.col("month"), 1).dt.month_end())
           .select(['month'] + [col for col in df.columns if col not in ['year', 'month']])
           .sort(by='month')
           )    
@@ -310,12 +308,13 @@ def pivot_sales_with_offset(src_df: pl.DataFrame,
         
         # 開始日からの経過週数を計算
         hw_df = hw_df.with_columns(
-            ((pl.col('report_date') - begin).dt.total_days() / 7).cast(pl.Int32).alias('offset_week')
+            offset_week = ((pl.col('report_date') - begin).dt.total_days() / 7).cast(pl.Int32)
         )
         
         # 必要な列のみ抽出し、labelを付与
-        hw_df = hw_df.select(['offset_week', 'units']).with_columns(
-            pl.lit(label).alias('label')
+        hw_df = (hw_df
+                 .select(['offset_week', 'units'])
+                 .with_columns(label = pl.lit(label))
         )
         
         all_data.append(hw_df)
@@ -485,7 +484,7 @@ def cumsum_diffs(df:pl.DataFrame,
             pivot_df
             .filter(pl.col(base_hw).is_not_null())
             .with_columns(
-                (pl.col(cmp_hw) - pl.col(base_hw)).alias(diff_col_name)
+                diff_col_name = pl.col(cmp_hw) - pl.col(base_hw)
             )
             .filter(pl.col(diff_col_name) >= -10000)
             .select(['row_nr', diff_col_name])

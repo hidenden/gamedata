@@ -58,7 +58,7 @@ def weekly_sales(src_df: pl.DataFrame,
         .agg(pl.col('units').sum().alias('weekly_units'))
         .sort([key_column, 'report_date'])
         .with_columns(
-            pl.col('weekly_units').cum_sum().over(key_column).alias('sum_units')
+            sum_units = pl.col('weekly_units').cum_sum().over(key_column)
         )
     ).sort(by = ['report_date', 'weekly_units'], descending=[False, True])
     return weekly_sales
@@ -100,7 +100,7 @@ def monthly_sales(src_df: pl.DataFrame,
         .agg(pl.col('units').sum().alias('monthly_units'))
         .sort([key_column, 'year', 'month'])
         .with_columns(
-            pl.col('monthly_units').cum_sum().over(key_column).alias('sum_units')
+            sum_units = pl.col('monthly_units').cum_sum().over(key_column)
         )
     ).sort(by = ['year', 'month', 'monthly_units'], descending=[False, False, True])
     return monthly_sales
@@ -142,13 +142,13 @@ def quarterly_sales(src_df: pl.DataFrame,
     quarterly_sales = (
         df.group_by(['quarter', key_column])
         .agg(pl.col('units').sum().alias('quarterly_units'))
-        .with_columns([
-            pl.col('quarter').str.slice(0, 4).cast(pl.Int64).alias('year'),
-            pl.col('quarter').str.slice(5, 1).cast(pl.Int64).alias('q_num')
-        ])
+        .with_columns(
+            year = pl.col('quarter').str.slice(0, 4).cast(pl.Int64),
+            q_num = pl.col('quarter').str.slice(5, 1).cast(pl.Int64)
+        )
         .sort([key_column, 'quarter'])
         .with_columns(
-            pl.col('quarterly_units').cum_sum().over(key_column).alias('sum_units')
+            sum_units = pl.col('quarterly_units').cum_sum().over(key_column)
         )
         .sort(by = ['quarter', 'quarterly_units'], descending=[False, True])
     )
@@ -190,7 +190,7 @@ def yearly_sales(src_df: pl.DataFrame,
         .agg(pl.col('units').sum().alias('yearly_units'))
         .sort([key_column, 'year'])
         .with_columns(
-            pl.col('yearly_units').cum_sum().over(key_column).alias('sum_units')
+            sum_units = pl.col('yearly_units').cum_sum().over(key_column)
         )
         .sort(by = ['year', 'yearly_units'], descending=[False, True])
     )

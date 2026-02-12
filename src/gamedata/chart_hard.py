@@ -156,8 +156,8 @@ def _chart_periodic_ranking(rank_n:int = 10,
         df_src = df_src.head(top_n)
     actual_rows = len(df_src)
     df_src = (df_src
-              .with_columns(pl.arange(1, actual_rows + 1).alias('順位')) # 通番のカラムを追加
-              .with_columns(pl.col("順位").cast(pl.Int16))  # ソート列をInt16にキャスト
+              .with_columns(
+                  順位 = pl.arange(1, actual_rows + 1).cast(pl.Int16))
               .select(['順位', *headers, key_column, sort_column])
     )
     
@@ -278,8 +278,8 @@ def chart_delta_week_ranking(delta_week:int) -> pl.DataFrame:
           )
     row_num = len(df)
     df = (df
-          .with_columns(pl.arange(1, row_num + 1).alias('順位')) # 通番のカラムを追加
-          .with_columns(pl.col("順位").cast(pl.Int16))  # ソート列をInt16にキャスト
+          .with_columns(
+              順位 = pl.arange(1, row_num + 1).cast(pl.Int16)) # 通番のカラムを追加
           .select(['順位', 'report_date', 'delta_week', 'full_name', 'sum_units'])
     )
     return rename_columns(df)
@@ -378,8 +378,8 @@ def style(df: pl.DataFrame,
     all_columns = df.columns
     if df[first_column].n_unique() != df.height:
         df = (df
-              .with_columns(pl.arange(0, df.height).alias('id'))
-              .with_columns(pl.col("id").cast(pl.Int32))
+              .with_columns(
+                  id = pl.arange(0, df.height).cast(pl.Int32))
               .select(['id'] + all_columns)
               )
     

@@ -99,9 +99,7 @@ def mask_event(df: pl.DataFrame,
     df = df.filter(pl.col('event_type').is_in(event_types))
     # dfのevent_typeに対応するevent_mask[event_type]の値をmask_priorityカラムとして追加
     df = df.with_columns(
-        pl.col('event_type')
-        .replace(event_mask, default=0.0)
-        .alias('mask_priority')
+        mask_priority = pl.col('event_type').replace(event_mask, default=0.0)
     )
     # 追加したmask_priorityカラムを使用してフィルタリング
     df = df.filter(pl.col('priority') <= pl.col('mask_priority'))
@@ -183,10 +181,10 @@ def add_event_positions(event_df: pl.DataFrame, pivot_df: pl.DataFrame,
     
     if len(result_rows) == 0:
         # 空のDataFrameを返す（元のカラム + x_pos, y_posを持つ）
-        return filtered_events.with_columns([
-            pl.lit(None).cast(pl.Date).alias('x_pos'),
-            pl.lit(None).cast(pl.Float64).alias('y_pos')
-        ]).head(0)
+        return filtered_events.with_columns(
+            x_pos = pl.lit(None).cast(pl.Date),
+            y_pos = pl.lit(None).cast(pl.Float64)
+        ).head(0)
     
     return pl.DataFrame(result_rows)
 
@@ -234,10 +232,10 @@ def add_event_positions_delta(event_df: pl.DataFrame,
     
     if len(result_rows) == 0:
         # 空のDataFrameを返す（元のカラム + x_pos, y_posを持つ）
-        return filtered_events.with_columns([
-            pl.lit(None).cast(pl.Int64).alias('x_pos'),
-            pl.lit(None).cast(pl.Float64).alias('y_pos')
-        ]).head(0)
+        return filtered_events.with_columns(
+            x_pos = pl.lit(None).cast(pl.Int64),
+            y_pos = pl.lit(None).cast(pl.Float64)
+        ).head(0)
     
     result_df = pl.DataFrame(result_rows)
     result_df = result_df.with_columns(pl.col('delta_week').cast(pl.Int32))

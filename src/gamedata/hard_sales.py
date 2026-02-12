@@ -61,7 +61,7 @@ def load_hard_sales() -> pl.DataFrame:
     conn.close()
 
     # 日付をDate型に変換, 値の小さな整数はInt16にキャスト
-    df = df.with_columns([
+    df = df.with_columns(
         pl.col('begin_date').str.to_date(),
         pl.col('report_date').str.to_date(),
         pl.col('end_date').str.to_date(),
@@ -75,12 +75,12 @@ def load_hard_sales() -> pl.DataFrame:
         pl.col('delta_week').cast(pl.Int32),
         pl.col('delta_month').cast(pl.Int16),
         pl.col('delta_year').cast(pl.Int16),
-    ])
+    )
     
     # 四半期のカラムを追加
     df = df.with_columns(
-        (pl.col('report_date').dt.year().cast(pl.Utf8) + "Q" + 
-         pl.col('report_date').dt.quarter().cast(pl.Utf8)).alias('quarter')
+        quarter = (pl.col('report_date').dt.year().cast(pl.Utf8) + "Q" + 
+                    pl.col('report_date').dt.quarter().cast(pl.Utf8))
     )
     df = df.sort('weekly_id')
     return df
