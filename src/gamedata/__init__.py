@@ -23,6 +23,7 @@ from .hard_sales_extract import (
 )
 
 from .hard_sales_filter import (
+    date_filter,
     weekly_sales,
     monthly_sales,
     quarterly_sales,
@@ -106,14 +107,13 @@ from .hard_event import (
 
 from .chart_hard import (
     rename_columns,
-    rename_index,
-    rename_index_title,
     chart_units_by_date_hw,
     chart_weekly_ranking,
     chart_monthly_ranking,
     chart_yearly_ranking,
     chart_delta_week_ranking,
     style_sales,
+    style,
 )
 
 from .util import (

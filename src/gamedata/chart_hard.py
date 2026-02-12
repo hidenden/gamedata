@@ -5,13 +5,14 @@ from typing import List, Callable
 # サードパーティライブラリ
 import pandas as pd
 from pandas.io.formats.style import Styler
+import polars as pl
 
 # プロジェクト内モジュール
 from . import hard_info as hi
 from . import hard_sales as hs
 from . import hard_sales_filter as hsf
 
-def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
+def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
     """
     DataFrameの列名を日本語に変換する
     
@@ -19,9 +20,9 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
         df: 変換対象のDataFrame
         
     Returns:
-        pd.DataFrame: 列名が日本語に変換されたDataFrame
+        pl.DataFrame: 列名が日本語に変換されたDataFrame
     """
-    df = df.rename(columns={
+    base_rename_dict = {
         'full_name': 'ハード',
         'hw': 'ハード',
         'report_date': '集計日',
@@ -35,12 +36,11 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
         'month': '月',
         'year': '年',
         'week': '週',
-    })
-    hard_dict = hi.get_hard_dict()
-    df = df.rename(columns=hard_dict)
+    }
+    df = df.rename(base_rename_dict, strict=False)
     return df
 
-def rename_hw(df: pd.DataFrame) -> pd.DataFrame:
+def rename_hw(df: pl.DataFrame) -> pl.DataFrame:
     """
     DataFrameのhw列の値をフルネームに変換する
     
@@ -48,94 +48,51 @@ def rename_hw(df: pd.DataFrame) -> pd.DataFrame:
         df: hw列を持つDataFrame
         
     Returns:
-        pd.DataFrame: hw列がフルネームに変換されたDataFrame
+        pl.DataFrame: hw列がフルネームに変換されたDataFrame
     """
-    hard_dict = hi.get_hard_dict()
-    df['hw'] = df['hw'].map(hard_dict).fillna(df['hw'])
+    # dfにカラム:hwがある場合、hw列の値をhard_dictで変換する
+    if 'hw' in df.columns:
+        hard_dict = hi.get_hard_dict()
+        df = (df
+              .with_columns(pl.col('hw').replace(hard_dict, default=pl.col('hw')))
+            )
     return df
 
-def rename_index(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    DataFrameのインデックスのハード名をフルネームに変換する
-    
-    Args:
-        df: ハード名をインデックスに持つDataFrame
-        
-    Returns:
-        pd.DataFrame: インデックスがフルネームに変換されたDataFrame
-    """
-    hard_dict = hi.get_hard_dict()
-    df = df.rename(index=hard_dict)
-    return df
 
-def rename_index_title(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    DataFrameのインデックス名を日本語に変換する
-    
-    Args:
-        df: 変換対象のDataFrame
-        
-    Returns:
-        pd.DataFrame: インデックス名が日本語に変換されたDataFrame
-    """
-    index_dict = {'hw': 'ハード',
-                  'report_date': '集計日',
-                  'full_name': 'ハード',
-                  'month': '月',
-                  'year': '年',
-                  'week': '週',
-                  'delta_week': '週数',}
-    ax = df.axes[0]
-    if isinstance(ax, pd.MultiIndex):
-        current = list(ax.names)
-    else:
-        current = [df.index.name]
-    
-    new_titles = [index_dict.get(name, name) for name in current]
-    
-    if isinstance(ax, pd.MultiIndex):
-        return df.rename_axis(new_titles, axis=0)
-    else:
-        return df.rename_axis(new_titles[0], axis=0)
-
-
-def chart_units_by_date_hw(df: pd.DataFrame, 
-                           begin:datetime | None=None, end:datetime | None=None
-                           ) -> tuple[pd.DataFrame, pd.io.formats.style.Styler]:
+def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:datetime|None = None) -> pd.io.formats.style.Styler:
     """
     日付とハード別の販売台数チャートを出力する
     
     Args:
-        df: load_hard_sales()の戻り値のDataFrame
-        begin: 集計開始日
-        end: 集計終了日
+        df: load_hard_sales()の戻り値のDataFrame(事前にdate_filter()でフィルタリング済み推奨)
         
     Returns:
-        tuple[pd.DataFrame, Styler]: データフレームとスタイル適用済みのStylerオブジェクトのタプル
-        
+        pd.io.formats.style.Styler: スタイル適用済みのStylerオブジェクト
+
+    以下のコメントは後で削除､現在は実装の参考のために残す        
         DataFrameのカラム構成:
         - index: 集計日 (datetime64), ハード (string): 日付とハード名のマルチインデックス
         - columns: 販売台数 (int64), 累計台数 (int64)
     """
-    if begin is not None:
-        df = df[df['report_date'] >= begin]
-    if end is not None:
-        df = df[df['report_date'] <= end]
-        
-    df_out = df.set_index(['report_date', 'hw'])
-    df_out.sort_values(by=['report_date', 'units', 'hw'], ascending=[True, False, True], inplace=True)
-    df_out = df_out[['units', 'sum_units']]
-    df_out = rename_index(df_out)
-    df_out = rename_columns(df_out)
-    df_out = rename_index_title(df_out)
+    df = hsf.date_filter(df, begin=begin, end=end)
+    df = (df
+          .sort(by=['report_date', 'units', 'hw'], descending=[False, True, False])
+          .select(pl.col('report_date'), 
+                  pl.col('full_name'), 
+                  pl.col('units'), 
+                  pl.col('sum_units'))
+    )
+    df = rename_columns(df)
 
-    styled = (df_out.style
+    pdf = df.to_pandas()
+    pdf = pdf.set_index(['集計日', 'ハード'])
+    styled = (pdf.style
         .format({'販売台数': '{:,}', '累計台数': '{:,}'})
         .set_properties(**{'text-align': 'right'}, subset=['販売台数', '累計台数'])
         .format_index(lambda t: t.strftime('%Y-%m-%d'),  level=0, axis=0)
         .bar(subset=['販売台数'], color="#18ba06")
         )
-    return (df_out, styled)
+    return styled
 
 
 def _chart_periodic_ranking(rank_n:int = 10, 
@@ -146,7 +103,7 @@ def _chart_periodic_ranking(rank_n:int = 10,
                          data_source_fn:Callable = hsf.monthly_sales,
                          sort_column:str = 'monthly_units',
                          headers:List[str] = ['year', 'month']
-                         ) -> pd.DataFrame:
+                         ) -> pl.DataFrame:
     """
     ある期間のランキングチャートを出力する共通関数
 
@@ -161,7 +118,7 @@ def _chart_periodic_ranking(rank_n:int = 10,
         headers: 出力に含めるヘッダー列のリスト
         
     Returns:
-        pd.DataFrame: ランキングデータのDataFrame。インデックスは順位（1から開始）
+        pl.DataFrame: ランキングデータのDataFrame。インデックスは順位（1から開始）
         
         DataFrameのカラム構成（headersとsort_columnにより変動）:
         - 週間: 集計日, ハード/メーカー, 週間販売台数
@@ -173,39 +130,48 @@ def _chart_periodic_ranking(rank_n:int = 10,
         # This is maker mode
         maker_mode = True
         key_column = 'maker_name'
+        filter_dict = maker
     else:
         maker_mode = False
         key_column = 'hw'
-        
-    df_sum = data_source_fn(df_all, begin=begin, end=end, maker_mode=maker_mode)
-        
-    if rank_n < 0:
+        if hw:
+            filter_dict = hw
+        else:
+            filter_dict = None  # 全ハード対象
+                
+    if rank_n < 0:  # 負の数の場合は逆順ソート
         top_n = abs(rank_n)
-        ascending = True
-    else:
+        descending_flag = False
+    else: # 正の数の場合は通常ソート
         top_n = rank_n
-        ascending = False
-    df_sorted = df_sum.sort_values(by=sort_column, ascending=ascending) 
-        
-    if hw:
-        df_sorted = df_sorted[df_sorted[key_column].isin(hw)]
-    if maker:
-        df_sorted = df_sorted[df_sorted[key_column].isin(maker)]
-        
-    df_sorted_top = df_sorted.head(top_n)[[*headers, key_column, sort_column]]
-    df_sorted_top = df_sorted_top.reset_index(drop=True)
-    df_sorted_top.index += 1
+        descending_flag = True
+
+    df_src : pl.DataFrame = data_source_fn(df_all, begin=begin, end=end, maker_mode=maker_mode)
+
+    df_src = (df_src
+              .filter(pl.col(key_column).is_in(filter_dict) if filter_dict is not None else pl.lit(True))
+              .sort(by=sort_column, descending=descending_flag)
+    )
+    if len(df_src) > top_n:
+        df_src = df_src.head(top_n)
+    actual_rows = len(df_src)
+    df_src = (df_src
+              .with_columns(
+                  順位 = pl.arange(1, actual_rows + 1).cast(pl.Int16))
+              .select(['順位', *headers, key_column, sort_column])
+    )
+    
     if (not maker):
-        df_sorted_top = rename_hw(df_sorted_top)
-    df_sorted_top = rename_columns(df_sorted_top)
-    return df_sorted_top
+        df_src = rename_hw(df_src)
+    df_src = rename_columns(df_src)
+    return df_src
 
 
 def chart_weekly_ranking(rank_n:int = 10, 
                          begin:datetime | None = None, 
                          end:datetime | None = None,
                          hw:List[str] = [], 
-                         maker:List[str] = []) -> pd.DataFrame:
+                         maker:List[str] = []) -> pl.DataFrame:
     """
     週間ランキングチャートを出力する
     
@@ -217,7 +183,7 @@ def chart_weekly_ranking(rank_n:int = 10,
         maker: メーカー名リスト（空の場合は全メーカー）
         
     Returns:
-        pd.DataFrame: 週間ランキングのDataFrame
+        pl.DataFrame: 週間ランキングのDataFrame
         
         DataFrameのカラム構成:
         - index: 順位（1から開始）
@@ -233,7 +199,7 @@ def chart_monthly_ranking(rank_n:int = 10,
                          begin:datetime | None = None, 
                          end:datetime | None = None,
                          hw:List[str] = [], 
-                         maker:List[str] = []) -> pd.DataFrame:
+                         maker:List[str] = []) -> pl.DataFrame:
     """
     月間ランキングチャートを出力する
     
@@ -261,7 +227,7 @@ def chart_yearly_ranking(rank_n:int = 10,
                          begin:datetime | None = None, 
                          end:datetime | None = None,
                          hw:List[str] = [], 
-                         maker:List[str] = []) -> pd.DataFrame:
+                         maker:List[str] = []) -> pl.DataFrame:
     """
     年間ランキングチャートを出力する
     
@@ -286,7 +252,7 @@ def chart_yearly_ranking(rank_n:int = 10,
                                   headers=['year'])
 
     
-def chart_delta_week_ranking(delta_week:int) -> pd.DataFrame:
+def chart_delta_week_ranking(delta_week:int) -> pl.DataFrame:
     """
     指定された発売後の経過週数での累計販売台数ランキングを出力する
     
@@ -294,23 +260,31 @@ def chart_delta_week_ranking(delta_week:int) -> pd.DataFrame:
         delta_week: 発売日から何週間後か
         
     Returns:
-        pd.DataFrame: 経過週数時点での累計販売台数ランキングのDataFrame
+        pl.DataFrame: 経過週数時点での累計販売台数ランキングのDataFrame
         
         DataFrameのカラム構成:
-        - index: 順位（1から開始）
-        - columns: 集計日 (datetime64), 週数 (int64), hw (string), ハード (string), 累計台数 (int64)
+        - 順位（1から開始）
+        - 集計日 (datetime64)
+        - 週数 (int64)
+        - ハード (string) 
+        - 累計台数 (int64)
     """
 
     df = hs.load_hard_sales()
-    df = df.loc[df["delta_week"] == delta_week, :]
-    df = df.loc[:, ['report_date', 'delta_week', 'hw', 'full_name', 'sum_units']]
-    # dfを絡む sum_unitsの多い順にソートする
-    df = df.sort_values(by='sum_units', ascending=False)
-    df.reset_index(drop=True, inplace=True)
-    df.index += 1
-    return df
+    
+    df = (df
+          .filter(pl.col("delta_week") == delta_week)
+          .sort(by="sum_units", descending=True)
+          )
+    row_num = len(df)
+    df = (df
+          .with_columns(
+              順位 = pl.arange(1, row_num + 1).cast(pl.Int16)) # 通番のカラムを追加
+          .select(['順位', 'report_date', 'delta_week', 'full_name', 'sum_units'])
+    )
+    return rename_columns(df)
 
-def style_sales(df: pd.DataFrame, columns:List[str] | None = None,
+def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
                 date_columns:List[str] | None = None,
                 percent_columns:List[str] | None = None,
                 datetime_index:bool = False,
@@ -337,9 +311,14 @@ def style_sales(df: pd.DataFrame, columns:List[str] | None = None,
     Returns:
         Styler: スタイルが適用されたStylerオブジェクト
     """
-    styled = df.style
+
+    first_column = df.columns[0]
+    pd_df = df.to_pandas()
+    pd_df = pd_df.set_index(first_column)
+    
+    styled = pd_df.style
     if columns is None:
-        columns = df.columns.tolist()
+        columns = pd_df.columns.tolist()
     styled = styled.format('{:,.0f}', subset=columns)
     styled = styled.set_properties(**{'text-align': 'right'}, subset=columns)
     
@@ -373,3 +352,60 @@ def style_sales(df: pd.DataFrame, columns:List[str] | None = None,
         styled = styled.format_index(lambda t: t.strftime('%Y-%m-%d'), axis=0, level=0)
     
     return styled
+
+
+def style(df: pl.DataFrame,
+           highlight:bool = False,
+           gradient:bool = False,
+           bar:bool = False,
+           gradient_horizontal:bool = False,
+           bar_color:str = "#18ba06dd") -> Styler:
+    """
+    DataFrameをPandasのStylerオブジェクトに変換する
+    
+    Args:
+        df: 変換対象のDataFrame
+        highlight: 数値列を自動的に強調表示するかどうか
+        gradient: 数値列に自動的にグラデーションを適用するかどうか
+        bar: 数値列に自動的に棒グラフを適用するかどうか
+        gradient_horizontal: 行方向にグラデーションを適用するかどうか
+        bar_color: 棒グラフの色
+    Returns:
+        Styler: 変換されたStylerオブジェクト
+    """
+    # df.columns[0]の値がユニークかどうかを確認する｡ユニークはないなら､行番号のカラムを一番左側に追加する
+    first_column = df.columns[0]
+    all_columns = df.columns
+    if df[first_column].n_unique() != df.height:
+        df = (df
+              .with_columns(
+                  id = pl.arange(0, df.height).cast(pl.Int32))
+              .select(['id'] + all_columns)
+              )
+    
+    num_columns = df.select(pl.col(pl.Int64)).columns
+    highlights = num_columns if highlight else None
+    gradients = num_columns if gradient or gradient_horizontal else None
+    bars = num_columns if bar else None
+        
+    date_columns = df.select(pl.col(pl.Date)).columns
+    percent_columns = df.select(pl.col(pl.Float64)).columns
+    
+    # date_columns[0]とdf.columns[0]が同じ場合、date_columnsから削除する
+    if date_columns and (date_columns[0] == df.columns[0]):
+        date_columns = date_columns[1:]
+        datetime_index = True
+    else:
+        datetime_index = False
+    
+    return style_sales(df,
+                columns = num_columns,
+                date_columns = date_columns,
+                percent_columns = percent_columns,
+                datetime_index = datetime_index,
+                highlights = highlights,
+                gradients = gradients,
+                gradient_horizontal = gradient_horizontal,
+                bars = bars,
+                bar_color = bar_color
+                )

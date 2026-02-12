@@ -4,6 +4,7 @@ from typing import List
 
 # サードパーティライブラリ
 import pandas as pd
+import polars as pl
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter
@@ -55,7 +56,7 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
               horizontal: bool = False,
               show_values: bool = False,
               value_color: str = 'black',
-              bar_width: float = 0.5) -> tuple[Figure, pd.DataFrame]:
+              bar_width: float = 0.5) -> tuple[Figure, pl.DataFrame]:
     """
     棒グラフをプロットする共通関数  
     Args:
@@ -75,14 +76,15 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
         pd.DataFrame: プロットに使用したデータのDataFrame
     """
     hard_sales_df = hs.load_hard_sales()
-    if begin is not None:
-        hard_sales_df = hard_sales_df.loc[hard_sales_df["report_date"] >= begin]
-    if end is not None:
-        hard_sales_df = hard_sales_df.loc[hard_sales_df["report_date"] <= end]
+    hard_sales_df = hsf.date_filter(hard_sales_df, begin=begin, end=end)
 
-    df = data_aggregator(hard_sales_df)
-    df.fillna(0, inplace=True)
-
+    df:pl.DataFrame = data_aggregator(hard_sales_df)
+    df = df.fill_nan(0)  # NaNを0に変換
+    
+    # Pandas DataFrameに変換
+    pd_df = df.to_pandas()
+    pd_df = pd_df.set_index(pd_df.columns[0])
+    
     plt.ioff()
     fig, ax = plt.subplots(figsize=pu.get_figsize())
     plt.rcParams['font.family'] = 'Hiragino Sans'
@@ -97,7 +99,7 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
         ax.tick_params(axis=params.axis, which=params.which, labelsize=params.labelsize, rotation=params.rotation)
     
     if color_generator is not None:
-        color_table = color_generator(df.columns.tolist())
+        color_table = color_generator(pd_df.columns.tolist())
     else:
         color_table = None
 
@@ -105,8 +107,8 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
         kind = 'barh'
     else:
         kind = 'bar'
-    
-    df.plot(kind=kind, ax=ax, color=color_table, stacked=stacked, width=bar_width)
+
+    pd_df.plot(kind=kind, ax=ax, color=color_table, stacked=stacked, width=bar_width)
     
     if show_values:
         if stacked:
@@ -128,12 +130,11 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
         if labels.legend: ax.legend(title=labels.legend)
 
     if not horizontal:
-        ax.set_xticks(range(len(df.index)))
-        ax.set_xticklabels(df.index, rotation=0)
+        ax.set_xticks(range(len(pd_df.index)))
+        ax.set_xticklabels(pd_df.index, rotation=0)
     else:
-        ax.set_yticks(range(len(df.index)))
-        ax.set_yticklabels(df.index)
-
+        ax.set_yticks(range(len(pd_df.index)))
+        ax.set_yticklabels(pd_df.index)
     # Y軸の上限設定
     if ymax is not None:
         ax.set_ylim(top=ymax)
@@ -156,7 +157,7 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
     cursor = mplcursors.cursor(ax.patches, hover=True)
     @cursor.connect("add")
     def on_add(sel):
-        _bar_on_add(sel, df, color2label)
+        _bar_on_add(sel, pd_df, color2label)
 
     dispfunc = pu.get_dispfunc()
     if dispfunc is not None:
@@ -167,7 +168,7 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
 def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None, 
                            end:datetime | None = None,
                            ymax:int | None = None,
-                           ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+                           ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
     指定したハードウェアの月間販売台数を年別に棒グラフで表示する
     
@@ -179,7 +180,7 @@ def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None,
         ticklabelsize: 目盛りラベルのフォントサイズ
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: month (int64): 月（1-12）
@@ -187,10 +188,10 @@ def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None,
         - values: monthly_units (int64): 月次販売台数
     """
 
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
-        monthly_df = hsf.monthly_sales(hard_sales_df)
-        hw_df = monthly_df.loc[monthly_df["hw"] == hw].copy()
-        pivot_hw_df = hw_df.pivot(index="month", columns="year", values="monthly_units")
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
+        monthly_df = hsf.monthly_sales(hard_sales_df, begin=begin, end=end)
+        monthly_df = monthly_df.filter(pl.col("hw") == hw)
+        pivot_hw_df = monthly_df.pivot(index="month", on="year", values="monthly_units", aggregate_function="sum")
         return pivot_hw_df
     
     def labeler() -> pu.AxisLabels:
@@ -209,15 +210,13 @@ def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None,
         data_aggregator=data_aggregator,
         labeler=labeler,
         tick_params_fn=tick_params_fn,
-        begin=begin,
-        end=end,
         ymax=ymax
     )
 
 def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
                                end:datetime | None = None,
-                                 ymax:int | None = None,
-                                 ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+                               ymax:int | None = None,
+                               ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
     指定したハードウェアの四半期販売台数を年別に棒グラフで表示する
     Args:
@@ -227,16 +226,18 @@ def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
         ymax: Y軸の上限値
         ticklabelsize: 目盛りラベルのフォントサイズ
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         DataFrameのカラム構成:
         - index: quarter (int64): 四半期（1-4）
         - columns: year (int64): 年
         - values: quarterly_units (int64): 四半期販売台数
     """
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
-        quarterly_df = hsf.quarterly_sales(hard_sales_df)
-        hw_df = quarterly_df.loc[quarterly_df["hw"] == hw].copy()
-        pivot_hw_df = hw_df.pivot(index="q_num", columns="year", values="quarterly_units")
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
+        quarterly_df = hsf.quarterly_sales(hard_sales_df, begin=begin, end=end)
+        quarterly_df = quarterly_df.filter(pl.col("hw") == hw)
+        pivot_hw_df = quarterly_df.pivot(index="q_num", on="year",
+                                         values="quarterly_units", aggregate_function="sum")
+        pivot_hw_df = pivot_hw_df.with_columns(pl.col("q_num").cast(pl.Int16))
         return pivot_hw_df
     
     def labeler() -> pu.AxisLabels:
@@ -255,8 +256,6 @@ def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
         data_aggregator=data_aggregator,
         labeler=labeler,
         tick_params_fn=tick_params_fn,
-        begin=begin,
-        end=end,
         ymax=ymax
     )
 
@@ -265,7 +264,7 @@ def plot_monthly_bar_by_hard(hw:list[str],
                              end:datetime | None = None,
                              stacked:bool=False,
                              ymax:int | None = None,
-                             ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+                             ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
     指定した期間の月間販売台数をハード別に棒グラフで表示する
     
@@ -278,7 +277,7 @@ def plot_monthly_bar_by_hard(hw:list[str],
         ticklabelsize: 目盛りラベルのフォントサイズ
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: year_month (string): 年月（"YYYY-MM"形式）
@@ -286,17 +285,22 @@ def plot_monthly_bar_by_hard(hw:list[str],
         - values: monthly_units (int64): 月次販売台数
     """
 
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
-        monthly_df = hsf.monthly_sales(hard_sales_df)
-        monthly_df["year_month"] = pd.to_datetime(
-            dict(year=monthly_df["year"], month=monthly_df["month"], day=1)
-        )
-        hw_df = monthly_df.loc[monthly_df["hw"].isin(hw)].copy()
-        hw_df.sort_values("year_month", inplace=True)
-        pivot_hw_df = hw_df.pivot(index="year_month", columns="hw", values="monthly_units")
-        pivot_hw_df.sort_index(inplace=True)
-        pivot_hw_df.index = pivot_hw_df.index.strftime("%Y-%m")
-        return pivot_hw_df
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
+        monthly_df = hsf.monthly_sales(hard_sales_df, begin=begin, end=end)
+        hw_df = (monthly_df
+                 .with_columns(
+                     pl.datetime(year=pl.col("year"), 
+                                 month=pl.col("month"), day=pl.lit(1))
+                     .alias("year_month"))
+                 .filter(pl.col("hw").is_in(hw))
+                 .sort("year_month"))
+
+        pivot_hw_df = hw_df.pivot(index="year_month", on="hw",
+                                  values="monthly_units", aggregate_function="sum")
+        return (pivot_hw_df
+                .sort("year_month")
+                .with_columns(pl.col("year_month").dt.strftime("%Y-%m").alias("year_month")))
+
 
     def color_generator(hard_list: List[str]) -> List[str]:
         return hi.get_hard_colors(hard_list)
@@ -318,8 +322,6 @@ def plot_monthly_bar_by_hard(hw:list[str],
         color_generator=color_generator,
         labeler=labeler,
         tick_params_fn=tick_params_fn,
-        begin=begin,
-        end=end,
         ymax=ymax,
         stacked=stacked
     )
@@ -329,7 +331,7 @@ def plot_quarterly_bar_by_hard(hw:list[str],
                              end:datetime | None = None,
                              stacked:bool=False,
                              ymax:int | None = None,
-                             ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+                             ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
     指定した期間の四半期販売台数をハード別に棒グラフで表示する
     
@@ -342,18 +344,19 @@ def plot_quarterly_bar_by_hard(hw:list[str],
         ticklabelsize: 目盛りラベルのフォントサイズ
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: year_quarter (string): 年四半期（"YYYY-Qn"形式）
         - columns: hw (string): ゲームハードの識別子
         - values: quarterly_units (int64): 四半期販売台数
     """
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
-        yearly_df = hsf.quarterly_sales(hard_sales_df)
-        hw_df = yearly_df.loc[yearly_df["hw"].isin(hw)].copy()
-        pivot_hw_df = hw_df.pivot(index="quarter", columns="hw", values="quarterly_units")
-        return pivot_hw_df
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
+        hw_df = (hsf
+                 .quarterly_sales(hard_sales_df, begin=begin, end=end)
+                 .filter(pl.col("hw").is_in(hw)))
+        return hw_df.pivot(index="quarter", on="hw", 
+                           values="quarterly_units", aggregate_function="sum")
 
     def color_generator(hard_list: List[str]) -> List[str]:
         return hi.get_hard_colors(hard_list)
@@ -375,8 +378,6 @@ def plot_quarterly_bar_by_hard(hw:list[str],
         color_generator=color_generator,
         labeler=labeler,
         tick_params_fn=tick_params_fn,
-        begin=begin,
-        end=end,
         ymax=ymax,
         stacked=stacked
     )
@@ -384,7 +385,7 @@ def plot_quarterly_bar_by_hard(hw:list[str],
 def plot_monthly_bar_by_hard_year(hwy:list[tuple[str, int]], 
                              stacked:bool=False,
                              ymax:int | None = None,
-                             ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+                             ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
     指定したハードウェアと年の組み合わせの月間販売台数を棒グラフで表示する
     
@@ -395,7 +396,7 @@ def plot_monthly_bar_by_hard_year(hwy:list[tuple[str, int]],
         ticklabelsize: 目盛りラベルのフォントサイズ
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: month (int64): 月（1-12）
@@ -403,24 +404,30 @@ def plot_monthly_bar_by_hard_year(hwy:list[tuple[str, int]],
         - values: monthly_units (int64): 月次販売台数
     """
     color_hard_list = []
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
         monthly_df = hsf.monthly_sales(hard_sales_df)
         hw_dfs = []
         for hw, year in hwy:
-            temp_df = monthly_df.loc[
-                (monthly_df["hw"] == hw) & (monthly_df["year"] == year)
-            ].copy()
-            temp_pivot_df = temp_df.pivot(index="month", columns="hw", values="monthly_units")
-            temp_pivot_df.sort_index(inplace=True)
+            temp_df = monthly_df.filter((pl.col("hw") == hw) & (pl.col("year") == year))
+            temp_pivot_df = temp_df.pivot(index="month", on="hw", values="monthly_units", aggregate_function="sum")
+            temp_pivot_df = temp_pivot_df.sort("month")
 
             col_name = f"{hw}_{year}"
-            temp_pivot_df.rename(columns={hw: col_name}, inplace=True)
+            temp_pivot_df = temp_pivot_df.rename({hw: col_name}).sort("month")
             hw_dfs.append(temp_pivot_df)
             color_hard_list.append(hw)
             
-        # hw_dfsを結合
-        result_df = pd.concat(hw_dfs, axis=1)
-        result_df.fillna(0, inplace=True)
+        # hw_dfsに含まれるpl.DataFrameをmonth列で結合
+        # 1-12の完全なmonthリストを基準として作成
+        result_df = pl.DataFrame({"month": list(range(1, 13))})
+        for df in hw_dfs:
+            result_df = result_df.join(df, on="month", how="left")
+        result_df = result_df.fill_null(0)
+        # 全てのデータが0の月の行を削除
+        result_df = result_df.filter(
+            pl.sum_horizontal(pl.col("*").exclude("month")) > 0
+        )
+        result_df = result_df.with_columns(pl.col("month").cast(pl.Int16))
         return result_df
 
     def color_generator(hard_list: List[str]) -> List[str]:
@@ -450,7 +457,7 @@ def plot_monthly_bar_by_hard_year(hwy:list[tuple[str, int]],
 def plot_quarterly_bar_by_hard_year(hwy:list[tuple[str, int]], 
                              stacked:bool=False,
                              ymax:int | None = None,
-                             ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+                             ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
     指定したハードウェアと年の組み合わせの四半期販売台数を棒グラフで表示する
     
@@ -461,7 +468,7 @@ def plot_quarterly_bar_by_hard_year(hwy:list[tuple[str, int]],
         ticklabelsize: 目盛りラベルのフォントサイズ
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: q_num (int64): 四半期（1-4）
@@ -469,25 +476,29 @@ def plot_quarterly_bar_by_hard_year(hwy:list[tuple[str, int]],
         - values: quarterly_units (int64): 四半期販売台数
     """
     color_hard_list = []
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
         quarterly_df = hsf.quarterly_sales(hard_sales_df)
         hw_dfs = []
         for hw, year in hwy:
-            temp_df = quarterly_df.loc[
-                (quarterly_df["hw"] == hw) & (quarterly_df["year"] == year)
-            ].copy()
-            temp_pivot_df = temp_df.pivot(index="q_num", columns="hw", values="quarterly_units")
-            temp_pivot_df.sort_index(inplace=True)
+            temp_df = quarterly_df.filter(
+                (pl.col("hw") == hw) & (pl.col("year") == year)
+            )
+            temp_pivot_df = (temp_df
+                             .pivot(index="q_num", on="hw", values="quarterly_units", aggregate_function="sum")
+                             .sort("q_num"))
 
             col_name = f"{hw}_{year}"
-            temp_pivot_df.rename(columns={hw: col_name}, inplace=True)
+            temp_pivot_df = temp_pivot_df.rename({hw: col_name}).sort("q_num")
             hw_dfs.append(temp_pivot_df)
             color_hard_list.append(hw)
-            
-        # hw_dfsを結合
-        result_df = pd.concat(hw_dfs, axis=1)
-        result_df.fillna(0, inplace=True)
-        return result_df
+        
+        result_df = pl.DataFrame({"q_num": list(range(1, 5))})
+        for df in hw_dfs:
+            result_df = result_df.join(df, on="q_num", how="left")
+        return (result_df
+                .fill_null(0)
+                .with_columns(pl.col("q_num").cast(pl.Int16))
+        )
 
     def color_generator(hard_list: List[str]) -> List[str]:
         return hi.get_hard_colors(color_hard_list)
@@ -518,7 +529,7 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None,
                            end:datetime | None = None, stacked:bool=False,
                            ymax:int | None = None,
                            ticklabelsize:int | None = None
-                           ) -> tuple[Figure, pd.DataFrame]:
+                           ) -> tuple[Figure, pl.DataFrame]:
     """
     指定した期間の年間販売台数をハード別に棒グラフで表示する
     
@@ -531,17 +542,21 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None,
         ticklabelsize: 目盛りラベルのフォントサイズ
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: year (int64): report_dateの年
         - columns: hw (string): ゲームハードの識別子
         - values: yearly_units (int64): 年次販売台数
     """
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
-        yearly_df = hsf.yearly_sales(hard_sales_df)
-        hw_df = yearly_df.loc[yearly_df["hw"].isin(hw)].copy()
-        pivot_hw_df = hw_df.pivot(index="year", columns="hw", values="yearly_units")
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
+        yearly_df = hsf.yearly_sales(hard_sales_df, begin=begin, end=end)
+        hw_df = yearly_df.filter(pl.col("hw").is_in(hw))
+        pivot_hw_df = hw_df.pivot(index="year", on="hw", values="yearly_units")
+        
+        column_list = pivot_hw_df.columns[1:]
+        select_list = [hw_name for hw_name in hw if hw_name in column_list]
+        pivot_hw_df = pivot_hw_df.select(["year"] + select_list)
         return pivot_hw_df
     
     def color_generator(hard_list: List[str]) -> List[str]:
@@ -564,8 +579,6 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None,
         color_generator=color_generator,
         labeler=labeler,
         tick_params_fn=tick_params_fn,
-        begin=begin,
-        end=end,
         ymax=ymax,
         stacked=stacked,
     )
@@ -576,7 +589,7 @@ def plot_yearly_bar_by_month(month:int,
                            ymax:int | None = None,
                            stacked:bool=True,
                            ticklabelsize:int | None = None
-                           ) -> tuple[Figure, pd.DataFrame]:
+                           ) -> tuple[Figure, pl.DataFrame]:
     """
     指定した月の年ごとの移り変わりをメーカーごとの棒グラフで表示する
     
@@ -589,29 +602,28 @@ def plot_yearly_bar_by_month(month:int,
         ticklabelsize: 目盛りラベルのフォントサイズ
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: year (int64): report_dateの年
         - columns: maker_name (string): メーカー名
         - values: monthly_units (int64): 月次販売台数
     """
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
         hard_sales_df = hs.load_hard_sales()
         monthly_df = hsf.monthly_sales(hard_sales_df, begin=begin, end=end, maker_mode=True)
-        target_month_df = monthly_df.loc[monthly_df["month"] == month].copy()
-        target_month_df = target_month_df.set_index("year")
-        target_month_df = target_month_df.loc[:, ["monthly_units", 'maker_name']]
-        target_month_wide_df = target_month_df.pivot_table(index="year", columns="maker_name", 
-                                                           values="monthly_units", fill_value=0)
-        return target_month_wide_df
+        target_month_df = (monthly_df
+                           .filter(pl.col("month") == month)
+                           .select(["year", "monthly_units", "maker_name"]))
+        return target_month_df.pivot(index="year", on="maker_name",
+                                     values="monthly_units")
     
     def color_generator(maker_list: List[str]) -> List[str]:
         return hi.get_maker_colors(maker_list)                                  
     
     def labeler() -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f"{month}月ハード販売台数",
+            title=f"{month}月メーカー別販売台数",
             xlabel="年",
             ylabel="販売台数",
             legend="メーカー"
@@ -626,17 +638,15 @@ def plot_yearly_bar_by_month(month:int,
         color_generator=color_generator,
         labeler=labeler,
         tick_params_fn=tick_params_fn,
-        begin=begin,
-        end=end,
         ymax=ymax,
         stacked=stacked,
     )
 
 def plot_delta_yearly_bar(hw:list[str],
-                                delta_begin:int | None = None, 
-                                delta_end:int | None = None,
-                                ymax:int | None = None,
-                                ticklabelsize:int | None = None) -> tuple[Figure, pd.DataFrame]:
+                          delta_begin:int | None = None, 
+                          delta_end:int | None = None,
+                          ymax:int | None = None,
+                          ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
     指定した機種の経過年毎販売台数をハード別に棒グラフで表示する
     
@@ -648,7 +658,7 @@ def plot_delta_yearly_bar(hw:list[str],
         ticklabelsize: 目盛りラベルのフォントサイズ
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: delta_year (int64): 発売年から何年後か（同じ年なら0）
@@ -656,16 +666,16 @@ def plot_delta_yearly_bar(hw:list[str],
         - values: yearly_units (int64): 経過年次販売台数
     """
     
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
         delta_yearly_df = hsf.delta_yearly_sales(hard_sales_df)
         # 特定の機種に絞る
-        hw_df = delta_yearly_df.loc[delta_yearly_df["hw"].isin(hw)].copy()
-        pivot_hw_df = hw_df.pivot(index="delta_year", columns="hw", values="yearly_units")
+        hw_df = delta_yearly_df.filter(pl.col("hw").is_in(hw))
+        pivot_hw_df = hw_df.pivot(index="delta_year", on="hw", values="yearly_units")
         
         if delta_begin is not None:
-            pivot_hw_df = pivot_hw_df.loc[pivot_hw_df.index >= delta_begin]
+            pivot_hw_df = pivot_hw_df.filter(pl.col("delta_year") >= delta_begin)
         if delta_end is not None:
-            pivot_hw_df = pivot_hw_df.loc[pivot_hw_df.index <= delta_end]
+            pivot_hw_df = pivot_hw_df.filter(pl.col("delta_year") <= delta_end)
         return pivot_hw_df
     
     def color_generator(hard_list: List[str]) -> List[str]:
@@ -681,7 +691,7 @@ def plot_delta_yearly_bar(hw:list[str],
 
     tick_params_fn = None
     if ticklabelsize is not None:
-        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+        tick_params_fn = lambda: pu.TickParams(labelsize=ticklabelsize)
 
     return _plot_bar(
         data_aggregator=data_aggregator,
@@ -694,7 +704,7 @@ def plot_delta_yearly_bar(hw:list[str],
 def plot_maker_share_bar(begin:datetime | None = None, 
                          end:datetime | None = None,
                          ticklabelsize:int | None = None
-                        ) -> tuple[Figure, pd.DataFrame]:
+                        ) -> tuple[Figure, pl.DataFrame]:
     """指定した期間のメーカー別シェアを棒グラフで表示する
     
     Args:
@@ -702,19 +712,24 @@ def plot_maker_share_bar(begin:datetime | None = None,
         end: 集計終了日(通常は年末に設定する)
         
     Returns:
-        tuple[Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
+        tuple[Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
         
         DataFrameのカラム構成:
         - index: year (int64): report_dateの年
         - columns: hw (string): ゲームハードの識別子
         - values: yearly_units (int64): 年次販売台数
     """
-    def data_aggregator(hard_sales_df: pd.DataFrame) -> pd.DataFrame:
+    def data_aggregator(hard_sales_df: pl.DataFrame) -> pl.DataFrame:
         pvmaker_df = pv.pivot_maker(hard_sales_df, 
                                     begin_year=begin.year if begin else None,
                                     end_year=end.year if end else None)
         # pvmaker_dfはカラム名がメーカーのDFである｡これをシェア率に変換する
-        pvshare_df = pvmaker_df.div(pvmaker_df.sum(axis=1), axis=0) * 100.0
+        # 各行の合計を計算し、各カラムをその合計で割ってパーセンテージに変換
+        maker_cols = [col for col in pvmaker_df.columns if col != "year"]
+        pvshare_df = pvmaker_df.with_columns(
+            [(pl.col(col) / pl.sum_horizontal(maker_cols) * 100.0).alias(col)
+             for col in maker_cols]
+        )
         return pvshare_df
     
     def color_generator(maker_list: List[str]) -> List[str]:
