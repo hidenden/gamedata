@@ -484,8 +484,12 @@ def cumsum_diffs(df:pl.DataFrame,
             pivot_df
             .filter(pl.col(base_hw).is_not_null())
             .with_columns(
-                diff_col_name = pl.col(cmp_hw) - pl.col(base_hw)
+                (pl.col(cmp_hw) - pl.col(base_hw))
+                .alias(diff_col_name)
             )
+        )
+        pivot_df = (
+            pivot_df
             .filter(pl.col(diff_col_name) >= -10000)
             .select(['row_nr', diff_col_name])
         )
