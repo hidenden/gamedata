@@ -1,5 +1,5 @@
 # 標準ライブラリ
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Callable
 
 # サードパーティライブラリ
@@ -29,6 +29,7 @@ def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
         'delta_week': '週数',
         'sum_units': '累計台数',
         'units': '販売台数',
+        'units_diff': '前週差',
         'maker_name': 'メーカー',
         'monthly_units': '月間販売台数',
         'weekly_units': '週間販売台数',
@@ -64,7 +65,7 @@ def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:dat
     日付とハード別の販売台数チャートを出力する
     
     Args:
-        df: load_hard_sales()の戻り値のDataFrame(事前にdate_filter()でフィルタリング済み推奨)
+        df: load_hard_sales()の戻り値のDataFrame
         
     Returns:
         pd.io.formats.style.Styler: スタイル適用済みのStylerオブジェクト
@@ -74,12 +75,18 @@ def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:dat
         - index: 集計日 (datetime64), ハード (string): 日付とハード名のマルチインデックス
         - columns: 販売台数 (int64), 累計台数 (int64)
     """
-    df = hsf.date_filter(df, begin=begin, end=end)
+    # beginの1週間前の日付を得る
+    
+    begin_minus_one = begin - timedelta(days=7) if begin is not None else None
+    df = hsf.date_filter(df, begin=begin_minus_one, end=end)
+    df = hs.with_units_diff(df)
+    df = hsf.date_filter(df, begin=begin, end=end)  # 再度日付フィルタを適用して、beginの1週間前のデータを除外
     df = (df
           .sort(by=['report_date', 'units', 'hw'], descending=[False, True, False])
           .select(pl.col('report_date'), 
                   pl.col('full_name'), 
                   pl.col('units'), 
+                  pl.col('units_diff'),
                   pl.col('sum_units'))
     )
     df = rename_columns(df)
@@ -87,10 +94,10 @@ def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:dat
     pdf = df.to_pandas()
     pdf = pdf.set_index(['集計日', 'ハード'])
     styled = (pdf.style
-        .format({'販売台数': '{:,}', '累計台数': '{:,}'})
-        .set_properties(**{'text-align': 'right'}, subset=['販売台数', '累計台数'])
+        .format({'販売台数': '{:,}', '累計台数': '{:,}', '前週差': '{:+,}'})
+        .set_properties(**{'text-align': 'right'}, subset=['販売台数', '累計台数', '前週差'])
         .format_index(lambda t: t.strftime('%Y-%m-%d'),  level=0, axis=0)
-        .bar(subset=['販売台数'], color="#18ba06")
+        .bar(subset=['販売台数'], color="#18ba06") 
         )
     return styled
 
