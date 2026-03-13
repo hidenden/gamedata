@@ -14,6 +14,7 @@ from .hard_sales import (
     get_hw,
     get_active_hw,
     current_report_date,
+    with_units_diff,
 )
 
 from .hard_sales_extract import (

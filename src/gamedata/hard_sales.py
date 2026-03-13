@@ -128,3 +128,21 @@ def get_active_hw() -> List[str]:
     return active_hw
 
 
+def with_units_diff(df: pl.DataFrame) -> pl.DataFrame:
+    """
+    同じハードウェアの前週比販売台数差分カラムを追加する。
+
+    Args:
+        df: load_hard_sales() の戻り値のDataFrame
+
+    Returns:
+        pl.DataFrame: units_diff (Int64) カラムを追加したDataFrame。
+                      各ハードの初週は null になる。
+    """
+    df = df.sort('weekly_id')
+    return df.with_columns(
+        pl.col('units')
+          .diff()
+          .over('hw')
+          .alias('units_diff')
+    )
