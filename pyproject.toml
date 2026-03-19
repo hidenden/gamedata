@@ -1,7 +1,7 @@
 [project]
 name = "gamedata"
 version = "0.1.0"
-description = "Add your description here"
+description = "Gamedata analyis tools"
 readme = "README.md"
 requires-python = ">=3.10, <3.12"
 dependencies = [
@@ -17,13 +17,20 @@ dependencies = [
     "mplcursors>=0.6",
     "pandas>=2.3.3",
     "setuptools>=80.9.0",
+    "polars>=1.37.1",
+    "pyarrow>=23.0.1",
 ]
 
 # プロジェクト自体をパッケージとして認識させる設定
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools >= 75.0"]     # 75以上推奨（editable installが安定）
+build-backend = "setuptools.build_meta"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/gamedata"]
+# src-layout を正しく扱うための設定（src/gamedata/ の中身をパッケージとして認識）
+[tool.setuptools.packages.find]
+where = ["src"]          # src フォルダ以下を探す
+namespaces = false       # 必要に応じて（通常 false でOK）
 
+# 必要に応じて追加（オプション）
+# [tool.setuptools]
+# package-dir = {"" = "src"}
