@@ -15,6 +15,7 @@ from .hard_sales import (
     get_active_hw,
     current_report_date,
     with_units_diff,
+    add_weeek_number,
 )
 
 from .hard_sales_extract import (
@@ -108,11 +109,13 @@ from .hard_event import (
 
 from .chart_hard import (
     rename_columns,
+    rename_hw,
     chart_units_by_date_hw,
     chart_weekly_ranking,
     chart_monthly_ranking,
     chart_yearly_ranking,
     chart_delta_week_ranking,
+    chart_reached_unit,
     style_sales,
     style,
 )
