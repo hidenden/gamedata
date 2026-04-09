@@ -147,4 +147,20 @@ def with_units_diff(df: pl.DataFrame) -> pl.DataFrame:
           .alias('units_diff')
     )
 
+def add_weeek_number(df: pl.DataFrame) -> pl.DataFrame:
+    """
+    delta_week が存在する場合に、1始まりの週番号カラム week_number を追加する。
+
+    Args:
+        df: ハード販売データのDataFrame。
+
+    Returns:
+        pl.DataFrame: week_number カラムを追加したDataFrame。
+                      delta_week が無い場合は入力をそのまま返す。
+    """
+    if "delta_week" in df.columns:
+        df = df.with_columns(
+            (pl.col("delta_week") + 1).alias("week_number")
+        )
+    return df
 

@@ -92,7 +92,7 @@
 2020-06-11,PS4,PS5デザイン発表,hard,1.2
 2020-09-16,PS4,PS5発売日発表,hard,1.2
 2020-09-16,3DS,生産終了,hard,0.5
-2020-11-12,PS4,PS5発売,hard,0.8
+2020-11-12,PS4,PS5発売,hard,0.1
 2021-08-01,PS5,PS5-CFI1100,hard,3
 2021-10-08,NSW,SwitchOLED,hard,0.5
 2022-09-09,NSW,スプラ3,soft,2
@@ -116,9 +116,9 @@
 2025-01-16,NSW,Switch2初公開,hard,2
 2025-02-28,PS5,MHWs,soft,0.1
 2025-03-27,NSW,Nintendo Direct 2025.03.27,event,3
-2025-04-02,NSW,Switch2 Direct,hard,0.5
+2025-04-02,NSW,Switch2 Direct,hard,1.2
 2025-05-28,PS5,Days of Play,sale,1.2
-2025-06-05,NSW,Switch2発売,hard,1
+2025-06-05,NSW,Switch2発売,hard,0.1
 2025-07-17,NS2,DKバナンザ,soft,0.5
 2025-07-22,NS2,Pokemon Presents 2025.07.22,event,3
 2025-07-31,NSW,Nintendo Direct ソフトメーカーラインナップ 2025.07.31,event,3
@@ -131,8 +131,8 @@
 2025-10-16,XSX,ROG Xbox Ally,hard,2
 2025-11-07,NS2,ゼルダ無双封印戦記,soft,3
 2025-11-20,NS2,エアライダー,soft,1
-2025-11-21,PS5,PS5DE値下げ,hard,5
-2025-11-21,PS5,PS5ブラックフライデー,sale,0.2
+2025-11-21,PS5,PS5DE値下げ,hard,0.1
+2025-11-21,PS5,PS5ブラックフライデー,sale,3
 2025-12-04,NS2,Metroid Prime 4,soft,0.5
 2026-01-15,NS2,あつ森Switch2,soft,2
 2026-01-22,NS2,FF7R,soft,1.5
@@ -146,6 +146,6 @@
 2026-03-05,NS2,ぽこあ,soft,1
 2026-03-13,NS2,MHストーリーズ3,soft,3
 2026-03-20,PS5,紅の砂漠,soft,1.8
-2026-04-02,PS5,PS5値上げ4,price,0.1
+2026-04-02,PS5,PS5値上げ4,hard,0.1
 2026-04-16,NSW,トモコレ,soft,2.0
 2026-04-24,PS5,PRAGMATA,soft,1.5

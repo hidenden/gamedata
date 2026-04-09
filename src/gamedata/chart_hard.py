@@ -11,6 +11,7 @@ import polars as pl
 from . import hard_info as hi
 from . import hard_sales as hs
 from . import hard_sales_filter as hsf
+from . import hard_sales_extract as hse
 
 def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
     """
@@ -26,7 +27,8 @@ def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
         'full_name': 'ハード',
         'hw': 'ハード',
         'report_date': '集計日',
-        'delta_week': '週数',
+        'delta_week': '週差',
+        'week_number': '週数',
         'sum_units': '累計台数',
         'units': '販売台数',
         'units_diff': '前週差',
@@ -80,6 +82,7 @@ def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:dat
     begin_minus_one = begin - timedelta(days=7) if begin is not None else None
     df = hsf.date_filter(df, begin=begin_minus_one, end=end)
     df = hs.with_units_diff(df)
+    df = hs.add_weeek_number(df)
     df = hsf.date_filter(df, begin=begin, end=end)  # 再度日付フィルタを適用して、beginの1週間前のデータを除外
     df = (df
           .sort(by=['report_date', 'units', 'hw'], descending=[False, True, False])
@@ -87,7 +90,8 @@ def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:dat
                   pl.col('full_name'), 
                   pl.col('units'), 
                   pl.col('units_diff'),
-                  pl.col('sum_units'))
+                  pl.col('sum_units'),
+                  pl.col('week_number'))
     )
     df = rename_columns(df)
 
@@ -290,6 +294,18 @@ def chart_delta_week_ranking(delta_week:int) -> pl.DataFrame:
           .select(['順位', 'report_date', 'delta_week', 'full_name', 'sum_units'])
     )
     return rename_columns(df)
+
+
+def chart_reached_unit(n:int) -> pl.DataFrame:
+    df = hs.load_hard_sales()
+    df = (
+        hse.extract_week_reached_units(df, n).
+        sort("delta_week", descending=False).
+        head(10)
+    )
+    df = (hs.add_weeek_number(df).
+          select(["hw", "report_date", "week_number", "sum_units"]))
+    return df
 
 def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
                 date_columns:List[str] | None = None,
