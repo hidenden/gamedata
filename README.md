@@ -77,3 +77,32 @@
 
 Makefile(make)によるデータの半自動更新｡
 
+## トラブルシュート: uv で gamedata が import できない
+
+macOS では、まれに .venv 配下へ hidden 属性が付与され、Python が .pth を読み飛ばすことがあります。
+この状態になると、uv pip install -e . 済みでも gamedata が見えなくなります。
+
+### 症状確認
+
+uv run python -c "import gamedata"
+
+失敗する場合、次で hidden 属性を確認できます。
+
+ls -ldO .venv .venv/lib .venv/lib/python*/site-packages
+ls -lO .venv/lib/python*/site-packages/*.pth
+
+出力に hidden が含まれていればこの問題です。
+
+### 復旧（.venv を消さない）
+
+chflags -R nohidden .venv
+uv pip install -e .
+
+最後に確認:
+
+uv run python -c "import gamedata; print(gamedata.__file__)"
+
+### 補足
+
+この問題は editable 自体の破損ではなく、.pth 読み込みが hidden 属性で抑止されることが原因です。
+
