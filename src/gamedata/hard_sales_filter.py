@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime,date
 import polars as pl
 
 
 def date_filter(src_df: pl.DataFrame, 
-                 begin: datetime | None = None, end: datetime | None = None) -> pl.DataFrame:
+                 begin: datetime | date | None = None, end: datetime | date | None = None) -> pl.DataFrame:
     """
     日付でDataFrameをフィルタリングする内部関数。
     Args:
@@ -24,7 +24,7 @@ def date_filter(src_df: pl.DataFrame,
     return df
 
 def weekly_sales(src_df: pl.DataFrame, 
-                  begin: datetime | None = None, end: datetime | None = None,
+                  begin: datetime | date | None = None, end: datetime | date | None = None,
                   maker_mode:bool = False) -> pl.DataFrame:
     """
     週毎の販売台数と、その週までの累計販売台数（sum_units）を集計して返す。
@@ -65,7 +65,7 @@ def weekly_sales(src_df: pl.DataFrame,
 
 
 def monthly_sales(src_df: pl.DataFrame, 
-                  begin: datetime | None = None, end: datetime | None = None,
+                  begin: datetime | date | None = None, end: datetime | date | None = None,
                   maker_mode:bool = False) -> pl.DataFrame:
     """
     月毎の販売台数と、その月までの累計販売台数（sum_units）を集計して返す。
@@ -107,7 +107,7 @@ def monthly_sales(src_df: pl.DataFrame,
 
 
 def quarterly_sales(src_df: pl.DataFrame, 
-                  begin: datetime | None = None, end: datetime | None = None,
+                  begin: datetime | date | None = None, end: datetime | date | None = None,
                   maker_mode:bool = False) -> pl.DataFrame:
     """
     四半期毎の販売台数と、その四半期までの累計販売台数（sum_units）を集計して返す。
@@ -156,7 +156,7 @@ def quarterly_sales(src_df: pl.DataFrame,
 
 
 def yearly_sales(src_df: pl.DataFrame, 
-                 begin: datetime | None = None, end: datetime | None = None,
+                 begin: datetime | date | None = None, end: datetime | date | None = None,
                  maker_mode:bool = False) -> pl.DataFrame:
     """
     年毎の販売台数と、その年までの累計販売台数（sum_units）を集計して返す。
@@ -199,7 +199,7 @@ def yearly_sales(src_df: pl.DataFrame,
 
 
 def yearly_maker_sales(src_df: pl.DataFrame, 
-                begin: datetime | None = None, end: datetime | None = None) -> pl.DataFrame:
+                begin: datetime | date | None = None, end: datetime | date | None = None) -> pl.DataFrame:
     """
     年毎、メーカー毎の販売台数を集計して返す。
 

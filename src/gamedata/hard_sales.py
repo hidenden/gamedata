@@ -113,7 +113,7 @@ def get_hw(df: pl.DataFrame) -> List[str]:
     return df['hw'].unique().to_list()
 
 
-def get_active_hw() -> List[str]:
+def get_active_hw(days: int = 365) -> List[str]:
     """
     直近1年間のデータを元にアクティブなハードウェア名のリストを取得する。
     
@@ -122,7 +122,7 @@ def get_active_hw() -> List[str]:
     """
     base_df = load_hard_sales()
     now = datetime.now()
-    one_year_ago = now - timedelta(days=365)
+    one_year_ago = now - timedelta(days=days)
     recent_df = base_df.filter(pl.col('report_date') >= one_year_ago)
     active_hw = get_hw(recent_df)
     return active_hw
@@ -147,7 +147,7 @@ def with_units_diff(df: pl.DataFrame) -> pl.DataFrame:
           .alias('units_diff')
     )
 
-def add_weeek_number(df: pl.DataFrame) -> pl.DataFrame:
+def add_week_number(df: pl.DataFrame) -> pl.DataFrame:
     """
     delta_week が存在する場合に、1始まりの週番号カラム week_number を追加する。
 
