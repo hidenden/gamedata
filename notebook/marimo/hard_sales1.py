@@ -6,6 +6,11 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
+    return
+
+
+@app.cell
+def _():
     import marimo as mo
 
 
@@ -50,7 +55,6 @@ def _(date, mo):
         value=date(2026, 4, 3),
     )
     mo.vstack([start_date, end_date])
-
     return end_date, start_date
 
 
