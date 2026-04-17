@@ -82,7 +82,7 @@ def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:dat
     begin_minus_one = begin - timedelta(days=7) if begin is not None else None
     df = hsf.date_filter(df, begin=begin_minus_one, end=end)
     df = hs.with_units_diff(df)
-    df = hs.add_weeek_number(df)
+    df = hs.add_week_number(df)
     df = hsf.date_filter(df, begin=begin, end=end)  # 再度日付フィルタを適用して、beginの1週間前のデータを除外
     df = (df
           .sort(by=['report_date', 'units', 'hw'], descending=[False, True, False])
@@ -303,7 +303,7 @@ def chart_reached_unit(n:int) -> pl.DataFrame:
         sort("delta_week", descending=False).
         head(10)
     )
-    df = (hs.add_weeek_number(df).
+    df = (hs.add_week_number(df).
           select(["hw", "report_date", "week_number", "sum_units"]))
     return df
 
