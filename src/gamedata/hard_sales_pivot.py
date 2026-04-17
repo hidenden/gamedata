@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 import polars as pl
 from typing import List
 
@@ -6,8 +6,8 @@ from typing import List
 from . import hard_sales_filter as hsf
 
 def pivot_sales(src_df: pl.DataFrame, hw:List[str] = [],
-                begin: datetime | None = None,
-                end: datetime | None = None) -> pl.DataFrame:
+                begin: datetime | date | None = None,
+                end: datetime | date | None = None) -> pl.DataFrame:
     """
     ハードウェアの週単位の販売台数をピボットテーブル形式で返す。
 

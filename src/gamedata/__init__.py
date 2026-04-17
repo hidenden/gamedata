@@ -15,7 +15,7 @@ from .hard_sales import (
     get_active_hw,
     current_report_date,
     with_units_diff,
-    add_weeek_number,
+    add_week_number,
 )
 
 from .hard_sales_extract import (

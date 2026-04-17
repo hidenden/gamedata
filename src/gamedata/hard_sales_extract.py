@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import polars as pl
 from typing import List
 
@@ -54,13 +54,13 @@ def extract_week_reached_units(df: pl.DataFrame, threshold_units: int) -> pl.Dat
     return result
 
 
-def extract_by_date(df: pl.DataFrame, target_date:datetime, hw: List[str] | None = None) -> pl.DataFrame:
+def extract_by_date(df: pl.DataFrame, target_date:datetime|date, hw: List[str] | None = None) -> pl.DataFrame:
     """
     指定された日付の週に該当するデータを抽出する関数。
     
     Args:
         df: load_hard_sales()の戻り値のDataFrame（begin_date, end_date, report_dateはDate型に変換済み）
-        target_date: 抽出したい日付のdatetime型
+        target_date: 抽出したい日付のdatetime型､またはdate型
         hw: 省略可能なハードウェア名のリスト。指定すると、そのハードウェアに限定して抽出
     
     Returns:
