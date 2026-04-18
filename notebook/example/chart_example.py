@@ -79,14 +79,77 @@ def _(date, mo):
     ranking_end_date = mo.ui.date(start=date(2001,1,1), value=date(2026,4,1), label="Ranking End")
     ranking_num = mo.ui.number(start=1, stop=20, value=10, label="ランキング数")
     mo.vstack([ranking_begin_date, ranking_end_date, ranking_num])
-    return ranking_begin_date, ranking_end_date
+    return ranking_begin_date, ranking_end_date, ranking_num
 
 
 @app.cell
-def _(g, ranking_begin_date, ranking_end_date):
-    cwr_df = g.chart_weekly_ranking(rank_n=10, begin=ranking_begin_date.value, end=ranking_end_date.value)
+def _(g, ranking_begin_date, ranking_end_date, ranking_num):
+    cwr_df = g.chart_weekly_ranking(rank_n=ranking_num.value, begin=ranking_begin_date.value, end=ranking_end_date.value)
     g.style(cwr_df, highlight=True)
 
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## chart_monthly_ranking
+    """)
+    return
+
+
+@app.cell
+def _(g, ranking_begin_date, ranking_end_date, ranking_num):
+    cmr_df = g.chart_monthly_ranking(rank_n=ranking_num.value, 
+        begin=ranking_begin_date.value, end=ranking_end_date.value)
+    g.style_sales(cmr_df, columns=['月間販売台数'], bars=['月間販売台数'])
+    return (cmr_df,)
+
+
+@app.cell
+def _(cmr_df, g):
+    # Auto styling
+    g.style(cmr_df, bar=True)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## chart_yearly_ranking
+    """)
+    return
+
+
+@app.cell
+def _(g, ranking_num):
+    cyr_df = g.chart_yearly_ranking(rank_n=ranking_num.value)
+    g.style(cyr_df, gradient=True)
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## chart_delta_week_ranking
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    delta_week_num = mo.ui.number(start=1, stop=600, value=20, label="ランキング対象経過週")
+    delta_week_num
+
+    return (delta_week_num,)
+
+
+@app.cell
+def _(delta_week_num, g):
+    cdw_df = g.chart_delta_week_ranking(delta_week_num.value)
+    cdw_df10 = cdw_df.head(10)
+    g.style(cdw_df10, bar=True)
     return
 
 
