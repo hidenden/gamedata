@@ -110,7 +110,7 @@ def get_hw(df: pl.DataFrame) -> List[str]:
     Returns:
         List[str]: ハードウェア名のユニークなリスト
     """
-    return df['hw'].unique().to_list()
+    return df['hw'].unique().sort().to_list()
 
 
 def get_active_hw(days: int = 365) -> List[str]:
