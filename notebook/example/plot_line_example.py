@@ -26,7 +26,7 @@ def _():
     # プロジェクト内モジュール
     import gamedata as g
 
-    return g, pl
+    return date, g, pl
 
 
 @app.cell
@@ -54,34 +54,34 @@ def _(mo):
 
 @app.cell
 def _(df_all: "pl.DataFrame", g, mo):
-    uia = []
+    _uia = []
 
     # 相対期間の設定
     ui_begin_number = mo.ui.number(label="相対期間Begin:", value=0)
     ui_end_number = mo.ui.number(label="相対期間End:", value=52)
-    uia.append(ui_begin_number)
-    uia.append(ui_end_number)
+    _uia.append(ui_begin_number)
+    _uia.append(ui_end_number)
 
     # 開始､終了日付の設定
     ui_begin_date = mo.ui.date(value="2025-01-01", label="開始日")
     ui_end_date = mo.ui.date(label="終了日")
-    uia.append(ui_begin_date)
-    uia.append(ui_end_date)
+    _uia.append(ui_begin_date)
+    _uia.append(ui_end_date)
 
     # HW選択
     hw_list = g.get_hw(df_all)
     ui_hw = mo.ui.multiselect(options=hw_list, value=["NSW", "NS2", "PS5"], label="HWを選択")
-    uia.append(ui_hw)
+    _uia.append(ui_hw)
 
     # 集計モード
     ui_period_mode = mo.ui.dropdown(options=["week", "month", "quarter", "year"], value="week", label="集計モード")
-    uia.append(ui_period_mode)
+    _uia.append(ui_period_mode)
 
     # Event mask
     ui_event = mo.ui.dropdown(options=["short", "middle", "long"], value="middle", label="イベントマスク")
-    uia.append(ui_event)
+    _uia.append(ui_event)
 
-    mo.vstack(items=uia)
+    mo.vstack(items=_uia)
     return (
         hw_list,
         ui_begin_date,
@@ -118,35 +118,30 @@ def _(mo):
 def _(
     current_event_mask,
     g,
+    mo,
     ui_begin_number,
     ui_end_number,
     ui_hw,
     ui_period_mode,
 ):
-    event1 = current_event_mask
+    _event = current_event_mask
     if ui_period_mode.value != "week":
-        event1 = None
+        _event = None
 
-    mode1 = ui_period_mode.value
+    current_mode = ui_period_mode.value
     if ui_period_mode.value == "quarter":
-        mode1 = "month"
+        current_mode = "month"
 
-    (pcsd_fig, pcsd_df) = g.plot_cumulative_sales_by_delta(
+    _plot = g.plot_cumulative_sales_by_delta(
         hw=ui_hw.value,
-        mode=mode1,
+        mode=current_mode,
         begin=ui_begin_number.value,
         end=ui_end_number.value,
-        event_mask=event1
+        event_mask=_event
         )
 
-    pcsd_fig                                                        
-    return mode1, pcsd_df
-
-
-@app.cell
-def _(pcsd_df):
-    pcsd_df
-    return
+    mo.vstack(_plot)                                                 
+    return (current_mode,)
 
 
 @app.cell(hide_code=True)
@@ -161,23 +156,18 @@ def _(mo):
 def _(
     current_event_mask,
     g,
+    mo,
     ui_begin_date,
     ui_end_date,
     ui_hw,
     ui_period_mode,
 ):
-    (ps_fig, ps_df) = g.plot_sales(hw=ui_hw.value,
-                                    begin=ui_begin_date.value,
-                                    end=ui_end_date.value,
-                                    mode=ui_period_mode.value,
-                                    event_mask=current_event_mask)
-    ps_fig
-    return (ps_df,)
-
-
-@app.cell
-def _(ps_df):
-    ps_df
+    _plot = g.plot_sales(hw=ui_hw.value,
+                        begin=ui_begin_date.value,
+                        end=ui_end_date.value,
+                        mode=ui_period_mode.value,
+                        event_mask=current_event_mask)
+    mo.vstack(_plot)
     return
 
 
@@ -190,23 +180,23 @@ def _(mo):
 
 
 @app.cell
-def _(current_event_mask, g, mode1, ui_begin_number, ui_end_number, ui_hw):
-    (psd_fig, psd_df) = g.plot_sales_by_delta(
+def _(
+    current_event_mask,
+    current_mode,
+    g,
+    mo,
+    ui_begin_number,
+    ui_end_number,
+    ui_hw,
+):
+    _plot = g.plot_sales_by_delta(
         hw=ui_hw.value,
         begin=ui_begin_number.value, 
         end=ui_end_number.value, 
-        mode=mode1,
+        mode=current_mode,
         event_mask=current_event_mask)
     
-    psd_fig
-
-
-    return (psd_df,)
-
-
-@app.cell
-def _(psd_df):
-    psd_df
+    mo.vstack(_plot)
     return
 
 
@@ -219,18 +209,13 @@ def _(mo):
 
 
 @app.cell
-def _(current_event_mask, g, ui_hw, ui_period_mode):
-    (pcs_fig, pcs_df) = g.plot_cumulative_sales(
+def _(current_event_mask, g, mo, ui_hw, ui_period_mode):
+    from cffi.cffi_opcode import F_PACKED
+    _plot = g.plot_cumulative_sales(
         hw=ui_hw.value, 
         mode=ui_period_mode.value, 
         event_mask=current_event_mask)
-    pcs_fig
-    return (pcs_df,)
-
-
-@app.cell
-def _(pcs_df):
-    pcs_df
+    mo.vstack(_plot)
     return
 
 
@@ -243,46 +228,39 @@ def _(mo):
 
 
 @app.cell
-def _(hw_list, mo):
-    hw_periods_num : int = 3
-    hw_periods_ui = []
+def _(date, hw_list, mo):
+    _hwnum : int = 3
+    _init_hw = ["NSW", "NS2", "PS5"]
+    _init_date = [date(2017,3,3), 
+        date(2025,6,5), date(2020,11,15)]
 
-    for i in range(hw_periods_num):
-        ui_elements = {}    # HWを選択するdropdown
-        ui_elements["hw_dropdown"] = mo.ui.dropdown(options=hw_list, label=f"{i+1}番目のハードウェア")
-        # 集計開始日の選択
-        ui_elements["begin_date"] = mo.ui.date(label=f"{i+1}番目の集計開始日")
-        hw_periods_ui.append(ui_elements)
-
+    hw_periods_ui = mo.ui.array([
+        mo.ui.array([
+            mo.ui.dropdown(options=hw_list, label=f"{_i+1}番目のハードウェア", value=_init_hw[_i]),
+            mo.ui.date(label=f"{_i+1}番目の集計開始日", value=_init_date[_i])
+        ]) for _i in range(_hwnum)
+    ])
     period_end = mo.ui.number(start=1, label="期間数", value=52)
 
-    ui_items = [mo.hstack([ui["hw_dropdown"], ui["begin_date"]], justify="start", align="stretch") for ui in hw_periods_ui]
+    ui_items  = [mo.hstack(_hwui, justify="start") for _hwui in hw_periods_ui]
     ui_items.append(period_end)
-    mo.vstack(
-        ui_items,
-        justify="start", align="stretch"
-    )
-    return hw_periods_ui, period_end
+
+
+    return hw_periods_ui, period_end, ui_items
 
 
 @app.cell
-def _(g, hw_periods_ui, period_end):
-    hw_periods = []
+def _(g, hw_periods_ui, mo, period_end, ui_items):
+    hw_periods = [
+        {
+            "hw": _ui[0],
+            "begin": _ui[1],
+            "label": f"{_ui[0]} {_ui[1]}"    
+        } for _ui in hw_periods_ui.value
+    ]
 
-    for ii, ui in enumerate(hw_periods_ui):
-        if ui["hw_dropdown"].value:
-            hw = ui["hw_dropdown"].value
-            bd = ui["begin_date"].value
-            lv = f"{hw} {bd}"
-            period_element = {
-                "hw": hw,
-                "begin": bd,
-                "label": lv    
-            }
-            hw_periods.append(period_element)
-
-    (pso_fig, pso_df) = g.plot_sales_with_offset(hw_periods=hw_periods, end=period_end.value)
-    pso_fig
+    _plot = g.plot_sales_with_offset(hw_periods=hw_periods, end=period_end.value)
+    mo.vstack(ui_items + list(_plot))
     return
 
 
@@ -295,17 +273,10 @@ def _(mo):
 
 
 @app.cell
-def _(g):
-    cmplist = [("NSW", "PS4"), ("NS2", "PS5")]
-    (pcd_fig, pcd_df) = g.plot_cumsum_diffs(cmplist)
-    pcd_fig
-
-    return (pcd_df,)
-
-
-@app.cell
-def _(pcd_df):
-    pcd_df
+def _(g, mo):
+    _cmplist = [("NSW", "PS4"), ("NS2", "PS5")]
+    _plot = g.plot_cumsum_diffs(_cmplist)
+    mo.vstack(_plot)
     return
 
 
@@ -318,16 +289,10 @@ def _(mo):
 
 
 @app.cell
-def _(g):
-    (pspd_fig, pspd_df) = g.plot_sales_pase_diff(base_hw='PS4', compare_hw='PS5')
-    pspd_fig
+def _(g, mo):
+    _plot = g.plot_sales_pase_diff(base_hw='PS4', compare_hw='PS5')
+    mo.vstack(_plot)
 
-    return (pspd_df,)
-
-
-@app.cell
-def _(pspd_df):
-    pspd_df
     return
 
 
