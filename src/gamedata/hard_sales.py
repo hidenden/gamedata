@@ -110,7 +110,7 @@ def get_hw(df: pl.DataFrame) -> List[str]:
     Returns:
         List[str]: ハードウェア名のユニークなリスト
     """
-    return df['hw'].unique().to_list()
+    return df['hw'].unique().sort().to_list()
 
 
 def get_active_hw(days: int = 365) -> List[str]:
@@ -126,6 +126,34 @@ def get_active_hw(days: int = 365) -> List[str]:
     recent_df = base_df.filter(pl.col('report_date') >= one_year_ago)
     active_hw = get_hw(recent_df)
     return active_hw
+
+
+def get_maker(df: pl.DataFrame) -> List[str]:
+    """
+    DataFrameからメーカー名のユニークなリストを取得する。
+    
+    Args:
+        df: load_hard_sales()の戻り値のDataFrame
+    
+    Returns:
+        List[str]: メーカー名のユニークなリスト
+    """
+    return df['maker_name'].unique().to_list()
+
+
+def get_active_maker(days: int = 365) -> List[str]:
+    """
+    直近1年間のデータを元にアクティブなメーカー名のリストを取得する。
+    
+    Returns:
+        List[str]: アクティブなメーカー名のリスト
+    """
+    base_df = load_hard_sales()
+    now = datetime.now()
+    one_year_ago = now - timedelta(days=days)
+    recent_df = base_df.filter(pl.col('report_date') >= one_year_ago)
+    active_maker = get_maker(recent_df)
+    return active_maker
 
 
 def with_units_diff(df: pl.DataFrame) -> pl.DataFrame:

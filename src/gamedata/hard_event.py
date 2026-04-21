@@ -1,7 +1,7 @@
 # GameEvent取得用のユーティリティ関数群
 
 import sqlite3
-from datetime import datetime
+from datetime import datetime,date
 import polars as pl
 from typing import List, TypedDict, Dict, Any
 
@@ -108,8 +108,8 @@ def mask_event(df: pl.DataFrame,
     return df
 
 def filter_event(df: pl.DataFrame, 
-                 start_date: datetime | None = None, 
-                 end_date: datetime | None = None, 
+                 start_date: datetime | date | None = None, 
+                 end_date: datetime | date | None = None, 
                  hw: List[str] = [], event_mask:EventMasks = {} ) -> pl.DataFrame:
     """
     ハードウェアイベントデータをフィルタリングする関数。
