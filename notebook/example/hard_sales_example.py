@@ -17,7 +17,7 @@ def _():
     import os
     import sys
     # from pathlib import Path
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, date
 
     # サードパーティライブラリ
     import polars as pl
@@ -26,7 +26,7 @@ def _():
     # プロジェクト内モジュール
     import gamedata as g
 
-    return g, pl
+    return date, g, pl
 
 
 @app.cell(hide_code=True)
@@ -83,7 +83,7 @@ def _():
 @app.cell
 def _(df_all: "pl.DataFrame", g):
     hw_list = g.get_hw(df_all)
-    hw_list
+    # hw_list
     return (hw_list,)
 
 
@@ -98,7 +98,7 @@ def _(mo):
 @app.cell
 def _(mo):
     # 数値を入力する
-    number = mo.ui.number(start=7, stop=3650, step=1, label="数値を入力してください")
+    number = mo.ui.number(start=7, stop=3650, step=1, value=365, label="Active HWと判定する範囲(日数)")
     number
     return (number,)
 
@@ -156,8 +156,8 @@ def _(begin_date, df_all: "pl.DataFrame", end_date, g):
 
 
 @app.cell
-def _(mo):
-    begin_date = mo.ui.date(label="開始日")
+def _(date, mo):
+    begin_date = mo.ui.date(label="開始日", value=date(2017,3,3))
     end_date = mo.ui.date(label="終了日")
     # mo.hstack([begin_date, end_date], justify="start",
     # align="stretch")
@@ -301,13 +301,12 @@ def _(df_all: "pl.DataFrame", extract_date, g, hw_multiselect):
 
 
 @app.cell
-def _(hw_list, mo):
+def _(date, hw_list, mo):
     hw_options = hw_list
-    hw_multiselect = mo.ui.multiselect(options=hw_options, label="ハードウェアを選択してください")
-    extract_date = mo.ui.date(label="抽出日を選択してください")
+    hw_multiselect = mo.ui.multiselect(options=hw_options, label="ハードウェアを選択してください", value=['NSW', "PS5", "NS2"])
+    extract_date = mo.ui.date(label="抽出日を選択してください", value=date(2026, 3, 25))
 
     mo.vstack([hw_multiselect, extract_date], justify="start", align="stretch")
-
 
     return extract_date, hw_multiselect
 

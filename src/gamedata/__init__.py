@@ -13,6 +13,8 @@ from .hard_sales import (
     load_hard_sales,
     get_hw,
     get_active_hw,
+    get_maker,
+    get_active_maker,
     current_report_date,
     with_units_diff,
     add_week_number,
