@@ -60,23 +60,17 @@ def _(event, g):
 
 @app.cell
 def _(g):
-    hwselect2 = g.HwSelect(default_list=["NS2", "PS5"])
-    hw_widget = hwselect2.widget
-    return hw_widget, hwselect2
+    hwselect = g.HwSelect(default_list=["NS2", "PS5"])
+    hw_widget = hwselect.widget
+    return hw_widget, hwselect
 
 
 @app.cell
-def _(hw_widget, hwselect2):
+def _(current_event_mask, end, event, g, hw_widget, hwselect, mo):
     hw_widget
-    selected_hw = hwselect2.value
-    return (selected_hw,)
-
-
-@app.cell
-def _(current_event_mask, end, event, g, hwselect2, mo, selected_hw):
-    (_fig1, _df1) = g.plot_cumulative_sales(selected_hw, event_mask=current_event_mask)
-    (_fig2, _df2) = g.plot_cumulative_sales_by_delta(hw=selected_hw, end=end.value, event_mask = current_event_mask)
-    mo.vstack([hwselect2, event, end, _fig1, _fig2,_df1,  _df2])
+    (_fig1, _df1) = g.plot_cumulative_sales(hwselect.value, event_mask=current_event_mask)
+    (_fig2, _df2) = g.plot_cumulative_sales_by_delta(hw=hwselect.value, end=end.value, event_mask = current_event_mask)
+    mo.vstack([hwselect, event, end, _fig1, _fig2,_df1,  _df2])
     return
 
 
