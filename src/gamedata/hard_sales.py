@@ -110,7 +110,16 @@ def get_hw(df: pl.DataFrame) -> List[str]:
     Returns:
         List[str]: ハードウェア名のユニークなリスト
     """
-    return df['hw'].unique().sort().to_list()
+    return (df
+            .select([
+                pl.col('hw'),
+                pl.col('maker_name'),
+                pl.col('launch_date')
+            ])
+            .unique()
+            .sort(by=['maker_name', 'launch_date'], descending=[True, False])
+            .select([pl.col('hw'),])
+            ).to_series(0).to_list()
 
 
 def get_active_hw(days: int = 365) -> List[str]:
@@ -127,6 +136,21 @@ def get_active_hw(days: int = 365) -> List[str]:
     active_hw = get_hw(recent_df)
     return active_hw
 
+_all_hw_list = None
+def get_hw_all() -> List[str]:
+    """
+    データベースに存在する全てのハードウェア名のリストを取得する。
+    
+    Returns:
+        List[str]: 全てのハードウェア名のリスト
+    """
+    global _all_hw_list
+    if _all_hw_list is not None:
+        return _all_hw_list
+    
+    base_df = load_hard_sales()
+    _all_hw_list = get_hw(base_df)
+    return _all_hw_list
 
 def get_maker(df: pl.DataFrame) -> List[str]:
     """
@@ -155,6 +179,21 @@ def get_active_maker(days: int = 365) -> List[str]:
     active_maker = get_maker(recent_df)
     return active_maker
 
+_all_maker_list = None
+def get_maker_all() -> List[str]:
+    """
+    データベースに存在する全てのメーカー名のリストを取得する。
+    
+    Returns:
+        List[str]: 全てのメーカー名のリスト
+    """
+    global _all_maker_list
+    if _all_maker_list is not None:
+        return _all_maker_list
+    
+    base_df = load_hard_sales()
+    _all_maker_list = get_maker(base_df)
+    return _all_maker_list
 
 def with_units_diff(df: pl.DataFrame) -> pl.DataFrame:
     """
