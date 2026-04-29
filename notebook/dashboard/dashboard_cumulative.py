@@ -27,22 +27,12 @@ def _():
 
 
 @app.cell
-def _(g):
-    df_all = g.load_hard_sales()
-    return
-
-
-@app.cell
-def _(mo):
+def _(g, mo):
     end = mo.ui.number(label="累積グラフ週数", value=52, start=10, stop=1000, step=20)
-    return (end,)
-
-
-@app.cell
-def _(g):
     event_select = g.EventSelect()
     event_widget = event_select.widget
-    return event_select, event_widget
+    # run_button = mo.ui.run_button(label="更新", kind="success")
+    return end, event_select, event_widget
 
 
 @app.cell
@@ -53,17 +43,19 @@ def _(g):
 
 
 @app.cell
-def _(end, event_select, event_widget, g, hw_widget, hwselect, mo):
-    hw_widget
-    event_widget
-    (_fig1, _df1) = g.plot_cumulative_sales(hwselect.value, event_mask=event_select.value)
-    (_fig2, _df2) = g.plot_cumulative_sales_by_delta(hw=hwselect.value, end=end.value, event_mask = event_select.value)
-    mo.vstack([hwselect, event_select, end, _fig1, _fig2,_df1,  _df2])
+def _(end, event_select, hwselect, mo):
+    mo.vstack([hwselect, event_select, end])
     return
 
 
 @app.cell
-def _():
+def _(end, event_select, event_widget, g, hw_widget, hwselect, mo):
+    # mo.stop(not run_button.value)
+    hw_widget
+    event_widget
+    (_fig1, _df1) = g.plot_cumulative_sales(hwselect.value, event_mask=event_select.value)
+    (_fig2, _df2) = g.plot_cumulative_sales_by_delta(hw=hwselect.value, end=end.value, event_mask = event_select.value)
+    mo.vstack([_fig1, _fig2,_df1,  _df2])
     return
 
 
