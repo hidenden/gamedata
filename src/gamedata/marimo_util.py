@@ -8,7 +8,7 @@ from . import hard_sales as hs
 from . import hard_event as he
 
 class HwSelect:
-    def __init__(self, default_list: List[str] | None = None):
+    def __init__(self, default_list: List[str] | None = None, force_any: bool = False):
         if default_list is None:
             default_list = []
         self.hw_list = hs.get_hw_all()
@@ -16,18 +16,21 @@ class HwSelect:
             [mo.ui.checkbox(label=hw, value=(hw in default_list)) for hw in self.hw_list],
         )
         self.widget = self.checklist
+        self.force_any = force_any
         
     def _display_(self):
         return mo.vstack(
-            [mo.hstack(self.checklist[:13], justify="start"),
-             mo.hstack(self.checklist[13:], justify="start")
+            [mo.hstack(self.checklist[:11], justify="start"),
+             mo.hstack(self.checklist[11:], justify="start")
             ]
         )
 
     @property
-    def value(self) -> List[str]:
-        return [hw for hw, flg in zip(self.hw_list, self.widget.value) if flg]
-
+    def value(self) -> List[str]:        
+        hw_data = [hw for hw, flg in zip(self.hw_list, self.widget.value) if flg]
+        if self.force_any and len(hw_data) == 0:
+            return self.hw_list
+        return hw_data
 
 class EventSelect:
     def __init__(self, default_value: str = "middle"):
@@ -46,4 +49,7 @@ class EventSelect:
     @property
     def value(self) -> he.EventMasks:
         return self.event_dict[self.widget.value]
+
+
+
 

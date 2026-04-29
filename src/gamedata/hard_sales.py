@@ -137,7 +137,7 @@ def get_active_hw(days: int = 365) -> List[str]:
     return active_hw
 
 _all_hw_list = None
-def get_hw_all() -> List[str]:
+def get_hw_all(true_all:bool = False) -> List[str]:
     """
     データベースに存在する全てのハードウェア名のリストを取得する。
     
@@ -150,6 +150,11 @@ def get_hw_all() -> List[str]:
     
     base_df = load_hard_sales()
     _all_hw_list = get_hw(base_df)
+    remove_hw_list = ['PKS', 'PS', 'NeoGeoP', 'SATURN', 'GB']
+    if not true_all:
+        # _all_hw_listから remove_hw_listの各要素に一致するものを取り除く
+        _all_hw_list = [hw for hw in _all_hw_list if hw not in remove_hw_list]
+        
     return _all_hw_list
 
 def get_maker(df: pl.DataFrame) -> List[str]:
