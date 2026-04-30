@@ -30,6 +30,7 @@ def plot_maker_share_pie(begin_year:int | None = None,
     """
     df = hs.load_hard_sales()
     maker_df = pv.pivot_maker(df, begin_year=begin_year, end_year=end_year)
+    maker_df = maker_df.fill_null(0)
     n = maker_df.height
  
     # n = len(maker_sales)

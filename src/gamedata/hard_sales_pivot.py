@@ -510,9 +510,7 @@ def cumsum_diffs(df:pl.DataFrame,
         result_df = result_df.join(diff_df, on='row_nr', how='outer')
     
     # 行番号を0から振り直す
-    result_df = (
-        result_df.with_row_index('weeks')
-        .drop('row_nr')
-        .drop('row_nr_right')
-    )
+    result_df = result_df.with_row_index('weeks').drop('row_nr')
+    if 'row_nr_right' in result_df.columns:
+        result_df = result_df.drop('row_nr_right')
     return result_df
