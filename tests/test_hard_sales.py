@@ -126,9 +126,61 @@ class TestAddWeekNumber:
         assert result.equals(df)
 
 
+
 # ---------------------------------------------------------------------------
-# load_hard_sales (DB モック)
+# add_rolling_mean
 # ---------------------------------------------------------------------------
+
+class TestAddRollingMean:
+    def test_adds_three_columns(self, sample_sales_df):
+        result = hs.add_rolling_mean(sample_sales_df)
+        assert "ma4w" in result.columns
+        assert "ma13w" in result.columns
+        assert "ma52w" in result.columns
+
+    def test_ma4w_value_correct(self, sample_sales_df):
+        """NSW の4週移動平均の値が正しいこと"""
+        result = hs.add_rolling_mean(sample_sales_df)
+        nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
+        # units: [30000, 25000, 20000, 50000, 40000, 15000]
+        # 4行目: (30000+25000+20000+50000)/4 = 31250
+        assert nsw["ma4w"][3] == pytest.approx(31250.0)
+        # 5行目: (25000+20000+50000+40000)/4 = 33750
+        assert nsw["ma4w"][4] == pytest.approx(33750.0)
+
+    def test_ma4w_first_rows_are_null(self, sample_sales_df):
+        """ウィンドウサイズに満たない行は null になること"""
+        result = hs.add_rolling_mean(sample_sales_df)
+        nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
+        assert nsw["ma4w"][0] is None
+        assert nsw["ma4w"][1] is None
+        assert nsw["ma4w"][2] is None
+
+    def test_ma13w_all_null_when_not_enough_rows(self, sample_sales_df):
+        """13週分に満たないハードは ma13w が全て null になること"""
+        result = hs.add_rolling_mean(sample_sales_df)
+        nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
+        # NSW は6行しかないので ma13w は全て null
+        assert nsw["ma13w"].null_count() == len(nsw)
+
+    def test_ma52w_all_null_when_not_enough_rows(self, sample_sales_df):
+        """52週分に満たないハードは ma52w が全て null になること"""
+        result = hs.add_rolling_mean(sample_sales_df)
+        nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
+        assert nsw["ma52w"].null_count() == len(nsw)
+
+    def test_per_hw_grouping(self, sample_sales_df):
+        """hw ごとに独立して移動平均が計算されること"""
+        result = hs.add_rolling_mean(sample_sales_df)
+        # PS5 は3行のみなので ma4w は全て null
+        ps5 = result.filter(pl.col("hw") == "PS5").sort("weekly_id")
+        assert ps5["ma4w"].null_count() == len(ps5)
+
+    def test_returns_dataframe(self, sample_sales_df):
+        result = hs.add_rolling_mean(sample_sales_df)
+        assert isinstance(result, pl.DataFrame)
+
+
 
 class TestLoadHardSales:
     def _make_raw_df(self):

@@ -219,6 +219,31 @@ def with_units_diff(df: pl.DataFrame) -> pl.DataFrame:
           .alias('units_diff')
     )
 
+def add_rolling_mean(df: pl.DataFrame) -> pl.DataFrame:
+    """
+    ハードウェアごとの units 移動平均カラムを追加する。
+
+    各ハードウェア（hw）の時系列順に、units の移動平均を計算し、
+    以下の3カラムを追加して返す。
+    データが window_size に満たない期間は null となる。
+
+    Args:
+        df: load_hard_sales() の戻り値と同じカラム構成の DataFrame。
+
+    Returns:
+        pl.DataFrame: 以下の移動平均カラムを追加した DataFrame。
+                      - ma4w  (Float64): 4週移動平均（直近4週の平均）
+                      - ma13w (Float64): 13週移動平均（直近13週の平均）
+                      - ma52w (Float64): 52週移動平均（直近52週の平均）
+    """
+    df = df.sort('weekly_id')
+    return df.with_columns(
+        pl.col('units').rolling_mean(window_size=4).over('hw').alias('ma4w'),
+        pl.col('units').rolling_mean(window_size=13).over('hw').alias('ma13w'),
+        pl.col('units').rolling_mean(window_size=52).over('hw').alias('ma52w'),
+    )
+
+
 def add_week_number(df: pl.DataFrame) -> pl.DataFrame:
     """
     delta_week が存在する場合に、1始まりの週番号カラム week_number を追加する。
