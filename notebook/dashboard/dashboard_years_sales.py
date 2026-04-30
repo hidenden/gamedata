@@ -25,12 +25,15 @@ def _(datetime, g, mo):
         end = datetime(year + 1, 1, 1)
         report_event_mask = g.EventMasks(hard=1.5, price=3, sale=2, soft=3, event=2)
         fig1, df1 = g.plot_sales(begin=begin, end=end, event_mask=report_event_mask)
+        fig_cum, df_cum = g.plot_cumulative_sales(begin=begin, end=end, event_mask=report_event_mask)
         fig2, df2 = g.plot_monthly_bar_by_hard(hw=hw, begin=begin, end=end, stacked=stacked)
         return (
             mo.md(f"# {year}年のハード販売状況"),
             fig1,
+            fig_cum,
             fig2,
             df1,
+            df_cum,
             df2
         )
 
@@ -50,8 +53,8 @@ def _(g, mo):
 @app.cell
 def _(hw_widget, hwselect, mo, sales_by_year, stacked, year):
     hw_widget
-    (_title, _fig1, _fig2, _df1, _df2) = sales_by_year(year=year.value, hw=hwselect.value, stacked=stacked.value)
-    mo.vstack([year, _title, _fig1, hwselect, stacked, _fig2, _df2], justify="start")
+    (_title, _fig1, _fig_cum, _fig2, _df1, _df_cum, _df2) = sales_by_year(year=year.value, hw=hwselect.value, stacked=stacked.value)
+    mo.vstack([year, _title, _fig1, _fig_cum, hwselect, stacked, _fig2, _df2], justify="start")
     return
 
 
