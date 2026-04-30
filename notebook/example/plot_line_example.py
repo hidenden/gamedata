@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.1"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 
@@ -195,7 +195,7 @@ def _(
         end=ui_end_number.value, 
         mode=current_mode,
         event_mask=current_event_mask)
-    
+
     mo.vstack(_plot)
     return
 
@@ -245,7 +245,6 @@ def _(date, hw_list, mo):
     ui_items  = [mo.hstack(_hwui, justify="start") for _hwui in hw_periods_ui]
     ui_items.append(period_end)
 
-
     return hw_periods_ui, period_end, ui_items
 
 
@@ -292,7 +291,6 @@ def _(mo):
 def _(g, mo):
     _plot = g.plot_sales_pase_diff(base_hw='PS4', compare_hw='PS5')
     mo.vstack(_plot)
-
     return
 
 
