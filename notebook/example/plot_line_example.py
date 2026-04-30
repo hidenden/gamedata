@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.1"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 
@@ -53,7 +53,7 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g, mo):
+def _(g, mo):
     _uia = []
 
     # 相対期間の設定
@@ -69,8 +69,9 @@ def _(df_all: "pl.DataFrame", g, mo):
     _uia.append(ui_end_date)
 
     # HW選択
-    hw_list = g.get_hw(df_all)
-    ui_hw = mo.ui.multiselect(options=hw_list, value=["NSW", "NS2", "PS5"], label="HWを選択")
+    hw_list = g.get_hw_all()
+    ui_hw = g.HwSelect(default_list=["NSW", "NS2", "PS5"])
+    ui_hw_widget = ui_hw.widget
     _uia.append(ui_hw)
 
     # 集計モード
@@ -78,7 +79,8 @@ def _(df_all: "pl.DataFrame", g, mo):
     _uia.append(ui_period_mode)
 
     # Event mask
-    ui_event = mo.ui.dropdown(options=["short", "middle", "long"], value="middle", label="イベントマスク")
+    ui_event = g.EventSelect()
+    ui_event_widget = ui_event.widget
     _uia.append(ui_event)
 
     mo.vstack(items=_uia)
@@ -89,20 +91,17 @@ def _(df_all: "pl.DataFrame", g, mo):
         ui_end_date,
         ui_end_number,
         ui_event,
+        ui_event_widget,
         ui_hw,
+        ui_hw_widget,
         ui_period_mode,
     )
 
 
 @app.cell
-def _(g, ui_event):
-    # Event mask converter
-    event_mask_dict = {
-        "short": g.EVENT_MASK_SHORT,
-        "middle": g.EVENT_MASK_MIDDLE,
-        "long": g.EVENT_MASK_LONG,
-    }
-    current_event_mask = event_mask_dict[ui_event.value]
+def _(ui_event, ui_event_widget):
+    ui_event_widget
+    current_event_mask = ui_event.value
     return (current_event_mask,)
 
 
@@ -122,8 +121,10 @@ def _(
     ui_begin_number,
     ui_end_number,
     ui_hw,
+    ui_hw_widget,
     ui_period_mode,
 ):
+    ui_hw_widget
     _event = current_event_mask
     if ui_period_mode.value != "week":
         _event = None
@@ -160,8 +161,10 @@ def _(
     ui_begin_date,
     ui_end_date,
     ui_hw,
+    ui_hw_widget,
     ui_period_mode,
 ):
+    ui_hw_widget
     _plot = g.plot_sales(hw=ui_hw.value,
                         begin=ui_begin_date.value,
                         end=ui_end_date.value,
@@ -188,14 +191,16 @@ def _(
     ui_begin_number,
     ui_end_number,
     ui_hw,
+    ui_hw_widget,
 ):
+    ui_hw_widget
     _plot = g.plot_sales_by_delta(
         hw=ui_hw.value,
         begin=ui_begin_number.value, 
         end=ui_end_number.value, 
         mode=current_mode,
         event_mask=current_event_mask)
-    
+
     mo.vstack(_plot)
     return
 
@@ -209,7 +214,8 @@ def _(mo):
 
 
 @app.cell
-def _(current_event_mask, g, mo, ui_hw, ui_period_mode):
+def _(current_event_mask, g, mo, ui_hw, ui_hw_widget, ui_period_mode):
+    ui_hw_widget
     from cffi.cffi_opcode import F_PACKED
     _plot = g.plot_cumulative_sales(
         hw=ui_hw.value, 
@@ -244,7 +250,6 @@ def _(date, hw_list, mo):
 
     ui_items  = [mo.hstack(_hwui, justify="start") for _hwui in hw_periods_ui]
     ui_items.append(period_end)
-
 
     return hw_periods_ui, period_end, ui_items
 
@@ -292,7 +297,6 @@ def _(mo):
 def _(g, mo):
     _plot = g.plot_sales_pase_diff(base_hw='PS4', compare_hw='PS5')
     mo.vstack(_plot)
-
     return
 
 

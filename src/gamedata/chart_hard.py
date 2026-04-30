@@ -1,5 +1,5 @@
 # 標準ライブラリ
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import List, Callable
 
 # サードパーティライブラリ
@@ -62,7 +62,7 @@ def rename_hw(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:datetime|None = None) -> pd.io.formats.style.Styler:
+def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|date|None = None, end:datetime|date|None = None) -> pd.io.formats.style.Styler:
     """
     日付とハード別の販売台数チャートを出力する
     
@@ -107,8 +107,8 @@ def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|None = None, end:dat
 
 
 def _chart_periodic_ranking(rank_n:int = 10, 
-                         begin:datetime | None = None, 
-                         end:datetime | None = None,
+                         begin:datetime | date | None = None, 
+                         end:datetime | date | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = [],
                          data_source_fn:Callable = hsf.monthly_sales,
@@ -179,8 +179,8 @@ def _chart_periodic_ranking(rank_n:int = 10,
 
 
 def chart_weekly_ranking(rank_n:int = 10, 
-                         begin:datetime | None = None, 
-                         end:datetime | None = None,
+                         begin:datetime | date | None = None, 
+                         end:datetime | date | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pl.DataFrame:
     """
@@ -207,8 +207,8 @@ def chart_weekly_ranking(rank_n:int = 10,
                                   headers=['report_date'])
     
 def chart_monthly_ranking(rank_n:int = 10, 
-                         begin:datetime | None = None, 
-                         end:datetime | None = None,
+                         begin:datetime | date | None = None, 
+                         end:datetime | date | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pl.DataFrame:
     """
@@ -235,8 +235,8 @@ def chart_monthly_ranking(rank_n:int = 10,
                                   headers=['year', 'month'])
 
 def chart_yearly_ranking(rank_n:int = 10, 
-                         begin:datetime | None = None, 
-                         end:datetime | None = None,
+                         begin:datetime | date | None = None, 
+                         end:datetime | date | None = None,
                          hw:List[str] = [], 
                          maker:List[str] = []) -> pl.DataFrame:
     """
@@ -296,13 +296,15 @@ def chart_delta_week_ranking(delta_week:int) -> pl.DataFrame:
     return rename_columns(df)
 
 
-def chart_reached_unit(n:int) -> pl.DataFrame:
+def chart_reached_unit(n:int, all:bool = False) -> pl.DataFrame:
     df = hs.load_hard_sales()
     df = (
         hse.extract_week_reached_units(df, n).
-        sort("delta_week", descending=False).
-        head(10)
+        sort(["delta_week", "sum_units"], descending=[False, True])
     )
+    if not all:
+        df = df.head(10)
+        
     df = (hs.add_week_number(df).
           select(["hw", "report_date", "week_number", "sum_units"]))
     return df

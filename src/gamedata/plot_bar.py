@@ -1,8 +1,9 @@
 # 標準ライブラリ
-from datetime import datetime
+from datetime import datetime, date
 from typing import List
 
 # サードパーティライブラリ
+import numpy as np
 import pandas as pd
 import polars as pl
 import matplotlib.pyplot as plt
@@ -30,7 +31,7 @@ def _bar_on_add(sel, df: pd.DataFrame, color2label: dict):
     if idx < len(df.index):
         x_label = df.index[idx]
         # x_labelの型がintの場合、月または年のラベルに変換
-        if isinstance(x_label, int):
+        if isinstance(x_label, (int, np.integer)):
             if x_label <= 12:
                 x_label = f"{x_label}月"
             else:
@@ -165,8 +166,8 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
 
     return fig, df
 
-def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None, 
-                           end:datetime | None = None,
+def plot_monthly_bar_by_year(hw:str, begin:datetime | date | None = None, 
+                           end:datetime | date | None = None,
                            ymax:int | None = None,
                            ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
@@ -192,6 +193,9 @@ def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None,
         monthly_df = hsf.monthly_sales(hard_sales_df, begin=begin, end=end)
         monthly_df = monthly_df.filter(pl.col("hw") == hw)
         pivot_hw_df = monthly_df.pivot(index="month", on="year", values="monthly_units", aggregate_function="sum")
+        # 全月(1-12)が含まれるよう補完し、月順にソートする
+        all_months = pl.DataFrame({"month": list(range(1, 13))}, schema={"month": pl.Int16})
+        pivot_hw_df = all_months.join(pivot_hw_df, on="month", how="left").sort("month").fill_null(0)
         return pivot_hw_df
     
     def labeler() -> pu.AxisLabels:
@@ -213,8 +217,8 @@ def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None,
         ymax=ymax
     )
 
-def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
-                               end:datetime | None = None,
+def plot_quarterly_bar_by_year(hw:str, begin:datetime | date | None = None,
+                               end:datetime | date | None = None,
                                ymax:int | None = None,
                                ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
@@ -238,6 +242,8 @@ def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
         pivot_hw_df = quarterly_df.pivot(index="q_num", on="year",
                                          values="quarterly_units", aggregate_function="sum")
         pivot_hw_df = pivot_hw_df.with_columns(pl.col("q_num").cast(pl.Int16))
+        all_quarters = pl.DataFrame({"q_num": pl.Series([1, 2, 3, 4], dtype=pl.Int16)})
+        pivot_hw_df = all_quarters.join(pivot_hw_df, on="q_num", how="left").fill_null(0).sort("q_num")
         return pivot_hw_df
     
     def labeler() -> pu.AxisLabels:
@@ -260,8 +266,8 @@ def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
     )
 
 def plot_monthly_bar_by_hard(hw:list[str], 
-                             begin:datetime | None = None, 
-                             end:datetime | None = None,
+                             begin:datetime | date | None = None, 
+                             end:datetime | date | None = None,
                              stacked:bool=False,
                              ymax:int | None = None,
                              ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
@@ -327,8 +333,8 @@ def plot_monthly_bar_by_hard(hw:list[str],
     )
     
 def plot_quarterly_bar_by_hard(hw:list[str], 
-                             begin:datetime | None = None, 
-                             end:datetime | None = None,
+                             begin:datetime | date | None = None, 
+                             end:datetime | date | None = None,
                              stacked:bool=False,
                              ymax:int | None = None,
                              ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
@@ -525,8 +531,8 @@ def plot_quarterly_bar_by_hard_year(hwy:list[tuple[str, int]],
     )
 
 
-def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None, 
-                           end:datetime | None = None, stacked:bool=False,
+def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | date | None = None, 
+                           end:datetime | date | None = None, stacked:bool=False,
                            ymax:int | None = None,
                            ticklabelsize:int | None = None
                            ) -> tuple[Figure, pl.DataFrame]:
@@ -584,8 +590,8 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None,
     )
 
 def plot_yearly_bar_by_month(month:int,
-                           begin:datetime | None = None, 
-                           end:datetime | None = None,
+                           begin:datetime | date | None = None, 
+                           end:datetime | date | None = None,
                            ymax:int | None = None,
                            stacked:bool=True,
                            ticklabelsize:int | None = None
@@ -701,8 +707,8 @@ def plot_delta_yearly_bar(hw:list[str],
         ymax=ymax
     )  
 
-def plot_maker_share_bar(begin:datetime | None = None, 
-                         end:datetime | None = None,
+def plot_maker_share_bar(begin:datetime | date | None = None, 
+                         end:datetime | date | None = None,
                          ticklabelsize:int | None = None
                         ) -> tuple[Figure, pl.DataFrame]:
     """指定した期間のメーカー別シェアを棒グラフで表示する
@@ -745,7 +751,7 @@ def plot_maker_share_bar(begin:datetime | None = None,
 
     tick_params_fn = None
     if ticklabelsize is not None:
-        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+        tick_params_fn = lambda: pu.TickParams(labelsize=ticklabelsize)
 
     return _plot_bar(
         data_aggregator=data_aggregator,

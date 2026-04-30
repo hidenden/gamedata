@@ -13,8 +13,10 @@ from .hard_sales import (
     load_hard_sales,
     get_hw,
     get_active_hw,
+    get_hw_all,
     get_maker,
     get_active_maker,
+    get_maker_all,
     current_report_date,
     with_units_diff,
     add_week_number,
@@ -24,6 +26,7 @@ from .hard_sales_extract import (
     extract_week_reached_units,
     extract_by_date,
     extract_latest,
+    extract_total,
 )
 
 from .hard_sales_filter import (
@@ -129,6 +132,11 @@ from .util import (
     weeks_before
 )
 
+from .marimo_util import (
+    HwSelect,
+    EventSelect,
+    MakerSelect,
+)
 
 # Make commonly used functions available at package level
 __all__ = []

@@ -237,7 +237,7 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
 
 
 def plot_sales(hw: List[str] = [], mode: str = "week",
-               begin: datetime | None = None, end: datetime | None = None,
+               begin: datetime | date | None = None, end: datetime | date | None = None,
                ymax: int | None = None,
                xgrid: int | None = None, ygrid: int | None = None,
                event_mask: he.EventMasks | None = None,
