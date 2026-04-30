@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.1"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 
@@ -106,7 +106,6 @@ def _(hw_list, mo):
     ui_stacked = mo.ui.checkbox(label="stacked")
     ui_ticksize = mo.ui.number(start=3, stop=11, value=8, label="label size")
     mo.vstack(items=[ui_hws, ui_stacked, ui_ticksize])
-
     return ui_hws, ui_stacked, ui_ticksize
 
 
@@ -301,7 +300,6 @@ def _(date, g, mo, ui_begin_year, ui_end_year):
     _end = date(year=ui_end_year.value, month=12, day=31)
     (_fig, _) = g.plot_maker_share_bar(begin=_begin, end=_end)
     mo.vstack(items=[ui_begin_year, ui_end_year, _fig])
-
     return
 
 

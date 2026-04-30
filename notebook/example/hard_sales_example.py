@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.1"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 
@@ -76,14 +76,8 @@ def _(mo):
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell
 def _(df_all: "pl.DataFrame", g):
     hw_list = g.get_hw(df_all)
-    # hw_list
     return (hw_list,)
 
 
@@ -105,8 +99,8 @@ def _(mo):
 
 @app.cell
 def _(g, number):
-    hw_active_list = g.get_active_hw(days = number.value)
-    hw_active_list
+    _hw_active_list = g.get_active_hw(days = number.value)
+    _hw_active_list
     return
 
 
@@ -127,8 +121,8 @@ def _(df_all: "pl.DataFrame", g, pl):
 
 @app.cell
 def _(df_diff: "pl.DataFrame", g, pl):
-    df2: pl.DataFrame = g.add_week_number(df_diff)
-    df2.columns
+    _df2: pl.DataFrame = g.add_week_number(df_diff)
+    _df2.columns
     return
 
 
@@ -150,8 +144,8 @@ def _(mo):
 
 @app.cell
 def _(begin_date, df_all: "pl.DataFrame", end_date, g):
-    df_filtered = g.date_filter(df_all, begin_date.value, end_date.value)
-    df_filtered
+    _df_filtered = g.date_filter(df_all, begin_date.value, end_date.value)
+    _df_filtered
     return
 
 
@@ -295,20 +289,19 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", extract_date, g, hw_multiselect):
-    g.extract_by_date(df_all, target_date = extract_date.value, hw = hw_multiselect.value)
-    return
-
-
-@app.cell
 def _(date, hw_list, mo):
     hw_options = hw_list
     hw_multiselect = mo.ui.multiselect(options=hw_options, label="ハードウェアを選択してください", value=['NSW', "PS5", "NS2"])
     extract_date = mo.ui.date(label="抽出日を選択してください", value=date(2026, 3, 25))
 
     mo.vstack([hw_multiselect, extract_date], justify="start", align="stretch")
-
     return extract_date, hw_multiselect
+
+
+@app.cell
+def _(df_all: "pl.DataFrame", extract_date, g, hw_multiselect):
+    g.extract_by_date(df_all, target_date = extract_date.value, hw = hw_multiselect.value)
+    return
 
 
 @app.cell(hide_code=True)
@@ -320,17 +313,42 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g, latest_weeks):
-    g.extract_latest(df_all, weeks = latest_weeks.value)
-    return
-
-
-@app.cell
 def _(mo):
     # 数値を入力する
     latest_weeks = mo.ui.number(start=1, stop=12, step=1, label="週数を入力してください")
     latest_weeks
     return (latest_weeks,)
+
+
+@app.cell
+def _(df_all: "pl.DataFrame", g, latest_weeks):
+    g.extract_latest(df_all, weeks = latest_weeks.value)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## extract_total
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    compact_flag = mo.ui.checkbox(label="compactモード", value=False)
+    return (compact_flag,)
+
+
+@app.cell
+def _(compact_flag, df_all: "pl.DataFrame", g, mo):
+    _df = g.extract_total(df_all, compact = compact_flag.value)
+    mo.vstack([
+        compact_flag,
+        _df,
+    
+    ], justify="start", align="stretch")    
+    return
 
 
 if __name__ == "__main__":

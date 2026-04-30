@@ -1,5 +1,5 @@
 # 標準ライブラリ
-from datetime import datetime
+from datetime import datetime, date
 from typing import List
 
 # サードパーティライブラリ
@@ -165,8 +165,8 @@ def _plot_bar(data_aggregator, color_generator=None, labeler=None,
 
     return fig, df
 
-def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None, 
-                           end:datetime | None = None,
+def plot_monthly_bar_by_year(hw:str, begin:datetime | date | None = None, 
+                           end:datetime | date | None = None,
                            ymax:int | None = None,
                            ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
@@ -213,8 +213,8 @@ def plot_monthly_bar_by_year(hw:str, begin:datetime | None = None,
         ymax=ymax
     )
 
-def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
-                               end:datetime | None = None,
+def plot_quarterly_bar_by_year(hw:str, begin:datetime | date | None = None,
+                               end:datetime | date | None = None,
                                ymax:int | None = None,
                                ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
     """
@@ -262,8 +262,8 @@ def plot_quarterly_bar_by_year(hw:str, begin:datetime | None = None,
     )
 
 def plot_monthly_bar_by_hard(hw:list[str], 
-                             begin:datetime | None = None, 
-                             end:datetime | None = None,
+                             begin:datetime | date | None = None, 
+                             end:datetime | date | None = None,
                              stacked:bool=False,
                              ymax:int | None = None,
                              ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
@@ -329,8 +329,8 @@ def plot_monthly_bar_by_hard(hw:list[str],
     )
     
 def plot_quarterly_bar_by_hard(hw:list[str], 
-                             begin:datetime | None = None, 
-                             end:datetime | None = None,
+                             begin:datetime | date | None = None, 
+                             end:datetime | date | None = None,
                              stacked:bool=False,
                              ymax:int | None = None,
                              ticklabelsize:int | None = None) -> tuple[Figure, pl.DataFrame]:
@@ -527,8 +527,8 @@ def plot_quarterly_bar_by_hard_year(hwy:list[tuple[str, int]],
     )
 
 
-def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None, 
-                           end:datetime | None = None, stacked:bool=False,
+def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | date | None = None, 
+                           end:datetime | date | None = None, stacked:bool=False,
                            ymax:int | None = None,
                            ticklabelsize:int | None = None
                            ) -> tuple[Figure, pl.DataFrame]:
@@ -586,8 +586,8 @@ def plot_yearly_bar_by_hard(hw:list[str], begin:datetime | None = None,
     )
 
 def plot_yearly_bar_by_month(month:int,
-                           begin:datetime | None = None, 
-                           end:datetime | None = None,
+                           begin:datetime | date | None = None, 
+                           end:datetime | date | None = None,
                            ymax:int | None = None,
                            stacked:bool=True,
                            ticklabelsize:int | None = None
@@ -703,8 +703,8 @@ def plot_delta_yearly_bar(hw:list[str],
         ymax=ymax
     )  
 
-def plot_maker_share_bar(begin:datetime | None = None, 
-                         end:datetime | None = None,
+def plot_maker_share_bar(begin:datetime | date | None = None, 
+                         end:datetime | date | None = None,
                          ticklabelsize:int | None = None
                         ) -> tuple[Figure, pl.DataFrame]:
     """指定した期間のメーカー別シェアを棒グラフで表示する
