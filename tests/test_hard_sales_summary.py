@@ -206,7 +206,7 @@ class TestHardSalesSummary:
     def test_weeks_to_threshold_type_when_reached(self, sample_sales_df):
         """到達済みの場合はint型"""
         from datetime import date as d, timedelta as td
-        from tests.conftest import _make_row
+        from conftest import _make_row
         launch = d(2020, 1, 1)
         rows = []
         for i in range(5):
