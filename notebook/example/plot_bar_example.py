@@ -46,13 +46,14 @@ def _(mo):
 
 
 @app.cell
-def _(hw_list, mo):
-    ui_hw = mo.ui.dropdown(options=hw_list, value="PS5", label="ハード")
+def _(g, mo):
+    ui_hw = g.HwSelect(default_list=["PS5"])
+    ui_hw_widget = ui_hw.widget
     ui_begin_date = mo.ui.date(value="2023-01-01", label="開始日")
     ui_end_date = mo.ui.date(value="2026-04-01", label="終了日")
 
     mo.vstack(items=[ui_hw, ui_begin_date, ui_end_date])
-    return ui_begin_date, ui_end_date, ui_hw
+    return ui_begin_date, ui_end_date, ui_hw, ui_hw_widget
 
 
 @app.cell(hide_code=True)
@@ -64,9 +65,10 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hw):
+def _(g, mo, ui_begin_date, ui_end_date, ui_hw, ui_hw_widget):
+    ui_hw_widget
     _out = g.plot_monthly_bar_by_year(
-        hw=ui_hw.value,
+        hw=ui_hw.value[0] if ui_hw.value else None,
         begin=ui_begin_date.value,
         end=ui_end_date.value)
     mo.vstack(_out)
@@ -82,9 +84,10 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hw):
+def _(g, mo, ui_begin_date, ui_end_date, ui_hw, ui_hw_widget):
+    ui_hw_widget
     (_fig, _df) = g.plot_quarterly_bar_by_year(
-        hw=ui_hw.value,
+        hw=ui_hw.value[0] if ui_hw.value else None,
         begin=ui_begin_date.value,
         end=ui_end_date.value)
     mo.vstack([_fig, _df])
@@ -100,17 +103,18 @@ def _(mo):
 
 
 @app.cell
-def _(hw_list, mo):
-
-    ui_hws = mo.ui.multiselect(options=hw_list, value=["NSW", "PS5"])
+def _(g, mo):
+    ui_hws = g.HwSelect(default_list=["NSW", "PS5"])
+    ui_hws_widget = ui_hws.widget
     ui_stacked = mo.ui.checkbox(label="stacked")
     ui_ticksize = mo.ui.number(start=3, stop=11, value=8, label="label size")
     mo.vstack(items=[ui_hws, ui_stacked, ui_ticksize])
-    return ui_hws, ui_stacked, ui_ticksize
+    return ui_hws, ui_hws_widget, ui_stacked, ui_ticksize
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hws, ui_stacked, ui_ticksize):
+def _(g, mo, ui_begin_date, ui_end_date, ui_hws, ui_hws_widget, ui_stacked, ui_ticksize):
+    ui_hws_widget
     (_fig, _df) = g.plot_monthly_bar_by_hard(
         hw=ui_hws.value,
         begin=ui_begin_date.value,
@@ -130,7 +134,8 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hws, ui_stacked, ui_ticksize):
+def _(g, mo, ui_begin_date, ui_end_date, ui_hws, ui_hws_widget, ui_stacked, ui_ticksize):
+    ui_hws_widget
     (_fig, _df) = g.plot_quarterly_bar_by_hard(
         hw=ui_hws.value,
         begin=ui_begin_date.value,
@@ -151,7 +156,8 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hws, ui_stacked, ui_ticksize):
+def _(g, mo, ui_begin_date, ui_end_date, ui_hws, ui_hws_widget, ui_stacked, ui_ticksize):
+    ui_hws_widget
     (_fig, _df) = g.plot_yearly_bar_by_hard(
         hw=ui_hws.value,
         begin=ui_begin_date.value,
@@ -270,7 +276,8 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_delta_range, ui_hws):
+def _(g, mo, ui_delta_range, ui_hws, ui_hws_widget):
+    ui_hws_widget
     (_fig, _df) = g.plot_delta_yearly_bar(hw=ui_hws.value,
         delta_begin=ui_delta_range.value[0],
         delta_end=ui_delta_range.value[1]
