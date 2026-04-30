@@ -51,5 +51,27 @@ class EventSelect:
         return self.event_dict[self.widget.value]
 
 
+class MakerSelect:
+    def __init__(self, default_list: List[str] | None = None, force_any: bool = False):
+        self.maker_list = hs.get_maker_all()
+        if default_list is None:
+            default_list = self.maker_list
+        self.checklist = mo.ui.array(
+            [mo.ui.checkbox(label=maker, value=(maker in default_list)) for maker in self.maker_list],
+        )
+        self.widget = self.checklist
+        self.force_any = force_any
+        
+    def _display_(self):
+        return mo.hstack(self.checklist, justify="start")
+
+
+    @property
+    def value(self) -> List[str]:        
+        maker_data = [maker for maker, flg in zip(self.maker_list, self.widget.value) if flg]
+        if self.force_any and len(maker_data) == 0:
+            return self.maker_list
+        return maker_data
+
 
 

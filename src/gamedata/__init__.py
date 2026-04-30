@@ -134,6 +134,7 @@ from .util import (
 from .marimo_util import (
     HwSelect,
     EventSelect,
+    MakerSelect,
 )
 
 # Make commonly used functions available at package level
