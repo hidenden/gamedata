@@ -77,6 +77,56 @@
 
 Makefile(make)によるデータの半自動更新｡
 
+## テストの実行
+
+このプロジェクトでは [pytest](https://docs.pytest.org/) を使用してテストを実施します。
+
+### 必要なパッケージのインストール
+
+テスト実行には `pytest` と `pytest-cov` が必要です。プロジェクトの依存関係は `pyproject.toml` に定義されています。
+
+```bash
+uv sync --extra test
+```
+
+または `pip` を使用する場合:
+
+```bash
+pip install pytest pytest-cov
+```
+
+### テストの実行
+
+#### 全テストを実行する
+
+```bash
+uv run pytest
+```
+
+または:
+
+```bash
+pytest
+```
+
+#### カバレッジレポートを表示する
+
+```bash
+uv run pytest --cov=gamedata --cov-report=term-missing
+```
+
+#### 特定のテストファイルを実行する
+
+```bash
+uv run pytest tests/test_util.py
+```
+
+#### 詳細出力で実行する
+
+```bash
+uv run pytest -v
+```
+
 ## トラブルシュート: uv で gamedata が import できない
 
 macOS では、まれに .venv 配下へ hidden 属性が付与され、Python が .pth を読み飛ばすことがあります。

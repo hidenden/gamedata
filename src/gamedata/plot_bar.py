@@ -3,6 +3,7 @@ from datetime import datetime, date
 from typing import List
 
 # サードパーティライブラリ
+import numpy as np
 import pandas as pd
 import polars as pl
 import matplotlib.pyplot as plt
@@ -30,7 +31,7 @@ def _bar_on_add(sel, df: pd.DataFrame, color2label: dict):
     if idx < len(df.index):
         x_label = df.index[idx]
         # x_labelの型がintの場合、月または年のラベルに変換
-        if isinstance(x_label, int):
+        if isinstance(x_label, (int, np.integer)):
             if x_label <= 12:
                 x_label = f"{x_label}月"
             else:
@@ -750,7 +751,7 @@ def plot_maker_share_bar(begin:datetime | date | None = None,
 
     tick_params_fn = None
     if ticklabelsize is not None:
-        tick_params_fn = lambda: TickParams(labelsize=ticklabelsize)
+        tick_params_fn = lambda: pu.TickParams(labelsize=ticklabelsize)
 
     return _plot_bar(
         data_aggregator=data_aggregator,
