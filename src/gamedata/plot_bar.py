@@ -238,6 +238,8 @@ def plot_quarterly_bar_by_year(hw:str, begin:datetime | date | None = None,
         pivot_hw_df = quarterly_df.pivot(index="q_num", on="year",
                                          values="quarterly_units", aggregate_function="sum")
         pivot_hw_df = pivot_hw_df.with_columns(pl.col("q_num").cast(pl.Int16))
+        all_quarters = pl.DataFrame({"q_num": pl.Series([1, 2, 3, 4], dtype=pl.Int16)})
+        pivot_hw_df = all_quarters.join(pivot_hw_df, on="q_num", how="left").fill_null(0).sort("q_num")
         return pivot_hw_df
     
     def labeler() -> pu.AxisLabels:
