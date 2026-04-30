@@ -46,14 +46,13 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo):
-    ui_hw = g.HwSelect(default_list=["PS5"])
-    ui_hw_widget = ui_hw.widget
+def _(hw_list, mo):
+    ui_hw = mo.ui.dropdown(options=hw_list, value="PS5", label="ハード")
     ui_begin_date = mo.ui.date(value="2023-01-01", label="開始日")
     ui_end_date = mo.ui.date(value="2026-04-01", label="終了日")
 
     mo.vstack(items=[ui_hw, ui_begin_date, ui_end_date])
-    return ui_begin_date, ui_end_date, ui_hw, ui_hw_widget
+    return ui_begin_date, ui_end_date, ui_hw
 
 
 @app.cell(hide_code=True)
@@ -65,10 +64,9 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hw, ui_hw_widget):
-    ui_hw_widget
+def _(g, mo, ui_begin_date, ui_end_date, ui_hw):
     _out = g.plot_monthly_bar_by_year(
-        hw=ui_hw.value[0] if ui_hw.value else None,
+        hw=ui_hw.value,
         begin=ui_begin_date.value,
         end=ui_end_date.value)
     mo.vstack(_out)
@@ -84,10 +82,9 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hw, ui_hw_widget):
-    ui_hw_widget
+def _(g, mo, ui_begin_date, ui_end_date, ui_hw):
     (_fig, _df) = g.plot_quarterly_bar_by_year(
-        hw=ui_hw.value[0] if ui_hw.value else None,
+        hw=ui_hw.value,
         begin=ui_begin_date.value,
         end=ui_end_date.value)
     mo.vstack([_fig, _df])
