@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.2"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 
@@ -323,6 +323,31 @@ def _(mo):
 @app.cell
 def _(df_all: "pl.DataFrame", g, latest_weeks):
     g.extract_latest(df_all, weeks = latest_weeks.value)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## extract_total
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    compact_flag = mo.ui.checkbox(label="compactモード", value=False)
+    return (compact_flag,)
+
+
+@app.cell
+def _(compact_flag, df_all: "pl.DataFrame", g, mo):
+    _df = g.extract_total(df_all, compact = compact_flag.value)
+    mo.vstack([
+        compact_flag,
+        _df,
+    
+    ], justify="start", align="stretch")    
     return
 
 

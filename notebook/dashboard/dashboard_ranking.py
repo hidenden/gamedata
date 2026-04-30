@@ -23,6 +23,23 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    ## 累計ランキング
+    """)
+    return
+
+
+@app.cell
+def _(g):
+    _df_all = g.load_hard_sales()
+    _df = g.extract_total(_df_all, compact = True)
+    g.style(_df, bar=True)
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## 週販ランキング
     """)
     return

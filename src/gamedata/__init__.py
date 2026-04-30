@@ -26,6 +26,7 @@ from .hard_sales_extract import (
     extract_week_reached_units,
     extract_by_date,
     extract_latest,
+    extract_total,
 )
 
 from .hard_sales_filter import (

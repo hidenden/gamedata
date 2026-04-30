@@ -17,8 +17,7 @@ def _():
     # プロジェクト内モジュール
     import gamedata as g
     g.set_dispfunc(func=None)
-
-    return date, g, mo
+    return date, datetime, g, mo
 
 
 @app.cell
@@ -47,6 +46,37 @@ def _(hw_select, mo, range_year, target_year):
 def _(begin_year, end_year, g, hw_select, mo):
     (_fig, _df) = g.plot_monthly_bar_by_year(hw=hw_select.value, begin=begin_year, end=end_year)
     mo.vstack([_fig, _df], justify="start")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 各月のメーカーごとの販売実績
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    month = mo.ui.number(start=1, stop=12, step=1, value=12, label="対象月")
+    begin_year2 = mo.ui.number(start=2001, step=1, value=2021, label="開始年")
+    end_year2 = mo.ui.number(start=2005, step=1, value=2026, label="終了年")
+    stacked = mo.ui.checkbox(label="積み上げ", value=True)
+
+    return begin_year2, end_year2, month, stacked
+
+
+@app.cell
+def _(begin_year2, datetime, end_year2, g, mo, month, stacked):
+    _begin = datetime(begin_year2.value, 1, 1)
+    _end = datetime(end_year2.value, 12, 31)
+    (_fig, _df) = g.plot_yearly_bar_by_month(month=month.value, stacked=stacked.value,
+                                            ticklabelsize=8,
+                                            begin=_begin, end=_end)
+
+    mo.vstack([begin_year2, end_year2, stacked, month, _fig, _df], justify="start")
+
     return
 
 

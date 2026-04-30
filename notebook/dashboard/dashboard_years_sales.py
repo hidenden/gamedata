@@ -15,7 +15,6 @@ def _():
     # プロジェクト内モジュール
     import gamedata as g
     g.set_dispfunc(func=None)
-
     return datetime, g, mo
 
 
