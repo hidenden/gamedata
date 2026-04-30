@@ -296,13 +296,15 @@ def chart_delta_week_ranking(delta_week:int) -> pl.DataFrame:
     return rename_columns(df)
 
 
-def chart_reached_unit(n:int) -> pl.DataFrame:
+def chart_reached_unit(n:int, all:bool = False) -> pl.DataFrame:
     df = hs.load_hard_sales()
     df = (
         hse.extract_week_reached_units(df, n).
-        sort("delta_week", descending=False).
-        head(10)
+        sort(["delta_week", "sum_units"], descending=[False, True])
     )
+    if not all:
+        df = df.head(10)
+        
     df = (hs.add_week_number(df).
           select(["hw", "report_date", "week_number", "sum_units"]))
     return df

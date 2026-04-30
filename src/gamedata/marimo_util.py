@@ -9,9 +9,9 @@ from . import hard_event as he
 
 class HwSelect:
     def __init__(self, default_list: List[str] | None = None, force_any: bool = False):
-        if default_list is None:
-            default_list = []
         self.hw_list = hs.get_hw_all()
+        if default_list is None:
+            default_list = self.hw_list
         self.checklist = mo.ui.array(
             [mo.ui.checkbox(label=hw, value=(hw in default_list)) for hw in self.hw_list],
         )
