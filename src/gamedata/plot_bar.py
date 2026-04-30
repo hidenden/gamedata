@@ -192,6 +192,9 @@ def plot_monthly_bar_by_year(hw:str, begin:datetime | date | None = None,
         monthly_df = hsf.monthly_sales(hard_sales_df, begin=begin, end=end)
         monthly_df = monthly_df.filter(pl.col("hw") == hw)
         pivot_hw_df = monthly_df.pivot(index="month", on="year", values="monthly_units", aggregate_function="sum")
+        # 全月(1-12)が含まれるよう補完し、月順にソートする
+        all_months = pl.DataFrame({"month": list(range(1, 13))}, schema={"month": pl.Int16})
+        pivot_hw_df = all_months.join(pivot_hw_df, on="month", how="left").sort("month").fill_null(0)
         return pivot_hw_df
     
     def labeler() -> pu.AxisLabels:
