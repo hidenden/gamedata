@@ -119,6 +119,31 @@ def _(df_all: "pl.DataFrame", g, pl):
     return (df_diff,)
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## add_rolling_mean
+    """)
+    return
+
+
+@app.cell
+def _(df_all: "pl.DataFrame", g, pl):
+    _rolling_df = g.add_rolling_mean(df_all).select(pl.col("report_date"), 
+    pl.col("hw"), pl.col("units"), 
+    pl.col("ma4w"), pl.col("ma13w"), pl.col("ma52w"))
+    _rolling_df
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## add_week_number
+    """)
+    return
+
+
 @app.cell
 def _(df_diff: "pl.DataFrame", g, pl):
     _df2: pl.DataFrame = g.add_week_number(df_diff)
@@ -346,8 +371,60 @@ def _(compact_flag, df_all: "pl.DataFrame", g, mo):
     mo.vstack([
         compact_flag,
         _df,
-    
+
     ], justify="start", align="stretch")    
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## hard_sales_summary
+    """)
+    return
+
+
+@app.cell
+def _(g):
+    hwselect = g.HwSelect(force_any = True, default_list = ["NS2"])
+    hw_widget = hwselect.widget
+    return hw_widget, hwselect
+
+
+@app.cell
+def _(df_all: "pl.DataFrame", g, hw_widget, hwselect, mo):
+    hw_widget
+    _summarys = g.hard_sales_summary(df_all, hw = hwselect.value)
+    mo.vstack([
+        hwselect,
+        _summarys
+    ], justify="start", align="stretch")    
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## maker_sales_summary
+    """)
+    return
+
+
+@app.cell
+def _(g):
+    maker_select = g.MakerSelect(default_list = ["Nintendo"], force_any = True)
+    maker_widget = maker_select.widget
+    return maker_select, maker_widget
+
+
+@app.cell
+def _(df_all: "pl.DataFrame", g, maker_select, maker_widget, mo):
+    maker_widget
+    _maker_summary = g.maker_sales_summary(df_all, makers = maker_select.value)
+    mo.vstack([
+        maker_select,
+        _maker_summary
+    ], justify="start", align="stretch")
     return
 
 

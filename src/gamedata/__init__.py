@@ -19,6 +19,7 @@ from .hard_sales import (
     get_maker_all,
     current_report_date,
     with_units_diff,
+    add_rolling_mean,
     add_week_number,
 )
 
@@ -27,6 +28,8 @@ from .hard_sales_extract import (
     extract_by_date,
     extract_latest,
     extract_total,
+    hard_sales_summary,
+    maker_sales_summary,
 )
 
 from .hard_sales_filter import (
