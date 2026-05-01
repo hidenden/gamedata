@@ -57,7 +57,7 @@ class TestHardSalesSummary:
             'max_quarterly_units', 'max_quarterly_period',
             'max_yearly_units', 'max_yearly_year',
             'launch_week_units',
-            'weeks_to_500k', 'weeks_to_1m', 'weeks_to_5m', 'weeks_to_15m',
+            'weeks_to_500k', 'weeks_to_1m', 'weeks_to_5m', 'weeks_to_10m', 'weeks_to_15m',
             'weeks_to_20m', 'weeks_to_25m', 'weeks_to_30m', 'weeks_to_35m',
         }
         assert set(result[0].keys()) == expected_keys
@@ -197,7 +197,7 @@ class TestHardSalesSummary:
     def test_weeks_to_keys_all_present(self, sample_sales_df):
         result = hse.hard_sales_summary(sample_sales_df, hw=['NSW'])
         threshold_keys = [
-            'weeks_to_500k', 'weeks_to_1m', 'weeks_to_5m', 'weeks_to_15m',
+            'weeks_to_500k', 'weeks_to_1m', 'weeks_to_5m', 'weeks_to_10m', 'weeks_to_15m',
             'weeks_to_20m', 'weeks_to_25m', 'weeks_to_30m', 'weeks_to_35m',
         ]
         for key in threshold_keys:
