@@ -193,6 +193,7 @@ _REACH_THRESHOLDS: List[tuple[int, str]] = [
     (500_000,    'weeks_to_500k'),
     (1_000_000,  'weeks_to_1m'),
     (5_000_000,  'weeks_to_5m'),
+    (10_000_000, 'weeks_to_10m'),
     (15_000_000, 'weeks_to_15m'),
     (20_000_000, 'weeks_to_20m'),
     (25_000_000, 'weeks_to_25m'),
@@ -234,6 +235,7 @@ def hard_sales_summary(df: pl.DataFrame, hw: List[str] | None = None) -> List[Di
         - weeks_to_500k (int | None): 累計50万台到達週 (発売週を1と数える)
         - weeks_to_1m (int | None): 累計100万台到達週
         - weeks_to_5m (int | None): 累計500万台到達週
+        - weeks_to_10m (int | None): 累計1000万台到達週
         - weeks_to_15m (int | None): 累計1500万台到達週
         - weeks_to_20m (int | None): 累計2000万台到達週
         - weeks_to_25m (int | None): 累計2500万台到達週
