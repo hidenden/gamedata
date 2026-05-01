@@ -33,7 +33,7 @@ def _(g, mo):
     hw_widget = hw_select.widget
 
     # Stack指定
-    stack_widget = mo.ui.checkbox(label="Stack mode", value=False)
+    stack_widget = mo.ui.switch(label="Stack mode", value=False)
     return hw_select, hw_widget, stack_widget
 
 

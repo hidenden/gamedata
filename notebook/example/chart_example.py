@@ -77,7 +77,7 @@ def _(base_df, date, g, hw_list, mo):
     ranking_end_date = mo.ui.date(start=date(2001,1,1), value=date(2026,4,1), label="Ranking End")
     ranking_num = mo.ui.number(start=-10, stop=20, value=10, label="ランキング数")
     hws = mo.ui.multiselect(options=hw_list, value=["NS2"], label="ハード")
-    maker_mode = mo.ui.checkbox(label="メーカーモード")
+    maker_mode = mo.ui.switch(label="メーカーモード", value=False)
     makers = mo.ui.multiselect(options=g.get_maker(base_df), value=["Nintendo"], label="メーカー")
     mo.vstack([ranking_begin_date, ranking_end_date, ranking_num, hws, maker_mode, makers], justify="start")
     return (
