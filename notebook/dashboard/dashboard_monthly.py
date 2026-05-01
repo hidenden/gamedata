@@ -62,7 +62,7 @@ def _(mo):
     month = mo.ui.number(start=1, stop=12, step=1, value=12, label="対象月")
     begin_year2 = mo.ui.number(start=2001, step=1, value=2021, label="開始年")
     end_year2 = mo.ui.number(start=2005, step=1, value=2026, label="終了年")
-    stacked = mo.ui.checkbox(label="積み上げ", value=True)
+    stacked = mo.ui.switch(label="積み上げ", value=True)
 
     return begin_year2, end_year2, month, stacked
 

@@ -200,7 +200,7 @@ def _(begin_date, df_all: "pl.DataFrame", end_date, g, maker_mode):
 
 @app.cell
 def _(mo):
-    maker_mode = mo.ui.checkbox(label="メーカー別集計")
+    maker_mode = mo.ui.switch(label="メーカー別集計", value=False)
     maker_mode
     return (maker_mode,)
 

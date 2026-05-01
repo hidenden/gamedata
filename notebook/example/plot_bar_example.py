@@ -103,7 +103,7 @@ def _(mo):
 def _(g, mo):
     ui_hws = g.HwSelect(default_list=["NSW", "PS5"])
     ui_hws_widget = ui_hws.widget
-    ui_stacked = mo.ui.checkbox(label="stacked")
+    ui_stacked = mo.ui.switch(label="stacked", value=False)
     ui_ticksize = mo.ui.number(start=3, stop=11, value=8, label="label size")
     mo.vstack(items=[ui_hws, ui_stacked, ui_ticksize])
     return ui_hws, ui_hws_widget, ui_stacked, ui_ticksize

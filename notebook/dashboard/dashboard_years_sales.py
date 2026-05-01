@@ -46,7 +46,7 @@ def _(g, mo):
     year = mo.ui.number(start=2001, stop=2026, step=1, value=2025, label="対象年")
     hwselect = g.HwSelect()
     hw_widget = hwselect.widget
-    stacked = mo.ui.checkbox(label="積み上げ棒グラフ", value=False)
+    stacked = mo.ui.switch(label="積み上げ棒グラフ", value=False)
     return hw_widget, hwselect, stacked, year
 
 
