@@ -144,9 +144,9 @@ class TestAddRollingMean:
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
         # units: [30000, 25000, 20000, 50000, 40000, 15000]
         # 4行目: (30000+25000+20000+50000)/4 = 31250
-        assert nsw["ma4w"][3] == pytest.approx(31250.0)
+        assert nsw["ma4w"][3] == 31250
         # 5行目: (25000+20000+50000+40000)/4 = 33750
-        assert nsw["ma4w"][4] == pytest.approx(33750.0)
+        assert nsw["ma4w"][4] == 33750
 
     def test_ma4w_first_rows_are_null(self, sample_sales_df):
         """ウィンドウサイズに満たない行は null になること"""

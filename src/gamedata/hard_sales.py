@@ -232,15 +232,15 @@ def add_rolling_mean(df: pl.DataFrame) -> pl.DataFrame:
 
     Returns:
         pl.DataFrame: 以下の移動平均カラムを追加した DataFrame。
-                      - ma4w  (Float64): 4週移動平均（直近4週の平均）
-                      - ma13w (Float64): 13週移動平均（直近13週の平均）
-                      - ma52w (Float64): 52週移動平均（直近52週の平均）
+                      - ma4w  (Int64): 4週移動平均（直近4週の平均を四捨五入した整数）
+                      - ma13w (Int64): 13週移動平均（直近13週の平均を四捨五入した整数）
+                      - ma52w (Int64): 52週移動平均（直近52週の平均を四捨五入した整数）
     """
     df = df.sort('weekly_id')
     return df.with_columns(
-        pl.col('units').rolling_mean(window_size=4).over('hw').alias('ma4w'),
-        pl.col('units').rolling_mean(window_size=13).over('hw').alias('ma13w'),
-        pl.col('units').rolling_mean(window_size=52).over('hw').alias('ma52w'),
+        pl.col('units').rolling_mean(window_size=4).round(0).cast(pl.Int64).over('hw').alias('ma4w'),
+        pl.col('units').rolling_mean(window_size=13).round(0).cast(pl.Int64).over('hw').alias('ma13w'),
+        pl.col('units').rolling_mean(window_size=52).round(0).cast(pl.Int64).over('hw').alias('ma52w'),
     )
 
 
