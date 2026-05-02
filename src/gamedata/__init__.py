@@ -55,6 +55,18 @@ from .hard_sales_pivot import (
     cumsum_diffs,    
 )
 
+from .hard_sales_long import (
+    sales_long,
+    monthly_sales_long,
+    quarterly_sales_long,
+    yearly_sales_long,
+    cumulative_sales_long,
+    sales_by_delta_long,
+    sales_with_offset_long,
+    cumulative_sales_by_delta_long,
+    maker_long,
+)
+
 from .plot_util import (
     AxisLabels,
     TickParams,
