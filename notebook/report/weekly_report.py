@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.4"
 app = marimo.App(width="medium")
 
 
@@ -28,10 +28,12 @@ def _():
 
 @app.cell
 def _(mo):
-    meta = mo.app_meta()
-    is_publish = True
-    if meta.mode in ["edit", "run"]:
-        is_publish = False
+    is_publish = False
+    _args = mo.cli_args()
+    if _args.get("publish"):
+        is_publish = True
+
+    is_publish
     return (is_publish,)
 
 
@@ -44,10 +46,10 @@ def _(datetime, g, is_publish, mo):
     report_date = config["date"]
     report_event_mask = g.EventMasks(hard=1.5, price=3, sale=2, soft=1.5, event=1)
 
-    def show_title(d:datetime) -> None:
+    def show_title(d:datetime) :
         last_updated_str = d.strftime("%Y-%m-%d")
         mode = "LAB MODE" if not is_publish else ""
-        return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode}")
+        return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode} {is_publish}")
 
     df_all = g.load_hard_sales()
     return df_all, report_date, show_title
@@ -116,10 +118,12 @@ def _(alt, df_all, g, mo, report_date):
     _begin = g.report_begin(report_date)
     _end = report_date
     _weekly_df = g.date_filter(df_all, begin=_begin, end=_end)
+    _current_hw = g.get_hw(_weekly_df)
+    _hw_colors = g.get_hard_colors(_current_hw)
     _base = alt.Chart(_weekly_df).encode(
             x='report_date:T',
             y='units:Q',
-            color='hw:N',
+            color=alt.Color('hw:N', scale=alt.Scale(domain=_current_hw, range=_hw_colors)),
         )
 
     weekly_chart = mo.ui.altair_chart(
@@ -248,7 +252,6 @@ def _(alt, datetime, df_all, g, mo, report_date):
         )
     )
     mo.vstack(items=[_msl_chart, _msl_df.pivot(index="year_month", on="hw", values="monthly_units")])
-
     return
 
 
@@ -277,8 +280,6 @@ def _(alt, df_all, g, mo, report_date):
         )
     )
     mo.vstack(items=[_chart, _df.pivot(index="month", on="year", values="monthly_units")])
-
-
     return
 
 
@@ -372,7 +373,6 @@ def _(alt, df_all, g, mo, report_date):
     )
     _df2 = _df.pivot(index="year", on="hw", values="yearly_units").fill_null(0)
     mo.vstack(items=[_chart, g.style(_df2)])
-    
     return
 
 
