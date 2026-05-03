@@ -4,6 +4,7 @@ import sqlite3
 from datetime import datetime,date
 import polars as pl
 from typing import List, TypedDict, Dict, Any
+from . import hard_info as hi
 
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
@@ -11,11 +12,14 @@ DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
 ISO_MONDAY = 1
 ISO_SUNDAY = 7
 
-def load_hard_event() -> pl.DataFrame:
+def load_hard_event(delta: bool = False) -> pl.DataFrame:
     """
     sqlite3を使用してデータベースからハードウェアイベントデータを読み込む関数。
     日付関係のカラムをdatetime型に変換して返す。
     
+    Args:
+        delta (bool): Trueの場合はdelta_event()を適用し、delta_weekを追加する。
+
     Returns:
         pl.DataFrame: ハードウェアイベントデータのDataFrame。
                       日付カラム（event_date）はdatetime型に変換済み。
@@ -41,6 +45,9 @@ def load_hard_event() -> pl.DataFrame:
           .otherwise(pl.col('event_date') + pl.duration(days=(ISO_SUNDAY - pl.col('event_date').dt.weekday())))
           .alias('report_date')
     )
+
+    if delta:
+        df = delta_event(df, hi.load_hard_info())
     return df
 
 def delta_event(event_df: pl.DataFrame,
@@ -189,6 +196,75 @@ def add_event_positions(event_df: pl.DataFrame, pivot_df: pl.DataFrame,
     return pl.DataFrame(result_rows)
 
 
+def _add_event_positions_from_long(event_df: pl.DataFrame,
+                                   long_df: pl.DataFrame,
+                                   join_key: str,
+                                   x_pos_expr: pl.Expr,
+                                   x_pos_dtype: pl.DataType,
+                                   value_column: str,
+                                   event_mask: EventMasks = EVENT_MASK_ALL) -> pl.DataFrame:
+    """
+    long形式データを用いてevent_dfにx_pos/y_posを付与する共通処理。
+    """
+    filtered_events = mask_event(event_df, event_mask=event_mask)
+
+    required_columns = {join_key, "hw", value_column}
+    if not required_columns.issubset(set(long_df.columns)):
+        return filtered_events.with_columns(
+            x_pos=pl.lit(None).cast(x_pos_dtype),
+            y_pos=pl.lit(None).cast(pl.Float64),
+        ).head(0)
+
+    lookup_df = long_df.select([
+        pl.col(join_key),
+        pl.col("hw"),
+        pl.col(value_column).alias("y_pos"),
+    ])
+
+    result_df = (
+        filtered_events
+        .join(lookup_df, on=[join_key, "hw"], how="left")
+        .with_columns(x_pos=x_pos_expr)
+        .filter(pl.col("y_pos").is_not_null())
+    )
+
+    if result_df.height == 0:
+        return filtered_events.with_columns(
+            x_pos=pl.lit(None).cast(x_pos_dtype),
+            y_pos=pl.lit(None).cast(pl.Float64),
+        ).head(0)
+
+    return result_df
+
+
+def add_event_positions_long(event_df: pl.DataFrame,
+                             long_df: pl.DataFrame,
+                             value_column: str = "units",
+                             event_mask: EventMasks = EVENT_MASK_ALL) -> pl.DataFrame:
+    """
+    event_dfにx_pos（event_date）とy_pos（該当ハードの販売数）を追加し、
+    条件に合わない行は除外した新しいDataFrameを返す（long形式データ対応）。
+
+    Args:
+        event_df (pl.DataFrame): ゲームイベントデータ
+        long_df (pl.DataFrame): report_date, hw, 値カラムを持つlong形式DataFrame
+        value_column (str): y_posに使用する値カラム名（デフォルト: units）
+        event_mask (EventMasks): イベントマスク
+
+    Returns:
+        pl.DataFrame: x_pos, y_posを追加したイベントデータ（条件に合わない行は除外）
+    """
+    return _add_event_positions_from_long(
+        event_df=event_df,
+        long_df=long_df,
+        join_key="report_date",
+        x_pos_expr=pl.col("event_date"),
+        x_pos_dtype=pl.Date,
+        value_column=value_column,
+        event_mask=event_mask,
+    )
+
+
 def add_event_positions_delta(event_df: pl.DataFrame, 
                               pivot_delta_df: pl.DataFrame, 
                               event_mask:EventMasks = EVENT_MASK_ALL) -> pl.DataFrame:
@@ -238,6 +314,38 @@ def add_event_positions_delta(event_df: pl.DataFrame,
         ).head(0)
     
     result_df = pl.DataFrame(result_rows)
-    result_df = result_df.with_columns(pl.col('delta_week').cast(pl.Int32))
+    result_df = result_df.with_columns(pl.col('delta_week').cast(pl.Int64))
+    return result_df
+
+
+def add_event_positions_delta_long(event_df: pl.DataFrame,
+                                   long_delta_df: pl.DataFrame,
+                                   value_column: str = "sum_units",
+                                   event_mask: EventMasks = EVENT_MASK_ALL) -> pl.DataFrame:
+    """
+    event_dfにx_pos（delta_week）とy_pos（該当ハードの累積販売数）を追加し、
+    条件に合わない行は除外した新しいDataFrameを返す（long形式データ対応）。
+
+    Args:
+        event_df (pl.DataFrame): ゲームイベントデータ
+        long_delta_df (pl.DataFrame): delta_week, hw, 値カラムを持つlong形式DataFrame
+        value_column (str): y_posに使用する値カラム名（デフォルト: sum_units）
+        event_mask (EventMasks): イベントマスク
+
+    Returns:
+        pl.DataFrame: x_pos, y_posを追加したイベントデータ（条件に合わない行は除外）
+    """
+    result_df = _add_event_positions_from_long(
+        event_df=event_df,
+        long_df=long_delta_df,
+        join_key="delta_week",
+        x_pos_expr=pl.col("delta_week"),
+        x_pos_dtype=pl.Int64,
+        value_column=value_column,
+        event_mask=event_mask,
+    )
+
+    if "delta_week" in result_df.columns:
+        result_df = result_df.with_columns(pl.col("delta_week").cast(pl.Int64))
     return result_df
 

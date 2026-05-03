@@ -82,6 +82,38 @@ class TestLoadHardEvent:
                 result = he.load_hard_event()
         assert result["report_date"][0] == date(2020, 1, 12)
 
+    def test_delta_true_adds_delta_week(self):
+        raw = self._make_raw_df()
+        df_with_delta = pl.DataFrame({
+            "report_date": [date(2020, 1, 5), date(2020, 11, 15)],
+            "event_date": [date(2020, 1, 5), date(2020, 11, 15)],
+            "hw": ["NSW", "PS5"],
+            "event_name": ["NSW ソフト発売", "PS5 発売"],
+            "event_type": ["soft", "hard"],
+            "priority": [1.0, 1.0],
+            "delta_week": [147, 0],
+        })
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw):
+                with patch("gamedata.hard_event.hi.load_hard_info", return_value=pl.DataFrame({"id": [], "launch_date": []})):
+                    with patch("gamedata.hard_event.delta_event", return_value=df_with_delta) as mock_delta:
+                        result = he.load_hard_event(delta=True)
+        assert "delta_week" in result.columns
+        mock_delta.assert_called_once()
+
+    def test_delta_false_keeps_current_behavior(self):
+        raw = self._make_raw_df()
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw):
+                with patch("gamedata.hard_event.delta_event") as mock_delta:
+                    result = he.load_hard_event(delta=False)
+        assert "delta_week" not in result.columns
+        mock_delta.assert_not_called()
+
 
 class TestEventMasks:
     """EventMasks 定数のテスト"""
@@ -254,5 +286,87 @@ class TestAddEventPositionsDelta:
         }).with_columns(pl.col("delta_week").cast(pl.Int32))
         result = he.add_event_positions_delta(
             sample_event_df_with_delta, pivot_delta_df, event_mask=he.EVENT_MASK_ALL
+        )
+        assert result.height == 0
+
+
+class TestAddEventPositionsLong:
+    """add_event_positions_long 関数のテスト"""
+
+    def test_returns_dataframe(self, sample_event_df, sample_sales_df):
+        long_df = sample_sales_df.select(["report_date", "hw", "units"])  # long形式
+        result = he.add_event_positions_long(sample_event_df, long_df, event_mask=he.EVENT_MASK_ALL)
+        assert isinstance(result, pl.DataFrame)
+
+    def test_has_x_pos_and_y_pos(self, sample_event_df, sample_sales_df):
+        long_df = sample_sales_df.select(["report_date", "hw", "units"])  # long形式
+        result = he.add_event_positions_long(sample_event_df, long_df, event_mask=he.EVENT_MASK_ALL)
+        assert "x_pos" in result.columns
+        assert "y_pos" in result.columns
+
+    def test_supports_custom_value_column(self, sample_event_df, sample_sales_df):
+        long_df = sample_sales_df.select(["report_date", "hw", "sum_units"])  # long形式
+        result = he.add_event_positions_long(
+            sample_event_df,
+            long_df,
+            value_column="sum_units",
+            event_mask=he.EVENT_MASK_ALL,
+        )
+        assert result.height > 0
+        assert "y_pos" in result.columns
+
+    def test_empty_result_when_no_match(self, sample_event_df):
+        long_df = pl.DataFrame({
+            "report_date": [date(1990, 1, 1)],
+            "hw": ["NSW"],
+            "units": [100],
+        }).with_columns(pl.col("report_date").cast(pl.Date))
+        result = he.add_event_positions_long(sample_event_df, long_df, event_mask=he.EVENT_MASK_ALL)
+        assert result.height == 0
+
+
+class TestAddEventPositionsDeltaLong:
+    """add_event_positions_delta_long 関数のテスト"""
+
+    def test_returns_dataframe(self, sample_event_df_with_delta, sample_sales_df):
+        long_delta_df = sample_sales_df.select(["delta_week", "hw", "sum_units"])  # long形式
+        result = he.add_event_positions_delta_long(
+            sample_event_df_with_delta,
+            long_delta_df,
+            event_mask=he.EVENT_MASK_ALL,
+        )
+        assert isinstance(result, pl.DataFrame)
+
+    def test_has_x_pos_and_y_pos(self, sample_event_df_with_delta, sample_sales_df):
+        long_delta_df = sample_sales_df.select(["delta_week", "hw", "sum_units"])  # long形式
+        result = he.add_event_positions_delta_long(
+            sample_event_df_with_delta,
+            long_delta_df,
+            event_mask=he.EVENT_MASK_ALL,
+        )
+        assert "x_pos" in result.columns
+        assert "y_pos" in result.columns
+
+    def test_supports_custom_value_column(self, sample_event_df_with_delta, sample_sales_df):
+        long_delta_df = sample_sales_df.select(["delta_week", "hw", "units"])  # long形式
+        result = he.add_event_positions_delta_long(
+            sample_event_df_with_delta,
+            long_delta_df,
+            value_column="units",
+            event_mask=he.EVENT_MASK_ALL,
+        )
+        assert result.height > 0
+        assert "y_pos" in result.columns
+
+    def test_empty_result_when_no_match(self, sample_event_df_with_delta):
+        long_delta_df = pl.DataFrame({
+            "delta_week": [99999],
+            "hw": ["NSW"],
+            "sum_units": [100],
+        }).with_columns(pl.col("delta_week").cast(pl.Int32))
+        result = he.add_event_positions_delta_long(
+            sample_event_df_with_delta,
+            long_delta_df,
+            event_mask=he.EVENT_MASK_ALL,
         )
         assert result.height == 0
