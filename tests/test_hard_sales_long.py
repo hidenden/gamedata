@@ -64,11 +64,11 @@ class TestMonthlySalesLong:
 
     def test_has_expected_columns(self, sample_sales_df):
         result = lng.monthly_sales_long(sample_sales_df)
-        assert set(result.columns) == {"month", "hw", "monthly_units"}
+        assert set(result.columns) == {"year_month", "year", "month", "hw", "monthly_units"}
 
     def test_month_column_is_date(self, sample_sales_df):
         result = lng.monthly_sales_long(sample_sales_df)
-        assert result["month"].dtype == pl.Date
+        assert result["year_month"].dtype == pl.Date
 
     def test_filter_by_hw(self, sample_sales_df):
         result = lng.monthly_sales_long(sample_sales_df, hw=["NSW"])
@@ -82,7 +82,7 @@ class TestMonthlySalesLong:
 
     def test_sorted_by_month(self, sample_sales_df):
         result = lng.monthly_sales_long(sample_sales_df)
-        months = result["month"].to_list()
+        months = result["year_month"].to_list()
         assert months == sorted(months)
 
     def test_monthly_units_positive(self, sample_sales_df):

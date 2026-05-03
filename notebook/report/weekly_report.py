@@ -23,7 +23,7 @@ def _():
     # プロジェクト内モジュール
     import gamedata as g
     g.set_dispfunc(func=None)
-    return alt, datetime, g, mo
+    return alt, datetime, g, mo, pl
 
 
 @app.cell
@@ -32,7 +32,6 @@ def _(mo):
     is_publish = True
     if meta.mode in ["edit", "run"]:
         is_publish = False
-
     return (is_publish,)
 
 
@@ -158,6 +157,264 @@ def _(alt, mo, weekly_chart):
         )
     )
     _zoom_chart
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 過去年の週販比較
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### PlayStation 5:2023年から2026年の3月1日以降
+    """)
+    return
+
+
+@app.cell
+def _(datetime, df_all, g):
+    ps5_offset_df = g.sales_with_offset_long(df_all,
+      hw_periods=[
+          {'hw': 'PS5', 'begin': datetime(2023,3,1)},
+          {'hw': 'PS5', 'begin': datetime(2024,3,1)},
+          {'hw': 'PS5', 'begin': datetime(2025,3,1)},
+          {'hw': 'PS5', 'begin': datetime(2026,3,1)},
+          ],
+      end = 20)
+
+    ps5_offset_df
+    return (ps5_offset_df,)
+
+
+@app.cell
+def _(alt, mo, ps5_offset_df):
+    _base = alt.Chart(ps5_offset_df).encode(
+            x='offset_week:T',
+            y='units:Q',
+            color='label:N',
+        )
+
+    _ps5_offset_chart = mo.ui.altair_chart(
+        ((_base.mark_point() + _base.mark_line())).properties(
+            width=800,
+            height=400,
+            title='過去週販比較'
+        )
+    )
+    _ps5_offset_chart
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Nintendo Switch2: 2026年と, Switch 2018,2019年 3月1日以降
+    """)
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 月間販売推移
+    """)
+    return
+
+
+@app.cell
+def _(alt, datetime, df_all, g, mo, report_date):
+    _msl_df = g.monthly_sales_long(df_all, begin=datetime(2025,3,1), end=report_date,
+        hw=["NS2", "NSW", "PS5"])
+    _base = alt.Chart(_msl_df).encode(
+            x='year_month:T',
+            y='monthly_units:Q',
+            color='hw:N',
+        )
+    _msl_chart = mo.ui.altair_chart(
+        _base.mark_bar().properties(
+            width=800,
+            height=400,
+            title='月間販売推移'
+        )
+    )
+    mo.vstack(items=[_msl_chart, _msl_df.pivot(index="year_month", on="hw", values="monthly_units")])
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Nintendo Switch:月間販売台数
+    """)
+    return
+
+
+@app.cell
+def _(alt, df_all, g, mo, report_date):
+    _begin = g.years_ago(report_date)
+    _df = g.monthly_sales_long(df_all, begin=_begin, end=report_date,   hw=["NSW"])
+    _chart = mo.ui.altair_chart(
+        alt.Chart(_df).mark_bar().encode(
+                x=alt.X('month:O', title='月'),
+                y=alt.Y('monthly_units:Q', title='販売台数'),
+                color=alt.Color('year:N', title='年'),
+                xOffset='year:N',
+            ).properties(
+                width=800,
+                height=400,
+                title='月間販売推移'
+        )
+    )
+    mo.vstack(items=[_chart, _df.pivot(index="month", on="year", values="monthly_units")])
+
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 累計販売推移
+    """)
+    return
+
+
+@app.cell
+def _(alt, datetime, df_all, g, mo):
+    from tomlkit.parser import CTRL_CHAR_LIMIT
+    _df = g.cumulative_sales_long(df_all, begin=datetime(2017,3,3),hw=["NSW", "PS5", "NS2", "XSX"])
+
+    _base = alt.Chart(_df).encode(
+            x='report_date:T',
+            y='sum_units:Q',
+            color='hw:N',
+        )
+    _chart = mo.ui.altair_chart(
+        ((_base.mark_line())).properties(
+            width=800,
+            height=400,
+            title='累計販売推移'
+        )
+    )
+    _chart
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Switch2: 47週目の状況
+    """)
+    return
+
+
+@app.cell
+def _(alt, df_all, g, mo):
+    _df = g.cumulative_sales_by_delta_long(
+        df_all, 
+        hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA", "PS2", "Wii"], 
+        mode="week",
+        begin = 0, end=60)
+
+    _base = alt.Chart(_df).encode(
+            x='delta_week:Q',
+            y='sum_units:Q',
+            color='hw:N',
+        )
+    _chart = mo.ui.altair_chart(
+        ((_base.mark_line())).properties(
+            width=800,
+            height=400,
+            title='累計販売推移(発売週からの経過週数で比較)'
+        )
+    )
+    mo.vstack(items=[_chart, _df.pivot(index="delta_week", on="hw", values="sum_units")])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 年単位の状況
+    """)
+    return
+
+
+@app.cell
+def _(alt, df_all, g, mo, report_date):
+    _df = g.yearly_sales_long(df_all, 
+        hw=['3DS', 'WiiU','NS2', 'NSW',  'PS4', 'PS5', 'Vita', 'XSX', 'XBOne'],
+        begin=g.years_ago(report_date, 10),
+        end = report_date,)
+
+    _base = alt.Chart(_df).encode(
+            x='year:O',
+            y='yearly_units:Q',
+            color='hw:N',
+        )
+    _chart = mo.ui.altair_chart(
+        _base.mark_bar().properties(
+            width=800,
+            height=400,
+            title='年間販売推移'
+        )
+    )
+    _df2 = _df.pivot(index="year", on="hw", values="yearly_units").fill_null(0)
+    mo.vstack(items=[_chart, g.style(_df2)])
+    
+    return
+
+
+@app.cell
+def _(alt, df_all, g, mo, pl):
+
+    _df = g.maker_long(df_all, begin_year=2016)
+
+    _MAKERS = ['Nintendo', 'SONY', 'Microsoft']
+    _COLORS = ['red', 'mediumblue', 'green']
+
+    _chart_df = (
+        _df
+        .sort(['year', pl.col('maker_name').cast(pl.Enum(_MAKERS))])
+        .with_columns(
+            ((pl.col('yearly_percentage').cum_sum().over('year') - pl.col('yearly_percentage') / 2) / 100)
+            .alias('mid_point'),
+            (pl.col('yearly_percentage').round(1).cast(pl.String) + '%')
+            .alias('pct_label'),
+        )
+    )
+
+    _base = alt.Chart(_chart_df).encode(
+        y=alt.Y('year:O', sort='descending', title='年'),
+        x=alt.X('yearly_units:Q', stack='normalize', title='メーカーシェア'),
+        color=alt.Color('maker_name:N',
+            sort=_MAKERS,
+            scale=alt.Scale(domain=_MAKERS, range=_COLORS),
+        ),
+        order=alt.Order('mid_point:Q'),
+    )
+
+    _bars = _base.mark_bar()
+    _text = _base.mark_text(size=12, baseline='middle').encode(
+        detail='maker_name:N',
+        color=alt.value('white'),
+        text=alt.Text('pct_label:N'),
+        x=alt.X('mid_point:Q'),
+    )
+
+    _chart = mo.ui.altair_chart((_bars + _text).properties(width=800, height=400, title='年間シェア推移'))
+    mo.vstack(items=[_chart, _df])
     return
 
 

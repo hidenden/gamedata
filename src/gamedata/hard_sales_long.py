@@ -48,7 +48,9 @@ def monthly_sales_long(df: pl.DataFrame, hw: List[str] = [],
         pl.DataFrame: long形式の月次販売台数DataFrame
 
         DataFrameのカラム構成:
-        - month (Date): 月の末日
+        - year_month (Date): 月の末日
+        - year (Int16): 年
+        - month (Int8): 月
         - hw (String): ゲームハードの識別子
         - monthly_units (Int64): 月次販売台数
     """
@@ -56,9 +58,9 @@ def monthly_sales_long(df: pl.DataFrame, hw: List[str] = [],
     if len(hw) > 0:
         df = df.filter(pl.col('hw').is_in(hw))
     df = df.with_columns(
-        month=pl.date(pl.col("year"), pl.col("month"), 1).dt.month_end()
+        year_month=pl.date(pl.col("year"), pl.col("month"), 1).dt.month_end()
     )
-    return df.select(['month', 'hw', 'monthly_units']).sort('month')
+    return df.select(['year_month', 'year', 'month', 'hw', 'monthly_units']).sort('year_month')
 
 
 def quarterly_sales_long(df: pl.DataFrame, hw: List[str] = [],
@@ -337,8 +339,14 @@ def maker_long(df: pl.DataFrame,
         - year (Int16): report_dateの年
         - maker_name (String): メーカー名
         - yearly_units (Int64): 年次販売台数
+        - yearly_percentage (Float64): 年次販売台数のシェア()
+        　（同年の全ハードウェアの年次販売台数に対する割合のパーセント）
     """
     begin = None if begin_year is None else datetime(begin_year, 1, 1)
     end = None if end_year is None else datetime(end_year, 12, 31)
     df = hsf.yearly_maker_sales(df, begin=begin, end=end)
-    return df.select(['year', 'maker_name', 'yearly_units']).sort('year')
+    # yearly_percentageを計算しカラムを追加
+    df = df.with_columns(
+        yearly_percentage=(pl.col('yearly_units') / pl.col('yearly_units').sum().over('year')) * 100
+    )
+    return df.select(['year', 'maker_name', 'yearly_units', 'yearly_percentage']).sort('year')
