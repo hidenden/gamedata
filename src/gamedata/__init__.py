@@ -129,7 +129,8 @@ from .hard_event import (
     EVENT_MASK_SHORT,
 )
 
-from .hard_sales_report import (
+from .hard_sales_report import ( 
+    disable_styler,
     rename_columns,
     rename_hw,
     units_by_date_hw_table,

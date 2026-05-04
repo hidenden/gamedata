@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.4"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 
@@ -22,18 +22,16 @@ def _():
 
     # プロジェクト内モジュール
     import gamedata as g
-    g.set_dispfunc(func=None)
+
     return alt, datetime, g, mo, pl
 
 
 @app.cell
-def _(mo):
-    is_publish = False
+def _(g, mo):
     _args = mo.cli_args()
-    if _args.get("publish"):
-        is_publish = True
-
-    is_publish
+    is_publish = True if _args.get("publish") else False
+    if not is_publish:
+        g.disable_styler()
     return (is_publish,)
 
 
@@ -48,8 +46,8 @@ def _(datetime, g, is_publish, mo):
 
     def show_title(d:datetime) :
         last_updated_str = d.strftime("%Y-%m-%d")
-        mode = "LAB MODE" if not is_publish else ""
-        return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode} {is_publish}")
+        mode: str = "analyze mode" if not is_publish else ""
+        return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode}")
 
     df_all = g.load_hard_sales()
     return df_all, report_date, report_event_mask, show_title
@@ -144,7 +142,7 @@ def _(alt, df_all, g, mo, report_date, report_event_mask):
         )
     )
 
-    mo.vstack(items=[weekly_chart, _weekly_df])
+    mo.vstack(items=[weekly_chart, g.style_df(_weekly_df.pivot(index="report_date", on="hw", values="units"))])
     return (weekly_chart,)
 
 
@@ -210,8 +208,6 @@ def _(datetime, df_all, g):
           {'hw': 'PS5', 'begin': datetime(2026,3,1)},
           ],
       end = 20)
-
-    ps5_offset_df
     return (ps5_offset_df,)
 
 
@@ -299,7 +295,7 @@ def _(alt, df_all, g, mo, report_date):
                 title='月間販売推移'
         )
     )
-    mo.vstack(items=[_chart, _df.pivot(index="month", on="year", values="monthly_units")])
+    mo.vstack(items=[_chart, g.style_df(_df.pivot(index="month", on="year", values="monthly_units"))])
     return
 
 
