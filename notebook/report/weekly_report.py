@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.4"
 app = marimo.App(width="medium")
 
 
@@ -145,7 +145,6 @@ def _(alt, df_all, g, mo, report_date, report_event_mask):
     )
 
     mo.vstack(items=[weekly_chart, _weekly_df])
-
     return (weekly_chart,)
 
 
@@ -182,7 +181,6 @@ def _(alt, mo, weekly_chart):
         )
     )
     _zoom_chart
-
     return
 
 
