@@ -13,6 +13,19 @@ from . import hard_sales as hs
 from . import hard_sales_filter as hsf
 from . import hard_sales_extract as hse
 
+# Global variables
+_styler_is_disabled:bool = False # デフォルトではStylerは有効
+
+def disable_styler(disable:bool = True):
+    """
+    スタイラーのモードを無効にする
+    
+    Args:
+        disable: スタイラーを無効にするかどうか（デフォルト: True）。
+    """
+    global _styler_is_disabled
+    _styler_is_disabled = disable
+
 def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
     """
     DataFrameの列名を日本語に変換する
@@ -317,7 +330,7 @@ def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
                 gradients:List[str] | None = None,
                 gradient_horizontal:bool = False,
                 bars:List[str] | None = None,
-                bar_color:str = "#18ba06dd") -> Styler:
+                bar_color:str = "#18ba06dd") -> Styler|pl.DataFrame:
     """
     販売台数データフレームにスタイルを適用する
     
@@ -334,8 +347,11 @@ def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
         bar_color: 棒グラフの色（デフォルト: "#5fba7d"）
         
     Returns:
-        Styler: スタイルが適用されたStylerオブジェクト
+        Styler|pl.DataFrame: スタイルが適用されたStylerオブジェクトまたはDataFrame
     """
+    global _styler_is_disabled
+    if _styler_is_disabled:
+        return df
 
     first_column = df.columns[0]
     pd_df = df.to_pandas()
@@ -384,7 +400,7 @@ def style_df(df: pl.DataFrame,
            gradient:bool = False,
            bar:bool = False,
            gradient_horizontal:bool = False,
-           bar_color:str = "#18ba06dd") -> Styler:
+           bar_color:str = "#18ba06dd") -> Styler|pl.DataFrame:
     """
     DataFrameをPandasのStylerオブジェクトに変換する
     
@@ -396,8 +412,12 @@ def style_df(df: pl.DataFrame,
         gradient_horizontal: 行方向にグラデーションを適用するかどうか
         bar_color: 棒グラフの色
     Returns:
-        Styler: 変換されたStylerオブジェクト
+        Styler|pl.DataFrame: 変換されたStylerオブジェクトまたはDataFrame
     """
+    global _styler_is_disabled
+    if _styler_is_disabled:
+        return df
+
     # df.columns[0]の値がユニークかどうかを確認する｡ユニークはないなら､行番号のカラムを一番左側に追加する
     first_column = df.columns[0]
     all_columns = df.columns
