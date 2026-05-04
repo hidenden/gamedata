@@ -100,7 +100,7 @@ def current_report_date(df: pl.DataFrame) -> datetime:
     return df.select(pl.col('report_date').max()).item()
 
 
-def get_hw(df: pl.DataFrame) -> List[str]:
+def get_hw(df: pl.DataFrame, by_sort:bool = True) -> List[str]:
     """
     DataFrameからハードウェア名のユニークなリストを取得する。
     
@@ -110,7 +110,8 @@ def get_hw(df: pl.DataFrame) -> List[str]:
     Returns:
         List[str]: ハードウェア名のユニークなリスト
     """
-    return (df
+    if by_sort:
+        return (df
             .select([
                 pl.col('hw'),
                 pl.col('maker_name'),
@@ -120,6 +121,12 @@ def get_hw(df: pl.DataFrame) -> List[str]:
             .sort(by=['maker_name', 'launch_date'], descending=[True, False])
             .select([pl.col('hw'),])
             ).to_series(0).to_list()
+    else:
+        return (df
+                .select(["hw"])
+                .unique()
+                ).to_series(0).to_list()
+        
 
 
 def get_active_hw(days: int = 365) -> List[str]:
