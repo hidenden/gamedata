@@ -34,7 +34,7 @@ def _(g):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # chart_hard.py
+    # hard_sales_report.py
     """)
     return
 
@@ -42,7 +42,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## chart_units_by_date_hw
+    ## units_by_date_hw_table
     """)
     return
 
@@ -58,14 +58,14 @@ def _(date, mo):
 
 @app.cell
 def _(base_df, g, units_begin_date, units_end_date):
-    g.chart_units_by_date_hw(base_df, begin=units_begin_date.value, end=units_end_date.value)
+    g.units_by_date_hw_table(base_df, begin=units_begin_date.value, end=units_end_date.value)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## chart_weekly_ranking
+    ## weekly_sales_ranking
     """)
     return
 
@@ -111,19 +111,19 @@ def _(
     ranking_maker,
     ranking_num,
 ):
-    _cwr_df = g.chart_weekly_ranking(rank_n=ranking_num.value, 
+    _cwr_df = g.weekly_sales_ranking(rank_n=ranking_num.value, 
         begin=ranking_begin_date.value,
         end=ranking_end_date.value,
         hw=ranking_hw,
         maker=ranking_maker,)
-    g.style(_cwr_df, highlight=True)
+    g.style_df(_cwr_df, highlight=True)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## chart_monthly_ranking
+    ## monthly_sales_ranking
     """)
     return
 
@@ -137,21 +137,21 @@ def _(
     ranking_maker,
     ranking_num,
 ):
-    _cmr_df = g.chart_monthly_ranking(
+    _cmr_df = g.monthly_sales_ranking(
         rank_n=ranking_num.value, 
         begin=ranking_begin_date.value,
         end=ranking_end_date.value,
         hw=ranking_hw,
         maker=ranking_maker,
     )
-    g.style(_cmr_df, bar=True)
+    g.style_df(_cmr_df, bar=True)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## chart_yearly_ranking
+    ## yearly_sales_ranking
     """)
     return
 
@@ -165,21 +165,21 @@ def _(
     ranking_maker,
     ranking_num,
 ):
-    _cyr_df = g.chart_yearly_ranking(
+    _cyr_df = g.yearly_sales_ranking(
         rank_n=ranking_num.value,
         begin=ranking_begin_date.value,
         end=ranking_end_date.value,
         hw=ranking_hw,
         maker=ranking_maker,
     )
-    g.style(_cyr_df, gradient=True)
+    g.style_df(_cyr_df, gradient=True)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## chart_delta_week_ranking
+    ## delta_week_ranking
     """)
     return
 
@@ -193,9 +193,9 @@ def _(mo):
 
 @app.cell
 def _(delta_week_num, g):
-    _cdw_df = g.chart_delta_week_ranking(delta_week_num.value)
+    _cdw_df = g.delta_week_ranking(delta_week_num.value)
     _cdw_df10 = _cdw_df.head(10)
-    g.style(_cdw_df10, bar=True)
+    g.style_df(_cdw_df10, bar=True)
     return
 
 

@@ -81,7 +81,7 @@ def _(mo):
 
 @app.cell
 def _(df_all, g, report_date):
-    g.chart_units_by_date_hw(df_all, begin=g.weeks_before(report_date, 3), end=report_date)
+    g.units_by_date_hw_table(df_all, begin=g.weeks_before(report_date, 3), end=report_date)
     return
 
 
@@ -434,7 +434,7 @@ def _(alt, df_all, g, mo, report_date):
         )
     )
     _df2 = _df.pivot(index="year", on="hw", values="yearly_units").fill_null(0)
-    mo.vstack(items=[_chart, g.style(_df2)])
+    mo.vstack(items=[_chart, g.style_df(_df2)])
     return
 
 
