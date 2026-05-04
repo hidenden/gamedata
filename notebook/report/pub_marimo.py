@@ -1,44 +1,113 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys
 import os
 import subprocess
+from bs4 import BeautifulSoup
+from pathlib import Path
+from report_config import get_config
 
+# Global setting
 BASEDIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(BASEDIR)
 NOTEBOOK = 'weekly_report.py'
+HTMLFILE = 'marimo_out.html'
 OUTDIR = '../../public'
 SITEURL = 'https://gamehardrecord.netlify.app'
-
-from report_config import get_config
-config = get_config()
-report_date = config["date"]
-report_file_name = f"weekly_report_{report_date.strftime('%Y%m%d')}.html"
-# report_dir = f"{OUTDIR}/{report_date.year}"
-report_dir = f"{OUTDIR}/marimo"  # marimo用の作業用ディレクトリ(将来は削除)
-report_path = f"{report_dir}/{report_file_name}"
-
-def export_marimo_to_html(notebook_path: str, output_path: str):
-    cmd = ["marimo", "export", "html", "--no-include-code", notebook_path,
+CONFIG = get_config()
+    
+def marimo_export_html(input_path: str, output_path: str):
+    cmd = ["marimo", "export", "html", "--no-include-code", input_path,
            "-o", output_path, 
            "--", "--publish", "1"]
-
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        print("Error:", result.stderr)
-    else:
-        print(f"Exported to {output_path}")
+        raise Exception(f"Marimo export failed: {result.stderr}")
 
-try:
-    print("Converting marimo to HTML...")
+def load_soup(input_path: str) -> BeautifulSoup:
+    with open(input_path, "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f, "html.parser")
+    # input_pathを削除する
+    os.remove(input_path)
+    return soup
+
+def insert_og_tags(soup: BeautifulSoup) -> BeautifulSoup:
+    head = soup.find("head")
+    if not head:
+        raise Exception("Error: <head> not found")
     
-    # report_pathにファイルが存在したら削除
-    if os.path.exists(report_path):
-        os.remove(report_path)
-
-    export_marimo_to_html(NOTEBOOK, report_path)
+    # 既存の og / twitter タグを削除（重複防止）
+    for tag in head.find_all("meta", attrs={"property": lambda x: x and x.startswith(("og:", "article:"))}):
+        tag.decompose()
+    for tag in head.find_all("meta", attrs={"name": lambda x: x and x.startswith("twitter:")}):
+        tag.decompose()
+    
+    report_date = CONFIG["date"]
+    yymmdd = report_date.strftime("%Y%m%d")
+    description = CONFIG["description"]
+    
+    # Insert new OG and Twitter Card meta tags
+    meta_tags = [
+        ("property", "og:title", f"ゲームハード週販レポート({yymmdd})"),
+        ("property", "og:description", description),
+        ("property", "og:image", f"{SITEURL}/{report_date.year}/weekly_report_{yymmdd}.png"),
+        ("property", "og:url", f"{SITEURL}/{report_date.year}/weekly_report_{yymmdd}.html"),   # 実際の公開URL
+        ("property", "og:type", "website"),
+        ("property", "og:site_name", "国内ゲームハード週販レポート"),
         
-except Exception as e:
-    print(f"Error during export: {e}")
-    import traceback
-    traceback.print_exc()
+        # Twitter / X Card
+        ("name", "twitter:card", "summary_large_image"),
+        ("name", "twitter:title", f"ゲームハード週販レポート({yymmdd})"),
+        ("name", "twitter:description", description),
+        ("name", "twitter:image", f"{SITEURL}/{report_date.year}/weekly_report_{yymmdd}.png"),
+    ]
+    
+    for attr_type, key, content in meta_tags:
+        meta = soup.new_tag("meta")
+        meta[attr_type] = key
+        meta["content"] = content
+        head.append(meta)
+        head.append(soup.new_string("\n"))
+        
+    return soup
+
+
+def insert_css_link(soup: BeautifulSoup) -> BeautifulSoup:
+    return soup
+
+def save_soup(soup: BeautifulSoup, output_path: str):
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(str(soup))
+
+def main():
+    # Phase 1
+    marimo_export_html(NOTEBOOK, HTMLFILE)
+    
+    # Phase 2
+    soup: BeautifulSoup = load_soup(HTMLFILE)
+    
+    # Phase 3
+    og_soup: BeautifulSoup = insert_og_tags(soup)
+    
+    # Phase 4
+    css_soup: BeautifulSoup = insert_css_link(og_soup)
+    
+    # Phase 5
+    subdir = "marimo" 
+    # subdir = str(CONFIG["date"].year)
+    report_file_name = f"weekly_report_{CONFIG['date'].strftime('%Y%m%d')}.html"
+    report_path = f"{OUTDIR}/{subdir}/{report_file_name}"
+    save_soup(css_soup, report_path)
+    print(f"Report published successfully to {report_path}.")
+
+if __name__ == "__main__":
+    try:
+        main()
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error during main execution: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+    
