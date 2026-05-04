@@ -74,11 +74,28 @@ def insert_og_tags(soup: BeautifulSoup) -> BeautifulSoup:
 
 
 def insert_css_link(soup: BeautifulSoup) -> BeautifulSoup:
+    head = soup.find("head")
+    css_list = ["./custom.css"]
+    
+    for url in css_list:
+        link = soup.new_tag("link")
+        link["rel"] = "stylesheet"
+        link["href"] = url
+        head.append(link)
+        head.append(soup.new_string("\n"))
+        
     return soup
 
-def save_soup(soup: BeautifulSoup, output_path: str):
-    with open(output_path, "w", encoding="utf-8") as f:
+
+def save_soup(soup: BeautifulSoup):
+    subdir = "marimo" 
+    # subdir = str(CONFIG["date"].year)
+    report_file_name = f"weekly_report_{CONFIG['date'].strftime('%Y%m%d')}.html"
+    report_path = f"{OUTDIR}/{subdir}/{report_file_name}"
+    with open(report_path, "w", encoding="utf-8") as f:
         f.write(str(soup))
+    print(f"Report published successfully: {report_path}")
+        
 
 def main():
     # Phase 1
@@ -94,12 +111,7 @@ def main():
     css_soup: BeautifulSoup = insert_css_link(og_soup)
     
     # Phase 5
-    subdir = "marimo" 
-    # subdir = str(CONFIG["date"].year)
-    report_file_name = f"weekly_report_{CONFIG['date'].strftime('%Y%m%d')}.html"
-    report_path = f"{OUTDIR}/{subdir}/{report_file_name}"
-    save_soup(css_soup, report_path)
-    print(f"Report published successfully to {report_path}.")
+    save_soup(css_soup)
 
 if __name__ == "__main__":
     try:
