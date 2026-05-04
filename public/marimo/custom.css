@@ -1,5 +1,25 @@
 /* カスタムCSS */
 
+* {
+  --nb-table-border: #d0d7de;
+  --nb-td-border: #d8dee4;
+  --nb-table-head-bg: #f6f8fa;
+  --nb-row-even: #f4f6fa;
+  --nb-row-hover: #e8eaf0;
+  --nb-code-border: #d0d7de;
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  * {
+    --nb-table-border: #30363d;
+    --nb-td-border: #30363d;
+    --nb-table-head-bg: #161b22;
+    --nb-row-even: #161b22;
+    --nb-row-hover: #1f2937;
+    --nb-code-border: #30363d;
+  }
+}
 
 table tbody tr:nth-child(even),
 table.dataframe tbody tr:nth-child(even) {
