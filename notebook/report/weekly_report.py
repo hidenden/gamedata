@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.4"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 
@@ -52,7 +52,7 @@ def _(datetime, g, is_publish, mo):
         return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode} {is_publish}")
 
     df_all = g.load_hard_sales()
-    return df_all, report_date, show_title
+    return df_all, report_date, report_event_mask, show_title
 
 
 @app.cell
@@ -114,27 +114,44 @@ def _(mo):
 
 
 @app.cell
-def _(alt, df_all, g, mo, report_date):
+def _(alt, df_all, g, mo, report_date, report_event_mask):
     _begin = g.report_begin(report_date)
     _end = report_date
     _weekly_df = g.date_filter(df_all, begin=_begin, end=_end)
+    _event_df = g.filter_event(g.load_hard_event(delta=True), start_date=_begin, end_date=_end, event_mask=report_event_mask)
+    _weekly_df = _weekly_df.join(_event_df, on=["report_date", "hw"], how="left")
+    # _event_pos_df = g.add_event_positions_long(_event_df, _weekly_df)
+
     _current_hw = g.get_hw(_weekly_df)
     _hw_colors = g.get_hard_colors(_current_hw)
+
     _base = alt.Chart(_weekly_df).encode(
             x='report_date:T',
             y='units:Q',
             color=alt.Color('hw:N', scale=alt.Scale(domain=_current_hw, range=_hw_colors)),
         )
 
+    _event_chart = _base.transform_filter(alt.datum.event_name != None).mark_text(
+        dy=-10, dx=10, align='center', limit=80).encode(
+            text='event_name:N',
+        )
+
     weekly_chart = mo.ui.altair_chart(
-        ((_base.mark_point() + _base.mark_line())).properties(
+        ((_base.mark_point() + _base.mark_line() + _event_chart)).properties(
             width=800,
             height=400,
             title='販売台数(週単位)'
         )
     )
-    weekly_chart
+
+    mo.vstack(items=[weekly_chart, _weekly_df])
+
     return (weekly_chart,)
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell(hide_code=True)
@@ -153,14 +170,19 @@ def _(alt, mo, weekly_chart):
             y='units:Q',
             color='hw:N',
         )
+    _zoom_text = _zoom_base.transform_filter(alt.datum.event_name != None).mark_text(
+        dy=-10, dx=10, align='center', limit=80).encode(
+            text='event_name:N',
+        )
     _zoom_chart = mo.ui.altair_chart(
-        ((_zoom_base.mark_point() + _zoom_base.mark_line())).properties(
+        ((_zoom_base.mark_point() + _zoom_base.mark_line() + _zoom_text)).properties(
             width=800,
             height=400,
             title='販売台数(週単位)[拡大]',
         )
     )
     _zoom_chart
+
     return
 
 
@@ -292,23 +314,49 @@ def _(mo):
 
 
 @app.cell
-def _(alt, datetime, df_all, g, mo):
-    from tomlkit.parser import CTRL_CHAR_LIMIT
+def _(datetime, g, pl):
+    begin_nsw = datetime(2017,3,3)
+    event_df = (g.load_hard_event()
+                            .filter(pl.col("report_date") >= begin_nsw)
+                            .filter(pl.col("priority") < 2))
+    event_df
+    return (event_df,)
+
+
+@app.cell
+def _(alt, datetime, df_all, event_df, g, mo):
     _df = g.cumulative_sales_long(df_all, begin=datetime(2017,3,3),hw=["NSW", "PS5", "NS2", "XSX"])
+    _df = _df.join(event_df, on=["report_date", "hw"], how="left")
 
     _base = alt.Chart(_df).encode(
             x='report_date:T',
             y='sum_units:Q',
             color='hw:N',
         )
-    _chart = mo.ui.altair_chart(
-        ((_base.mark_line())).properties(
+
+    _text = (_base
+        .transform_filter(alt.datum.event_name != None)
+        .mark_text(dy=-20, dx=10, align='center', limit=80, angle=300)
+        .encode(
+            text='event_name:N',
+        )
+    )
+
+    chart_cumulative = mo.ui.altair_chart(
+        ((_base.mark_line() + _text)).properties(
             width=800,
             height=400,
             title='累計販売推移'
         )
     )
-    _chart
+
+    mo.vstack(items=[chart_cumulative, _df])
+    return (chart_cumulative,)
+
+
+@app.cell
+def _(chart_cumulative):
+    chart_cumulative.value
     return
 
 
@@ -328,19 +376,35 @@ def _(alt, df_all, g, mo):
         mode="week",
         begin = 0, end=60)
 
+    _hw_list = g.get_hw(_df, by_sort=False)
+    _hw_colors = g.get_hard_colors(hw=_hw_list)
+
+    _event_df = g.load_hard_event(delta=True)
+    _df = _df.join(other=_event_df, on=["hw", "delta_week"], how="left")
+
     _base = alt.Chart(_df).encode(
             x='delta_week:Q',
             y='sum_units:Q',
-            color='hw:N',
+            color=alt.Color('hw:N', 
+                            scale=alt.Scale(domain=_hw_list, range=_hw_colors))
         )
+
+    _text = (_base
+        .transform_filter(alt.datum.event_name != None)
+        .mark_text(dy=-20, dx=10, align='center', limit=80, angle=300)
+        .encode(
+            text='event_name:N',
+        )
+    )
+
     _chart = mo.ui.altair_chart(
-        ((_base.mark_line())).properties(
+        ((_base.mark_line() + _text)).properties(
             width=800,
             height=400,
             title='累計販売推移(発売週からの経過週数で比較)'
         )
     )
-    mo.vstack(items=[_chart, _df.pivot(index="delta_week", on="hw", values="sum_units")])
+    mo.vstack(items=[_chart, _df])
     return
 
 
