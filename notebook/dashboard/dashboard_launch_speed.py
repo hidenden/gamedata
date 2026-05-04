@@ -27,7 +27,7 @@ def _(mo):
 
 @app.cell
 def _(g, mo, num):
-    _df = g.chart_reached_unit(num.value, all=True)
+    _df = g.reached_unit_summary(num.value, all=True)
     mo.vstack([num, _df])
     return
 

@@ -32,7 +32,7 @@ def _(mo):
 def _(g):
     _df_all = g.load_hard_sales()
     _df = g.extract_total(_df_all, compact = True)
-    g.style(_df, bar=True)
+    g.style_df(_df, bar=True)
 
     return
 
@@ -57,8 +57,8 @@ def _(g, mo):
 @app.cell
 def _(g, hw_widget, hwselect, rank_num):
     hw_widget
-    best_week_ranking = g.style(g.chart_weekly_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True)
-    worst_week_ranking = g.style(g.chart_weekly_ranking(rank_n=-rank_num.value, hw=hwselect.value ), bar=True)
+    best_week_ranking = g.style_df(g.weekly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True)
+    worst_week_ranking = g.style_df(g.weekly_sales_ranking(rank_n=-rank_num.value, hw=hwselect.value ), bar=True)
     return best_week_ranking, worst_week_ranking
 
 
@@ -101,8 +101,8 @@ def _(mo):
 @app.cell
 def _(g, hw_widget, hwselect, rank_num):
     hw_widget
-    best_month_ranking = g.style(g.chart_monthly_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True)
-    worst_month_ranking = g.style(g.chart_monthly_ranking(rank_n=-rank_num.value, hw=hwselect.value ), bar=True)
+    best_month_ranking = g.style_df(g.monthly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True)
+    worst_month_ranking = g.style_df(g.monthly_sales_ranking(rank_n=-rank_num.value, hw=hwselect.value ), bar=True)
     return best_month_ranking, worst_month_ranking
 
 
@@ -131,8 +131,8 @@ def _(mo):
 @app.cell
 def _(g, hw_widget, hwselect, rank_num):
     hw_widget
-    best_year_ranking = g.style(g.chart_yearly_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True)
-    worst_year_ranking = g.style(g.chart_yearly_ranking(rank_n=-rank_num.value, hw=hwselect.value ), bar=True)
+    best_year_ranking = g.style_df(g.yearly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True)
+    worst_year_ranking = g.style_df(g.yearly_sales_ranking(rank_n=-rank_num.value, hw=hwselect.value ), bar=True)
     return best_year_ranking, worst_year_ranking
 
 
@@ -167,8 +167,8 @@ def _(g):
 @app.cell
 def _(g, maker_select, maker_widget, rank_num):
     maker_widget
-    best_maker_ranking = g.style(g.chart_yearly_ranking(rank_n=rank_num.value, maker=maker_select.value), bar=True)
-    worst_maker_ranking = g.style(g.chart_yearly_ranking(rank_n=-rank_num.value, maker=maker_select.value ), bar=True)
+    best_maker_ranking = g.style_df(g.yearly_sales_ranking(rank_n=rank_num.value, maker=maker_select.value), bar=True)
+    worst_maker_ranking = g.style_df(g.yearly_sales_ranking(rank_n=-rank_num.value, maker=maker_select.value ), bar=True)
     return best_maker_ranking, worst_maker_ranking
 
 
@@ -200,7 +200,7 @@ def _(mo):
 
 @app.cell
 def _(g, mo, weeks):
-    _delta_ranking = g.style(g.chart_delta_week_ranking(weeks.value), bar=True)
+    _delta_ranking = g.style_df(g.delta_week_ranking(weeks.value), bar=True)
     mo.vstack([weeks, _delta_ranking], justify="start")
     return
 

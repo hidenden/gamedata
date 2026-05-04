@@ -129,17 +129,17 @@ from .hard_event import (
     EVENT_MASK_SHORT,
 )
 
-from .chart_hard import (
+from .hard_sales_report import (
     rename_columns,
     rename_hw,
-    chart_units_by_date_hw,
-    chart_weekly_ranking,
-    chart_monthly_ranking,
-    chart_yearly_ranking,
-    chart_delta_week_ranking,
-    chart_reached_unit,
+    units_by_date_hw_table,
+    weekly_sales_ranking,
+    monthly_sales_ranking,
+    yearly_sales_ranking,
+    delta_week_ranking,
+    reached_unit_summary,
     style_sales,
-    style,
+    style_df,
 )
 
 from .util import (
