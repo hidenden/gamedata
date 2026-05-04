@@ -1,0 +1,37 @@
+/* カスタムCSS */
+
+
+table tbody tr:nth-child(even),
+table.dataframe tbody tr:nth-child(even) {
+  background-color: var(--nb-row-even);
+}
+
+table tbody tr:hover,
+table.dataframe tbody tr:hover {
+  background-color: var(--nb-row-hover);
+}
+
+table tbody td,
+table tbody th,
+table.dataframe tbody td,
+table.dataframe tbody th {
+  padding: 0.25rem 0.75rem;  /* Changed from 0.5rem to 0.25rem for smaller vertical padding */
+  border-top: 1px solid var(--nb-td-border);
+  white-space: nowrap;
+}
+
+/* 複数レベルのインデックスを持つテーブル */
+table tbody tr th.level0 {
+  font-weight: 600;
+}
+
+/* 複数レベルのインデックスを持つテーブル */
+table tbody tr th.level1 {
+  text-align: left;
+}
+
+table tbody tr td.data {
+  text-align: right;
+  font-variant-numeric: tabular-nums; /* 等幅数字で揃える */
+}
+
