@@ -33,8 +33,8 @@ def sales_long(src_df: pl.DataFrame, hw: List[str] = [],
 
 
 def monthly_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                       begin: datetime | None = None,
-                       end: datetime | None = None) -> pl.DataFrame:
+                       begin: datetime | date| None = None,
+                       end: datetime | date | None = None) -> pl.DataFrame:
     """
     ハードウェアの月単位の販売台数をlong形式で返す。
 
@@ -64,8 +64,8 @@ def monthly_sales_long(df: pl.DataFrame, hw: List[str] = [],
 
 
 def quarterly_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                         begin: datetime | None = None,
-                         end: datetime | None = None) -> pl.DataFrame:
+                         begin: datetime | date| None = None,
+                         end: datetime | date | None = None) -> pl.DataFrame:
     """
     ハードウェアの四半期単位の販売台数をlong形式で返す。
 
@@ -90,8 +90,8 @@ def quarterly_sales_long(df: pl.DataFrame, hw: List[str] = [],
 
 
 def yearly_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                      begin: datetime | None = None,
-                      end: datetime | None = None) -> pl.DataFrame:
+                      begin: datetime | date| None = None,
+                      end: datetime | date | None = None) -> pl.DataFrame:
     """
     ハードウェアの年単位の販売台数をlong形式で返す。
 

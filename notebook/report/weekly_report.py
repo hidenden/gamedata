@@ -112,43 +112,13 @@ def _(mo):
 
 
 @app.cell
-def _(alt, df_all, g, mo, report_date, report_event_mask):
+def _(g, mo, report_date, report_event_mask):
     _begin = g.report_begin(report_date)
     _end = report_date
-    _weekly_df = g.date_filter(df_all, begin=_begin, end=_end)
-    _event_df = g.filter_event(g.load_hard_event(delta=True), start_date=_begin, end_date=_end, event_mask=report_event_mask)
-    _weekly_df = _weekly_df.join(_event_df, on=["report_date", "hw"], how="left")
-    # _event_pos_df = g.add_event_positions_long(_event_df, _weekly_df)
-
-    _current_hw = g.get_hw(_weekly_df)
-    _hw_colors = g.get_hard_colors(_current_hw)
-
-    _base = alt.Chart(_weekly_df).encode(
-            x='report_date:T',
-            y='units:Q',
-            color=alt.Color('hw:N', scale=alt.Scale(domain=_current_hw, range=_hw_colors)),
-        )
-
-    _event_chart = _base.transform_filter(alt.datum.event_name != None).mark_text(
-        dy=-10, dx=10, align='center', limit=80).encode(
-            text='event_name:N',
-        )
-
-    weekly_chart = mo.ui.altair_chart(
-        ((_base.mark_point() + _base.mark_line() + _event_chart)).properties(
-            width=800,
-            height=400,
-            title='販売台数(週単位)'
-        )
-    )
-
-    mo.vstack(items=[weekly_chart, g.style_df(_weekly_df.pivot(index="report_date", on="hw", values="units"))])
+    _chart = g.chart_sales(begin=_begin, end=_end, event_mask=report_event_mask)
+    weekly_chart = mo.ui.altair_chart(_chart)
+    weekly_chart
     return (weekly_chart,)
-
-
-@app.cell
-def _():
-    return
 
 
 @app.cell(hide_code=True)
@@ -199,8 +169,8 @@ def _(mo):
 
 
 @app.cell
-def _(datetime, df_all, g):
-    ps5_offset_df = g.sales_with_offset_long(df_all,
+def _(datetime, g, mo):
+    _offset_chart = g.chart_sales_with_offset(
       hw_periods=[
           {'hw': 'PS5', 'begin': datetime(2023,3,1)},
           {'hw': 'PS5', 'begin': datetime(2024,3,1)},
@@ -208,25 +178,10 @@ def _(datetime, df_all, g):
           {'hw': 'PS5', 'begin': datetime(2026,3,1)},
           ],
       end = 20)
-    return (ps5_offset_df,)
 
-
-@app.cell
-def _(alt, mo, ps5_offset_df):
-    _base = alt.Chart(ps5_offset_df).encode(
-            x='offset_week:T',
-            y='units:Q',
-            color='label:N',
-        )
-
-    _ps5_offset_chart = mo.ui.altair_chart(
-        ((_base.mark_point() + _base.mark_line())).properties(
-            width=800,
-            height=400,
-            title='過去週販比較'
-        )
-    )
+    _ps5_offset_chart = mo.ui.altair_chart(_offset_chart)
     _ps5_offset_chart
+
     return
 
 
@@ -239,7 +194,18 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(datetime, g, mo):
+    _offset_chart = g.chart_sales_with_offset(
+      hw_periods=[
+          {'hw': 'NSW', 'begin': datetime(2018,3,1)},
+          {'hw': 'NSW', 'begin': datetime(2019,3,1)},
+          {'hw': 'NS2', 'begin': datetime(2026,3,1)},
+          ],
+      end = 20)
+
+    _ns2_offset_chart = mo.ui.altair_chart(_offset_chart)
+    _ns2_offset_chart
+
     return
 
 
@@ -314,37 +280,16 @@ def _(datetime, g, pl):
                             .filter(pl.col("report_date") >= begin_nsw)
                             .filter(pl.col("priority") < 2))
     event_df
-    return (event_df,)
+    return
 
 
 @app.cell
-def _(alt, datetime, df_all, event_df, g, mo):
-    _df = g.cumulative_sales_long(df_all, begin=datetime(2017,3,3),hw=["NSW", "PS5", "NS2", "XSX"])
-    _df = _df.join(event_df, on=["report_date", "hw"], how="left")
-
-    _base = alt.Chart(_df).encode(
-            x='report_date:T',
-            y='sum_units:Q',
-            color='hw:N',
-        )
-
-    _text = (_base
-        .transform_filter(alt.datum.event_name != None)
-        .mark_text(dy=-20, dx=10, align='center', limit=80, angle=300)
-        .encode(
-            text='event_name:N',
-        )
-    )
-
-    chart_cumulative = mo.ui.altair_chart(
-        ((_base.mark_line() + _text)).properties(
-            width=800,
-            height=400,
-            title='累計販売推移'
-        )
-    )
-
-    mo.vstack(items=[chart_cumulative, _df])
+def _(datetime, g, mo, report_date, report_event_mask):
+    _chart = g.chart_cumulative_sales(hw=["NSW", "NS2", "PS5", "XSX"],
+        begin=datetime(2017,3,1), end=report_date,
+        event_mask=report_event_mask)
+    chart_cumulative = mo.ui.altair_chart(_chart)
+    chart_cumulative
     return (chart_cumulative,)
 
 
@@ -363,42 +308,20 @@ def _(mo):
 
 
 @app.cell
-def _(alt, df_all, g, mo):
-    _df = g.cumulative_sales_by_delta_long(
-        df_all, 
+def _(g, mo, report_event_mask):
+    _chart = g.chart_cumulative_sales_by_delta(
         hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA", "PS2", "Wii"], 
-        mode="week",
-        begin = 0, end=60)
-
-    _hw_list = g.get_hw(_df, by_sort=False)
-    _hw_colors = g.get_hard_colors(hw=_hw_list)
-
-    _event_df = g.load_hard_event(delta=True)
-    _df = _df.join(other=_event_df, on=["hw", "delta_week"], how="left")
-
-    _base = alt.Chart(_df).encode(
-            x='delta_week:Q',
-            y='sum_units:Q',
-            color=alt.Color('hw:N', 
-                            scale=alt.Scale(domain=_hw_list, range=_hw_colors))
-        )
-
-    _text = (_base
-        .transform_filter(alt.datum.event_name != None)
-        .mark_text(dy=-20, dx=10, align='center', limit=80, angle=300)
-        .encode(
-            text='event_name:N',
-        )
+        end=60,
+        event_mask=report_event_mask
     )
+    cd_chart = mo.ui.altair_chart(_chart)
+    cd_chart
+    return (cd_chart,)
 
-    _chart = mo.ui.altair_chart(
-        ((_base.mark_line() + _text)).properties(
-            width=800,
-            height=400,
-            title='累計販売推移(発売週からの経過週数で比較)'
-        )
-    )
-    mo.vstack(items=[_chart, _df])
+
+@app.cell
+def _(cd_chart):
+    cd_chart.dataframe.pivot(index="delta_week", on="hw", values="sum_units")
     return
 
 

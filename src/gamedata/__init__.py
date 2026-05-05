@@ -67,6 +67,13 @@ from .hard_sales_long import (
     maker_long,
 )
 
+from .hard_sales_chart import (
+    chart_sales,
+    chart_sales_with_offset,
+    chart_cumulative_sales,
+    chart_cumulative_sales_by_delta,
+)
+   
 from .plot_util import (
     AxisLabels,
     TickParams,
