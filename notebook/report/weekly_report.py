@@ -218,22 +218,16 @@ def _(mo):
 
 
 @app.cell
-def _(alt, datetime, df_all, g, mo, report_date):
-    _msl_df = g.monthly_sales_long(df_all, begin=datetime(2025,3,1), end=report_date,
-        hw=["NS2", "NSW", "PS5"])
-    _base = alt.Chart(_msl_df).encode(
-            x='year_month:T',
-            y='monthly_units:Q',
-            color='hw:N',
-        )
-    _msl_chart = mo.ui.altair_chart(
-        _base.mark_bar().properties(
-            width=800,
-            height=400,
-            title='月間販売推移'
-        )
-    )
-    mo.vstack(items=[_msl_chart, _msl_df.pivot(index="year_month", on="hw", values="monthly_units")])
+def _(datetime, g, mo, report_date):
+    _bar = g.chart_sales_bar(begin=datetime(2025,3,1), end=report_date, stacked=True)
+    bar_chart = mo.ui.altair_chart(_bar)
+    return (bar_chart,)
+
+
+@app.cell
+def _(bar_chart, mo):
+    mo.vstack(items=[bar_chart, bar_chart.dataframe.pivot(index="year_month", on="hw", values="monthly_units")])
+
     return
 
 
@@ -246,22 +240,11 @@ def _(mo):
 
 
 @app.cell
-def _(alt, df_all, g, mo, report_date):
+def _(g, mo, report_date):
     _begin = g.years_ago(report_date)
-    _df = g.monthly_sales_long(df_all, begin=_begin, end=report_date,   hw=["NSW"])
-    _chart = mo.ui.altair_chart(
-        alt.Chart(_df).mark_bar().encode(
-                x=alt.X('month:O', title='月'),
-                y=alt.Y('monthly_units:Q', title='販売台数'),
-                color=alt.Color('year:N', title='年'),
-                xOffset='year:N',
-            ).properties(
-                width=800,
-                height=400,
-                title='月間販売推移'
-        )
-    )
-    mo.vstack(items=[_chart, g.style_df(_df.pivot(index="month", on="year", values="monthly_units"))])
+    _end = report_date
+    _chart_bar = mo.ui.altair_chart(g.chart_hw_bar_by_year(begin=_begin, end=_end, hw="NSW"))
+    mo.vstack(items=[_chart_bar, _chart_bar.dataframe.pivot(index="month", on="year", values="monthly_units")])
     return
 
 
@@ -334,26 +317,14 @@ def _(mo):
 
 
 @app.cell
-def _(alt, df_all, g, mo, report_date):
-    _df = g.yearly_sales_long(df_all, 
-        hw=['3DS', 'WiiU','NS2', 'NSW',  'PS4', 'PS5', 'Vita', 'XSX', 'XBOne'],
-        begin=g.years_ago(report_date, 10),
-        end = report_date,)
+def _(g, mo, report_date):
+    _year_bar = mo.ui.altair_chart(g.chart_sales_bar(
+            mode="year", stacked=True,
+            begin=g.years_ago(report_date, 10), \
+            end = report_date))
 
-    _base = alt.Chart(_df).encode(
-            x='year:O',
-            y='yearly_units:Q',
-            color='hw:N',
-        )
-    _chart = mo.ui.altair_chart(
-        _base.mark_bar().properties(
-            width=800,
-            height=400,
-            title='年間販売推移'
-        )
-    )
-    _df2 = _df.pivot(index="year", on="hw", values="yearly_units").fill_null(0)
-    mo.vstack(items=[_chart, g.style_df(_df2)])
+    mo.vstack(items=[_year_bar, 
+            g.style_df(_year_bar.dataframe.pivot(index="year", on="hw", values="yearly_units"))])
     return
 
 

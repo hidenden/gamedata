@@ -23,6 +23,20 @@ def _():
 
 
 @app.cell
+def _(g):
+    df_all = g.load_hard_sales()
+
+    return (df_all,)
+
+
+@app.cell
+def _(df_all, g):
+    src_df = g.monthly_sales_long(df_all)
+    src_df.tail(10)
+    return
+
+
+@app.cell
 def _(datetime, g, mo):
     _begin = datetime(2022, 9, 1)
     _end = datetime(2026, 4, 30)

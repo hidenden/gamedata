@@ -72,6 +72,8 @@ from .hard_sales_chart import (
     chart_sales_with_offset,
     chart_cumulative_sales,
     chart_cumulative_sales_by_delta,
+    chart_sales_bar,
+    chart_hw_bar_by_year,
 )
    
 from .plot_util import (
