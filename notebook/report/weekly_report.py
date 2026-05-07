@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.5"
 app = marimo.App(width="medium")
 
 
@@ -181,7 +181,6 @@ def _(datetime, g, mo):
 
     _ps5_offset_chart = mo.ui.altair_chart(_offset_chart)
     _ps5_offset_chart
-
     return
 
 
@@ -205,7 +204,6 @@ def _(datetime, g, mo):
 
     _ns2_offset_chart = mo.ui.altair_chart(_offset_chart)
     _ns2_offset_chart
-
     return
 
 
@@ -227,7 +225,6 @@ def _(datetime, g, mo, report_date):
 @app.cell
 def _(bar_chart, mo):
     mo.vstack(items=[bar_chart, bar_chart.dataframe.pivot(index="year_month", on="hw", values="monthly_units")])
-
     return
 
 
@@ -333,6 +330,7 @@ def _(alt, df_all, g, mo, pl):
 
     _df = g.maker_long(df_all, begin_year=2016)
 
+    _MAKERS2 = ['Microsoft', 'Nintendo', 'SONY', 'SEGA']
     _MAKERS = ['Nintendo', 'SONY', 'Microsoft']
     _COLORS = ['red', 'mediumblue', 'green']
 
@@ -351,7 +349,6 @@ def _(alt, df_all, g, mo, pl):
         y=alt.Y('year:O', sort='descending', title='年'),
         x=alt.X('yearly_units:Q', stack='normalize', title='メーカーシェア'),
         color=alt.Color('maker_name:N',
-            sort=_MAKERS,
             scale=alt.Scale(domain=_MAKERS, range=_COLORS),
         ),
         order=alt.Order('mid_point:Q'),

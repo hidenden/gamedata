@@ -125,6 +125,7 @@ def get_hw(df: pl.DataFrame, by_sort:bool = True) -> List[str]:
         return (df
                 .select(["hw"])
                 .unique()
+                .sort(by="hw")
                 ).to_series(0).to_list()
         
 
