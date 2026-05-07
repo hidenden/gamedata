@@ -67,7 +67,7 @@ from .hard_sales_long import (
     maker_long,
 )
 
-from .hard_sales_chart import (
+from .chart_line import (
     chart_sales,
     chart_sales_with_offset,
     chart_cumulative_sales,
