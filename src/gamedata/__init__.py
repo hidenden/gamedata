@@ -72,6 +72,9 @@ from .chart_line import (
     chart_sales_with_offset,
     chart_cumulative_sales,
     chart_cumulative_sales_by_delta,
+)
+   
+from .chart_bar import (
     chart_sales_bar,
     chart_hw_bar_by_year,
 )
