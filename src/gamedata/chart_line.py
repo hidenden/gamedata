@@ -13,7 +13,7 @@ from . import hard_sales_long as hsl
 from . import hard_info as hi
 from . import hard_event as he
 
-def _chart_sales(
+def _chart_line_sales(
     src_df: pl.DataFrame,
     alt_x:alt.X,
     alt_y:alt.Y,
@@ -73,7 +73,7 @@ def _chart_sales(
     return chart
 
 
-def chart_sales(hw: List[str] = [], mode: str = "week",
+def chart_line_sales(hw: List[str] = [], mode: str = "week",
                 begin: datetime | date | None = None, end: datetime | date | None = None,
                 ymin: int = 0,
                 ymax: int | None = None,
@@ -130,7 +130,7 @@ def chart_sales(hw: List[str] = [], mode: str = "week",
         else:
             return df        
     # チャートの作成
-    return _chart_sales(src_df=df, 
+    return _chart_line_sales(src_df=df, 
                         alt_x=alt_x, 
                         alt_y=alt_y, 
                         ymax = ymax,
@@ -140,7 +140,7 @@ def chart_sales(hw: List[str] = [], mode: str = "week",
                         event_joinner=event_joinner)
 
 
-def chart_sales_with_offset(hw_periods: List[dict] = [], 
+def chart_line_weekly_by_hw_date(hw_periods: List[dict] = [], 
                             end:int = 52,
                             ymax:int | None=None,
                             ymin:int = 0
@@ -167,7 +167,7 @@ def chart_sales_with_offset(hw_periods: List[dict] = [],
     alt_color = alt.Color("label:N", title="機種:時期")
 
     # チャートの作成
-    return _chart_sales(src_df=src_df, 
+    return _chart_line_sales(src_df=src_df, 
                         alt_x=alt_x, 
                         alt_y=alt_y, 
                         ymax = ymax,
@@ -176,7 +176,7 @@ def chart_sales_with_offset(hw_periods: List[dict] = [],
                         color=alt_color)
 
 
-def chart_cumulative_sales(
+def chart_line_cumulative(
     hw: List[str] = [], mode: str = "week",
     begin: datetime | date | None = None, end: datetime | date | None = None,
     ymin: int = 0,
@@ -214,7 +214,7 @@ def chart_cumulative_sales(
         else:
             return df
 
-    return _chart_sales(src_df=src_df, 
+    return _chart_line_sales(src_df=src_df, 
                         alt_x=alt_x, 
                         alt_y=alt_y, 
                         ymax = None,
@@ -225,14 +225,14 @@ def chart_cumulative_sales(
                         with_point=False)
     
 
-def chart_cumulative_sales_by_delta(
+def chart_line_cumulative_delta(
     hw: List[str] = [], mode: str = "week",
     begin: int | None = None, end: int | None = None,
     ymin: int = 0,
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None
 ) -> alt.Chart:
-    """累計販売台数のチャートを作成する関数
+    """相対累計販売台数のチャートを作成する関数
     Args:
         hw: ハードウェアのリスト
         mode: "week"、"month"または"year"を指定。週単位の集計なら"week"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
@@ -245,8 +245,8 @@ def chart_cumulative_sales_by_delta(
     df_all = hs.load_hard_sales()
     src_df = hsl.cumulative_sales_by_delta_long(df_all, hw=hw, mode=mode,
                                                         begin=begin, end=end)
-    alt_y = alt.Y("sum_units:Q", title="累計販売台数")
-    title = "累計販売台数"
+    alt_y = alt.Y("sum_units:Q", title="相対累計販売台数")
+    title = "相対累計販売台数"
     if mode == "month":
         alt_x = alt.X("delta_month:Q", title="月数")
     elif mode == "year":
@@ -268,11 +268,11 @@ def chart_cumulative_sales_by_delta(
         else:
             return df
 
-    return _chart_sales(src_df=src_df, 
+    return _chart_line_sales(src_df=src_df, 
                         alt_x=alt_x, 
                         alt_y=alt_y, 
                         ymax = ymax,
                         color=alt_color,
-                        title="累計販売台数",    
+                        title="相対累計販売台数",    
                         event_joinner=event_joinner,
                         with_point=False)

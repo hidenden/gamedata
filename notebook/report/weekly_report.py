@@ -115,7 +115,7 @@ def _(mo):
 def _(g, mo, report_date, report_event_mask):
     _begin = g.report_begin(report_date)
     _end = report_date
-    _chart = g.chart_sales(begin=_begin, end=_end, event_mask=report_event_mask)
+    _chart = g.chart_line_sales(begin=_begin, end=_end, event_mask=report_event_mask)
     weekly_chart = mo.ui.altair_chart(_chart)
     weekly_chart
     return (weekly_chart,)
@@ -170,7 +170,7 @@ def _(mo):
 
 @app.cell
 def _(datetime, g, mo):
-    _offset_chart = g.chart_sales_with_offset(
+    _offset_chart = g.chart_line_weekly_by_hw_date(
       hw_periods=[
           {'hw': 'PS5', 'begin': datetime(2023,3,1)},
           {'hw': 'PS5', 'begin': datetime(2024,3,1)},
@@ -194,7 +194,7 @@ def _(mo):
 
 @app.cell
 def _(datetime, g, mo):
-    _offset_chart = g.chart_sales_with_offset(
+    _offset_chart = g.chart_line_weekly_by_hw_date(
       hw_periods=[
           {'hw': 'NSW', 'begin': datetime(2018,3,1)},
           {'hw': 'NSW', 'begin': datetime(2019,3,1)},
@@ -265,7 +265,7 @@ def _(datetime, g, pl):
 
 @app.cell
 def _(datetime, g, mo, report_date, report_event_mask):
-    _chart = g.chart_cumulative_sales(hw=["NSW", "NS2", "PS5", "XSX"],
+    _chart = g.chart_line_cumulative(hw=["NSW", "NS2", "PS5", "XSX"],
         begin=datetime(2017,3,1), end=report_date,
         event_mask=report_event_mask)
     chart_cumulative = mo.ui.altair_chart(_chart)
@@ -289,7 +289,7 @@ def _(mo):
 
 @app.cell
 def _(g, mo, report_event_mask):
-    _chart = g.chart_cumulative_sales_by_delta(
+    _chart = g.chart_line_cumulative_delta(
         hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA", "PS2", "Wii"], 
         end=60,
         event_mask=report_event_mask

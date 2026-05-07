@@ -68,10 +68,10 @@ from .hard_sales_long import (
 )
 
 from .chart_line import (
-    chart_sales,
-    chart_sales_with_offset,
-    chart_cumulative_sales,
-    chart_cumulative_sales_by_delta,
+    chart_line_sales,
+    chart_line_weekly_by_hw_date,
+    chart_line_cumulative,
+    chart_line_cumulative_delta,
 )
    
 from .chart_bar import (
