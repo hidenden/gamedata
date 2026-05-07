@@ -14,7 +14,7 @@ from . import hard_info as hi
 from . import hard_event as he
 
 
-def _chart_sales_bar(
+def _chart_bar_sales(
     src_df: pl.DataFrame,
     alt_x:alt.X,
     alt_y:alt.Y,
@@ -59,7 +59,7 @@ def _chart_sales_bar(
     return chart
 
 
-def chart_sales_bar(hw:list[str] = [], 
+def chart_bar_sales(hw:list[str] = [], 
                             begin:datetime | date | None = None, 
                             end:datetime | date | None = None,
                             mode:str = "month",
@@ -108,7 +108,7 @@ def chart_sales_bar(hw:list[str] = [],
     xoffset = 'hw:N' if not stacked else None
 
 
-    return _chart_sales_bar(
+    return _chart_bar_sales(
         src_df=src_df,
         alt_x=alt_x,
         alt_y=alt_y,
@@ -120,7 +120,7 @@ def chart_sales_bar(hw:list[str] = [],
     )
 
 
-def chart_hw_bar_by_year(hw:str, 
+def chart_bar_hwsales_by_year(hw:str, 
                             begin:datetime | date | None = None, 
                             end:datetime | date | None = None,
                             mode:str = "month",
@@ -155,7 +155,7 @@ def chart_hw_bar_by_year(hw:str,
     alt_color = alt.Color("year:O", title='年')
     xoffset = 'year:O'
     
-    return _chart_sales_bar(
+    return _chart_bar_sales(
         src_df=src_df,
         alt_x=alt_x,
         alt_y=alt_y,

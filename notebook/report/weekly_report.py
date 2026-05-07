@@ -217,7 +217,7 @@ def _(mo):
 
 @app.cell
 def _(datetime, g, mo, report_date):
-    _bar = g.chart_sales_bar(begin=datetime(2025,3,1), end=report_date, stacked=True)
+    _bar = g.chart_bar_sales(begin=datetime(2025,3,1), end=report_date, stacked=True)
     bar_chart = mo.ui.altair_chart(_bar)
     return (bar_chart,)
 
@@ -240,7 +240,7 @@ def _(mo):
 def _(g, mo, report_date):
     _begin = g.years_ago(report_date)
     _end = report_date
-    _chart_bar = mo.ui.altair_chart(g.chart_hw_bar_by_year(begin=_begin, end=_end, hw="NSW"))
+    _chart_bar = mo.ui.altair_chart(g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="NSW"))
     mo.vstack(items=[_chart_bar, _chart_bar.dataframe.pivot(index="month", on="year", values="monthly_units")])
     return
 
@@ -315,7 +315,7 @@ def _(mo):
 
 @app.cell
 def _(g, mo, report_date):
-    _year_bar = mo.ui.altair_chart(g.chart_sales_bar(
+    _year_bar = mo.ui.altair_chart(g.chart_bar_sales(
             mode="year", stacked=True,
             begin=g.years_ago(report_date, 10), \
             end = report_date))

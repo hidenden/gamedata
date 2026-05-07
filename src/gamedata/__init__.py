@@ -75,8 +75,8 @@ from .chart_line import (
 )
    
 from .chart_bar import (
-    chart_sales_bar,
-    chart_hw_bar_by_year,
+    chart_bar_sales,
+    chart_bar_hwsales_by_year,
 )
    
 from .plot_util import (
