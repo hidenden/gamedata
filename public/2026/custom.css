@@ -77,3 +77,41 @@ table tbody tr td.data {
     display: none !important;
 }
 
+/* === デスクトップは通常サイズ（変更なし） === */
+.vega-embed,
+.marimo-vega-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto;           /* どうしてもはみ出たら横スクロール */
+    overflow-y: hidden;
+}
+
+/* === スマートフォン（iPhoneなど）限定で50%縮小 === */
+@media (max-width: 768px) {
+    .vega-embed,
+    .marimo-vega-container,
+    .vega-embed > div {
+        transform: scale(0.5);           /* 横・縦ともに50%縮小 */
+        transform-origin: top left;      /* 左上基準で縮小 */
+        width: 200% !important;          /* 縮小後に元サイズの2倍幅を確保 */
+        max-width: 200% !important;
+        overflow-x: auto;                /* 縮小後もはみ出たら横スクロール可 */
+        margin-bottom: 1rem;
+    }
+
+    /* ...アイコン（actionsメニュー）の位置とサイズを調整 */
+    .vega-embed .vega-actions {
+        transform: scale(2) !important;  /* 50%縮小を打ち消して元サイズに戻す */
+        transform-origin: top right;
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        z-index: 100;
+    }
+
+    /* SVG本体の微調整 */
+    .vega-embed svg {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
