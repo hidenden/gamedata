@@ -71,6 +71,8 @@ def _chart_line_sales(
                              height=cc.CONFIG['height']).configure(autosize={"type": "pad"})
     if title is not None:
         chart = chart.properties(title=title)
+    chart = chart.configure_legend(orient="top-right")
+    chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
 
     return chart
 
