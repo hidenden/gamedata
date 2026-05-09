@@ -77,41 +77,62 @@ table tbody tr td.data {
     display: none !important;
 }
 
-/* === デスクトップは通常サイズ（変更なし） === */
+/* === 基本設定（デスクトップは変更なし）=== */
 .vega-embed,
 .marimo-vega-container {
     width: 100% !important;
     max-width: 100% !important;
-    overflow-x: auto;           /* どうしてもはみ出たら横スクロール */
+    overflow-x: auto;
     overflow-y: hidden;
 }
 
-/* === スマートフォン（iPhoneなど）限定で50%縮小 === */
+/* === スマートフォン限定でグラフ本体だけ50%縮小 === */
 @media (max-width: 768px) {
+    /* グラフ本体（SVG）の縮小 */
+    .vega-embed svg {
+        transform: scale(0.5);
+        transform-origin: top left;
+        width: 200% !important;      /* 縮小後の領域確保 */
+        height: 200% !important;
+        display: block;
+    }
+
+    /* コンテナは縮小せず、スクロール可能にする */
     .vega-embed,
     .marimo-vega-container,
     .vega-embed > div {
-        transform: scale(0.5);           /* 横・縦ともに50%縮小 */
-        transform-origin: top left;      /* 左上基準で縮小 */
-        width: 200% !important;          /* 縮小後に元サイズの2倍幅を確保 */
-        max-width: 200% !important;
-        overflow-x: auto;                /* 縮小後もはみ出たら横スクロール可 */
-        margin-bottom: 1rem;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: visible;
+        position: relative;
     }
 
-    /* ...アイコン（actionsメニュー）の位置とサイズを調整 */
-    .vega-embed .vega-actions {
-        transform: scale(2) !important;  /* 50%縮小を打ち消して元サイズに戻す */
+    /* ...アイコン（actionsメニュー）を確実に元サイズに戻す */
+    .vega-embed .vega-actions,
+    .vega-embed .vega-actions a {
+        transform: scale(2) !important;   /* 0.5の逆数 */
         transform-origin: top right;
         position: absolute !important;
-        top: 10px !important;
-        right: 10px !important;
-        z-index: 100;
+        top: 8px !important;
+        right: 8px !important;
+        z-index: 1000;
+        width: auto !important;
+        height: auto !important;
+        font-size: 16px !important;
+        padding: 4px 6px !important;
+        background: rgba(255,255,255,0.9) !important;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    /* SVG本体の微調整 */
-    .vega-embed svg {
-        width: 100% !important;
-        height: auto !important;
+    /* さらに狭い画面用（iPhone SEなど） */
+    @media (max-width: 480px) {
+        .vega-embed svg {
+            transform: scale(0.45);
+        }
+        .vega-embed .vega-actions {
+            transform: scale(2.22) !important;   /* 0.45の逆数 */
+        }
     }
 }
