@@ -26,6 +26,15 @@ table.dataframe tbody tr:nth-child(even) {
   background-color: var(--nb-row-even);
 }
 
+table.sales-table {
+  display: block;
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 table tbody tr:hover,
 table.dataframe tbody tr:hover {
   background-color: var(--nb-row-hover);
