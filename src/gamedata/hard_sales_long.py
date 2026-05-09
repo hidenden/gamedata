@@ -3,7 +3,9 @@ import polars as pl
 from typing import List
 
 # プロジェクト内モジュール
+from . import hard_sales as hs
 from . import hard_sales_filter as hsf
+from . import hard_info as hi
 
 
 def sales_long(src_df: pl.DataFrame, hw: List[str] = [],
@@ -33,8 +35,8 @@ def sales_long(src_df: pl.DataFrame, hw: List[str] = [],
 
 
 def monthly_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                       begin: datetime | None = None,
-                       end: datetime | None = None) -> pl.DataFrame:
+                       begin: datetime | date| None = None,
+                       end: datetime | date | None = None) -> pl.DataFrame:
     """
     ハードウェアの月単位の販売台数をlong形式で返す。
 
@@ -59,13 +61,15 @@ def monthly_sales_long(df: pl.DataFrame, hw: List[str] = [],
         df = df.filter(pl.col('hw').is_in(hw))
     df = df.with_columns(
         year_month=pl.date(pl.col("year"), pl.col("month"), 1).dt.month_end()
+    ).with_columns(
+        year_month_str=pl.col("year_month").dt.strftime("%Y-%m")
     )
-    return df.select(['year_month', 'year', 'month', 'hw', 'monthly_units']).sort('year_month')
+    return df.select(['year_month', 'year_month_str', 'year', 'month', 'hw', 'monthly_units']).sort('year_month')
 
 
 def quarterly_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                         begin: datetime | None = None,
-                         end: datetime | None = None) -> pl.DataFrame:
+                         begin: datetime | date| None = None,
+                         end: datetime | date | None = None) -> pl.DataFrame:
     """
     ハードウェアの四半期単位の販売台数をlong形式で返す。
 
@@ -80,18 +84,20 @@ def quarterly_sales_long(df: pl.DataFrame, hw: List[str] = [],
 
         DataFrameのカラム構成:
         - quarter (String): report_dateの四半期（例: "2024Q1"）
+        - year (Int16): 年
+        - q_num (Int8): 四半期番号（1, 2, 3, 4）
         - hw (String): ゲームハードの識別子
         - quarterly_units (Int64): 四半期販売台数
     """
     df = hsf.quarterly_sales(df, begin=begin, end=end)
     if len(hw) > 0:
         df = df.filter(pl.col('hw').is_in(hw))
-    return df.select(['quarter', 'hw', 'quarterly_units']).sort('quarter')
+    return df.select(['quarter', 'year', 'q_num', 'hw', 'quarterly_units']).sort('quarter')
 
 
 def yearly_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                      begin: datetime | None = None,
-                      end: datetime | None = None) -> pl.DataFrame:
+                      begin: datetime | date| None = None,
+                      end: datetime | date | None = None) -> pl.DataFrame:
     """
     ハードウェアの年単位の販売台数をlong形式で返す。
 
@@ -340,13 +346,18 @@ def maker_long(df: pl.DataFrame,
         - maker_name (String): メーカー名
         - yearly_units (Int64): 年次販売台数
         - yearly_percentage (Float64): 年次販売台数のシェア()
-        　（同年の全ハードウェアの年次販売台数に対する割合のパーセント）
+        （同年の全ハードウェアの年次販売台数に対する割合のパーセント）
     """
     begin = None if begin_year is None else datetime(begin_year, 1, 1)
     end = None if end_year is None else datetime(end_year, 12, 31)
     df = hsf.yearly_maker_sales(df, begin=begin, end=end)
-    # yearly_percentageを計算しカラムを追加
+
     df = df.with_columns(
-        yearly_percentage=(pl.col('yearly_units') / pl.col('yearly_units').sum().over('year')) * 100
+        yearly_ratio = (pl.col('yearly_units') / pl.col('yearly_units').sum().over('year')), 
     )
-    return df.select(['year', 'maker_name', 'yearly_units', 'yearly_percentage']).sort('year')
+    df = df.with_columns(
+        yearly_pct = pl.col('yearly_ratio')  * 100
+    )
+    maker_list = hs.get_maker(df)
+    df = df.sort(by=['year', pl.col(name='maker_name').cast(dtype=pl.Enum(categories=maker_list))])
+    return df.select(['year', 'maker_name', 'yearly_units', 'yearly_ratio', 'yearly_pct'])

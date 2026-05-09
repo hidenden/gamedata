@@ -67,6 +67,19 @@ from .hard_sales_long import (
     maker_long,
 )
 
+from .chart_line import (
+    chart_line_sales,
+    chart_line_weekly_by_hw_date,
+    chart_line_cumulative,
+    chart_line_cumulative_delta,
+)
+   
+from .chart_bar import (
+    chart_bar_sales,
+    chart_bar_hwsales_by_year,
+    chart_hbar_yearly_share_by_maker,
+)
+   
 from .plot_util import (
     AxisLabels,
     TickParams,
@@ -112,6 +125,10 @@ from .hard_info import (
     get_maker_colors,
     get_hard_names,
     get_hard_dict,
+    get_hard_order,
+    sort_hard,
+    get_maker_order,
+    sort_maker,
 )
 
 from .hard_event import (
