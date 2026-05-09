@@ -76,3 +76,27 @@ table tbody tr td.data {
 [data-testid="made-with-marimo"] {
     display: none !important;
 }
+
+/* Altair/Vegaチャートのコンテナをレスポンシブに */
+.vega-embed, 
+.vega-embed > div,
+.marimo-vega-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;   /* 横スクロール防止 */
+}
+
+/* チャート本体も確実にフィット */
+.vega-embed svg,
+.vega-embed canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+}
+
+/* iPhoneなどタッチデバイス向け */
+@media (max-width: 768px) {
+    .vega-embed {
+        padding: 0 !important;
+    }
+}
