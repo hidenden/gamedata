@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.5"
+__generated_with = "0.23.4"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -325,7 +325,6 @@ def _(report_date):
 def _():
     _chart = g.chart_hbar_yearly_share_by_maker(2015, 2026)
     share_chart = mo.ui.altair_chart(_chart)
-
     return (share_chart,)
 
 
