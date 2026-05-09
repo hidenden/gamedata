@@ -147,3 +147,47 @@ def get_hard_dict() -> dict[str, str]:
         dict[str, str]: A dictionary where keys are hardware identifiers and values are hardware names.
     """
     return HARD_NAMES
+
+HARD_ORDER = [
+    "NS2", "NSW", "WiiU", "3DS", "Wii", "DS", "GC", "GBA", "N64", "GB",
+    "PS5", "PS4", "Vita", "PS3", "PSP", "PS2", "PS",
+    "DC", "SATURN",
+    "XSX", "XBOne", "XB360", "Xbox",
+    "WS", "NeoGeoP", "PKS", 
+]
+
+MAKER_ORDER = [
+    "Nintendo", "SONY", "Microsoft", "SEGA", "BANDAI", 'SNK', 'PC'
+]
+
+def get_hard_order() -> list[str]:
+    return HARD_ORDER
+
+def sort_hard(hw:list[str]) -> list[str]:
+    """
+    ハードウェア名のリストをHARD_ORDERに基づいてソートする。
+
+    Args:
+        hw: ハードウェア名のリスト
+
+    Returns:
+        list[str]: HARD_ORDERに基づいてソートされたハードウェア名のリスト
+    """
+    order = get_hard_order()
+    return sorted(hw, key=lambda x: order.index(x) if x in order else len(order))
+
+def get_maker_order() -> list[str]:
+    return MAKER_ORDER
+
+def sort_maker(maker:list[str]) -> list[str]:
+    """
+    メーカー名のリストをMAKER_ORDERに基づいてソートする。
+
+    Args:
+        maker: メーカー名のリスト
+
+    Returns:
+        list[str]: MAKER_ORDERに基づいてソートされたメーカー名のリスト
+    """
+    order = get_maker_order()
+    return sorted(maker, key=lambda x: order.index(x) if x in order else len(order))

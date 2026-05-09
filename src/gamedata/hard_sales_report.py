@@ -13,6 +13,19 @@ from . import hard_sales as hs
 from . import hard_sales_filter as hsf
 from . import hard_sales_extract as hse
 
+# Global variables
+_styler_is_disabled:bool = False # デフォルトではStylerは有効
+
+def disable_styler(disable:bool = True):
+    """
+    スタイラーのモードを無効にする
+    
+    Args:
+        disable: スタイラーを無効にするかどうか（デフォルト: True）。
+    """
+    global _styler_is_disabled
+    _styler_is_disabled = disable
+
 def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
     """
     DataFrameの列名を日本語に変換する
@@ -62,7 +75,7 @@ def rename_hw(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|date|None = None, end:datetime|date|None = None) -> pd.io.formats.style.Styler:
+def units_by_date_hw_table(df: pl.DataFrame, begin:datetime|date|None = None, end:datetime|date|None = None) -> pd.io.formats.style.Styler:
     """
     日付とハード別の販売台数チャートを出力する
     
@@ -106,7 +119,7 @@ def chart_units_by_date_hw(df: pl.DataFrame, begin:datetime|date|None = None, en
     return styled
 
 
-def _chart_periodic_ranking(rank_n:int = 10, 
+def _build_periodic_ranking(rank_n:int = 10, 
                          begin:datetime | date | None = None, 
                          end:datetime | date | None = None,
                          hw:List[str] = [], 
@@ -178,7 +191,7 @@ def _chart_periodic_ranking(rank_n:int = 10,
     return df_src
 
 
-def chart_weekly_ranking(rank_n:int = 10, 
+def weekly_sales_ranking(rank_n:int = 10, 
                          begin:datetime | date | None = None, 
                          end:datetime | date | None = None,
                          hw:List[str] = [], 
@@ -200,13 +213,13 @@ def chart_weekly_ranking(rank_n:int = 10,
         - index: 順位（1から開始）
         - columns: 集計日 (datetime64), ハード/メーカー (string), 週間販売台数 (int64)
     """
-    return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
+    return _build_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
                                   data_source_fn=hsf.weekly_sales, 
                                   sort_column='weekly_units', 
                                   headers=['report_date'])
     
-def chart_monthly_ranking(rank_n:int = 10, 
+def monthly_sales_ranking(rank_n:int = 10, 
                          begin:datetime | date | None = None, 
                          end:datetime | date | None = None,
                          hw:List[str] = [], 
@@ -228,13 +241,13 @@ def chart_monthly_ranking(rank_n:int = 10,
         - index: 順位（1から開始）
         - columns: 年 (int64), 月 (int64), ハード/メーカー (string), 月間販売台数 (int64)
     """
-    return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
+    return _build_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
                                   data_source_fn=hsf.monthly_sales, 
                                   sort_column='monthly_units', 
                                   headers=['year', 'month'])
 
-def chart_yearly_ranking(rank_n:int = 10, 
+def yearly_sales_ranking(rank_n:int = 10, 
                          begin:datetime | date | None = None, 
                          end:datetime | date | None = None,
                          hw:List[str] = [], 
@@ -256,14 +269,14 @@ def chart_yearly_ranking(rank_n:int = 10,
         - index: 順位（1から開始）
         - columns: 年 (int64), ハード/メーカー (string), 年間販売台数 (int64)
     """
-    return _chart_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
+    return _build_periodic_ranking(rank_n=rank_n, begin=begin, end=end, 
                                   hw=hw, maker=maker, 
                                   data_source_fn=hsf.yearly_sales, 
                                   sort_column='yearly_units', 
                                   headers=['year'])
 
     
-def chart_delta_week_ranking(delta_week:int) -> pl.DataFrame:
+def delta_week_ranking(delta_week:int) -> pl.DataFrame:
     """
     指定された発売後の経過週数での累計販売台数ランキングを出力する
     
@@ -296,7 +309,7 @@ def chart_delta_week_ranking(delta_week:int) -> pl.DataFrame:
     return rename_columns(df)
 
 
-def chart_reached_unit(n:int, all:bool = False) -> pl.DataFrame:
+def reached_unit_summary(n:int, all:bool = False) -> pl.DataFrame:
     df = hs.load_hard_sales()
     df = (
         hse.extract_week_reached_units(df, n).
@@ -317,7 +330,7 @@ def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
                 gradients:List[str] | None = None,
                 gradient_horizontal:bool = False,
                 bars:List[str] | None = None,
-                bar_color:str = "#18ba06dd") -> Styler:
+                bar_color:str = "#18ba06dd") -> Styler|pl.DataFrame:
     """
     販売台数データフレームにスタイルを適用する
     
@@ -334,8 +347,11 @@ def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
         bar_color: 棒グラフの色（デフォルト: "#5fba7d"）
         
     Returns:
-        Styler: スタイルが適用されたStylerオブジェクト
+        Styler|pl.DataFrame: スタイルが適用されたStylerオブジェクトまたはDataFrame
     """
+    global _styler_is_disabled
+    if _styler_is_disabled:
+        return df
 
     first_column = df.columns[0]
     pd_df = df.to_pandas()
@@ -379,12 +395,12 @@ def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
     return styled
 
 
-def style(df: pl.DataFrame,
+def style_df(df: pl.DataFrame,
            highlight:bool = False,
            gradient:bool = False,
            bar:bool = False,
            gradient_horizontal:bool = False,
-           bar_color:str = "#18ba06dd") -> Styler:
+           bar_color:str = "#18ba06dd") -> Styler|pl.DataFrame:
     """
     DataFrameをPandasのStylerオブジェクトに変換する
     
@@ -396,8 +412,12 @@ def style(df: pl.DataFrame,
         gradient_horizontal: 行方向にグラデーションを適用するかどうか
         bar_color: 棒グラフの色
     Returns:
-        Styler: 変換されたStylerオブジェクト
+        Styler|pl.DataFrame: 変換されたStylerオブジェクトまたはDataFrame
     """
+    global _styler_is_disabled
+    if _styler_is_disabled:
+        return df
+
     # df.columns[0]の値がユニークかどうかを確認する｡ユニークはないなら､行番号のカラムを一番左側に追加する
     first_column = df.columns[0]
     all_columns = df.columns

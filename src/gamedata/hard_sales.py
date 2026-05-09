@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import polars as pl
 from typing import List
 
+from . import hard_info as hi
+
 # Polars Configuration
 (pl.Config.set_tbl_rows(30)
     .set_tbl_cols(-1)
@@ -110,16 +112,7 @@ def get_hw(df: pl.DataFrame) -> List[str]:
     Returns:
         List[str]: ハードウェア名のユニークなリスト
     """
-    return (df
-            .select([
-                pl.col('hw'),
-                pl.col('maker_name'),
-                pl.col('launch_date')
-            ])
-            .unique()
-            .sort(by=['maker_name', 'launch_date'], descending=[True, False])
-            .select([pl.col('hw'),])
-            ).to_series(0).to_list()
+    return hi.sort_hard(df.select(["hw"]).unique().to_series(0).to_list()) 
 
 
 def get_active_hw(days: int = 365) -> List[str]:
@@ -135,6 +128,7 @@ def get_active_hw(days: int = 365) -> List[str]:
     recent_df = base_df.filter(pl.col('report_date') >= one_year_ago)
     active_hw = get_hw(recent_df)
     return active_hw
+
 
 _all_hw_list = None
 def get_hw_all(true_all:bool = False) -> List[str]:
@@ -167,7 +161,7 @@ def get_maker(df: pl.DataFrame) -> List[str]:
     Returns:
         List[str]: メーカー名のユニークなリスト
     """
-    return df['maker_name'].unique().to_list()
+    return hi.sort_maker(df.select(pl.col('maker_name')).unique().to_series(0).to_list())
 
 
 def get_active_maker(days: int = 365) -> List[str]:
@@ -232,15 +226,15 @@ def add_rolling_mean(df: pl.DataFrame) -> pl.DataFrame:
 
     Returns:
         pl.DataFrame: 以下の移動平均カラムを追加した DataFrame。
-                      - ma4w  (Float64): 4週移動平均（直近4週の平均）
-                      - ma13w (Float64): 13週移動平均（直近13週の平均）
-                      - ma52w (Float64): 52週移動平均（直近52週の平均）
+                      - ma4w  (Int64): 4週移動平均（直近4週の平均を四捨五入した整数）
+                      - ma13w (Int64): 13週移動平均（直近13週の平均を四捨五入した整数）
+                      - ma52w (Int64): 52週移動平均（直近52週の平均を四捨五入した整数）
     """
     df = df.sort('weekly_id')
     return df.with_columns(
-        pl.col('units').rolling_mean(window_size=4).over('hw').alias('ma4w'),
-        pl.col('units').rolling_mean(window_size=13).over('hw').alias('ma13w'),
-        pl.col('units').rolling_mean(window_size=52).over('hw').alias('ma52w'),
+        pl.col('units').rolling_mean(window_size=4).round(0).cast(pl.Int64).over('hw').alias('ma4w'),
+        pl.col('units').rolling_mean(window_size=13).round(0).cast(pl.Int64).over('hw').alias('ma13w'),
+        pl.col('units').rolling_mean(window_size=52).round(0).cast(pl.Int64).over('hw').alias('ma52w'),
     )
 
 

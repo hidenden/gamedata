@@ -1,12 +1,12 @@
 """
-gamedata.chart_hard モジュールのテスト
+gamedata.hard_sales_report モジュールのテスト
 """
 from datetime import date, datetime
 from unittest.mock import patch, MagicMock
 import polars as pl
 import pytest
 
-from gamedata import chart_hard as ch
+from gamedata import hard_sales_report as ch
 from gamedata import hard_info as hi
 
 
@@ -66,101 +66,101 @@ class TestRenameHw:
         assert result["hw"][0] == "UNKNOWN_HW"
 
 
-class TestChartUnitsByDateHw:
-    """chart_units_by_date_hw 関数のテスト"""
+class TestUnitsByDateHwTable:
+    """units_by_date_hw_table 関数のテスト"""
 
     def test_returns_styler(self, sample_sales_df):
         from pandas.io.formats.style import Styler
-        result = ch.chart_units_by_date_hw(sample_sales_df)
+        result = ch.units_by_date_hw_table(sample_sales_df)
         assert isinstance(result, Styler)
 
     def test_with_begin_and_end(self, sample_sales_df):
         from pandas.io.formats.style import Styler
         begin = date(2020, 1, 1)
         end = date(2020, 12, 31)
-        result = ch.chart_units_by_date_hw(sample_sales_df, begin=begin, end=end)
+        result = ch.units_by_date_hw_table(sample_sales_df, begin=begin, end=end)
         assert isinstance(result, Styler)
 
 
-class TestChartPeriodicRankingFunctions:
-    """chart_weekly/monthly/yearly_ranking 関数のテスト (DB モック)"""
+class TestPeriodicRankingFunctions:
+    """weekly/monthly/yearly_sales_ranking 関数のテスト (DB モック)"""
 
     def test_chart_weekly_ranking_returns_dataframe(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_weekly_ranking(rank_n=3)
+            result = ch.weekly_sales_ranking(rank_n=3)
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_weekly_ranking_hw_filter(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_weekly_ranking(rank_n=3, hw=["NSW"])
+            result = ch.weekly_sales_ranking(rank_n=3, hw=["NSW"])
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_weekly_ranking_maker_mode(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_weekly_ranking(rank_n=3, maker=["Nintendo"])
+            result = ch.weekly_sales_ranking(rank_n=3, maker=["Nintendo"])
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_weekly_ranking_negative_rank(self, sample_sales_df):
         """rank_n が負の場合、下位ランキングが返ること"""
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_weekly_ranking(rank_n=-3)
+            result = ch.weekly_sales_ranking(rank_n=-3)
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_monthly_ranking_returns_dataframe(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_monthly_ranking(rank_n=3)
+            result = ch.monthly_sales_ranking(rank_n=3)
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_monthly_ranking_with_date_range(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_monthly_ranking(
+            result = ch.monthly_sales_ranking(
                 rank_n=3, begin=date(2020, 1, 1), end=date(2020, 12, 31)
             )
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_yearly_ranking_returns_dataframe(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_yearly_ranking(rank_n=3)
+            result = ch.yearly_sales_ranking(rank_n=3)
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_yearly_ranking_maker_mode(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_yearly_ranking(rank_n=3, maker=["Nintendo", "SONY"])
+            result = ch.yearly_sales_ranking(rank_n=3, maker=["Nintendo", "SONY"])
         assert isinstance(result, pl.DataFrame)
 
 
-class TestChartDeltaWeekRanking:
-    """chart_delta_week_ranking 関数のテスト (DB モック)"""
+class TestDeltaWeekRanking:
+    """delta_week_ranking 関数のテスト (DB モック)"""
 
     def test_returns_dataframe(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_delta_week_ranking(delta_week=10)
+            result = ch.delta_week_ranking(delta_week=10)
         assert isinstance(result, pl.DataFrame)
 
     def test_has_expected_columns(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_delta_week_ranking(delta_week=10)
+            result = ch.delta_week_ranking(delta_week=10)
         # 日本語にリネームされたカラムが含まれること
         assert "累計台数" in result.columns or result.height == 0
 
 
-class TestChartReachedUnit:
-    """chart_reached_unit 関数のテスト (DB モック)"""
+class TestReachedUnitSummary:
+    """reached_unit_summary 関数のテスト (DB モック)"""
 
     def test_returns_dataframe(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_reached_unit(50000)
+            result = ch.reached_unit_summary(50000)
         assert isinstance(result, pl.DataFrame)
 
     def test_all_parameter(self, sample_sales_df):
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_reached_unit(50000, all=True)
+            result = ch.reached_unit_summary(50000, all=True)
         assert isinstance(result, pl.DataFrame)
 
     def test_default_top_10(self, sample_sales_df):
         """all=False の場合、最大10件が返ること"""
         with patch("gamedata.hard_sales.load_hard_sales", return_value=sample_sales_df):
-            result = ch.chart_reached_unit(1, all=False)
+            result = ch.reached_unit_summary(1, all=False)
         assert result.height <= 10
 
 
@@ -244,8 +244,8 @@ class TestStyleSales:
         assert isinstance(result, Styler)
 
 
-class TestStyle:
-    """style 関数のテスト"""
+class TestStyleDf:
+    """style_df 関数のテスト"""
 
     def test_returns_styler(self):
         from pandas.io.formats.style import Styler
@@ -253,7 +253,7 @@ class TestStyle:
             "hw": ["NSW", "PS5"],
             "units": [10000, 5000],
         })
-        result = ch.style(df)
+        result = ch.style_df(df)
         assert isinstance(result, Styler)
 
     def test_with_highlight(self):
@@ -262,7 +262,7 @@ class TestStyle:
             "hw": ["NSW", "PS5"],
             "units": [10000, 5000],
         })
-        result = ch.style(df, highlight=True)
+        result = ch.style_df(df, highlight=True)
         assert isinstance(result, Styler)
 
     def test_with_gradient(self):
@@ -271,7 +271,7 @@ class TestStyle:
             "hw": ["NSW", "PS5"],
             "units": [10000, 5000],
         })
-        result = ch.style(df, gradient=True)
+        result = ch.style_df(df, gradient=True)
         assert isinstance(result, Styler)
 
     def test_with_bar(self):
@@ -280,7 +280,7 @@ class TestStyle:
             "hw": ["NSW", "PS5"],
             "units": [10000, 5000],
         })
-        result = ch.style(df, bar=True)
+        result = ch.style_df(df, bar=True)
         assert isinstance(result, Styler)
 
     def test_non_unique_first_column_adds_id(self):
@@ -290,7 +290,7 @@ class TestStyle:
             "hw": ["NSW", "NSW"],  # 重複あり
             "units": [10000, 5000],
         })
-        result = ch.style(df)
+        result = ch.style_df(df)
         assert isinstance(result, Styler)
 
     def test_date_column_as_first_column(self):
@@ -300,7 +300,7 @@ class TestStyle:
             "report_date": [date(2020, 1, 5), date(2020, 1, 12)],
             "units": [10000, 8000],
         }).with_columns(pl.col("report_date").cast(pl.Date))
-        result = ch.style(df)
+        result = ch.style_df(df)
         assert isinstance(result, Styler)
 
     def test_with_gradient_horizontal(self):
@@ -309,5 +309,5 @@ class TestStyle:
             "hw": ["NSW", "PS5"],
             "units": [10000, 5000],
         })
-        result = ch.style(df, gradient_horizontal=True)
+        result = ch.style_df(df, gradient_horizontal=True)
         assert isinstance(result, Styler)

@@ -19,6 +19,7 @@ from .hard_sales import (
     get_maker_all,
     current_report_date,
     with_units_diff,
+    add_rolling_mean,
     add_week_number,
 )
 
@@ -27,6 +28,8 @@ from .hard_sales_extract import (
     extract_by_date,
     extract_latest,
     extract_total,
+    hard_sales_summary,
+    maker_sales_summary,
 )
 
 from .hard_sales_filter import (
@@ -52,6 +55,31 @@ from .hard_sales_pivot import (
     cumsum_diffs,    
 )
 
+from .hard_sales_long import (
+    sales_long,
+    monthly_sales_long,
+    quarterly_sales_long,
+    yearly_sales_long,
+    cumulative_sales_long,
+    sales_by_delta_long,
+    sales_with_offset_long,
+    cumulative_sales_by_delta_long,
+    maker_long,
+)
+
+from .chart_line import (
+    chart_line_sales,
+    chart_line_weekly_by_hw_date,
+    chart_line_cumulative,
+    chart_line_cumulative_delta,
+)
+   
+from .chart_bar import (
+    chart_bar_sales,
+    chart_bar_hwsales_by_year,
+    chart_hbar_yearly_share_by_maker,
+)
+   
 from .plot_util import (
     AxisLabels,
     TickParams,
@@ -97,6 +125,10 @@ from .hard_info import (
     get_maker_colors,
     get_hard_names,
     get_hard_dict,
+    get_hard_order,
+    sort_hard,
+    get_maker_order,
+    sort_maker,
 )
 
 from .hard_event import (
@@ -105,24 +137,27 @@ from .hard_event import (
     delta_event,
     filter_event,
     add_event_positions,
+    add_event_positions_long,
     add_event_positions_delta,
+    add_event_positions_delta_long,
     EventMasks,
     EVENT_MASK_LONG,
     EVENT_MASK_MIDDLE,
     EVENT_MASK_SHORT,
 )
 
-from .chart_hard import (
+from .hard_sales_report import ( 
+    disable_styler,
     rename_columns,
     rename_hw,
-    chart_units_by_date_hw,
-    chart_weekly_ranking,
-    chart_monthly_ranking,
-    chart_yearly_ranking,
-    chart_delta_week_ranking,
-    chart_reached_unit,
+    units_by_date_hw_table,
+    weekly_sales_ranking,
+    monthly_sales_ranking,
+    yearly_sales_ranking,
+    delta_week_ranking,
+    reached_unit_summary,
     style_sales,
-    style,
+    style_df,
 )
 
 from .util import (
@@ -139,5 +174,5 @@ from .marimo_util import (
 )
 
 # Make commonly used functions available at package level
-__all__ = []
+# __all__ = []
 
