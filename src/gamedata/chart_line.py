@@ -23,7 +23,8 @@ def _chart_line_sales(
     ymax :int | None = None,
     title :str | None = None,
     event_joinner = lambda df: df,
-    with_point:bool = True
+    with_point:bool = True,
+    legend_orient:str = "top-right"
 ) -> alt.Chart:
     """売上のチャートを作成する関数
 
@@ -71,6 +72,8 @@ def _chart_line_sales(
                              height=cc.CONFIG['height']).configure(autosize={"type": "pad"})
     if title is not None:
         chart = chart.properties(title=title)
+    chart = chart.configure_legend(orient=legend_orient)
+    # chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
 
     return chart
 
@@ -224,7 +227,8 @@ def chart_line_cumulative(
                         color=alt_color,
                         title="累計販売台数",    
                         event_joinner=event_joinner,
-                        with_point=False)
+                        with_point=False,
+                        legend_orient="top-left")
     
 
 def chart_line_cumulative_delta(
@@ -277,4 +281,6 @@ def chart_line_cumulative_delta(
                         color=alt_color,
                         title="相対累計販売台数",    
                         event_joinner=event_joinner,
-                        with_point=False)
+                        with_point=False,
+                        legend_orient="top-left"
+                        )

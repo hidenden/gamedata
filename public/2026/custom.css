@@ -77,6 +77,12 @@ table tbody tr td.data {
     display: none !important;
 }
 
+/* Static notebook 関連のみ抑止 */
+[data-testid="static-notebook-banner"],
+[data-testid*="static-notebook"] {
+  display: none !important;
+}
+
 /* -------------------------------------------------------
    レスポンシブチャート対応
    Vega-Lite の SVG は viewBox を持つため、
