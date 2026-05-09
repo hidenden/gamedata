@@ -101,7 +101,7 @@ def chart_bar_sales(hw:list[str] = [],
         raise ValueError("modeは'month', 'quarter', または 'year'のいずれかでなければなりません")
     
         # ハードウェアごとの色を取得
-    current_hw = hs.get_hw(src_df, False)
+    current_hw = hs.get_hw(src_df)
     hw_colors = hi.get_hard_colors(current_hw)
     alt_color = alt.Color("hw:N", title='ハード',
                 scale=alt.Scale(domain=current_hw, range=hw_colors))
@@ -165,4 +165,38 @@ def chart_bar_hwsales_by_year(hw:str,
         xoffset=xoffset
     )
 
+def chart_hbar_maker_share_by_year(
+    begin:datetime | date | None = None,
+    end: datetime | date | None = None
+) -> alt.Chart:
+    _df_all = hs.load_hard_sales()
+    _df = hsl.maker_long(_df_all, begin_year=2016)
+    _df = (
+        _df
+        .with_columns(
+        ((pl.col('yearly_pct').cum_sum().over('year') - pl.col('yearly_pct') / 2) / 100)
+        .alias('mid_point'),
+        (pl.col('yearly_pct').round(1).cast(pl.String) + '%')
+        .alias('pct_label'),
+        )
+    )
+
+    maker_list = hs.get_maker(_df)
+    maker_color = hi.get_maker_colors(maker_list)
+    _base = alt.Chart(_df).encode(
+        y=alt.Y('year:O', sort='descending', title='年'),
+        x=alt.X('yearly_pct:Q', stack='normalize', title='メーカーシェア'),
+        color=alt.Color('maker_name:N', title='メーカー',
+                        scale=alt.Scale(domain=maker_list, range=maker_color)),
+        order=alt.Order('mid_point:Q'),
+    )
+
+    _bars = _base.mark_bar()
+    _text = _base.mark_text(size=12, baseline='middle').encode(
+        detail='maker_name:N',
+        color=alt.value('white'),
+        text=alt.Text('pct_label:N'),
+        x=alt.X('mid_point:Q'),
+    )
+    return (_bars + _text).properties(width=800, height=400, title='年間シェア推移')
     

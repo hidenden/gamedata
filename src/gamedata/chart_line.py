@@ -116,7 +116,7 @@ def chart_line_sales(hw: List[str] = [], mode: str = "week",
         title = "週次販売台数"
 
     # ハードウェアごとの色を取得
-    current_hw = hs.get_hw(df, False)
+    current_hw = hw if hw else hs.get_hw(df)
     hw_colors = hi.get_hard_colors(current_hw)
     alt_color = alt.Color("hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors))
 
@@ -201,7 +201,7 @@ def chart_line_cumulative(
     title = "累計販売台数"
 
     # ハードウェアごとの色を取得
-    current_hw = hs.get_hw(src_df, False)
+    current_hw = hw if hw else hs.get_hw(src_df)
     hw_colors = hi.get_hard_colors(current_hw)
     alt_color = alt.Color("hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors))
 
@@ -255,7 +255,7 @@ def chart_line_cumulative_delta(
         alt_x = alt.X("delta_week:Q", title="週数", axis=alt.Axis(grid=True, tickCount=20))
 
     # ハードウェアごとの色を取得
-    current_hw = hs.get_hw(src_df, False)
+    current_hw = hw if hw else hs.get_hw(src_df)
     hw_colors = hi.get_hard_colors(current_hw)
     alt_color = alt.Color("hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors))
 

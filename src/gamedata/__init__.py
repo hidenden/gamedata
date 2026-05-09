@@ -77,6 +77,7 @@ from .chart_line import (
 from .chart_bar import (
     chart_bar_sales,
     chart_bar_hwsales_by_year,
+    chart_hbar_maker_share_by_year,
 )
    
 from .plot_util import (
@@ -124,6 +125,10 @@ from .hard_info import (
     get_maker_colors,
     get_hard_names,
     get_hard_dict,
+    get_hard_order,
+    sort_hard,
+    get_maker_order,
+    sort_maker,
 )
 
 from .hard_event import (

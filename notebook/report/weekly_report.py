@@ -9,8 +9,7 @@ __generated_with = "0.23.5"
 app = marimo.App(width="medium")
 
 
-@app.cell
-def _():
+with app.setup:
     import marimo as mo
     import altair as alt
     # 標準ライブラリ
@@ -22,8 +21,6 @@ def _():
 
     # プロジェクト内モジュール
     import gamedata as g
-
-    return alt, datetime, g, mo, pl
 
 
 @app.cell

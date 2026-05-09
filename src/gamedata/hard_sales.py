@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import polars as pl
 from typing import List
 
+from . import hard_info as hi
+
 # Polars Configuration
 (pl.Config.set_tbl_rows(30)
     .set_tbl_cols(-1)
@@ -100,7 +102,7 @@ def current_report_date(df: pl.DataFrame) -> datetime:
     return df.select(pl.col('report_date').max()).item()
 
 
-def get_hw(df: pl.DataFrame, by_sort:bool = True) -> List[str]:
+def get_hw(df: pl.DataFrame) -> List[str]:
     """
     DataFrameからハードウェア名のユニークなリストを取得する。
     
@@ -110,24 +112,7 @@ def get_hw(df: pl.DataFrame, by_sort:bool = True) -> List[str]:
     Returns:
         List[str]: ハードウェア名のユニークなリスト
     """
-    if by_sort:
-        return (df
-            .select([
-                pl.col('hw'),
-                pl.col('maker_name'),
-                pl.col('launch_date')
-            ])
-            .unique()
-            .sort(by=['maker_name', 'launch_date'], descending=[True, False])
-            .select([pl.col('hw'),])
-            ).to_series(0).to_list()
-    else:
-        return (df
-                .select(["hw"])
-                .unique()
-                .sort(by="hw")
-                ).to_series(0).to_list()
-        
+    return hi.sort_hard(df.select(["hw"]).unique().to_series(0).to_list()) 
 
 
 def get_active_hw(days: int = 365) -> List[str]:
@@ -143,6 +128,7 @@ def get_active_hw(days: int = 365) -> List[str]:
     recent_df = base_df.filter(pl.col('report_date') >= one_year_ago)
     active_hw = get_hw(recent_df)
     return active_hw
+
 
 _all_hw_list = None
 def get_hw_all(true_all:bool = False) -> List[str]:
@@ -175,7 +161,7 @@ def get_maker(df: pl.DataFrame) -> List[str]:
     Returns:
         List[str]: メーカー名のユニークなリスト
     """
-    return df['maker_name'].unique().to_list()
+    return hi.sort_maker(df.select(pl.col('maker_name')).unique().to_series(0).to_list())
 
 
 def get_active_maker(days: int = 365) -> List[str]:

@@ -4,14 +4,12 @@ __generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 
-@app.cell
-def _():
+with app.setup:
     import marimo as mo
     import altair as alt
     # 標準ライブラリ
     from datetime import datetime, timedelta, date
     from typing import List, Optional
-
     # サードパーティライブラリ
     import polars as pl
     # import polars.selectors as cs
@@ -19,7 +17,6 @@ def _():
     # プロジェクト内モジュール
     import gamedata as g
 
-    return List, alt, date, datetime, g, mo, pl
 
 
 @app.cell

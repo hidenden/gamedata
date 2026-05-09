@@ -3,7 +3,9 @@ import polars as pl
 from typing import List
 
 # プロジェクト内モジュール
+from . import hard_sales as hs
 from . import hard_sales_filter as hsf
+from . import hard_info as hi
 
 
 def sales_long(src_df: pl.DataFrame, hw: List[str] = [],
@@ -349,8 +351,13 @@ def maker_long(df: pl.DataFrame,
     begin = None if begin_year is None else datetime(begin_year, 1, 1)
     end = None if end_year is None else datetime(end_year, 12, 31)
     df = hsf.yearly_maker_sales(df, begin=begin, end=end)
-    # yearly_percentageを計算しカラムを追加
+
     df = df.with_columns(
-        yearly_percentage=(pl.col('yearly_units') / pl.col('yearly_units').sum().over('year')) * 100
+        yearly_ratio = (pl.col('yearly_units') / pl.col('yearly_units').sum().over('year')), 
     )
-    return df.select(['year', 'maker_name', 'yearly_units', 'yearly_percentage']).sort('year')
+    df = df.with_columns(
+        yearly_pct = pl.col('yearly_ratio')  * 100
+    )
+    maker_list = hs.get_maker(df)
+    df = df.sort(by=['year', pl.col(name='maker_name').cast(dtype=pl.Enum(categories=maker_list))])
+    return df.select(['year', 'maker_name', 'yearly_units', 'yearly_ratio', 'yearly_pct'])
