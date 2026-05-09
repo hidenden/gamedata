@@ -57,6 +57,8 @@ def _chart_bar_sales(
         chart = chart.properties(title=title)
     if xoffset is not None:
         chart = chart.encode(xOffset=xoffset)
+    chart = chart.configure_legend(orient="top-right")
+    chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
     return chart
 
 
@@ -210,5 +212,6 @@ def chart_hbar_yearly_share_by_maker(
     )
     return (_bars + _text).properties(
         width=cc.CONFIG['width'], height=cc.CONFIG['height'],
-        title='年間シェア推移')
+        title='年間シェア推移',
+        usermeta={"embedOptions": {"actions": False}}).configure_legend(orient="top-right")
     
