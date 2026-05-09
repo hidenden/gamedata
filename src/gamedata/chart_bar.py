@@ -59,7 +59,7 @@ def _chart_bar_sales(
     if xoffset is not None:
         chart = chart.encode(xOffset=xoffset)
     chart = chart.configure_legend(orient=legend_orient)
-#    chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
+    chart = chart.properties(usermeta={"embedOptions": {"actions": True}})
     return chart
 
 
@@ -166,7 +166,8 @@ def chart_bar_hwsales_by_year(hw:str,
         color=alt_color,
         title=title,
         ymax=ymax,
-        xoffset=xoffset
+        xoffset=xoffset,
+        legend_orient="top-left"
     )
 
 def chart_hbar_yearly_share_by_maker(
