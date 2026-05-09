@@ -77,80 +77,33 @@ table tbody tr td.data {
     display: none !important;
 }
 
-/* Vega/Altairグラフのコンテナ */
-.vega-embed,
-.marimo-vega-container {
-    position: relative;
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: auto;
-    overflow-y: hidden;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    margin: 1.5rem 0;
-    padding: 8px 0;
-    background: #fff;
-}
-
-/* 右端に「スクロール可能」であることを示すグラデーション */
-.vega-embed::after,
-.marimo-vega-container::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 60px;                    /* グラデーションの幅 */
-    height: 100%;
-    background: linear-gradient(
-        to right,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.7) 40%,
-        rgba(255,255,255,0.95) 70%,
-        #f8fafc 100%
-    );
-    pointer-events: none;
-    z-index: 5;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-}
-
-/* スクロール可能であることをより明確に示す矢印アイコン */
-.vega-embed::before,
-.marimo-vega-container::before {
-    content: "→ 横スクロール";
-    position: absolute;
-    top: 12px;
-    right: 18px;
-    background: rgba(255, 255, 255, 0.95);
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 10px 4px 8px;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    z-index: 10;
-    pointer-events: none;
-    white-space: nowrap;
-    opacity: 0.85;
-    display: none;                  /* 最初は非表示 */
-}
-
-/* 実際に横スクロールが必要なとき（オーバーフロー時）に矢印を表示 */
-.vega-embed:hover::before,
-.marimo-vega-container:hover::before {
+/* -------------------------------------------------------
+   レスポンシブチャート対応
+   Vega-Lite の SVG は viewBox を持つため、
+   max-width: 100% + height: auto でアスペクト比を維持したまま縮小される
+------------------------------------------------------- */
+@media screen and (max-width: 900px) {
+  /* チャートのコンテナを画面幅に収める */
+  marimo-vega,
+  .vega-embed {
     display: block;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* SVG / Canvas を親コンテナ幅に縮小（縦横比維持） */
+  marimo-vega svg,
+  .vega-embed svg {
+    display: block;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  marimo-vega canvas,
+  .vega-embed canvas {
+    display: block;
+    max-width: 100% !important;
+    height: auto !important;
+  }
 }
 
-/* スクロールバーを少し目立たせる（iOS / Android対応） */
-.vega-embed::-webkit-scrollbar {
-    height: 8px;
-}
-
-.vega-embed::-webkit-scrollbar-thumb {
-    background: #94a3b8;
-    border-radius: 20px;
-}
-
-.vega-embed::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
