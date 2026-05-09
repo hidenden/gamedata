@@ -77,7 +77,7 @@ from .chart_line import (
 from .chart_bar import (
     chart_bar_sales,
     chart_bar_hwsales_by_year,
-    chart_hbar_maker_share_by_year,
+    chart_hbar_yearly_share_by_maker,
 )
    
 from .plot_util import (

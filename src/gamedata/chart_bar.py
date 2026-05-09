@@ -12,6 +12,7 @@ from . import hard_sales as hs
 from . import hard_sales_long as hsl
 from . import hard_info as hi
 from . import hard_event as he
+from . import chart_config as cc
 
 
 def _chart_bar_sales(
@@ -49,8 +50,8 @@ def _chart_bar_sales(
         color=color,
     )
     chart = base_chart.mark_bar().properties(
-        width=960, 
-        height=480)
+        width=cc.CONFIG['width'], 
+        height=cc.CONFIG['height'])
 
     if title is not None:
         chart = chart.properties(title=title)
@@ -165,12 +166,21 @@ def chart_bar_hwsales_by_year(hw:str,
         xoffset=xoffset
     )
 
-def chart_hbar_maker_share_by_year(
+def chart_hbar_yearly_share_by_maker(
     begin:datetime | date | None = None,
     end: datetime | date | None = None
 ) -> alt.Chart:
+    """メーカー別の年次シェアを100%積み上げ横棒グラフで表示する。
+
+    Args:
+        begin: 集計開始日（オプション）。
+        end: 集計終了日（オプション）。
+
+    Returns:
+        alt.Chart: 年ごとのメーカーシェアと割合ラベルを表示するチャート。
+    """
     _df_all = hs.load_hard_sales()
-    _df = hsl.maker_long(_df_all, begin_year=2016)
+    _df = hsl.maker_long(_df_all, begin_year=begin, end_year=end)
     _df = (
         _df
         .with_columns(
@@ -198,5 +208,7 @@ def chart_hbar_maker_share_by_year(
         text=alt.Text('pct_label:N'),
         x=alt.X('mid_point:Q'),
     )
-    return (_bars + _text).properties(width=800, height=400, title='年間シェア推移')
+    return (_bars + _text).properties(
+        width=cc.CONFIG['width'], height=cc.CONFIG['height'],
+        title='年間シェア推移')
     

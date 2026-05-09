@@ -12,6 +12,7 @@ from . import hard_sales as hs
 from . import hard_sales_long as hsl
 from . import hard_info as hi
 from . import hard_event as he
+from . import chart_config as cc
 
 def _chart_line_sales(
     src_df: pl.DataFrame,
@@ -66,7 +67,7 @@ def _chart_line_sales(
         ).encode(text="event_name:N")
         chart += event_chart
         
-    chart = chart.properties(width=960, height=480) 
+    chart = chart.properties(width=cc.CONFIG['width'], height=cc.CONFIG['height']) 
     if title is not None:
         chart = chart.properties(title=title)
 

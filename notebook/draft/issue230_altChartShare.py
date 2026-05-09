@@ -32,7 +32,7 @@ def _(df_all):
 
 @app.cell
 def _(df_all):
-    def chart_hbar_maker_share_by_year(
+    def chart_hbar_yearly_share_by_maker(
         begin:datetime | date | None = None,
         end: datetime | date | None = None
     ) -> alt.Chart:
@@ -73,7 +73,7 @@ def _(df_all):
 
 @app.cell
 def _():
-    c1 = g.chart_hbar_maker_share_by_year(
+    c1 = g.chart_hbar_yearly_share_by_maker(
         datetime(2016, 1, 1),
         datetime(2026, 12, 31)
     )
