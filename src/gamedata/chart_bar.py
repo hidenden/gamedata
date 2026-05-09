@@ -24,6 +24,7 @@ def _chart_bar_sales(
     ymax :int | None = None,
     title :str | None = None,
     xoffset:str | None = None,
+    legend_orient:str = "top-right"
 ) -> alt.Chart:
     """売上の棒グラフを作成する内部関数
 
@@ -57,8 +58,8 @@ def _chart_bar_sales(
         chart = chart.properties(title=title)
     if xoffset is not None:
         chart = chart.encode(xOffset=xoffset)
-    chart = chart.configure_legend(orient="top-right")
-    chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
+    chart = chart.configure_legend(orient=legend_orient)
+#    chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
     return chart
 
 
@@ -213,5 +214,11 @@ def chart_hbar_yearly_share_by_maker(
     return (_bars + _text).properties(
         width=cc.CONFIG['width'], height=cc.CONFIG['height'],
         title='年間シェア推移',
-        usermeta={"embedOptions": {"actions": False}}).configure_legend(orient="top-right")
+        ).configure_legend(
+            orient="top-left",
+            strokeColor="white",
+            padding=10,
+            fillColor="#88888880",
+            cornerRadius=5,
+            )
     
