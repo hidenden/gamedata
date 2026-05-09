@@ -75,7 +75,8 @@ def _():
 
 @app.cell
 def _(df_all, report_date):
-    g.units_by_date_hw_table(df_all, begin=g.weeks_before(report_date, 3), end=report_date)
+    _table = g.units_by_date_hw_table(df_all, begin=g.weeks_before(report_date, 3), end=report_date)
+    mo.hstack(items=[_table], justify="center", wrap=True)
     return
 
 
