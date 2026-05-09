@@ -116,6 +116,7 @@ def units_by_date_hw_table(df: pl.DataFrame, begin:datetime|date|None = None, en
         .format_index(lambda t: t.strftime('%Y-%m-%d'),  level=0, axis=0)
         .bar(subset=['販売台数'], color="#18ba06") 
         )
+    styled = styled.set_table_attributes('class="sales-table"')
     return styled
 
 
@@ -392,6 +393,7 @@ def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
     if datetime_index:
         styled = styled.format_index(lambda t: t.strftime('%Y-%m-%d'), axis=0, level=0)
     
+    styled = styled.set_table_attributes('class="sales-table"')
     return styled
 
 
