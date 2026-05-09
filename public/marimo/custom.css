@@ -55,3 +55,31 @@ table tbody tr td.data {
   font-variant-numeric: tabular-nums; /* 等幅数字で揃える */
 }
 
+/* -------------------------------------------------------
+   レスポンシブチャート対応
+   Vega-Lite の SVG は viewBox を持つため、
+   max-width: 100% + height: auto でアスペクト比を維持したまま縮小される
+------------------------------------------------------- */
+@media screen and (max-width: 900px) {
+  marimo-vega,
+  .vega-embed {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  marimo-vega svg,
+  .vega-embed svg {
+    display: block;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  marimo-vega canvas,
+  .vega-embed canvas {
+    display: block;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
