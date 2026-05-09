@@ -77,62 +77,80 @@ table tbody tr td.data {
     display: none !important;
 }
 
-/* === 基本設定（デスクトップは変更なし）=== */
+/* Vega/Altairグラフのコンテナ */
 .vega-embed,
 .marimo-vega-container {
+    position: relative;
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: auto;
     overflow-y: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    padding: 8px 0;
+    background: #fff;
 }
 
-/* === スマートフォン限定でグラフ本体だけ50%縮小 === */
-@media (max-width: 768px) {
-    /* グラフ本体（SVG）の縮小 */
-    .vega-embed svg {
-        transform: scale(0.5);
-        transform-origin: top left;
-        width: 200% !important;      /* 縮小後の領域確保 */
-        height: 200% !important;
-        display: block;
-    }
+/* 右端に「スクロール可能」であることを示すグラデーション */
+.vega-embed::after,
+.marimo-vega-container::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;                    /* グラデーションの幅 */
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.7) 40%,
+        rgba(255,255,255,0.95) 70%,
+        #f8fafc 100%
+    );
+    pointer-events: none;
+    z-index: 5;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
 
-    /* コンテナは縮小せず、スクロール可能にする */
-    .vega-embed,
-    .marimo-vega-container,
-    .vega-embed > div {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: auto !important;
-        overflow-y: visible;
-        position: relative;
-    }
+/* スクロール可能であることをより明確に示す矢印アイコン */
+.vega-embed::before,
+.marimo-vega-container::before {
+    content: "→ 横スクロール";
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px 4px 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    z-index: 10;
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: 0.85;
+    display: none;                  /* 最初は非表示 */
+}
 
-    /* ...アイコン（actionsメニュー）を確実に元サイズに戻す */
-    .vega-embed .vega-actions,
-    .vega-embed .vega-actions a {
-        transform: scale(2) !important;   /* 0.5の逆数 */
-        transform-origin: top right;
-        position: absolute !important;
-        top: 8px !important;
-        right: 8px !important;
-        z-index: 1000;
-        width: auto !important;
-        height: auto !important;
-        font-size: 16px !important;
-        padding: 4px 6px !important;
-        background: rgba(255,255,255,0.9) !important;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
+/* 実際に横スクロールが必要なとき（オーバーフロー時）に矢印を表示 */
+.vega-embed:hover::before,
+.marimo-vega-container:hover::before {
+    display: block;
+}
 
-    /* さらに狭い画面用（iPhone SEなど） */
-    @media (max-width: 480px) {
-        .vega-embed svg {
-            transform: scale(0.45);
-        }
-        .vega-embed .vega-actions {
-            transform: scale(2.22) !important;   /* 0.45の逆数 */
-        }
-    }
+/* スクロールバーを少し目立たせる（iOS / Android対応） */
+.vega-embed::-webkit-scrollbar {
+    height: 8px;
+}
+
+.vega-embed::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 20px;
+}
+
+.vega-embed::-webkit-scrollbar-track {
+    background: #f1f5f9;
 }
