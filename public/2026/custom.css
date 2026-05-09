@@ -77,8 +77,14 @@ table tbody tr td.data {
     display: none !important;
 }
 
-/* Static notebook 関連のみ抑止 */
-[data-testid="static-notebook-banner"],
+/* Static notebook などの通知を全体抑止 */
+[data-testid="glide-portal"] [role="status"],
+[data-testid="glide-portal"] [role="alert"],
+[data-testid="glide-portal"] [data-sonner-toaster],
+[data-testid="glide-portal"] [data-sonner-toast],
+[role="region"]:has(> ol[class*="z-100"]),
+ol[class*="z-100"][class*="max-h-screen"],
+ol[class*="z-100"][class*="max-h-screen"] > li,
 [data-testid*="static-notebook"] {
   display: none !important;
 }
