@@ -323,7 +323,7 @@ def _(report_date):
 
 @app.cell
 def _():
-    _chart = g.chart_hbar_yearly_share_by_maker(2016, 2026)
+    _chart = g.chart_hbar_yearly_share_by_maker(2015, 2026)
     share_chart = mo.ui.altair_chart(_chart)
 
     return (share_chart,)
