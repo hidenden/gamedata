@@ -82,6 +82,9 @@ table tbody tr td.data {
 [data-testid="glide-portal"] [role="alert"],
 [data-testid="glide-portal"] [data-sonner-toaster],
 [data-testid="glide-portal"] [data-sonner-toast],
+[role="region"]:has(> ol[class*="z-100"]),
+ol[class*="z-100"][class*="max-h-screen"],
+ol[class*="z-100"][class*="max-h-screen"] > li,
 [data-testid*="static-notebook"] {
   display: none !important;
 }
