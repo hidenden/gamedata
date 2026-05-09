@@ -68,7 +68,9 @@ def _chart_line_sales(
         chart += event_chart
         
     chart = chart.properties(width='container',
-                             height=cc.CONFIG['height']) 
+                             height=cc.CONFIG['height']).configure(
+                                 autosize={'type': 'fit', "resize": True}
+                             )
     if title is not None:
         chart = chart.properties(title=title)
 
