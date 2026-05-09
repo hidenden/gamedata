@@ -55,3 +55,15 @@ table tbody tr td.data {
   font-variant-numeric: tabular-nums; /* 等幅数字で揃える */
 }
 
+[data-testid="watermark"] {
+  display: none !important;
+}
+
+[data-testid="static-notebook-banner"] {
+    display: none !important;
+}
+
+/* 必要に応じて "Made with Marimo" なども隠す */
+[data-testid="made-with-marimo"] {
+    display: none !important;
+}
