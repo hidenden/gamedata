@@ -8,7 +8,6 @@ import marimo
 __generated_with = "0.23.5"
 app = marimo.App(width="medium")
 
-
 with app.setup:
     import marimo as mo
     import altair as alt
@@ -24,7 +23,7 @@ with app.setup:
 
 
 @app.cell
-def _(g, mo):
+def _():
     _args = mo.cli_args()
     is_publish = True if _args.get("publish") else False
     if not is_publish:
@@ -33,7 +32,7 @@ def _(g, mo):
 
 
 @app.cell
-def _(datetime, g, is_publish, mo):
+def _(is_publish):
     # レポート日付
     from report_config import get_config
 
@@ -57,7 +56,7 @@ def _(report_date, show_title):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     * ハードウェアの販売データはファミ通の調査結果を基にしています。
     * 一部のデータは処理上の都合により、週次値に調整しています｡
@@ -67,7 +66,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 直近4週間のハード売り上げ／累計推移
     """)
@@ -75,13 +74,13 @@ def _(mo):
 
 
 @app.cell
-def _(df_all, g, report_date):
+def _(df_all, report_date):
     g.units_by_date_hw_table(df_all, begin=g.weeks_before(report_date, 3), end=report_date)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     Switch2が7週間ぶりに下げ止まって増加しました｡先週から1500台増加の4万5千台です｡
     5万台前後で安定するのであれば特に問題ないでしょう｡
@@ -101,7 +100,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 週販推移
     """)
@@ -109,7 +108,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, report_date, report_event_mask):
+def _(report_date, report_event_mask):
     _begin = g.report_begin(report_date)
     _end = report_date
     _chart = g.chart_line_sales(begin=_begin, end=_end, event_mask=report_event_mask)
@@ -119,7 +118,7 @@ def _(g, mo, report_date, report_event_mask):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ### 週販推移(拡大)
     """)
@@ -127,7 +126,7 @@ def _(mo):
 
 
 @app.cell
-def _(alt, mo, weekly_chart):
+def _(weekly_chart):
     _zoom_df = weekly_chart.value
     _zoom_base = alt.Chart(_zoom_df).encode(
             x='report_date:T',
@@ -150,7 +149,7 @@ def _(alt, mo, weekly_chart):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 過去年の週販比較
     """)
@@ -158,7 +157,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ### PlayStation 5:2023年から2026年の3月1日以降
     """)
@@ -166,7 +165,7 @@ def _(mo):
 
 
 @app.cell
-def _(datetime, g, mo):
+def _():
     _offset_chart = g.chart_line_weekly_by_hw_date(
       hw_periods=[
           {'hw': 'PS5', 'begin': datetime(2023,3,1)},
@@ -182,7 +181,7 @@ def _(datetime, g, mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ### Nintendo Switch2: 2026年と, Switch 2018,2019年 3月1日以降
     """)
@@ -190,7 +189,7 @@ def _(mo):
 
 
 @app.cell
-def _(datetime, g, mo):
+def _():
     _offset_chart = g.chart_line_weekly_by_hw_date(
       hw_periods=[
           {'hw': 'NSW', 'begin': datetime(2018,3,1)},
@@ -205,7 +204,7 @@ def _(datetime, g, mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 月間販売推移
     """)
@@ -213,20 +212,20 @@ def _(mo):
 
 
 @app.cell
-def _(datetime, g, mo, report_date):
+def _(report_date):
     _bar = g.chart_bar_sales(begin=datetime(2025,3,1), end=report_date, stacked=True)
     bar_chart = mo.ui.altair_chart(_bar)
     return (bar_chart,)
 
 
 @app.cell
-def _(bar_chart, mo):
+def _(bar_chart):
     mo.vstack(items=[bar_chart, bar_chart.dataframe.pivot(index="year_month", on="hw", values="monthly_units")])
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ### Nintendo Switch:月間販売台数
     """)
@@ -234,7 +233,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, report_date):
+def _(report_date):
     _begin = g.years_ago(report_date)
     _end = report_date
     _chart_bar = mo.ui.altair_chart(g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="NSW"))
@@ -243,7 +242,7 @@ def _(g, mo, report_date):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 累計販売推移
     """)
@@ -251,7 +250,7 @@ def _(mo):
 
 
 @app.cell
-def _(datetime, g, pl):
+def _():
     begin_nsw = datetime(2017,3,3)
     event_df = (g.load_hard_event()
                             .filter(pl.col("report_date") >= begin_nsw)
@@ -261,7 +260,7 @@ def _(datetime, g, pl):
 
 
 @app.cell
-def _(datetime, g, mo, report_date, report_event_mask):
+def _(report_date, report_event_mask):
     _chart = g.chart_line_cumulative(hw=["NSW", "NS2", "PS5", "XSX"],
         begin=datetime(2017,3,1), end=report_date,
         event_mask=report_event_mask)
@@ -277,7 +276,7 @@ def _(chart_cumulative):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ### Switch2: 47週目の状況
     """)
@@ -285,7 +284,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, report_event_mask):
+def _(report_event_mask):
     _chart = g.chart_line_cumulative_delta(
         hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA", "PS2", "Wii"], 
         end=60,
@@ -303,7 +302,7 @@ def _(cd_chart):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 年単位の状況
     """)
@@ -311,7 +310,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, report_date):
+def _(report_date):
     _year_bar = mo.ui.altair_chart(g.chart_bar_sales(
             mode="year", stacked=True,
             begin=g.years_ago(report_date, 10), \
@@ -323,44 +322,21 @@ def _(g, mo, report_date):
 
 
 @app.cell
-def _(alt, df_all, g, mo, pl):
-
-    _df = g.maker_long(df_all, begin_year=2016)
-
-    _MAKERS2 = ['Microsoft', 'Nintendo', 'SONY', 'SEGA']
-    _MAKERS = ['Nintendo', 'SONY', 'Microsoft']
-    _COLORS = ['red', 'mediumblue', 'green']
-
-    _chart_df = (
-        _df
-        .sort(['year', pl.col('maker_name').cast(pl.Enum(_MAKERS))])
-        .with_columns(
-            ((pl.col('yearly_percentage').cum_sum().over('year') - pl.col('yearly_percentage') / 2) / 100)
-            .alias('mid_point'),
-            (pl.col('yearly_percentage').round(1).cast(pl.String) + '%')
-            .alias('pct_label'),
-        )
+def _():
+    _chart = g.chart_hbar_maker_share_by_year(
+        datetime(2016, 1, 1),
+        datetime(2026, 12, 31)
     )
+    share_chart = mo.ui.altair_chart(_chart)
 
-    _base = alt.Chart(_chart_df).encode(
-        y=alt.Y('year:O', sort='descending', title='年'),
-        x=alt.X('yearly_units:Q', stack='normalize', title='メーカーシェア'),
-        color=alt.Color('maker_name:N',
-            scale=alt.Scale(domain=_MAKERS, range=_COLORS),
-        ),
-        order=alt.Order('mid_point:Q'),
-    )
+    return (share_chart,)
 
-    _bars = _base.mark_bar()
-    _text = _base.mark_text(size=12, baseline='middle').encode(
-        detail='maker_name:N',
-        color=alt.value('white'),
-        text=alt.Text('pct_label:N'),
-        x=alt.X('mid_point:Q'),
-    )
 
-    _chart = mo.ui.altair_chart((_bars + _text).properties(width=800, height=400, title='年間シェア推移'))
-    mo.vstack(items=[_chart, _df])
+@app.cell
+def _(share_chart):
+    mo.vstack(items=[share_chart, 
+        g.style_df(share_chart.dataframe.pivot(index="year", on="maker_name", values="yearly_units").sort(by="year", 
+        descending=True))])
     return
 
 
