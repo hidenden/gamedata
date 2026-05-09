@@ -26,6 +26,15 @@ table.dataframe tbody tr:nth-child(even) {
   background-color: var(--nb-row-even);
 }
 
+table.sales-table {
+  display: block;
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 table tbody tr:hover,
 table.dataframe tbody tr:hover {
   background-color: var(--nb-row-hover);
@@ -55,3 +64,15 @@ table tbody tr td.data {
   font-variant-numeric: tabular-nums; /* 等幅数字で揃える */
 }
 
+[data-testid="watermark"] {
+  display: none !important;
+}
+
+[data-testid="static-notebook-banner"] {
+    display: none !important;
+}
+
+/* 必要に応じて "Made with Marimo" なども隠す */
+[data-testid="made-with-marimo"] {
+    display: none !important;
+}
