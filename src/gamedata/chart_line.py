@@ -72,7 +72,7 @@ def _chart_line_sales(
     if title is not None:
         chart = chart.properties(title=title)
     chart = chart.configure_legend(orient="top-right")
-    chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
+    # chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
 
     return chart
 
