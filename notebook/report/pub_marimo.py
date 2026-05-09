@@ -88,8 +88,8 @@ def insert_css_link(soup: BeautifulSoup) -> BeautifulSoup:
 
 
 def save_soup(soup: BeautifulSoup):
-    subdir = "marimo" 
-    # subdir = str(CONFIG["date"].year)
+    # subdir = "marimo" 
+    subdir = str(CONFIG["date"].year)
     report_file_name = f"weekly_report_{CONFIG['date'].strftime('%Y%m%d')}.html"
     report_path = f"{OUTDIR}/{subdir}/{report_file_name}"
     with open(report_path, "w", encoding="utf-8") as f:
