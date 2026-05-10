@@ -140,17 +140,13 @@ def quarterly_sales(src_df: pl.DataFrame,
     
     # quarterカラムから年と四半期番号を抽出
     quarterly_sales = (
-        df.group_by(['quarter', key_column])
+        df.group_by(['quarter', 'year', 'q_num', key_column])
         .agg(pl.col('units').sum().alias('quarterly_units'))
-        .with_columns(
-            year = pl.col('quarter').str.slice(0, 4).cast(pl.Int64),
-            q_num = pl.col('quarter').str.slice(5, 1).cast(pl.Int64)
-        )
-        .sort([key_column, 'quarter'])
+        .sort([key_column, 'year', 'q_num'])
         .with_columns(
             sum_units = pl.col('quarterly_units').cum_sum().over(key_column)
         )
-        .sort(by = ['quarter', 'quarterly_units'], descending=[False, True])
+        .sort(by=['year', 'q_num', 'quarterly_units'], descending=[False, False, True])
     )
     return quarterly_sales
 
@@ -248,4 +244,3 @@ def delta_yearly_sales(df: pl.DataFrame) -> pl.DataFrame:
         .sort(by = ['delta_year', 'yearly_units'], descending=[False, True])
     )
     return delta_yearly_sales
-

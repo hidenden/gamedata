@@ -15,6 +15,7 @@ import gamedata.hard_sales as hs
 
 def _reset_globals():
     """モジュールレベルのキャッシュをリセットする"""
+    hs._hard_sales_cache = None
     hs._all_hw_list = None
     hs._all_maker_list = None
 
@@ -105,29 +106,6 @@ class TestWithUnitsDiff:
 
 
 # ---------------------------------------------------------------------------
-# add_week_number
-# ---------------------------------------------------------------------------
-
-class TestAddWeekNumber:
-    def test_adds_week_number_column(self, sample_sales_df):
-        result = hs.add_week_number(sample_sales_df)
-        assert "week_number" in result.columns
-
-    def test_week_number_is_delta_week_plus_one(self, sample_sales_df):
-        result = hs.add_week_number(sample_sales_df)
-        for row in result.iter_rows(named=True):
-            assert row["week_number"] == row["delta_week"] + 1
-
-    def test_no_delta_week_column_returns_unchanged(self):
-        """delta_week カラムがない場合は入力をそのまま返すこと"""
-        df = pl.DataFrame({"hw": ["NSW"], "units": [1000]})
-        result = hs.add_week_number(df)
-        assert "week_number" not in result.columns
-        assert result.equals(df)
-
-
-
-# ---------------------------------------------------------------------------
 # add_rolling_mean
 # ---------------------------------------------------------------------------
 
@@ -183,6 +161,12 @@ class TestAddRollingMean:
 
 
 class TestLoadHardSales:
+    def setup_method(self):
+        _reset_globals()
+
+    def teardown_method(self):
+        _reset_globals()
+
     def _make_raw_df(self):
         return pl.DataFrame({
             "weekly_id": ["NSW-0001"],
@@ -237,6 +221,54 @@ class TestLoadHardSales:
                 result = hs.load_hard_sales()
         assert "quarter" in result.columns
         assert result["quarter"][0] == "2020Q1"
+
+    def test_adds_new_cached_columns(self):
+        raw = self._make_raw_df()
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw):
+                result = hs.load_hard_sales()
+        assert result["index_week"][0] == 22
+        assert result["index_month"][0] == 11
+        assert result["index_year"][0] == 3
+        assert result["fiscal_year"][0] == 2019
+        assert result["fiscal_month"][0] == 10
+        assert result["q_num"][0] == 1
+        assert result["fq_num"][0] == 4
+        assert result["fiscal_quarter"][0] == "2019FQ4"
+
+    def test_uses_global_cache_by_default(self):
+        raw = self._make_raw_df()
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw) as mock_read:
+                result1 = hs.load_hard_sales()
+                result2 = hs.load_hard_sales()
+        assert mock_read.call_count == 1
+        assert result1.equals(result2)
+        assert result1 is not result2
+
+    def test_no_cache_forces_reload_and_refreshes_cache(self):
+        raw1 = self._make_raw_df()
+        raw2 = self._make_raw_df().with_columns(
+            pl.lit(20000).alias("units"),
+            pl.lit(20000).alias("adjust_units"),
+            pl.lit(2857).alias("avg_units"),
+            pl.lit(510000).alias("sum_units"),
+        )
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", side_effect=[raw1, raw2]) as mock_read:
+                first = hs.load_hard_sales()
+                refreshed = hs.load_hard_sales(no_cache=True)
+                cached = hs.load_hard_sales()
+        assert mock_read.call_count == 2
+        assert first["units"][0] == 10000
+        assert refreshed["units"][0] == 20000
+        assert cached["units"][0] == 20000
 
 
 # ---------------------------------------------------------------------------

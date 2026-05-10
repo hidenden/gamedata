@@ -248,6 +248,8 @@ def hard_sales_summary(df: pl.DataFrame, hw: List[str] | None = None) -> List[Di
 
     for h in hw_list:
         hw_df = df.filter(pl.col('hw') == h).sort('report_date')
+        reached_week_col = 'index_week' if 'index_week' in hw_df.columns else 'delta_week'
+        reached_week_offset = 0 if reached_week_col == 'index_week' else 1
 
         if hw_df.is_empty():
             continue
@@ -328,7 +330,7 @@ def hard_sales_summary(df: pl.DataFrame, hw: List[str] | None = None) -> List[Di
             if reached.is_empty():
                 summary[key] = None
             else:
-                summary[key] = int(reached['delta_week'][0]) + 1
+                summary[key] = int(reached[reached_week_col][0]) + reached_week_offset
 
         result.append(summary)
 
@@ -459,4 +461,3 @@ def maker_sales_summary(df: pl.DataFrame, makers: List[str] | None = None) -> Li
         })
 
     return result
-
