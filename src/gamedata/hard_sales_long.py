@@ -6,6 +6,7 @@ from typing import List
 from . import hard_sales as hs
 from . import hard_sales_filter as hsf
 from . import hard_info as hi
+from .mode import Mode, parse_mode
 
 
 def sales_long(src_df: pl.DataFrame, hw: List[str] = [],
@@ -152,7 +153,12 @@ def cumulative_sales_long(df: pl.DataFrame, hw: List[str] = [],
     columns_name = 'full_name' if full_name else 'hw'
     long_df = df.select(['report_date', columns_name, 'sum_units']).sort('report_date')
 
-    if mode == "month":
+    try:
+        mode_enum = parse_mode(mode)
+    except ValueError:
+        mode_enum = Mode.WEEK
+
+    if mode_enum == Mode.MONTH:
         return (long_df
                 .sort('report_date')
                 .group_by_dynamic(
@@ -164,7 +170,7 @@ def cumulative_sales_long(df: pl.DataFrame, hw: List[str] = [],
                 )
                 .agg(pl.col('sum_units').last())
                 .sort('report_date'))
-    elif mode == "year":
+    elif mode_enum == Mode.YEAR:
         return (long_df
                 .sort('report_date')
                 .group_by_dynamic(
@@ -206,11 +212,12 @@ def sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
         - hw または full_name (String): ゲームハードの識別子またはフルネーム
         - units (Int64): 販売台数
     """
-    if mode == "week":
+    mode_enum = parse_mode(mode)
+    if mode_enum == Mode.WEEK:
         index_col = 'delta_week'
-    elif mode == "month":
+    elif mode_enum == Mode.MONTH:
         index_col = 'delta_month'
-    elif mode == "year":
+    elif mode_enum == Mode.YEAR:
         index_col = 'delta_year'
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
@@ -304,11 +311,12 @@ def cumulative_sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
         - hw (String): ゲームハードの識別子
         - sum_units (Int64): 累計販売台数
     """
-    if mode == "week":
+    mode_enum = parse_mode(mode)
+    if mode_enum == Mode.WEEK:
         index_col = 'delta_week'
-    elif mode == "month":
+    elif mode_enum == Mode.MONTH:
         index_col = 'delta_month'
-    elif mode == "year":
+    elif mode_enum == Mode.YEAR:
         index_col = 'delta_year'
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")

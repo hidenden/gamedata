@@ -15,6 +15,7 @@ from .hard_sales_long import (
     cumulative_sales_by_delta_long,
     maker_long,
 )
+from .mode import Mode, parse_mode
 
 def pivot_sales(src_df: pl.DataFrame, hw:List[str] = [],
                 begin: datetime | date | None = None,
@@ -174,12 +175,15 @@ def pivot_sales_by_delta(df: pl.DataFrame, mode:str = "week",
         - 各hw/full_name (Int64): ゲームハード別の販売台数
     """
     long_df = sales_by_delta_long(df, mode=mode, begin=begin, end=end, hw=hw, full_name=full_name)
-    if mode == "week":
+    mode_enum = parse_mode(mode)
+    if mode_enum == Mode.WEEK:
         index_col = 'delta_week'
-    elif mode == "month":
+    elif mode_enum == Mode.MONTH:
         index_col = 'delta_month'
-    else:  # mode == "year" (invalid modes raise ValueError in sales_by_delta_long)
+    elif mode_enum == Mode.YEAR:
         index_col = 'delta_year'
+    else:
+        raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
     on_columns = 'full_name' if full_name else 'hw'
     return (long_df
             .pivot(index=index_col, on=on_columns, values='units', aggregate_function='last')
@@ -245,12 +249,15 @@ def pivot_cumulative_sales_by_delta(df: pl.DataFrame, mode:str = "week",
         - 各hw (Int64): ゲームハード別の累計販売台数
     """
     long_df = cumulative_sales_by_delta_long(df, mode=mode, hw=hw, begin=begin, end=end)
-    if mode == "week":
+    mode_enum = parse_mode(mode)
+    if mode_enum == Mode.WEEK:
         index_col = 'delta_week'
-    elif mode == "month":
+    elif mode_enum == Mode.MONTH:
         index_col = 'delta_month'
-    else:  # mode == "year" (invalid modes raise ValueError in cumulative_sales_by_delta_long)
+    elif mode_enum == Mode.YEAR:
         index_col = 'delta_year'
+    else:
+        raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
     return (long_df
             .pivot(index=index_col, on='hw', values='sum_units', aggregate_function='last')
             .sort(by=[index_col]))

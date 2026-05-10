@@ -14,6 +14,7 @@ from . import hard_info as hi
 # プロジェクト内モジュール
 from . import hard_sales as hs
 from . import hard_sales_long as hsl
+from .mode import Mode, parse_mode
 
 
 def _chart_line_sales(
@@ -93,17 +94,22 @@ def chart_line_sales(
     # データソースの定義
     src_df: pl.DataFrame = hs.load_hard_sales()
 
-    if mode == "month":
+    try:
+        mode_enum = parse_mode(mode)
+    except ValueError:
+        mode_enum = Mode.WEEK
+
+    if mode_enum == Mode.MONTH:
         df = hsl.monthly_sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("year_month:T", title="年月")
         alt_y = alt.Y("monthly_units:Q", title="販売台数")
         title = "月次販売台数"
-    elif mode == "quarter":
+    elif mode_enum == Mode.QUARTER:
         df = hsl.quarterly_sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("quarter:O", title="四半期")
         alt_y = alt.Y("quarterly_units:Q", title="販売台数")
         title = "四半期販売台数"
-    elif mode == "year":
+    elif mode_enum == Mode.YEAR:
         df = hsl.yearly_sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("year:O", title="年")
         alt_y = alt.Y("yearly_units:Q", title="販売台数")
@@ -123,7 +129,7 @@ def chart_line_sales(
 
     # イベント結合関数の定義
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
-        if (event_mask is not None) and (mode == "week"):
+        if (event_mask is not None) and (mode_enum == Mode.WEEK):
             event_df = he.mask_event(he.load_hard_event(), event_mask)
             df_with_event = df.join(
                 other=event_df,
@@ -204,6 +210,7 @@ def chart_line_cumulative(
         alt.Chart: 累計販売台数のチャート
     """
     df_all = hs.load_hard_sales()
+    mode_enum = parse_mode(mode)
     src_df = hsl.cumulative_sales_long(df_all, hw=hw, mode=mode, begin=begin, end=end)
     alt_x = alt.X("report_date:T", title="販売年月")
     alt_y = alt.Y("sum_units:Q", title="累計販売台数")
@@ -217,7 +224,7 @@ def chart_line_cumulative(
     )
 
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
-        if (event_mask is not None) and (mode == "week"):
+        if (event_mask is not None) and (mode_enum == Mode.WEEK):
             event_df = he.mask_event(he.load_hard_event(), event_mask)
             df_with_event = df.join(
                 other=event_df,
@@ -263,14 +270,15 @@ def chart_line_cumulative_delta(
         alt.Chart: 相対累計販売台数のチャート
     """
     df_all = hs.load_hard_sales()
+    mode_enum = parse_mode(mode)
     src_df = hsl.cumulative_sales_by_delta_long(
         df_all, hw=hw, mode=mode, begin=begin, end=end
     )
     alt_y = alt.Y("sum_units:Q", title="相対累計販売台数")
     title = "相対累計販売台数"
-    if mode == "month":
+    if mode_enum == Mode.MONTH:
         alt_x = alt.X("delta_month:Q", title="月数")
-    elif mode == "year":
+    elif mode_enum == Mode.YEAR:
         alt_x = alt.X("delta_year:Q", title="年数")
     else:
         alt_x = alt.X(
@@ -285,7 +293,7 @@ def chart_line_cumulative_delta(
     )
 
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
-        if (event_mask is not None) and (mode == "week"):
+        if (event_mask is not None) and (mode_enum == Mode.WEEK):
             event_df = he.mask_event(he.load_hard_event(True), event_mask)
             df_with_event = df.join(
                 other=event_df,
