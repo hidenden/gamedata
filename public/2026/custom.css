@@ -138,6 +138,7 @@ table.sales-table {
   overflow-x:auto !important;
   overflow-y:hidden !important;
   -webkit-overflow-scrolling: touch;
+  font-size: 0.9rem;
   /* border: 1px solid var(--nb-table-border); */
 }
 
