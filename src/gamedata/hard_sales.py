@@ -20,6 +20,8 @@ from . import hard_info as hi
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
 _hard_sales_cache: pl.DataFrame | None = None
+_all_hw_list = None
+_all_maker_list = None
 
 
 def _with_derived_columns(df: pl.DataFrame) -> pl.DataFrame:
@@ -170,7 +172,6 @@ def get_active_hw(days: int = 365) -> List[str]:
     return active_hw
 
 
-_all_hw_list = None
 def get_hw_all(true_all:bool = False) -> List[str]:
     """
     データベースに存在する全てのハードウェア名のリストを取得する。
@@ -218,7 +219,6 @@ def get_active_maker(days: int = 365) -> List[str]:
     active_maker = get_maker(recent_df)
     return active_maker
 
-_all_maker_list = None
 def get_maker_all() -> List[str]:
     """
     データベースに存在する全てのメーカー名のリストを取得する。
