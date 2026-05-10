@@ -207,8 +207,10 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
             title_key = '月'
         elif mode_enum == Mode.YEAR:
             title_key = '年'
-        else:
+        elif mode_enum == Mode.WEEK:
             title_key = '週'
+        else:
+            raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
         return (df, title_key)
     
     def labeler(title_key: str) -> pu.AxisLabels:
@@ -284,10 +286,7 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
             - columns: hw (string): ゲームハードの識別子
             - values: yearly_units (int64): 年次販売台数
     """
-    try:
-        mode_enum = parse_mode(mode)
-    except ValueError:
-        mode_enum = Mode.WEEK
+    mode_enum = parse_mode(mode)
 
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
@@ -300,9 +299,11 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
         elif mode_enum == Mode.YEAR:
             df = pv.pivot_yearly_sales(df, hw=hw, begin=begin, end=end)
             title_key = '年'
-        else:
+        elif mode_enum == Mode.WEEK:
             df = pv.pivot_sales(df, hw=hw, begin=begin, end=end)
             title_key = '週'
+        else:
+            raise ValueError("modeは'week', 'month', 'quarter', 'year'のいずれかを指定してください。")
         return (df, title_key)
 
     def labeler(title_key: str) -> pu.AxisLabels:
@@ -375,8 +376,10 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
             title_key = '月'
         elif mode_enum == Mode.YEAR:
             title_key = '年'
-        else:
+        elif mode_enum == Mode.WEEK:
             title_key = '週'
+        else:
+            raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
         return (df, title_key)
     
     def labeler(title_key: str) -> pu.AxisLabels:
@@ -480,10 +483,7 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         - values: sum_units (int64): report_date時点での累計販売台数
     """
     
-    try:
-        mode_enum = parse_mode(mode)
-    except ValueError:
-        mode_enum = Mode.WEEK
+    mode_enum = parse_mode(mode)
 
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
@@ -495,7 +495,7 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         elif mode_enum == Mode.YEAR:
             title_key = '年'
         else:
-            title_key = '週'
+            raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
         return (df, title_key)
     
     def labeler(title_key: str) -> pu.AxisLabels:

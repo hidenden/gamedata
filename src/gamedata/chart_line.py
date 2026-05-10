@@ -94,10 +94,7 @@ def chart_line_sales(
     # データソースの定義
     src_df: pl.DataFrame = hs.load_hard_sales()
 
-    try:
-        mode_enum = parse_mode(mode)
-    except ValueError:
-        mode_enum = Mode.WEEK
+    mode_enum = parse_mode(mode)
 
     if mode_enum == Mode.MONTH:
         df = hsl.monthly_sales_long(src_df, hw=hw, begin=begin, end=end)
@@ -114,11 +111,13 @@ def chart_line_sales(
         alt_x = alt.X("year:O", title="年")
         alt_y = alt.Y("yearly_units:Q", title="販売台数")
         title = "年次販売台数"
-    else:
+    elif mode_enum == Mode.WEEK:
         df = hsl.sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("report_date:T", title="日付")
         alt_y = alt.Y("units:Q", title="販売台数")
         title = "週次販売台数"
+    else:
+        raise ValueError("mode must be one of week, month, quarter, year.")
 
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(df)
@@ -280,10 +279,12 @@ def chart_line_cumulative_delta(
         alt_x = alt.X("delta_month:Q", title="月数")
     elif mode_enum == Mode.YEAR:
         alt_x = alt.X("delta_year:Q", title="年数")
-    else:
+    elif mode_enum == Mode.WEEK:
         alt_x = alt.X(
             "delta_week:Q", title="週数", axis=alt.Axis(grid=True, tickCount=20)
         )
+    else:
+        raise ValueError("mode must be one of week, month, year.")
 
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(src_df)
