@@ -12,6 +12,7 @@ from . import hard_info as hi
 # プロジェクト内モジュール
 from . import hard_sales as hs
 from . import hard_sales_long as hsl
+from .mode import Mode, parse_mode
 
 
 def _chart_bar_sales(
@@ -82,7 +83,8 @@ def chart_bar_sales(
     """
     df_all = hs.load_hard_sales()
 
-    if mode == "month":
+    mode_enum = parse_mode(mode)
+    if mode_enum == Mode.MONTH:
         src_df = hsl.monthly_sales_long(df_all, hw=hw, begin=begin, end=end)
         alt_x = alt.X(
             "year_month:O",
@@ -91,12 +93,12 @@ def chart_bar_sales(
         )
         alt_y = alt.Y("monthly_units:Q", title="販売台数")
         title = "月次販売台数"
-    elif mode == "quarter":
+    elif mode_enum == Mode.QUARTER:
         src_df = hsl.quarterly_sales_long(df_all, hw=hw, begin=begin, end=end)
         alt_x = alt.X("quarter:O", title="四半期")
         alt_y = alt.Y("quarterly_units:Q", title="販売台数")
         title = "四半期販売台数"
-    elif mode == "year":
+    elif mode_enum == Mode.YEAR:
         src_df = hsl.yearly_sales_long(df_all, hw=hw, begin=begin, end=end)
         alt_x = alt.X("year:O", title="年")
         alt_y = alt.Y("yearly_units:Q", title="販売台数")
@@ -147,12 +149,13 @@ def chart_bar_hwsales_by_year(
     """
     df_all = hs.load_hard_sales()
 
-    if mode == "month":
+    mode_enum = parse_mode(mode)
+    if mode_enum == Mode.MONTH:
         src_df = hsl.monthly_sales_long(df_all, hw=[hw], begin=begin, end=end)
         alt_x = alt.X("month:O", title="月")
         alt_y = alt.Y("monthly_units:Q", title="販売台数")
         title = "月間販売推移"
-    elif mode == "quarter":
+    elif mode_enum == Mode.QUARTER:
         src_df = hsl.quarterly_sales_long(df_all, hw=[hw], begin=begin, end=end)
         alt_x = alt.X("q_num:O", title="四半期")
         alt_y = alt.Y("quarterly_units:Q", title="販売台数")

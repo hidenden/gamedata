@@ -16,6 +16,7 @@ from . import hard_sales as hs
 from . import hard_sales_pivot as pv
 from . import hard_info as hi
 from . import hard_event as he
+from .mode import Mode, parse_mode
 
 
 _BASE_SUNDAY = date(1970, 1, 4)  # 週番号1に対応する日曜日
@@ -197,15 +198,19 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         - values: sum_units (int64): その経過期間時点での累計販売台数
     """
     
+    mode_enum = parse_mode(mode)
+
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
         df = pv.pivot_cumulative_sales_by_delta(df, hw=hw, mode=mode, begin=begin, end=end)
-        if mode == "month":
+        if mode_enum == Mode.MONTH:
             title_key = '月'
-        elif mode == "year":
+        elif mode_enum == Mode.YEAR:
             title_key = '年'
-        else:
+        elif mode_enum == Mode.WEEK:
             title_key = '週'
+        else:
+            raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
         return (df, title_key)
     
     def labeler(title_key: str) -> pu.AxisLabels:
@@ -281,20 +286,24 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
             - columns: hw (string): ゲームハードの識別子
             - values: yearly_units (int64): 年次販売台数
     """
+    mode_enum = parse_mode(mode)
+
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
-        if mode == "month":
+        if mode_enum == Mode.MONTH:
             df = pv.pivot_monthly_sales(df, hw=hw, begin=begin, end=end)
             title_key = '月'
-        elif mode == "quarter":
+        elif mode_enum == Mode.QUARTER:
             df = pv.pivot_quarterly_sales(df, hw=hw, begin=begin, end=end)
             title_key = '四半期'
-        elif mode == "year":
+        elif mode_enum == Mode.YEAR:
             df = pv.pivot_yearly_sales(df, hw=hw, begin=begin, end=end)
             title_key = '年'
-        else:
+        elif mode_enum == Mode.WEEK:
             df = pv.pivot_sales(df, hw=hw, begin=begin, end=end)
             title_key = '週'
+        else:
+            raise ValueError("modeは'week', 'month', 'quarter', 'year'のいずれかを指定してください。")
         return (df, title_key)
 
     def labeler(title_key: str) -> pu.AxisLabels:
@@ -305,7 +314,7 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
             legend='ハード'
         )
 
-    if event_mask and mode == "week":
+    if event_mask and mode_enum == Mode.WEEK:
         def annotation_positioner(event_df, df): 
             return he.add_event_positions(event_df, df, event_mask=event_mask)
     else:
@@ -358,15 +367,19 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         - columns: hw (string): ゲームハードの識別子
         - values: units (int64): 販売台数
     """
+    mode_enum = parse_mode(mode)
+
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
         df = pv.pivot_sales_by_delta(df, hw=hw, mode=mode, begin=begin, end=end)
-        if mode == "month":
+        if mode_enum == Mode.MONTH:
             title_key = '月'
-        elif mode == "year":
+        elif mode_enum == Mode.YEAR:
             title_key = '年'
-        else:
+        elif mode_enum == Mode.WEEK:
             title_key = '週'
+        else:
+            raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
         return (df, title_key)
     
     def labeler(title_key: str) -> pu.AxisLabels:
@@ -377,7 +390,7 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
             legend='ハード'
         )
         
-    if event_mask and mode == "week":
+    if event_mask and mode_enum == Mode.WEEK:
         def annotation_positioner(event_df, df):
             event_df = he.delta_event(event_df, hi.load_hard_info())
             return he.add_event_positions_delta(event_df, df, event_mask=event_mask)
@@ -470,15 +483,19 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         - values: sum_units (int64): report_date時点での累計販売台数
     """
     
+    mode_enum = parse_mode(mode)
+
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
         df = pv.pivot_cumulative_sales(df, hw=hw, begin=begin, end=end, mode=mode)
-        if mode == "week":
+        if mode_enum == Mode.WEEK:
             title_key = '週'
-        elif mode == "month":
+        elif mode_enum == Mode.MONTH:
             title_key = '月'
-        elif mode == "year":
+        elif mode_enum == Mode.YEAR:
             title_key = '年'
+        else:
+            raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
         return (df, title_key)
     
     def labeler(title_key: str) -> pu.AxisLabels:
@@ -489,7 +506,7 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
             legend='ハード'
         )
 
-    if event_mask and mode == "week":
+    if event_mask and mode_enum == Mode.WEEK:
         def annotation_positioner(event_df, df):
             return he.add_event_positions(event_df, df, event_mask=event_mask)
     else:
