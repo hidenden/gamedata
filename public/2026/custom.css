@@ -1,30 +1,135 @@
 /* カスタムCSS */
 
 * {
+  /* GitHub(Primer)寄りにトーン調整 */
+  --nb-bg: #fafbfc;       /* 旧: #fafbfc */
+  --nb-fg: #1f2328;          /* 旧: #24292e */
+  --nb-muted: #656d76;       /* 旧: #6a737d */
+  --nb-link: #0969da;        /* 旧: #0366d6 */
+
+  --nb-h1: #1f2328;
+  --nb-h2: #1f2328;
+  --nb-h3: #1f2328;
+  --nb-h4: #1f2328;
+
+  --nb-h1-border: #d0d7de;   /* GitHubのborderトーン */
+  --nb-h2-border: #d8dee4;
+
   --nb-table-border: #d0d7de;
   --nb-td-border: #d8dee4;
   --nb-table-head-bg: #f6f8fa;
   --nb-row-even: #f4f6fa;
   --nb-row-hover: #e8eaf0;
   --nb-code-border: #d0d7de;
+
+  /* 追加: フォーカスリング色を変数化 */
+  --nb-focus-ring: #0969da;
+
+  color-scheme: light dark;
+
+  --nb-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-family: var(--nb-font-family);
+  line-height: 1.4;
+  /* color: var(--nb-fg); */
+  /* background-color: var(--nb-bg); */
+  /* max-width: 900px; */
+  /* margin: 0 auto; */
+  /* padding: 2rem 1rem; */
+
+  /* padding-top: 1.5rem; */
+  /* line-break: strict; */
+  /* overflow-wrap: anywhere; */
+  /* word-break: normal; */
 }
 
 /* ダークモード対応 */
 @media (prefers-color-scheme: dark) {
   * {
+    --nb-bg: #0d1117;
+    --nb-fg: #e6edf3;
+    --nb-muted: #8b949e;
+    --nb-link: #2f81f7;
+
+    --nb-h1: #e6edf3;
+    --nb-h1-border: #30363d;
+    --nb-h2: #e6edf3;
+    --nb-h2-border: #30363d;
+    --nb-h3: #e6edf3;
+    --nb-h4: #e6edf3;
+
     --nb-table-border: #30363d;
     --nb-td-border: #30363d;
     --nb-table-head-bg: #161b22;
     --nb-row-even: #161b22;
     --nb-row-hover: #1f2937;
     --nb-code-border: #30363d;
+
+    --nb-focus-ring: #2f81f7;
   }
 }
+
+/* 見出しスタイル - GitHubライクだがよりシンプルに */
+.markdown h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  font-family: var(--nb-font-family);
+  /* color: var(--nb-h1); */
+  border-bottom: 1px solid var(--nb-h1-border);
+  padding-bottom: 0.75rem;
+}
+
+.markdown h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: var(--nb-font-family);
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid var(--nb-h2-border);
+}
+
+.markdown h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-family: var(--nb-font-family);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;  
+}
+
+.markdown h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: var(--nb-font-family);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;  
+}
+
+/* テキストコンテンツ */
+
+/*
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+ul {
+  margin-bottom: 1rem;
+}
+
+li {
+  margin-bottom: 0.25rem;
+}
+*/
+
+/* データフレーム（テーブル）スタイル
+   NOTE: 横スクロールを table / table.dataframe 両方に適用（幅が小さい表は内容幅に追従） */
 
 table tbody tr:nth-child(even),
 table.dataframe tbody tr:nth-child(even) {
   background-color: var(--nb-row-even);
 }
+
 
 table.sales-table {
   display: block;
@@ -33,7 +138,25 @@ table.sales-table {
   overflow-x:auto !important;
   overflow-y:hidden !important;
   -webkit-overflow-scrolling: touch;
+  /* border: 1px solid var(--nb-table-border); */
 }
+
+
+/*
+table.sales-table {
+  width: auto;
+  max-width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  border: 1px solid var(--nb-table-border);
+  font-size: 0.9rem;
+
+  display: inline-table;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+  */
+
 
 table tbody tr:hover,
 table.dataframe tbody tr:hover {
@@ -63,6 +186,40 @@ table tbody tr td.data {
   text-align: right;
   font-variant-numeric: tabular-nums; /* 等幅数字で揃える */
 }
+
+/* ページ先頭のタイトル部分 */
+/*(
+h1:first-child {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-top: 0.5rem;
+  padding-bottom: 0.75rem;
+  color: var(--nb-h1);
+  border-bottom: 1px solid var(--nb-h1-border);
+}
+*/
+
+/* リンクスタイル（GitHub寄りの下線挙動＋フォーカスリング） */
+a {
+  color: var(--nb-link);
+  text-decoration: none;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--nb-focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+
+
+/* marimo notebook固有の定義 */
 
 [data-testid="watermark"] {
   display: none !important;
@@ -119,3 +276,23 @@ ol[class*="z-100"][class*="max-h-screen"] > li,
   }
 }
 
+/* 小さい画面での対応 */
+@media screen and (max-width: 768px) {
+  .markdown h3 {
+    font-size: 1.1rem;
+  }
+
+  .markdown h4 {
+    font-size: 0.95rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .markdown h3 {
+    font-size: 0.95rem;
+  }
+
+  .markdown h4 {
+    font-size: 0.85rem;
+  }
+}
