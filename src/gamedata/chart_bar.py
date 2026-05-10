@@ -1,30 +1,29 @@
-import altair as alt
 # 標準ライブラリ
-from datetime import datetime, date
-from typing import List
+from datetime import date, datetime
+
+import altair as alt
 
 # サードパーティライブラリ
 import polars as pl
+
+from . import hard_info as hi
 
 # プロジェクト内モジュール
 # プロジェクト内モジュール
 from . import hard_sales as hs
 from . import hard_sales_long as hsl
-from . import hard_info as hi
-from . import hard_event as he
-from . import chart_config as cc
 
 
 def _chart_bar_sales(
     src_df: pl.DataFrame,
-    alt_x:alt.X,
-    alt_y:alt.Y,
-    color:alt.Color,
+    alt_x: alt.X,
+    alt_y: alt.Y,
+    color: alt.Color,
     ymin: int = 0,
-    ymax :int | None = None,
-    title :str | None = None,
-    xoffset:str | None = None,
-    legend_orient:str = "top-right"
+    ymax: int | None = None,
+    title: str | None = None,
+    xoffset: str | None = None,
+    legend_orient: str = "top-right",
 ) -> alt.Chart:
     """売上の棒グラフを作成する内部関数
 
@@ -50,9 +49,7 @@ def _chart_bar_sales(
         y=alt_y,
         color=color,
     )
-    chart = base_chart.mark_bar().properties(
-        width=cc.CONFIG['width'], 
-        height=cc.CONFIG['height'])
+    chart = base_chart.mark_bar()
 
     if title is not None:
         chart = chart.properties(title=title)
@@ -63,14 +60,14 @@ def _chart_bar_sales(
     return chart
 
 
-def chart_bar_sales(hw:list[str] = [], 
-                            begin:datetime | date | None = None, 
-                            end:datetime | date | None = None,
-                            mode:str = "month",
-                            stacked:bool=False,
-                            ymax:int | None = None,
-
-                            ) -> alt.Chart:
+def chart_bar_sales(
+    hw: list[str] = [],
+    begin: datetime | date | None = None,
+    end: datetime | date | None = None,
+    mode: str = "month",
+    stacked: bool = False,
+    ymax: int | None = None,
+) -> alt.Chart:
     """ハード別の月次売上棒グラフを作成する関数
     Args:
         hw: ハードのリスト
@@ -87,9 +84,12 @@ def chart_bar_sales(hw:list[str] = [],
 
     if mode == "month":
         src_df = hsl.monthly_sales_long(df_all, hw=hw, begin=begin, end=end)
-        alt_x = alt.X('year_month:O', title='年月',
-                axis=alt.Axis(format="%Y-%m", formatType='time'))
-        alt_y = alt.Y('monthly_units:Q', title='販売台数')
+        alt_x = alt.X(
+            "year_month:O",
+            title="年月",
+            axis=alt.Axis(format="%Y-%m", formatType="time"),
+        )
+        alt_y = alt.Y("monthly_units:Q", title="販売台数")
         title = "月次販売台数"
     elif mode == "quarter":
         src_df = hsl.quarterly_sales_long(df_all, hw=hw, begin=begin, end=end)
@@ -102,15 +102,17 @@ def chart_bar_sales(hw:list[str] = [],
         alt_y = alt.Y("yearly_units:Q", title="販売台数")
         title = "年次販売台数"
     else:
-        raise ValueError("modeは'month', 'quarter', または 'year'のいずれかでなければなりません")
-    
+        raise ValueError(
+            "modeは'month', 'quarter', または 'year'のいずれかでなければなりません"
+        )
+
         # ハードウェアごとの色を取得
     current_hw = hs.get_hw(src_df)
     hw_colors = hi.get_hard_colors(current_hw)
-    alt_color = alt.Color("hw:N", title='ハード',
-                scale=alt.Scale(domain=current_hw, range=hw_colors))
-    xoffset = 'hw:N' if not stacked else None
-
+    alt_color = alt.Color(
+        "hw:N", title="ハード", scale=alt.Scale(domain=current_hw, range=hw_colors)
+    )
+    xoffset = "hw:N" if not stacked else None
 
     return _chart_bar_sales(
         src_df=src_df,
@@ -120,15 +122,17 @@ def chart_bar_sales(hw:list[str] = [],
         title=title,
         ymax=ymax,
         ymin=0,
-        xoffset=xoffset
+        xoffset=xoffset,
     )
 
 
-def chart_bar_hwsales_by_year(hw:str, 
-                            begin:datetime | date | None = None, 
-                            end:datetime | date | None = None,
-                            mode:str = "month",
-                            ymax:int | None = None) -> alt.Chart:
+def chart_bar_hwsales_by_year(
+    hw: str,
+    begin: datetime | date | None = None,
+    end: datetime | date | None = None,
+    mode: str = "month",
+    ymax: int | None = None,
+) -> alt.Chart:
     """
     指定したハードウェアの月間販売台数を年別に棒グラフで表示する
 
@@ -145,8 +149,8 @@ def chart_bar_hwsales_by_year(hw:str,
 
     if mode == "month":
         src_df = hsl.monthly_sales_long(df_all, hw=[hw], begin=begin, end=end)
-        alt_x = alt.X('month:O', title='月')
-        alt_y = alt.Y('monthly_units:Q', title='販売台数')
+        alt_x = alt.X("month:O", title="月")
+        alt_y = alt.Y("monthly_units:Q", title="販売台数")
         title = "月間販売推移"
     elif mode == "quarter":
         src_df = hsl.quarterly_sales_long(df_all, hw=[hw], begin=begin, end=end)
@@ -156,9 +160,9 @@ def chart_bar_hwsales_by_year(hw:str,
     else:
         raise ValueError("modeは'month'または'quarter'のいずれかでなければなりません")
 
-    alt_color = alt.Color("year:O", title='年')
-    xoffset = 'year:O'
-    
+    alt_color = alt.Color("year:O", title="年")
+    xoffset = "year:O"
+
     return _chart_bar_sales(
         src_df=src_df,
         alt_x=alt_x,
@@ -167,12 +171,12 @@ def chart_bar_hwsales_by_year(hw:str,
         title=title,
         ymax=ymax,
         xoffset=xoffset,
-        legend_orient="top-left"
+        legend_orient="top-left",
     )
 
+
 def chart_hbar_yearly_share_by_maker(
-    begin:datetime | date | None = None,
-    end: datetime | date | None = None
+    begin: datetime | date | None = None, end: datetime | date | None = None
 ) -> alt.Chart:
     """メーカー別の年次シェアを100%積み上げ横棒グラフで表示する。
 
@@ -185,41 +189,44 @@ def chart_hbar_yearly_share_by_maker(
     """
     _df_all = hs.load_hard_sales()
     _df = hsl.maker_long(_df_all, begin_year=begin, end_year=end)
-    _df = (
-        _df
-        .with_columns(
-        ((pl.col('yearly_pct').cum_sum().over('year') - pl.col('yearly_pct') / 2) / 100)
-        .alias('mid_point'),
-        (pl.col('yearly_pct').round(1).cast(pl.String) + '%')
-        .alias('pct_label'),
-        )
+    _df = _df.with_columns(
+        (
+            (pl.col("yearly_pct").cum_sum().over("year") - pl.col("yearly_pct") / 2)
+            / 100
+        ).alias("mid_point"),
+        (pl.col("yearly_pct").round(1).cast(pl.String) + "%").alias("pct_label"),
     )
 
     maker_list = hs.get_maker(_df)
     maker_color = hi.get_maker_colors(maker_list)
     _base = alt.Chart(_df).encode(
-        y=alt.Y('year:O', sort='descending', title='年'),
-        x=alt.X('yearly_pct:Q', stack='normalize', title='メーカーシェア'),
-        color=alt.Color('maker_name:N', title='メーカー',
-                        scale=alt.Scale(domain=maker_list, range=maker_color)),
-        order=alt.Order('mid_point:Q'),
+        y=alt.Y("year:O", sort="descending", title="年"),
+        x=alt.X("yearly_pct:Q", stack="normalize", title="シェア(%)"),
+        color=alt.Color(
+            "maker_name:N",
+            title="メーカー",
+            scale=alt.Scale(domain=maker_list, range=maker_color),
+        ),
+        order=alt.Order("mid_point:Q"),
     )
 
     _bars = _base.mark_bar()
-    _text = _base.mark_text(size=12, baseline='middle').encode(
-        detail='maker_name:N',
-        color=alt.value('white'),
-        text=alt.Text('pct_label:N'),
-        x=alt.X('mid_point:Q'),
+    _text = _base.mark_text(size=12, baseline="middle").encode(
+        detail="maker_name:N",
+        color=alt.value("white"),
+        text=alt.Text("pct_label:N"),
+        x=alt.X("mid_point:Q"),
     )
-    return (_bars + _text).properties(
-        width=cc.CONFIG['width'], height=cc.CONFIG['height'],
-        title='年間シェア推移',
-        ).configure_legend(
+    return (
+        (_bars + _text)
+        .properties(
+            title="メーカーシェア",
+        )
+        .configure_legend(
             orient="top-left",
             strokeColor="white",
             padding=10,
             fillColor="#88888880",
             cornerRadius=5,
-            )
-    
+        )
+    )
