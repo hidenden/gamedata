@@ -19,12 +19,56 @@ from . import hard_info as hi
 )
 
 DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
+_hard_sales_cache: pl.DataFrame | None = None
 
-def load_hard_sales() -> pl.DataFrame:
+
+def _with_derived_columns(df: pl.DataFrame) -> pl.DataFrame:
+    return df.with_columns(
+        pl.col('begin_date').str.to_date(),
+        pl.col('report_date').str.to_date(),
+        pl.col('end_date').str.to_date(),
+        pl.col('launch_date').str.to_date(),
+        pl.col('period_date').cast(pl.Int16),
+        pl.col('year').cast(pl.Int16),
+        pl.col('month').cast(pl.Int16),
+        pl.col('mday').cast(pl.Int16),
+        pl.col('week').cast(pl.Int16),
+        pl.col('delta_day').cast(pl.Int32),
+        pl.col('delta_week').cast(pl.Int32),
+        pl.col('delta_month').cast(pl.Int16),
+        pl.col('delta_year').cast(pl.Int16),
+    ).with_columns(
+        q_num=pl.col('report_date').dt.quarter().cast(pl.Int8),
+        fiscal_year=pl.when(pl.col('month') <= 3)
+        .then(pl.col('year') - 1)
+        .otherwise(pl.col('year'))
+        .cast(pl.Int16),
+        fiscal_month=(((pl.col('month') + 8) % 12) + 1).cast(pl.Int8),
+        index_week=(pl.col('delta_week') + 1).cast(pl.Int32),
+        index_month=(pl.col('delta_month') + 1).cast(pl.Int16),
+        index_year=(pl.col('delta_year') + 1).cast(pl.Int16),
+    ).with_columns(
+        fq_num=((pl.col('fiscal_month') - 1) // 3 + 1).cast(pl.Int8),
+        quarter=(
+            pl.col('year').cast(pl.Utf8) + "Q" + pl.col('q_num').cast(pl.Utf8)
+        ),
+    ).with_columns(
+        fiscal_quarter=(
+            pl.col('fiscal_year').cast(pl.Utf8)
+            + "FQ"
+            + pl.col('fq_num').cast(pl.Utf8)
+        ),
+    ).sort('weekly_id')
+
+
+def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
     """
     sqlite3を使用してデータベースからハードウェア販売データを読み込む関数。
     日付関係のカラムをdate型に変換し、整数カラムを適切なサイズにキャストして返す。
-    
+
+    Args:
+        no_cache: Trueの場合はグローバルキャッシュを破棄し、DBから再読み込みする。
+
     Returns:
         pl.DataFrame: ハードウェア販売データのDataFrame。
                       日付カラムはDate型、整数カラムは最適なサイズに変換済み。
@@ -47,12 +91,29 @@ def load_hard_sales() -> pl.DataFrame:
         - delta_week (Int32): 発売日から何週間後か
         - delta_month (Int16): 発売日から何ヶ月後か
         - delta_year (Int16): 発売年から何年後か(同じ年なら0)
+        - index_week (Int32): 発売から何週目か（1始まり）
+        - index_month (Int16): 発売から何ヶ月目か（1始まり）
+        - index_year (Int16): 発売から何年目か（1始まり）
+        - fiscal_year (Int16): 4月始まりの会計年度
+        - fiscal_month (Int8): 4月を1とする会計月
+        - q_num (Int8): report_dateの四半期番号（1-4）
+        - fq_num (Int8): fiscal_year内の四半期番号（1-4）
+        - fiscal_quarter (String): report_dateの会計四半期（例: "2025FQ4"）
         - avg_units (Int64): 1日あたりの販売台数 (units / period_date)
         - sum_units (Int64): report_date時点での累計販売台数
         - launch_date (Date): 発売日
         - maker_name (String): メーカー名
         - full_name (String): ゲームハードの正式名称
     """
+    global _hard_sales_cache, _all_hw_list, _all_maker_list
+
+    if no_cache:
+        _hard_sales_cache = None
+        _all_hw_list = None
+        _all_maker_list = None
+    elif _hard_sales_cache is not None:
+        return _hard_sales_cache.clone()
+
     # SQLite3データベースに接続
     conn = sqlite3.connect(DB_PATH)
     # SQLクエリを実行してデータをDataFrameに読み込む
@@ -62,30 +123,9 @@ def load_hard_sales() -> pl.DataFrame:
     # 接続を閉じる
     conn.close()
 
-    # 日付をDate型に変換, 値の小さな整数はInt16にキャスト
-    df = df.with_columns(
-        pl.col('begin_date').str.to_date(),
-        pl.col('report_date').str.to_date(),
-        pl.col('end_date').str.to_date(),
-        pl.col('launch_date').str.to_date(),
-        pl.col('period_date').cast(pl.Int16),
-        pl.col('year').cast(pl.Int16),
-        pl.col('month').cast(pl.Int16),
-        pl.col('mday').cast(pl.Int16),
-        pl.col('week').cast(pl.Int16),
-        pl.col('delta_day').cast(pl.Int32),
-        pl.col('delta_week').cast(pl.Int32),
-        pl.col('delta_month').cast(pl.Int16),
-        pl.col('delta_year').cast(pl.Int16),
-    )
-    
-    # 四半期のカラムを追加
-    df = df.with_columns(
-        quarter = (pl.col('report_date').dt.year().cast(pl.Utf8) + "Q" + 
-                    pl.col('report_date').dt.quarter().cast(pl.Utf8))
-    )
-    df = df.sort('weekly_id')
-    return df
+    df = _with_derived_columns(df)
+    _hard_sales_cache = df
+    return df.clone()
 
 
 
@@ -236,22 +276,3 @@ def add_rolling_mean(df: pl.DataFrame) -> pl.DataFrame:
         pl.col('units').rolling_mean(window_size=13).round(0).cast(pl.Int64).over('hw').alias('ma13w'),
         pl.col('units').rolling_mean(window_size=52).round(0).cast(pl.Int64).over('hw').alias('ma52w'),
     )
-
-
-def add_week_number(df: pl.DataFrame) -> pl.DataFrame:
-    """
-    delta_week が存在する場合に、1始まりの週番号カラム week_number を追加する。
-
-    Args:
-        df: ハード販売データのDataFrame。
-
-    Returns:
-        pl.DataFrame: week_number カラムを追加したDataFrame。
-                      delta_week が無い場合は入力をそのまま返す。
-    """
-    if "delta_week" in df.columns:
-        df = df.with_columns(
-            (pl.col("delta_week") + 1).alias("week_number")
-        )
-    return df
-

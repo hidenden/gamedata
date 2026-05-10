@@ -50,7 +50,6 @@ from .hard_info import (
 # Import main functions from modules
 from .hard_sales import (
     add_rolling_mean,
-    add_week_number,
     current_report_date,
     get_active_hw,
     get_active_maker,

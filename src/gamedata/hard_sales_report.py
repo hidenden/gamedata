@@ -41,7 +41,7 @@ def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
         'hw': 'ハード',
         'report_date': '集計日',
         'delta_week': '週差',
-        'week_number': '週数',
+        'index_week': '週数',
         'sum_units': '累計台数',
         'units': '販売台数',
         'units_diff': '前週差',
@@ -95,7 +95,6 @@ def units_by_date_hw_table(df: pl.DataFrame, begin:datetime|date|None = None, en
     begin_minus_one = begin - timedelta(days=7) if begin is not None else None
     df = hsf.date_filter(df, begin=begin_minus_one, end=end)
     df = hs.with_units_diff(df)
-    df = hs.add_week_number(df)
     df = hsf.date_filter(df, begin=begin, end=end)  # 再度日付フィルタを適用して、beginの1週間前のデータを除外
     df = (df
           .sort(by=['report_date', 'units', 'hw'], descending=[False, True, False])
@@ -104,7 +103,7 @@ def units_by_date_hw_table(df: pl.DataFrame, begin:datetime|date|None = None, en
                   pl.col('units'), 
                   pl.col('units_diff'),
                   pl.col('sum_units'),
-                  pl.col('week_number'))
+                  pl.col('index_week'))
     )
     df = rename_columns(df)
 
@@ -319,8 +318,7 @@ def reached_unit_summary(n:int, all:bool = False) -> pl.DataFrame:
     if not all:
         df = df.head(10)
         
-    df = (hs.add_week_number(df).
-          select(["hw", "report_date", "week_number", "sum_units"]))
+    df = df.select(["hw", "report_date", "index_week", "sum_units"])
     return df
 
 def style_sales(df: pl.DataFrame, columns:List[str] | None = None,
