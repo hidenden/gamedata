@@ -117,7 +117,7 @@ def chart_line_sales(
         alt_y = alt.Y("units:Q", title="販売台数")
         title = "週次販売台数"
     else:
-        raise ValueError("mode must be one of week, month, quarter, year.")
+        raise ValueError("modeは'week', 'month', 'quarter', 'year'のいずれかを指定してください。")
 
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(df)
@@ -284,7 +284,7 @@ def chart_line_cumulative_delta(
             "delta_week:Q", title="週数", axis=alt.Axis(grid=True, tickCount=20)
         )
     else:
-        raise ValueError("mode must be one of week, month, year.")
+        raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(src_df)
