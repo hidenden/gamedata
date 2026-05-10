@@ -9,15 +9,16 @@ __generated_with = "0.23.4"
 app = marimo.App(width="medium")
 
 with app.setup:
+    # 標準ライブラリ
+    from datetime import date, datetime
+
     import marimo as mo
     import altair as alt
-    # 標準ライブラリ
-    from datetime import datetime, timedelta, date
 
     # サードパーティライブラリ
     import polars as pl
-    # import polars.selectors as cs
 
+    # import polars.selectors as cs
     # プロジェクト内モジュール
     import gamedata as g
 
@@ -28,6 +29,9 @@ def _():
     is_publish = True if _args.get("publish") else False
     if not is_publish:
         g.disable_styler()
+        alt.theme.enable("edit")
+    else:
+        alt.theme.enable("publish")
     return (is_publish,)
 
 
@@ -38,11 +42,10 @@ def _(is_publish):
 
     config = get_config()
     report_date = config["date"]
-    report_event_mask = g.EventMasks(hard=1.5, price=3, sale=2, soft=1.5, event=1)
 
-    def show_title(d:datetime) :
+    def show_title(d: datetime):
         last_updated_str = d.strftime("%Y-%m-%d")
-        mode: str = "analyze mode" if not is_publish else ""
+        mode: str = "NOT-PUB" if not is_publish else ""
         return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode}")
 
     df_all = g.load_hard_sales()
@@ -75,7 +78,9 @@ def _():
 
 @app.cell
 def _(df_all, report_date):
-    _table = g.units_by_date_hw_table(df_all, begin=g.weeks_before(report_date, 3), end=report_date)
+    _table = g.units_by_date_hw_table(
+        df_all, begin=g.weeks_before(report_date, 3), end=report_date
+    )
     mo.hstack(items=[_table], justify="start", wrap=True)
     return
 
@@ -136,9 +141,11 @@ def _():
 
 @app.cell
 def _(report_date):
-    _begin = date(2026,1,1)
+    _begin = date(2026, 1, 1)
     _end = report_date
-    _chart = g.chart_line_sales(begin=_begin, end=_end, ymax=80000, event_mask=g.EVENT_MASK_MIDDLE)
+    _chart = g.chart_line_sales(
+        begin=_begin, end=_end, ymax=80000, event_mask=g.EVENT_MASK_MIDDLE
+    )
     mo.hstack(items=[mo.ui.altair_chart(_chart)], justify="start", wrap=True)
     return
 
@@ -170,13 +177,14 @@ def _():
 @app.cell
 def _():
     _offset_chart = g.chart_line_weekly_by_hw_date(
-      hw_periods=[
-          {'hw': 'PS5', 'begin': datetime(2023,3,1)},
-          {'hw': 'PS5', 'begin': datetime(2024,3,1)},
-          {'hw': 'PS5', 'begin': datetime(2025,3,1)},
-          {'hw': 'PS5', 'begin': datetime(2026,3,1)},
-          ],
-      end = 20)
+        hw_periods=[
+            {"hw": "PS5", "begin": datetime(2023, 3, 1)},
+            {"hw": "PS5", "begin": datetime(2024, 3, 1)},
+            {"hw": "PS5", "begin": datetime(2025, 3, 1)},
+            {"hw": "PS5", "begin": datetime(2026, 3, 1)},
+        ],
+        end=20,
+    )
 
     _ps5_offset_chart = mo.ui.altair_chart(_offset_chart)
     _ps5_offset_chart
@@ -202,12 +210,13 @@ def _():
 @app.cell
 def _():
     _offset_chart = g.chart_line_weekly_by_hw_date(
-      hw_periods=[
-          {'hw': 'NSW', 'begin': datetime(2018,3,1)},
-          {'hw': 'NSW', 'begin': datetime(2019,3,1)},
-          {'hw': 'NS2', 'begin': datetime(2026,3,1)},
-          ],
-      end = 20)
+        hw_periods=[
+            {"hw": "NSW", "begin": datetime(2018, 3, 1)},
+            {"hw": "NSW", "begin": datetime(2019, 3, 1)},
+            {"hw": "NS2", "begin": datetime(2026, 3, 1)},
+        ],
+        end=20,
+    )
 
     _ns2_offset_chart = mo.ui.altair_chart(_offset_chart)
     _ns2_offset_chart
@@ -236,7 +245,7 @@ def _():
 
 @app.cell
 def _(report_date):
-    _bar = g.chart_bar_sales(begin=datetime(2025,3,1), end=report_date, stacked=True)
+    _bar = g.chart_bar_sales(begin=datetime(2025, 3, 1), end=report_date, stacked=True)
     bar_chart = mo.ui.altair_chart(_bar)
     bar_chart
     return (bar_chart,)
@@ -271,7 +280,11 @@ def _():
 
 @app.cell
 def _(report_date):
-    mo.ui.altair_chart(g.chart_bar_sales(hw=["NS2"], begin=datetime(2025,3,1), end=report_date, stacked=True))
+    mo.ui.altair_chart(
+        g.chart_bar_sales(
+            hw=["NS2"], begin=datetime(2025, 3, 1), end=report_date, stacked=True
+        )
+    )
     return
 
 
@@ -295,7 +308,9 @@ def _():
 def _(report_date):
     _begin = g.years_ago(report_date)
     _end = report_date
-    _chart_bar = mo.ui.altair_chart(g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="NSW", ymax=480000))
+    _chart_bar = mo.ui.altair_chart(
+        g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="NSW", ymax=480000)
+    )
     ns_df = _chart_bar.dataframe
     ns_df_pivot = ns_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[_chart_bar], justify="start")
@@ -315,7 +330,7 @@ def _(ns_df_pivot, report_date):
     _this_year = report_date.year
     my_ns_df2 = ns_df_pivot.drop(str(_this_year - 2))
     my_ns_df2 = my_ns_df2.with_columns(
-        YoY = pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
+        YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ns_df2))
     return
@@ -342,7 +357,9 @@ def _():
 def _(report_date):
     _begin = g.years_ago(report_date)
     _end = report_date
-    _chart_bar = mo.ui.altair_chart(g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="PS5", ymax=480000))
+    _chart_bar = mo.ui.altair_chart(
+        g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="PS5", ymax=480000)
+    )
     ps5_df = _chart_bar.dataframe
     ps5_df_pivot = ps5_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[_chart_bar], justify="start")
@@ -354,7 +371,7 @@ def _(ps5_df_pivot, report_date):
     _this_year = report_date.year
     my_ps5_df2 = ps5_df_pivot.drop(str(_this_year - 2))
     my_ps5_df2 = my_ps5_df2.with_columns(
-        YoY = pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
+        YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ps5_df2))
     return
@@ -378,9 +395,12 @@ def _():
 
 @app.cell
 def _(report_date):
-    _chart = g.chart_line_cumulative(hw=["NSW", "NS2", "PS5", "XSX"],
-        begin=datetime(2017,3,1), end=report_date,
-        event_mask=g.EVENT_MASK_LONG)
+    _chart = g.chart_line_cumulative(
+        hw=["NSW", "NS2", "PS5", "XSX"],
+        begin=datetime(2017, 3, 1),
+        end=report_date,
+        event_mask=g.EVENT_MASK_LONG,
+    )
     chart_cumulative = mo.ui.altair_chart(_chart)
     chart_cumulative
     return (chart_cumulative,)
@@ -390,7 +410,11 @@ def _(report_date):
 def _(chart_cumulative, is_publish):
     if is_publish:
         mo.stop(True)
-    g.style_df(chart_cumulative.dataframe.pivot(index="report_date", on="hw", values="sum_units").tail(1))
+    g.style_df(
+        chart_cumulative.dataframe.pivot(
+            index="report_date", on="hw", values="sum_units"
+        ).tail(1)
+    )
     return
 
 
@@ -405,10 +429,10 @@ def _():
 @app.cell
 def _():
     _chart = g.chart_line_cumulative_delta(
-        hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA", "PS2", "Wii"], 
+        hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA", "PS2", "Wii"],
         end=60,
         event_mask=g.EVENT_MASK_MIDDLE,
-        mode="week"
+        mode="week",
     )
     cd_chart = mo.ui.altair_chart(_chart)
     cd_chart
@@ -417,7 +441,11 @@ def _():
 
 @app.cell
 def _(cd_chart):
-    _df = cd_chart.dataframe.filter(pl.col("delta_week") == 46).select(["hw", "sum_units"]).sort("sum_units", descending=True)
+    _df = (
+        cd_chart.dataframe.filter(pl.col("delta_week") == 46)
+        .select(["hw", "sum_units"])
+        .sort("sum_units", descending=True)
+    )
     g.style_df(g.rename_columns(_df), bar=True)
     return
 
@@ -443,10 +471,7 @@ def _():
 @app.cell
 def _():
     _chart = g.chart_line_cumulative_delta(
-        hw=["PS5", "PS4"], 
-        end=290,
-        event_mask=g.EVENT_MASK_LONG,
-        mode="week"
+        hw=["PS5", "PS4"], end=290, event_mask=g.EVENT_MASK_LONG, mode="week"
     )
     ps_cd_chart = mo.ui.altair_chart(_chart)
     ps_cd_chart
@@ -455,11 +480,11 @@ def _():
 
 @app.cell
 def _(ps_cd_chart):
-    _df = (ps_cd_chart.dataframe
-            .filter(pl.col("delta_week") == 284)
-            .select(["hw", "sum_units"])
-            .sort("sum_units", descending=True)
-            )
+    _df = (
+        ps_cd_chart.dataframe.filter(pl.col("delta_week") == 284)
+        .select(["hw", "sum_units"])
+        .sort("sum_units", descending=True)
+    )
     g.style_df(g.rename_columns(_df), bar=True)
     return
 
@@ -482,10 +507,14 @@ def _():
 
 @app.cell
 def _(report_date):
-    _year_bar = mo.ui.altair_chart(g.chart_bar_sales(
-            mode="year", stacked=True,
-            begin=g.years_ago(report_date, 10), \
-            end = report_date))
+    _year_bar = mo.ui.altair_chart(
+        g.chart_bar_sales(
+            mode="year",
+            stacked=True,
+            begin=g.years_ago(report_date, 10),
+            end=report_date,
+        )
+    )
     year_df = _year_bar.dataframe
     mo.vstack([_year_bar])
     return (year_df,)
@@ -495,7 +524,7 @@ def _(report_date):
 def _(year_df):
     year_pivot_df = year_df.pivot(index="year", on="hw", values="yearly_units")
     year_pivot_df = year_pivot_df.with_columns(
-        合計 = pl.sum_horizontal(pl.exclude("year", "合計"))
+        合計=pl.sum_horizontal(pl.exclude("year", "合計"))
     )
     g.style_df(year_pivot_df)
     return
