@@ -45,7 +45,7 @@ def _(is_publish):
 
     def show_title(d: datetime):
         last_updated_str = d.strftime("%Y-%m-%d")
-        mode: str = "NOT-PUB" if not is_publish else ""
+        mode: str = "**DRAFT**" if not is_publish else ""
         return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode}")
 
     df_all = g.load_hard_sales()
