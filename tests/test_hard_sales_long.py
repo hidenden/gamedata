@@ -194,11 +194,9 @@ class TestCumulativeSalesLong:
         result = lng.cumulative_sales_long(sample_sales_df, mode="year")
         assert "report_date" in result.columns
 
-    def test_unknown_mode_returns_week_data(self, sample_sales_df):
-        """modeが未知の場合、week相当のデータが返ること"""
-        result = lng.cumulative_sales_long(sample_sales_df, mode="unknown")
-        assert isinstance(result, pl.DataFrame)
-        assert "report_date" in result.columns
+    def test_unknown_mode_raises_value_error(self, sample_sales_df):
+        with pytest.raises(ValueError):
+            lng.cumulative_sales_long(sample_sales_df, mode="unknown")
 
 
 class TestSalesByDeltaLong:

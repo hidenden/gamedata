@@ -127,6 +127,25 @@ def sample_sales_df() -> pl.DataFrame:
         pl.col("delta_week").cast(pl.Int32),
         pl.col("delta_month").cast(pl.Int16),
         pl.col("delta_year").cast(pl.Int16),
+        q_num=pl.col("report_date").dt.quarter().cast(pl.Int8),
+        fiscal_year=pl.when(pl.col("month") <= 3)
+        .then(pl.col("year") - 1)
+        .otherwise(pl.col("year"))
+        .cast(pl.Int16),
+        fiscal_month=(((pl.col("month") + 8) % 12) + 1).cast(pl.Int8),
+        index_week=(pl.col("delta_week") + 1).cast(pl.Int32),
+        index_month=(pl.col("delta_month") + 1).cast(pl.Int16),
+        index_year=(pl.col("delta_year") + 1).cast(pl.Int16),
+    )
+    df = df.with_columns(
+        fq_num=((pl.col("fiscal_month") - 1) // 3 + 1).cast(pl.Int8),
+    )
+    df = df.with_columns(
+        fiscal_quarter=(
+            pl.col("fiscal_year").cast(pl.Utf8)
+            + "FQ"
+            + pl.col("fq_num").cast(pl.Utf8)
+        ),
     )
     return df.sort("weekly_id")
 

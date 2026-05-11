@@ -1,30 +1,33 @@
-import altair as alt
 # 標準ライブラリ
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import List
+
+import altair as alt
 
 # サードパーティライブラリ
 import polars as pl
+
+from . import hard_event as he
+from . import hard_info as hi
 
 # プロジェクト内モジュール
 # プロジェクト内モジュール
 from . import hard_sales as hs
 from . import hard_sales_long as hsl
-from . import hard_info as hi
-from . import hard_event as he
-from . import chart_config as cc
+from .mode import Mode, parse_mode
+
 
 def _chart_line_sales(
     src_df: pl.DataFrame,
-    alt_x:alt.X,
-    alt_y:alt.Y,
-    color:alt.Color,
+    alt_x: alt.X,
+    alt_y: alt.Y,
+    color: alt.Color,
     ymin: int = 0,
-    ymax :int | None = None,
-    title :str | None = None,
-    event_joinner = lambda df: df,
-    with_point:bool = True,
-    legend_orient:str = "top-right"
+    ymax: int | None = None,
+    title: str | None = None,
+    event_joinner=lambda df: df,
+    with_point: bool = True,
+    legend_orient: str = "top-right",
 ) -> alt.Chart:
     """売上のチャートを作成する関数
 
@@ -38,38 +41,27 @@ def _chart_line_sales(
     """
     # データの取得とイベントの結合
     df: pl.DataFrame = event_joinner(src_df)
-    
+
     # Y上限の設定
     if ymax is not None:
         alt_y = alt_y.scale(domain=[ymin, ymax])
 
     # チャートの作成
-    base_chart = (
-        alt.Chart(df)
-        .encode(
-            x=alt_x,
-            y=alt_y,
-            color=color
-        )
-    )
+    base_chart = alt.Chart(df).encode(x=alt_x, y=alt_y, color=color)
     chart = base_chart.mark_line()
     if with_point:
         chart += base_chart.mark_point()
 
     # dfがカラム evenv_name を持っている場合は、mark_text()でイベント名を表示する
     if "event_name" in df.columns:
-        event_chart = base_chart.transform_filter(
-            alt.datum.event_name != None).mark_text(
-            align="center",
-            baseline="middle",
-            dx=10,
-            dy=-10,
-            limit=80
-        ).encode(text="event_name:N")
+        event_chart = (
+            base_chart.transform_filter(alt.datum.event_name != None)
+            .mark_text(align="center", baseline="middle", dx=10, dy=-10)
+            .encode(text="event_name:N")
+        )
         chart += event_chart
-        
-    chart = chart.properties(width=cc.CONFIG['width'],
-                             height=cc.CONFIG['height']).configure(autosize={"type": "pad"})
+
+    chart = chart.properties().configure(autosize={"type": "pad"})
     if title is not None:
         chart = chart.properties(title=title)
     chart = chart.configure_legend(orient=legend_orient)
@@ -78,11 +70,14 @@ def _chart_line_sales(
     return chart
 
 
-def chart_line_sales(hw: List[str] = [], mode: str = "week",
-                begin: datetime | date | None = None, end: datetime | date | None = None,
-                ymin: int = 0,
-                ymax: int | None = None,
-                event_mask: he.EventMasks | None = None
+def chart_line_sales(
+    hw: List[str] = [],
+    mode: str = "week",
+    begin: datetime | date | None = None,
+    end: datetime | date | None = None,
+    ymin: int = 0,
+    ymax: int | None = None,
+    event_mask: he.EventMasks | None = None,
 ) -> alt.Chart:
     """売上のチャートを作成する関数
 
@@ -98,58 +93,82 @@ def chart_line_sales(hw: List[str] = [], mode: str = "week",
     """
     # データソースの定義
     src_df: pl.DataFrame = hs.load_hard_sales()
-    
-    if mode == "month":
+
+    mode_enum = parse_mode(mode)
+
+    if mode_enum == Mode.MONTH:
         df = hsl.monthly_sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("year_month:T", title="年月")
         alt_y = alt.Y("monthly_units:Q", title="販売台数")
         title = "月次販売台数"
-    elif mode == "quarter":
+    elif mode_enum == Mode.QUARTER:
         df = hsl.quarterly_sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("quarter:O", title="四半期")
         alt_y = alt.Y("quarterly_units:Q", title="販売台数")
         title = "四半期販売台数"
-    elif mode == "year":
+    elif mode_enum == Mode.YEAR:
         df = hsl.yearly_sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("year:O", title="年")
         alt_y = alt.Y("yearly_units:Q", title="販売台数")
         title = "年次販売台数"
-    else:
+    elif mode_enum == Mode.WEEK:
         df = hsl.sales_long(src_df, hw=hw, begin=begin, end=end)
-        alt_x = alt.X("report_date:T", title="日付")
+        alt_x = alt.X(
+            "report_date:T",
+            title="日付",
+            axis=alt.Axis(
+                format={
+                    "year": "%Y",
+                    "month": "%Y-%m",
+                    "week": "%m-%d",
+                    "day": "%m-%d",
+                }
+            ),
+        )
         alt_y = alt.Y("units:Q", title="販売台数")
         title = "週次販売台数"
+    else:
+        raise ValueError(
+            "modeは'week', 'month', 'quarter', 'year'のいずれかを指定してください。"
+        )
 
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(df)
     hw_colors = hi.get_hard_colors(current_hw)
-    alt_color = alt.Color("hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors))
+    alt_color = alt.Color(
+        "hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors), title="ハード"
+    )
 
     # イベント結合関数の定義
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
-        if (event_mask is not None) and (mode == "week"):
+        if (event_mask is not None) and (mode_enum == Mode.WEEK):
             event_df = he.mask_event(he.load_hard_event(), event_mask)
-            df_with_event = df.join(other=event_df, left_on=["report_date", "hw"], 
-                                               right_on=["report_date", "hw"], how="left")
+            df_with_event = df.join(
+                other=event_df,
+                left_on=["report_date", "hw"],
+                right_on=["report_date", "hw"],
+                how="left",
+            )
             return df_with_event
         else:
-            return df        
+            return df
+
     # チャートの作成
-    return _chart_line_sales(src_df=df, 
-                        alt_x=alt_x, 
-                        alt_y=alt_y, 
-                        ymax = ymax,
-                        ymin = ymin,
-                        color=alt_color,
-                        title=title,    
-                        event_joinner=event_joinner)
+    return _chart_line_sales(
+        src_df=df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        ymax=ymax,
+        ymin=ymin,
+        color=alt_color,
+        title=title,
+        event_joinner=event_joinner,
+    )
 
 
-def chart_line_weekly_by_hw_date(hw_periods: List[dict] = [], 
-                            end:int = 52,
-                            ymax:int | None=None,
-                            ymin:int = 0
-                            ) -> alt.Chart:
+def chart_line_weekly_by_hw_date(
+    hw_periods: List[dict] = [], end: int = 52, ymax: int | None = None, ymin: int = 0
+) -> alt.Chart:
     """
     各ハードウェアの異なる期間の販売台数推移を、各期間の開始点を揃えてプロットする
     Args:
@@ -169,24 +188,28 @@ def chart_line_weekly_by_hw_date(hw_periods: List[dict] = [],
 
     alt_x = alt.X("offset_week:Q", title="週数")
     alt_y = alt.Y("units:Q", title="販売台数")
-    alt_color = alt.Color("label:N", title="機種:時期")
+    alt_color = alt.Color("label:N", title="ハード:時期")
 
     # チャートの作成
-    return _chart_line_sales(src_df=src_df, 
-                        alt_x=alt_x, 
-                        alt_y=alt_y, 
-                        ymax = ymax,
-                        ymin = ymin,
-                        title="週販推移比較",
-                        color=alt_color)
+    return _chart_line_sales(
+        src_df=src_df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        ymax=ymax,
+        ymin=ymin,
+        title="週販推移比較",
+        color=alt_color,
+    )
 
 
 def chart_line_cumulative(
-    hw: List[str] = [], mode: str = "week",
-    begin: datetime | date | None = None, end: datetime | date | None = None,
+    hw: List[str] = [],
+    mode: str = "week",
+    begin: datetime | date | None = None,
+    end: datetime | date | None = None,
     ymin: int = 0,
     ymax: int | None = None,
-    event_mask: he.EventMasks | None = None
+    event_mask: he.EventMasks | None = None,
 ) -> alt.Chart:
     """累計販売台数のチャートを作成する関数
     Args:
@@ -199,44 +222,58 @@ def chart_line_cumulative(
         alt.Chart: 累計販売台数のチャート
     """
     df_all = hs.load_hard_sales()
-    src_df = hsl.cumulative_sales_long(df_all, hw=hw, mode=mode,
-                                                begin=begin, end=end)
-    alt_x = alt.X("report_date:T", title="販売年月")
+    mode_enum = parse_mode(mode)
+    src_df = hsl.cumulative_sales_long(df_all, hw=hw, mode=mode, begin=begin, end=end)
+    alt_x = alt.X(
+        "report_date:T",
+        title="販売年月",
+        axis=alt.Axis(format="%Y-%m", formatType="time"),
+    )
     alt_y = alt.Y("sum_units:Q", title="累計販売台数")
     title = "累計販売台数"
 
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(src_df)
     hw_colors = hi.get_hard_colors(current_hw)
-    alt_color = alt.Color("hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors))
+    alt_color = alt.Color(
+        "hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors), title="ハード"
+    )
 
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
-        if (event_mask is not None) and (mode == "week"):
+        if (event_mask is not None) and (mode_enum == Mode.WEEK):
             event_df = he.mask_event(he.load_hard_event(), event_mask)
-            df_with_event = df.join(other=event_df, left_on=["report_date", "hw"], 
-                                               right_on=["report_date", "hw"], how="left")
+            df_with_event = df.join(
+                other=event_df,
+                left_on=["report_date", "hw"],
+                right_on=["report_date", "hw"],
+                how="left",
+            )
             return df_with_event
         else:
             return df
 
-    return _chart_line_sales(src_df=src_df, 
-                        alt_x=alt_x, 
-                        alt_y=alt_y, 
-                        ymax = None,
-                        ymin = ymin,
-                        color=alt_color,
-                        title="累計販売台数",    
-                        event_joinner=event_joinner,
-                        with_point=False,
-                        legend_orient="top-left")
-    
+    return _chart_line_sales(
+        src_df=src_df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        ymax=None,
+        ymin=ymin,
+        color=alt_color,
+        title="累計販売台数",
+        event_joinner=event_joinner,
+        with_point=False,
+        legend_orient="top-left",
+    )
+
 
 def chart_line_cumulative_delta(
-    hw: List[str] = [], mode: str = "week",
-    begin: int | None = None, end: int | None = None,
+    hw: List[str] = [],
+    mode: str = "week",
+    begin: int | None = None,
+    end: int | None = None,
     ymin: int = 0,
     ymax: int | None = None,
-    event_mask: he.EventMasks | None = None
+    event_mask: he.EventMasks | None = None,
 ) -> alt.Chart:
     """相対累計販売台数のチャートを作成する関数
     Args:
@@ -249,38 +286,51 @@ def chart_line_cumulative_delta(
         alt.Chart: 相対累計販売台数のチャート
     """
     df_all = hs.load_hard_sales()
-    src_df = hsl.cumulative_sales_by_delta_long(df_all, hw=hw, mode=mode,
-                                                        begin=begin, end=end)
+    mode_enum = parse_mode(mode)
+    src_df = hsl.cumulative_sales_by_delta_long(
+        df_all, hw=hw, mode=mode, begin=begin, end=end
+    )
     alt_y = alt.Y("sum_units:Q", title="相対累計販売台数")
     title = "相対累計販売台数"
-    if mode == "month":
+    if mode_enum == Mode.MONTH:
         alt_x = alt.X("delta_month:Q", title="月数")
-    elif mode == "year":
+    elif mode_enum == Mode.YEAR:
         alt_x = alt.X("delta_year:Q", title="年数")
+    elif mode_enum == Mode.WEEK:
+        alt_x = alt.X(
+            "delta_week:Q", title="週数", axis=alt.Axis(grid=True, tickCount=20)
+        )
     else:
-        alt_x = alt.X("delta_week:Q", title="週数", axis=alt.Axis(grid=True, tickCount=20))
+        raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(src_df)
     hw_colors = hi.get_hard_colors(current_hw)
-    alt_color = alt.Color("hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors))
+    alt_color = alt.Color(
+        "hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors), title="ハード"
+    )
 
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
-        if (event_mask is not None) and (mode == "week"):
+        if (event_mask is not None) and (mode_enum == Mode.WEEK):
             event_df = he.mask_event(he.load_hard_event(True), event_mask)
-            df_with_event = df.join(other=event_df, left_on=["delta_week", "hw"], 
-                                               right_on=["delta_week", "hw"], how="left")
+            df_with_event = df.join(
+                other=event_df,
+                left_on=["delta_week", "hw"],
+                right_on=["delta_week", "hw"],
+                how="left",
+            )
             return df_with_event
         else:
             return df
 
-    return _chart_line_sales(src_df=src_df, 
-                        alt_x=alt_x, 
-                        alt_y=alt_y, 
-                        ymax = ymax,
-                        color=alt_color,
-                        title="相対累計販売台数",    
-                        event_joinner=event_joinner,
-                        with_point=False,
-                        legend_orient="top-left"
-                        )
+    return _chart_line_sales(
+        src_df=src_df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        ymax=ymax,
+        color=alt_color,
+        title="相対累計販売台数",
+        event_joinner=event_joinner,
+        with_point=False,
+        legend_orient="top-left",
+    )
