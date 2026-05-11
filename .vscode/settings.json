@@ -11,8 +11,8 @@
 
   "[python]": {
     // Enable Pylance for Python files
-    "editor.defaultFormatter": "ms-python.python",
-    "editor.formatOnSave": true
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": false
   }
 
 }

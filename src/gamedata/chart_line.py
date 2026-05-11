@@ -113,11 +113,24 @@ def chart_line_sales(
         title = "年次販売台数"
     elif mode_enum == Mode.WEEK:
         df = hsl.sales_long(src_df, hw=hw, begin=begin, end=end)
-        alt_x = alt.X("report_date:T", title="日付")
+        alt_x = alt.X(
+            "report_date:T",
+            title="日付",
+            axis=alt.Axis(
+                format={
+                    "year": "%Y",
+                    "month": "%Y-%m",
+                    "week": "%m-%d",
+                    "day": "%m-%d",
+                }
+            ),
+        )
         alt_y = alt.Y("units:Q", title="販売台数")
         title = "週次販売台数"
     else:
-        raise ValueError("modeは'week', 'month', 'quarter', 'year'のいずれかを指定してください。")
+        raise ValueError(
+            "modeは'week', 'month', 'quarter', 'year'のいずれかを指定してください。"
+        )
 
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(df)
@@ -211,7 +224,11 @@ def chart_line_cumulative(
     df_all = hs.load_hard_sales()
     mode_enum = parse_mode(mode)
     src_df = hsl.cumulative_sales_long(df_all, hw=hw, mode=mode, begin=begin, end=end)
-    alt_x = alt.X("report_date:T", title="販売年月")
+    alt_x = alt.X(
+        "report_date:T",
+        title="販売年月",
+        axis=alt.Axis(format="%Y-%m", formatType="time"),
+    )
     alt_y = alt.Y("sum_units:Q", title="累計販売台数")
     title = "累計販売台数"
 
