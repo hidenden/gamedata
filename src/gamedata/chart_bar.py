@@ -1,5 +1,6 @@
 # 標準ライブラリ
 from datetime import date, datetime
+from typing import List
 
 import altair as alt
 
@@ -25,6 +26,7 @@ def _chart_bar_sales(
     title: str | None = None,
     xoffset: str | None = None,
     legend_orient: str = "top-right",
+    tooltip: List[alt.Tooltip] | None = None,
 ) -> alt.Chart:
     """売上の棒グラフを作成する内部関数
 
@@ -36,6 +38,9 @@ def _chart_bar_sales(
         ymin: Y軸の最小値
         ymax: Y軸の最大値（オプション）
         title: チャートのタイトル（オプション）
+        xoffset: X軸のオフセット（オプション）
+        legend_orient: 凡例の位置（オプション）
+        tooltip: ツールチップの設定（オプション）
 
     Returns:
         alt.Chart: 売上の棒グラフ
@@ -56,6 +61,8 @@ def _chart_bar_sales(
         chart = chart.properties(title=title)
     if xoffset is not None:
         chart = chart.encode(xOffset=xoffset)
+    if tooltip is not None:
+        chart = chart.encode(tooltip=tooltip)
     chart = chart.configure_legend(orient=legend_orient)
     chart = chart.properties(usermeta={"embedOptions": {"actions": True}})
     return chart
@@ -93,16 +100,30 @@ def chart_bar_sales(
         )
         alt_y = alt.Y("monthly_units:Q", title="販売台数")
         title = "月次販売台数"
+        tooltip = [
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("monthly_units:Q", title="販売台数"),
+        ]
     elif mode_enum == Mode.QUARTER:
         src_df = hsl.quarterly_sales_long(df_all, hw=hw, begin=begin, end=end)
         alt_x = alt.X("quarter:O", title="四半期")
         alt_y = alt.Y("quarterly_units:Q", title="販売台数")
         title = "四半期販売台数"
+        tooltip = [
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("quarter:O", title="四半期"),
+            alt.Tooltip("quarterly_units:Q", title="販売台数"),
+        ]
     elif mode_enum == Mode.YEAR:
         src_df = hsl.yearly_sales_long(df_all, hw=hw, begin=begin, end=end)
         alt_x = alt.X("year:O", title="年")
         alt_y = alt.Y("yearly_units:Q", title="販売台数")
         title = "年次販売台数"
+        tooltip = [
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("year:O", title="年"),
+            alt.Tooltip("yearly_units:Q", title="販売台数"),
+        ]
     else:
         raise ValueError(
             "modeは'month', 'quarter', または 'year'のいずれかでなければなりません"
@@ -125,6 +146,7 @@ def chart_bar_sales(
         ymax=ymax,
         ymin=0,
         xoffset=xoffset,
+        tooltip=tooltip,
     )
 
 
@@ -155,11 +177,23 @@ def chart_bar_hwsales_by_year(
         alt_x = alt.X("month:O", title="月")
         alt_y = alt.Y("monthly_units:Q", title="販売台数")
         title = "月間販売推移"
+        tooltip = [
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("year:O", title="年"),
+            alt.Tooltip("month:O", title="月"),
+            alt.Tooltip("monthly_units:Q", title="販売台数"),
+        ]
     elif mode_enum == Mode.QUARTER:
         src_df = hsl.quarterly_sales_long(df_all, hw=[hw], begin=begin, end=end)
         alt_x = alt.X("q_num:O", title="四半期")
         alt_y = alt.Y("quarterly_units:Q", title="販売台数")
         title = "四半期販売推移"
+        tooltip = [
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("year:O", title="年"),
+            alt.Tooltip("q_num:O", title="四半期"),
+            alt.Tooltip("quarterly_units:Q", title="販売台数"),
+        ]
     else:
         raise ValueError("modeは'month'または'quarter'のいずれかでなければなりません")
 
@@ -175,6 +209,7 @@ def chart_bar_hwsales_by_year(
         ymax=ymax,
         xoffset=xoffset,
         legend_orient="top-left",
+        tooltip=tooltip,
     )
 
 

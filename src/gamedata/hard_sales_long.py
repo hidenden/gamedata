@@ -278,7 +278,7 @@ def sales_with_offset_long(src_df: pl.DataFrame,
         )
 
         hw_df = (hw_df
-                 .select(['offset_week', 'units'])
+                 .select(['offset_week', 'units', 'report_date', 'hw'])
                  .with_columns(label=pl.lit(label))
                  )
 

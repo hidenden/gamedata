@@ -125,7 +125,7 @@ li {
 /* データフレーム（テーブル）スタイル
    NOTE: 横スクロールを table / table.dataframe 両方に適用（幅が小さい表は内容幅に追従） */
 
-table tbody tr:nth-child(even),
+table.sales-table tbody tr:nth-child(even),
 table.dataframe tbody tr:nth-child(even) {
   background-color: var(--nb-row-even);
 }
@@ -159,13 +159,13 @@ table.sales-table {
   */
 
 
-table tbody tr:hover,
+table.sales-table tbody tr:hover,
 table.dataframe tbody tr:hover {
   background-color: var(--nb-row-hover);
 }
 
-table tbody td,
-table tbody th,
+table.sales-table tbody td,
+table.sales-table tbody th,
 table.dataframe tbody td,
 table.dataframe tbody th {
   padding: 0.25rem 0.75rem;  /* Changed from 0.5rem to 0.25rem for smaller vertical padding */
@@ -174,16 +174,16 @@ table.dataframe tbody th {
 }
 
 /* 複数レベルのインデックスを持つテーブル */
-table tbody tr th.level0 {
+table.sales-table tbody tr th.level0 {
   font-weight: 600;
 }
 
 /* 複数レベルのインデックスを持つテーブル */
-table tbody tr th.level1 {
+table.sales-table tbody tr th.level1 {
   text-align: left;
 }
 
-table tbody tr td.data {
+table.sales-table tbody tr td.data {
   text-align: right;
   font-variant-numeric: tabular-nums; /* 等幅数字で揃える */
 }

@@ -28,6 +28,7 @@ def _chart_line_sales(
     event_joinner=lambda df: df,
     with_point: bool = True,
     legend_orient: str = "top-right",
+    tooltip: List[alt.Tooltip] | None = None,
 ) -> alt.Chart:
     """売上のチャートを作成する関数
 
@@ -64,6 +65,8 @@ def _chart_line_sales(
     chart = chart.properties().configure(autosize={"type": "pad"})
     if title is not None:
         chart = chart.properties(title=title)
+    if tooltip is not None:
+        chart = chart.encode(tooltip=tooltip)
     chart = chart.configure_legend(orient=legend_orient)
     # chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
 
@@ -189,6 +192,13 @@ def chart_line_weekly_by_hw_date(
     alt_x = alt.X("offset_week:Q", title="週数")
     alt_y = alt.Y("units:Q", title="販売台数")
     alt_color = alt.Color("label:N", title="ハード:時期")
+    
+    # Tooltipの定義
+    tooltip = [
+        alt.Tooltip("hw:N", title="ハード"),
+        alt.Tooltip("report_date:T", title="日付", format="%Y-%m-%d"),
+        alt.Tooltip("units:Q", title="販売台数"),
+    ]
 
     # チャートの作成
     return _chart_line_sales(
@@ -199,6 +209,7 @@ def chart_line_weekly_by_hw_date(
         ymin=ymin,
         title="週販推移比較",
         color=alt_color,
+        tooltip=tooltip,
     )
 
 
