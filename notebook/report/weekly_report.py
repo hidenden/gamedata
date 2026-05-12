@@ -471,7 +471,7 @@ def _():
 @app.cell
 def _():
     _chart = g.chart_line_cumulative_delta(
-        hw=["PS5", "PS4"], end=290, event_mask=g.EVENT_MASK_LONG, mode="week"
+        hw=["PS5", "PS4"], end=300, event_mask=g.EVENT_MASK_LONG, mode="week"
     )
     ps_cd_chart = mo.ui.altair_chart(_chart)
     ps_cd_chart
