@@ -49,7 +49,10 @@ def _(is_publish):
         return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode}")
 
     df_all = g.load_hard_sales()
-    return df_all, report_date, show_title
+    [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
+        df_all, hw=["NS2", "PS5", "NSW"]
+    )
+    return df_all, ns2_info, ps5_info, report_date, show_title
 
 
 @app.cell
@@ -418,19 +421,18 @@ def _(chart_cumulative, is_publish):
     return
 
 
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    ### Switch2: 47週目の状況
-    """)
-    return
+@app.cell
+def _(ns2_info):
+    ns2_weeks = ns2_info["sales_weeks"]
+    mo.md(f"### Switch2:{ns2_weeks}週目の状況")
+    return (ns2_weeks,)
 
 
 @app.cell
-def _():
+def _(ns2_weeks):
     _chart = g.chart_line_cumulative_delta(
         hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA", "PS2", "Wii"],
-        end=60,
+        end=ns2_weeks + 10,
         event_mask=g.EVENT_MASK_MIDDLE,
         mode="week",
     )
@@ -460,18 +462,17 @@ def _():
     return
 
 
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    ### PS5: 285週目の状況
-    """)
-    return
+@app.cell
+def _(ps5_info):
+    ps5_weeks = ps5_info["sales_weeks"]
+    mo.md(f"### PS5:{ps5_weeks}週目の状況")
+    return (ps5_weeks,)
 
 
 @app.cell
-def _():
+def _(ps5_weeks):
     _chart = g.chart_line_cumulative_delta(
-        hw=["PS5", "PS4"], end=300, event_mask=g.EVENT_MASK_LONG, mode="week"
+        hw=["PS5", "PS4"], end=ps5_weeks + 15, event_mask=g.EVENT_MASK_LONG, mode="week"
     )
     ps_cd_chart = mo.ui.altair_chart(_chart)
     ps_cd_chart
