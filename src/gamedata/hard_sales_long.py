@@ -215,10 +215,13 @@ def sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.WEEK:
         index_col = 'delta_week'
+        alt_index_col = 'index_week'
     elif mode_enum == Mode.MONTH:
         index_col = 'delta_month'
+        alt_index_col = 'index_month'
     elif mode_enum == Mode.YEAR:
         index_col = 'delta_year'
+        alt_index_col = 'index_year'
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
@@ -233,9 +236,9 @@ def sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
     on_columns = 'full_name' if full_name else 'hw'
 
     return (df
-            .group_by([index_col, on_columns])
+            .group_by([index_col, alt_index_col, on_columns])
             .agg(pl.col('units').sum())
-            .sort(by=[index_col, on_columns]))
+            .sort(by=[index_col, alt_index_col, on_columns]))
 
 
 def sales_with_offset_long(src_df: pl.DataFrame,
@@ -314,10 +317,13 @@ def cumulative_sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.WEEK:
         index_col = 'delta_week'
+        alt_index_col = 'index_week'
     elif mode_enum == Mode.MONTH:
         index_col = 'delta_month'
+        alt_index_col = 'index_month'
     elif mode_enum == Mode.YEAR:
         index_col = 'delta_year'
+        alt_index_col = 'index_year'
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
@@ -330,9 +336,9 @@ def cumulative_sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
         df = df.filter(pl.col('hw').is_in(hw))
 
     return (df
-            .group_by([index_col, 'hw'])
+            .group_by([index_col, alt_index_col, 'hw'])
             .agg(pl.col('sum_units').last())
-            .sort(by=[index_col, 'hw']))
+            .sort(by=[index_col, alt_index_col, 'hw']))
 
 
 def maker_long(df: pl.DataFrame,

@@ -285,6 +285,7 @@ def chart_line_cumulative_delta(
     ymin: int = 0,
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
+    index_mode: bool = True,
 ) -> alt.Chart:
     """相対累計販売台数のチャートを作成する関数
     Args:
@@ -304,16 +305,22 @@ def chart_line_cumulative_delta(
     alt_y = alt.Y("sum_units:Q", title="相対累計販売台数")
     title = "相対累計販売台数"
     if mode_enum == Mode.MONTH:
-        alt_x = alt.X("delta_month:Q", title="月数")
+        col_name = "index_month" if index_mode else "delta_month"
+        alt_x = alt.X(f"{col_name}:Q", title="月数")
     elif mode_enum == Mode.YEAR:
-        alt_x = alt.X("delta_year:Q", title="年数")
+        col_name = "index_year" if index_mode else "delta_year"
+        alt_x = alt.X(f"{col_name}:Q", title="年数")
     elif mode_enum == Mode.WEEK:
+        col_name = "index_week" if index_mode else "delta_week"
         alt_x = alt.X(
-            "delta_week:Q", title="週数", axis=alt.Axis(grid=True, tickCount=20)
+            f"{col_name}:Q", title="週数", axis=alt.Axis(grid=True, tickCount=20)
         )
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
+    if index_mode:
+        alt_x = alt_x.scale(domain=[1, end + 1]) 
+        
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(src_df)
     hw_colors = hi.get_hard_colors(current_hw)
