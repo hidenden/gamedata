@@ -49,9 +49,7 @@ def _chart_line_sales(
 
     # チャートの作成
     base_chart = alt.Chart(df).encode(x=alt_x, y=alt_y, color=color)
-    chart = base_chart.mark_line()
-    if with_point:
-        chart += base_chart.mark_point()
+    chart = base_chart.mark_line(point=with_point)
 
     # dfがカラム evenv_name を持っている場合は、mark_text()でイベント名を表示する
     if "event_name" in df.columns:
@@ -81,6 +79,7 @@ def chart_line_sales(
     ymin: int = 0,
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
+    with_point: bool = True,
 ) -> alt.Chart:
     """売上のチャートを作成する関数
 
@@ -166,6 +165,7 @@ def chart_line_sales(
         color=alt_color,
         title=title,
         event_joinner=event_joinner,
+        with_point=with_point,
     )
 
 
@@ -286,6 +286,7 @@ def chart_line_cumulative_delta(
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
     index_mode: bool = True,
+    with_point: bool = False,
 ) -> alt.Chart:
     """相対累計販売台数のチャートを作成する関数
     Args:
@@ -349,6 +350,6 @@ def chart_line_cumulative_delta(
         color=alt_color,
         title="相対累計販売台数",
         event_joinner=event_joinner,
-        with_point=False,
+        with_point=with_point,
         legend_orient="top-left",
     )
