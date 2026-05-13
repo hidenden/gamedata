@@ -232,11 +232,29 @@ class TestLoadHardSales:
         assert result["index_week"][0] == 22
         assert result["index_month"][0] == 11
         assert result["index_year"][0] == 3
-        assert result["fiscal_year"][0] == 2019
+        assert result["fiscal_year"][0] == 2020
         assert result["fiscal_month"][0] == 10
         assert result["q_num"][0] == 1
         assert result["fq_num"][0] == 4
-        assert result["fiscal_quarter"][0] == "2019FQ4"
+        assert result["fiscal_quarter"][0] == "2020FQ4"
+
+    def test_fiscal_year_for_april_is_next_calendar_year(self):
+        raw = self._make_raw_df().with_columns(
+            pl.lit("2020-04-05").alias("begin_date"),
+            pl.lit("2020-04-11").alias("end_date"),
+            pl.lit("2020-04-05").alias("report_date"),
+            pl.lit(2020).alias("year"),
+            pl.lit(4).alias("month"),
+            pl.lit(5).alias("mday"),
+        )
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw):
+                result = hs.load_hard_sales()
+        assert result["fiscal_year"][0] == 2021
+        assert result["fq_num"][0] == 1
+        assert result["fiscal_quarter"][0] == "2021FQ1"
 
     def test_uses_global_cache_by_default(self):
         raw = self._make_raw_df()

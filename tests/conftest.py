@@ -129,8 +129,8 @@ def sample_sales_df() -> pl.DataFrame:
         pl.col("delta_year").cast(pl.Int16),
         q_num=pl.col("report_date").dt.quarter().cast(pl.Int8),
         fiscal_year=pl.when(pl.col("month") <= 3)
-        .then(pl.col("year") - 1)
-        .otherwise(pl.col("year"))
+        .then(pl.col("year"))
+        .otherwise(pl.col("year") + 1)
         .cast(pl.Int16),
         fiscal_month=(((pl.col("month") + 8) % 12) + 1).cast(pl.Int8),
         index_week=(pl.col("delta_week") + 1).cast(pl.Int32),
