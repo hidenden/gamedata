@@ -423,21 +423,50 @@ def _(chart_cumulative, is_publish):
 
 @app.cell
 def _(ns2_info):
-    ns2_weeks = ns2_info["sales_weeks"]
-    mo.md(f"### Switch2:{ns2_weeks}週目の状況")
-    return (ns2_weeks,)
+    _ns2_weeks = ns2_info["sales_weeks"]
+    mo.md(f"### Switch2:{_ns2_weeks}週目の状況")
+    return
 
 
 @app.cell
-def _(ns2_weeks):
+def _(ns2_info):
     _chart = g.chart_line_cumulative_delta(
         hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA", "PS2", "Wii"],
-        end=ns2_weeks + 10,
+        end=ns2_info["sales_weeks"] + 20,
         event_mask=g.EVENT_MASK_MIDDLE,
         mode="week",
+        with_point=False
     )
-    cd_chart = mo.ui.altair_chart(_chart)
-    cd_chart
+
+    _latest_ns2 = pl.DataFrame(
+        {"index_week": [ns2_info["sales_weeks"]], "total_units": [ns2_info["total_units"]]}
+    )
+
+    _v_rule = (
+        alt.Chart(_latest_ns2)
+        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
+        .encode(x="index_week:Q", tooltip=alt.value(None))
+    )
+    _h_rule = (
+        alt.Chart(_latest_ns2)
+        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
+        .encode(y="total_units:Q", tooltip=alt.value(None))
+    )
+
+    _future_ns2 = pl.DataFrame(
+        {
+            "index_week": [ns2_info["sales_weeks"], ns2_info["sales_weeks"] + 20],
+            "total_units": [ns2_info["total_units"], 6000000],
+        }
+    )
+    _z_line = (
+        alt.Chart(_future_ns2)
+        .mark_line(color="#800000", strokeDash=[2, 3], size=2)
+        .encode(x="index_week:Q", y="total_units:Q", tooltip=alt.value(None))
+    )
+
+    cd_chart = mo.ui.altair_chart(_chart + _v_rule + _h_rule + _z_line)
+    mo.vstack(items=[cd_chart], justify="start")
     return (cd_chart,)
 
 
@@ -466,15 +495,56 @@ def _():
 def _(ps5_info):
     ps5_weeks = ps5_info["sales_weeks"]
     mo.md(f"### PS5:{ps5_weeks}週目の状況")
-    return (ps5_weeks,)
+    return
 
 
 @app.cell
-def _(ps5_weeks):
+def _(ps5_info):
     _chart = g.chart_line_cumulative_delta(
-        hw=["PS5", "PS4"], end=ps5_weeks + 15, event_mask=g.EVENT_MASK_LONG, mode="week"
+        hw=["PS5", "PS4"], end=ps5_info["sales_weeks"] + 60, event_mask=g.EVENT_MASK_LONG, mode="week"
     )
-    ps_cd_chart = mo.ui.altair_chart(_chart)
+
+    _latest_ps5 = pl.DataFrame(
+        {"index_week": [ps5_info["sales_weeks"]], "total_units": [ps5_info["total_units"]]}
+    )
+
+    _v_rule = (
+        alt.Chart(_latest_ps5)
+        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
+        .encode(x="index_week:Q", tooltip=alt.value(None))
+    )
+    _h_rule = (
+        alt.Chart(_latest_ps5)
+        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
+        .encode(y="total_units:Q", tooltip=alt.value(None))
+    )
+
+    _v_rule = (
+        alt.Chart(_latest_ps5)
+        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
+        .encode(x="index_week:Q", tooltip=alt.value(None))
+    )
+    _h_rule = (
+        alt.Chart(_latest_ps5)
+        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
+        .encode(y="total_units:Q", tooltip=alt.value(None))
+    )
+
+    _future_ps5 = pl.DataFrame(
+        {
+            "index_week": [ps5_info["sales_weeks"], ps5_info["sales_weeks"] + 60],
+            "total_units": [ps5_info["total_units"], 8100000],
+        }
+    )
+    _z_line = (
+        alt.Chart(_future_ps5)
+        .mark_line(color="#000080", strokeDash=[2, 3], size=2)
+        .encode(x="index_week:Q", y="total_units:Q", tooltip=alt.value(None))
+    )
+
+
+
+    ps_cd_chart = mo.ui.altair_chart(_chart + _v_rule + _h_rule + _z_line)
     ps_cd_chart
     return (ps_cd_chart,)
 
