@@ -89,7 +89,7 @@ def _(alt, chart, mo):
 
 @app.cell
 def _(df_all, g):
-    rolled_df = g.add_rolling_mean(df_all)
+    rolled_df = df_all
     rolled_df
     return (rolled_df,)
 
