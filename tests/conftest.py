@@ -147,7 +147,15 @@ def sample_sales_df() -> pl.DataFrame:
             + pl.col("fq_num").cast(pl.Utf8)
         ),
     )
-    return df.sort("weekly_id")
+    return (
+        df.sort("weekly_id")
+        .with_columns(
+            pl.col("units").diff().over("hw").alias("units_diff"),
+            pl.col("units").rolling_mean(window_size=4).round(0).cast(pl.Int64).over("hw").alias("ma4w"),
+            pl.col("units").rolling_mean(window_size=13).round(0).cast(pl.Int64).over("hw").alias("ma13w"),
+            pl.col("units").rolling_mean(window_size=52).round(0).cast(pl.Int64).over("hw").alias("ma52w"),
+        )
+    )
 
 
 # ---------------------------------------------------------------------------

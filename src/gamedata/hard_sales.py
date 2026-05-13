@@ -25,42 +25,54 @@ _all_maker_list = None
 
 
 def _with_derived_columns(df: pl.DataFrame) -> pl.DataFrame:
-    return df.with_columns(
-        pl.col('begin_date').str.to_date(),
-        pl.col('report_date').str.to_date(),
-        pl.col('end_date').str.to_date(),
-        pl.col('launch_date').str.to_date(),
-        pl.col('period_date').cast(pl.Int16),
-        pl.col('year').cast(pl.Int16),
-        pl.col('month').cast(pl.Int16),
-        pl.col('mday').cast(pl.Int16),
-        pl.col('week').cast(pl.Int16),
-        pl.col('delta_day').cast(pl.Int32),
-        pl.col('delta_week').cast(pl.Int32),
-        pl.col('delta_month').cast(pl.Int16),
-        pl.col('delta_year').cast(pl.Int16),
-    ).with_columns(
-        q_num=pl.col('report_date').dt.quarter().cast(pl.Int8),
-        fiscal_year=pl.when(pl.col('month') <= 3)
-        .then(pl.col('year') - 1)
-        .otherwise(pl.col('year'))
-        .cast(pl.Int16),
-        fiscal_month=(((pl.col('month') + 8) % 12) + 1).cast(pl.Int8),
-        index_week=(pl.col('delta_week') + 1).cast(pl.Int32),
-        index_month=(pl.col('delta_month') + 1).cast(pl.Int16),
-        index_year=(pl.col('delta_year') + 1).cast(pl.Int16),
-    ).with_columns(
-        fq_num=((pl.col('fiscal_month') - 1) // 3 + 1).cast(pl.Int8),
-        quarter=(
-            pl.col('year').cast(pl.Utf8) + "Q" + pl.col('q_num').cast(pl.Utf8)
-        ),
-    ).with_columns(
-        fiscal_quarter=(
-            pl.col('fiscal_year').cast(pl.Utf8)
-            + "FQ"
-            + pl.col('fq_num').cast(pl.Utf8)
-        ),
-    ).sort('weekly_id')
+    return (
+        df.with_columns(
+            pl.col('begin_date').cast(pl.Date),
+            pl.col('report_date').cast(pl.Date),
+            pl.col('end_date').cast(pl.Date),
+            pl.col('launch_date').cast(pl.Date),
+            pl.col('period_date').cast(pl.Int16),
+            pl.col('year').cast(pl.Int16),
+            pl.col('month').cast(pl.Int16),
+            pl.col('mday').cast(pl.Int16),
+            pl.col('week').cast(pl.Int16),
+            pl.col('delta_day').cast(pl.Int32),
+            pl.col('delta_week').cast(pl.Int32),
+            pl.col('delta_month').cast(pl.Int16),
+            pl.col('delta_year').cast(pl.Int16),
+        )
+        .with_columns(
+            q_num=pl.col('report_date').dt.quarter().cast(pl.Int8),
+            fiscal_year=pl.when(pl.col('month') <= 3)
+            .then(pl.col('year') - 1)
+            .otherwise(pl.col('year'))
+            .cast(pl.Int16),
+            fiscal_month=(((pl.col('month') + 8) % 12) + 1).cast(pl.Int8),
+            index_week=(pl.col('delta_week') + 1).cast(pl.Int32),
+            index_month=(pl.col('delta_month') + 1).cast(pl.Int16),
+            index_year=(pl.col('delta_year') + 1).cast(pl.Int16),
+        )
+        .with_columns(
+            fq_num=((pl.col('fiscal_month') - 1) // 3 + 1).cast(pl.Int8),
+            quarter=(
+                pl.col('year').cast(pl.Utf8) + "Q" + pl.col('q_num').cast(pl.Utf8)
+            ),
+        )
+        .with_columns(
+            fiscal_quarter=(
+                pl.col('fiscal_year').cast(pl.Utf8)
+                + "FQ"
+                + pl.col('fq_num').cast(pl.Utf8)
+            ),
+        )
+        .sort('weekly_id')
+        .with_columns(
+            pl.col('units').diff().over('hw').alias('units_diff'),
+            pl.col('units').rolling_mean(window_size=4).round(0).cast(pl.Int64).over('hw').alias('ma4w'),
+            pl.col('units').rolling_mean(window_size=13).round(0).cast(pl.Int64).over('hw').alias('ma13w'),
+            pl.col('units').rolling_mean(window_size=52).round(0).cast(pl.Int64).over('hw').alias('ma52w'),
+        )
+    )
 
 
 def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
@@ -101,6 +113,10 @@ def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
         - q_num (Int8): report_dateの四半期番号（1-4）
         - fq_num (Int8): fiscal_year内の四半期番号（1-4）
         - fiscal_quarter (String): report_dateの会計四半期（例: "2025FQ4"）
+        - units_diff (Int64): 同一ハードの前週比販売台数差分
+        - ma4w (Int64): 4週移動平均（直近4週の平均を四捨五入した整数）
+        - ma13w (Int64): 13週移動平均（直近13週の平均を四捨五入した整数）
+        - ma52w (Int64): 52週移動平均（直近52週の平均を四捨五入した整数）
         - avg_units (Int64): 1日あたりの販売台数 (units / period_date)
         - sum_units (Int64): report_date時点での累計販売台数
         - launch_date (Date): 発売日
@@ -128,7 +144,6 @@ def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
     df = _with_derived_columns(df)
     _hard_sales_cache = df
     return df.clone()
-
 
 
 def current_report_date(df: pl.DataFrame) -> datetime:
@@ -233,46 +248,3 @@ def get_maker_all() -> List[str]:
     base_df = load_hard_sales()
     _all_maker_list = get_maker(base_df)
     return _all_maker_list
-
-def with_units_diff(df: pl.DataFrame) -> pl.DataFrame:
-    """
-    同じハードウェアの前週比販売台数差分カラムを追加する。
-
-    Args:
-        df: load_hard_sales() の戻り値のDataFrame
-
-    Returns:
-        pl.DataFrame: units_diff (Int64) カラムを追加したDataFrame。
-                      各ハードの初週は null になる。
-    """
-    df = df.sort('weekly_id')
-    return df.with_columns(
-        pl.col('units')
-          .diff()
-          .over('hw')
-          .alias('units_diff')
-    )
-
-def add_rolling_mean(df: pl.DataFrame) -> pl.DataFrame:
-    """
-    ハードウェアごとの units 移動平均カラムを追加する。
-
-    各ハードウェア（hw）の時系列順に、units の移動平均を計算し、
-    以下の3カラムを追加して返す。
-    データが window_size に満たない期間は null となる。
-
-    Args:
-        df: load_hard_sales() の戻り値と同じカラム構成の DataFrame。
-
-    Returns:
-        pl.DataFrame: 以下の移動平均カラムを追加した DataFrame。
-                      - ma4w  (Int64): 4週移動平均（直近4週の平均を四捨五入した整数）
-                      - ma13w (Int64): 13週移動平均（直近13週の平均を四捨五入した整数）
-                      - ma52w (Int64): 52週移動平均（直近52週の平均を四捨五入した整数）
-    """
-    df = df.sort('weekly_id')
-    return df.with_columns(
-        pl.col('units').rolling_mean(window_size=4).round(0).cast(pl.Int64).over('hw').alias('ma4w'),
-        pl.col('units').rolling_mean(window_size=13).round(0).cast(pl.Int64).over('hw').alias('ma13w'),
-        pl.col('units').rolling_mean(window_size=52).round(0).cast(pl.Int64).over('hw').alias('ma52w'),
-    )
