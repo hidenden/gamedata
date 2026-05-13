@@ -27,10 +27,10 @@ _all_maker_list = None
 def _with_derived_columns(df: pl.DataFrame) -> pl.DataFrame:
     return (
         df.with_columns(
-            pl.col('begin_date').cast(pl.Date),
-            pl.col('report_date').cast(pl.Date),
-            pl.col('end_date').cast(pl.Date),
-            pl.col('launch_date').cast(pl.Date),
+            pl.col('begin_date').cast(pl.Utf8).str.to_date(),
+            pl.col('report_date').cast(pl.Utf8).str.to_date(),
+            pl.col('end_date').cast(pl.Utf8).str.to_date(),
+            pl.col('launch_date').cast(pl.Utf8).str.to_date(),
             pl.col('period_date').cast(pl.Int16),
             pl.col('year').cast(pl.Int16),
             pl.col('month').cast(pl.Int16),
