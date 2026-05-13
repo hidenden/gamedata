@@ -96,7 +96,7 @@ def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
         - index_week (Int32): 発売から何週目か（1始まり）
         - index_month (Int16): 発売から何ヶ月目か（1始まり）
         - index_year (Int16): 発売から何年目か（1始まり）
-        - fiscal_year (Int16): 4月始まりの会計年度（期末年）
+        - fiscal_year (Int16): 4月始まりの会計年度（期末年、例：2026年4月〜2027年3月 => 2027）
         - fiscal_month (Int8): 4月を1とする会計月
         - q_num (Int8): report_dateの四半期番号（1-4）
         - fq_num (Int8): fiscal_year内の四半期番号（1-4）

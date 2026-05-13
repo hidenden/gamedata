@@ -238,14 +238,14 @@ class TestLoadHardSales:
         assert result["fq_num"][0] == 4
         assert result["fiscal_quarter"][0] == "2020FQ4"
 
-    def test_fiscal_year_for_april_is_next_calendar_year(self):
+    def test_fiscal_year_for_april_uses_term_ending_year(self):
         raw = self._make_raw_df().with_columns(
             pl.lit("2020-04-05").alias("begin_date"),
             pl.lit("2020-04-11").alias("end_date"),
-            pl.lit("2020-04-05").alias("report_date"),
+            pl.lit("2020-04-11").alias("report_date"),
             pl.lit(2020).alias("year"),
             pl.lit(4).alias("month"),
-            pl.lit(5).alias("mday"),
+            pl.lit(11).alias("mday"),
         )
         with patch("sqlite3.connect") as mock_connect:
             mock_conn = MagicMock()
@@ -255,6 +255,42 @@ class TestLoadHardSales:
         assert result["fiscal_year"][0] == 2021
         assert result["fq_num"][0] == 1
         assert result["fiscal_quarter"][0] == "2021FQ1"
+
+    def test_fiscal_year_boundary_on_april_first(self):
+        raw = self._make_raw_df().with_columns(
+            pl.lit("2020-03-26").alias("begin_date"),
+            pl.lit("2020-04-01").alias("end_date"),
+            pl.lit("2020-04-01").alias("report_date"),
+            pl.lit(2020).alias("year"),
+            pl.lit(4).alias("month"),
+            pl.lit(1).alias("mday"),
+        )
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw):
+                result = hs.load_hard_sales()
+        assert result["fiscal_year"][0] == 2021
+        assert result["fq_num"][0] == 1
+        assert result["fiscal_quarter"][0] == "2021FQ1"
+
+    def test_fiscal_year_for_march_uses_same_calendar_year(self):
+        raw = self._make_raw_df().with_columns(
+            pl.lit("2020-03-22").alias("begin_date"),
+            pl.lit("2020-03-28").alias("end_date"),
+            pl.lit("2020-03-28").alias("report_date"),
+            pl.lit(2020).alias("year"),
+            pl.lit(3).alias("month"),
+            pl.lit(28).alias("mday"),
+        )
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw):
+                result = hs.load_hard_sales()
+        assert result["fiscal_year"][0] == 2020
+        assert result["fq_num"][0] == 4
+        assert result["fiscal_quarter"][0] == "2020FQ4"
 
     def test_uses_global_cache_by_default(self):
         raw = self._make_raw_df()
