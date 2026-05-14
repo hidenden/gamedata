@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.4"
+__generated_with = "0.23.5"
 app = marimo.App(width="medium")
 
 
@@ -28,7 +28,7 @@ def _():
 
 @app.cell
 def _(g, mo):
-    end = mo.ui.number(label="累積グラフ週数", value=52, start=10, stop=1000, step=20)
+    end = mo.ui.number(label="累積グラフ週数", value=52, start=10, stop=1000, step=5)
     event_select = g.EventSelect()
     event_widget = event_select.widget
     # run_button = mo.ui.run_button(label="更新", kind="success")
