@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.5"
+__generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
 
@@ -50,6 +50,16 @@ def _(g, pl):
     df_all: pl.DataFrame = g.load_hard_sales()
     df_all
     return (df_all,)
+
+
+@app.cell
+def _(df_all: "pl.DataFrame", pl):
+    ns_df = df_all.filter(
+        pl.col("hw") == "NS2").filter(
+            pl.col("index_week") <= 45).filter(
+                pl.col("index_week") > 40)
+    ns_df
+    return
 
 
 @app.cell
@@ -107,14 +117,14 @@ def _(g, number):
 @app.cell
 def _(mo):
     mo.md(r"""
-    ## with_units_diff
+    ## derived columns
     """)
     return
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g, pl):
-    df_diff: pl.DataFrame = g.with_units_diff(df_all)
+def _(df_all: "pl.DataFrame", pl):
+    df_diff: pl.DataFrame = df_all
     df_diff
     return (df_diff,)
 
@@ -122,14 +132,14 @@ def _(df_all: "pl.DataFrame", g, pl):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## add_rolling_mean
+    ## rolling mean columns
     """)
     return
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g, pl):
-    _rolling_df = g.add_rolling_mean(df_all).select(pl.col("report_date"), 
+def _(df_all: "pl.DataFrame", pl):
+    _rolling_df = df_all.select(pl.col("report_date"), 
     pl.col("hw"), pl.col("units"), 
     pl.col("ma4w"), pl.col("ma13w"), pl.col("ma52w"))
     _rolling_df

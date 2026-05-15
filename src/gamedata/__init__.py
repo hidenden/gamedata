@@ -49,7 +49,6 @@ from .hard_info import (
 
 # Import main functions from modules
 from .hard_sales import (
-    add_rolling_mean,
     current_report_date,
     get_active_hw,
     get_active_maker,
@@ -58,7 +57,6 @@ from .hard_sales import (
     get_maker,
     get_maker_all,
     load_hard_sales,
-    with_units_diff,
 )
 from .hard_sales_extract import (
     extract_by_date,

@@ -51,6 +51,7 @@ def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
         'yearly_units': '年間販売台数',
         'month': '月',
         'year': '年',
+        'fiscal_year': 'FY',
         'week': '週',
     }
     df = df.rename(base_rename_dict, strict=False)
@@ -94,7 +95,6 @@ def units_by_date_hw_table(df: pl.DataFrame, begin:datetime|date|None = None, en
     
     begin_minus_one = begin - timedelta(days=7) if begin is not None else None
     df = hsf.date_filter(df, begin=begin_minus_one, end=end)
-    df = hs.with_units_diff(df)
     df = hsf.date_filter(df, begin=begin, end=end)  # 再度日付フィルタを適用して、beginの1週間前のデータを除外
     df = (df
           .sort(by=['report_date', 'units', 'hw'], descending=[False, True, False])

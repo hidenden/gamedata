@@ -28,6 +28,7 @@ def _chart_line_sales(
     event_joinner=lambda df: df,
     with_point: bool = True,
     legend_orient: str = "top-right",
+    tooltip: List[alt.Tooltip] | None = None,
 ) -> alt.Chart:
     """売上のチャートを作成する関数
 
@@ -48,9 +49,7 @@ def _chart_line_sales(
 
     # チャートの作成
     base_chart = alt.Chart(df).encode(x=alt_x, y=alt_y, color=color)
-    chart = base_chart.mark_line()
-    if with_point:
-        chart += base_chart.mark_point()
+    chart = base_chart.mark_line(point=with_point)
 
     # dfがカラム evenv_name を持っている場合は、mark_text()でイベント名を表示する
     if "event_name" in df.columns:
@@ -64,6 +63,8 @@ def _chart_line_sales(
     chart = chart.properties().configure(autosize={"type": "pad"})
     if title is not None:
         chart = chart.properties(title=title)
+    if tooltip is not None:
+        chart = chart.encode(tooltip=tooltip)
     chart = chart.configure_legend(orient=legend_orient)
     # chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
 
@@ -78,6 +79,7 @@ def chart_line_sales(
     ymin: int = 0,
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
+    with_point: bool = True,
 ) -> alt.Chart:
     """売上のチャートを作成する関数
 
@@ -163,6 +165,7 @@ def chart_line_sales(
         color=alt_color,
         title=title,
         event_joinner=event_joinner,
+        with_point=with_point,
     )
 
 
@@ -189,6 +192,13 @@ def chart_line_weekly_by_hw_date(
     alt_x = alt.X("offset_week:Q", title="週数")
     alt_y = alt.Y("units:Q", title="販売台数")
     alt_color = alt.Color("label:N", title="ハード:時期")
+    
+    # Tooltipの定義
+    tooltip = [
+        alt.Tooltip("hw:N", title="ハード"),
+        alt.Tooltip("report_date:T", title="日付", format="%Y-%m-%d"),
+        alt.Tooltip("units:Q", title="販売台数"),
+    ]
 
     # チャートの作成
     return _chart_line_sales(
@@ -199,6 +209,7 @@ def chart_line_weekly_by_hw_date(
         ymin=ymin,
         title="週販推移比較",
         color=alt_color,
+        tooltip=tooltip,
     )
 
 
@@ -274,6 +285,8 @@ def chart_line_cumulative_delta(
     ymin: int = 0,
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
+    index_mode: bool = True,
+    with_point: bool = False,
 ) -> alt.Chart:
     """相対累計販売台数のチャートを作成する関数
     Args:
@@ -293,16 +306,22 @@ def chart_line_cumulative_delta(
     alt_y = alt.Y("sum_units:Q", title="相対累計販売台数")
     title = "相対累計販売台数"
     if mode_enum == Mode.MONTH:
-        alt_x = alt.X("delta_month:Q", title="月数")
+        col_name = "index_month" if index_mode else "delta_month"
+        alt_x = alt.X(f"{col_name}:Q", title="月数")
     elif mode_enum == Mode.YEAR:
-        alt_x = alt.X("delta_year:Q", title="年数")
+        col_name = "index_year" if index_mode else "delta_year"
+        alt_x = alt.X(f"{col_name}:Q", title="年数")
     elif mode_enum == Mode.WEEK:
+        col_name = "index_week" if index_mode else "delta_week"
         alt_x = alt.X(
-            "delta_week:Q", title="週数", axis=alt.Axis(grid=True, tickCount=20)
+            f"{col_name}:Q", title="週数", axis=alt.Axis(grid=True, tickCount=20)
         )
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
+    if index_mode and end is not None:
+        alt_x = alt_x.scale(domain=[1, end + 1]) 
+        
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(src_df)
     hw_colors = hi.get_hard_colors(current_hw)
@@ -331,6 +350,6 @@ def chart_line_cumulative_delta(
         color=alt_color,
         title="相対累計販売台数",
         event_joinner=event_joinner,
-        with_point=False,
+        with_point=with_point,
         legend_orient="top-left",
     )

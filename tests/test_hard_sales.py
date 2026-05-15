@@ -83,52 +83,59 @@ class TestGetMaker:
         assert "Microsoft" in result
 
 
-# ---------------------------------------------------------------------------
-# with_units_diff
-# ---------------------------------------------------------------------------
+RAW_COLUMNS = [
+    "weekly_id",
+    "begin_date",
+    "end_date",
+    "report_date",
+    "period_date",
+    "hw",
+    "units",
+    "adjust_units",
+    "year",
+    "month",
+    "mday",
+    "week",
+    "delta_day",
+    "delta_week",
+    "delta_month",
+    "delta_year",
+    "avg_units",
+    "sum_units",
+    "launch_date",
+    "maker_name",
+    "full_name",
+]
 
-class TestWithUnitsDiff:
-    def test_adds_units_diff_column(self, sample_sales_df):
-        result = hs.with_units_diff(sample_sales_df)
+
+class TestDerivedColumns:
+    def test_adds_units_diff_and_rolling_mean_columns(self, sample_sales_df):
+        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
         assert "units_diff" in result.columns
-
-    def test_first_row_is_null(self, sample_sales_df):
-        result = hs.with_units_diff(sample_sales_df)
-        # NSW の最初の週は diff が null
-        nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
-        assert nsw["units_diff"][0] is None
-
-    def test_diff_calculated_correctly(self, sample_sales_df):
-        result = hs.with_units_diff(sample_sales_df)
-        nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
-        # 2行目のdiff = 25000 - 30000 = -5000
-        assert nsw["units_diff"][1] == -5000
-
-
-# ---------------------------------------------------------------------------
-# add_rolling_mean
-# ---------------------------------------------------------------------------
-
-class TestAddRollingMean:
-    def test_adds_three_columns(self, sample_sales_df):
-        result = hs.add_rolling_mean(sample_sales_df)
         assert "ma4w" in result.columns
         assert "ma13w" in result.columns
         assert "ma52w" in result.columns
 
+    def test_first_row_units_diff_is_null(self, sample_sales_df):
+        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
+        assert nsw["units_diff"][0] is None
+
+    def test_units_diff_calculated_correctly(self, sample_sales_df):
+        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
+        assert nsw["units_diff"][1] == -5000
+
     def test_ma4w_value_correct(self, sample_sales_df):
         """NSW の4週移動平均の値が正しいこと"""
-        result = hs.add_rolling_mean(sample_sales_df)
+        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
-        # units: [30000, 25000, 20000, 50000, 40000, 15000]
-        # 4行目: (30000+25000+20000+50000)/4 = 31250
         assert nsw["ma4w"][3] == 31250
-        # 5行目: (25000+20000+50000+40000)/4 = 33750
         assert nsw["ma4w"][4] == 33750
 
     def test_ma4w_first_rows_are_null(self, sample_sales_df):
         """ウィンドウサイズに満たない行は null になること"""
-        result = hs.add_rolling_mean(sample_sales_df)
+        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
         assert nsw["ma4w"][0] is None
         assert nsw["ma4w"][1] is None
@@ -136,26 +143,24 @@ class TestAddRollingMean:
 
     def test_ma13w_all_null_when_not_enough_rows(self, sample_sales_df):
         """13週分に満たないハードは ma13w が全て null になること"""
-        result = hs.add_rolling_mean(sample_sales_df)
+        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
-        # NSW は6行しかないので ma13w は全て null
         assert nsw["ma13w"].null_count() == len(nsw)
 
     def test_ma52w_all_null_when_not_enough_rows(self, sample_sales_df):
         """52週分に満たないハードは ma52w が全て null になること"""
-        result = hs.add_rolling_mean(sample_sales_df)
+        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
         assert nsw["ma52w"].null_count() == len(nsw)
 
     def test_per_hw_grouping(self, sample_sales_df):
         """hw ごとに独立して移動平均が計算されること"""
-        result = hs.add_rolling_mean(sample_sales_df)
-        # PS5 は3行のみなので ma4w は全て null
+        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
         ps5 = result.filter(pl.col("hw") == "PS5").sort("weekly_id")
         assert ps5["ma4w"].null_count() == len(ps5)
 
     def test_returns_dataframe(self, sample_sales_df):
-        result = hs.add_rolling_mean(sample_sales_df)
+        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
         assert isinstance(result, pl.DataFrame)
 
 
@@ -232,11 +237,69 @@ class TestLoadHardSales:
         assert result["index_week"][0] == 22
         assert result["index_month"][0] == 11
         assert result["index_year"][0] == 3
-        assert result["fiscal_year"][0] == 2019
+        assert result["fiscal_year"][0] == 2020
         assert result["fiscal_month"][0] == 10
         assert result["q_num"][0] == 1
         assert result["fq_num"][0] == 4
-        assert result["fiscal_quarter"][0] == "2019FQ4"
+        assert result["fiscal_quarter"][0] == "2020FQ4"
+        assert result["units_diff"][0] is None
+        assert result["ma4w"][0] is None
+        assert result["ma13w"][0] is None
+        assert result["ma52w"][0] is None
+
+    def test_fiscal_year_for_april_uses_term_ending_year(self):
+        raw = self._make_raw_df().with_columns(
+            pl.lit("2020-04-05").alias("begin_date"),
+            pl.lit("2020-04-11").alias("end_date"),
+            pl.lit("2020-04-11").alias("report_date"),
+            pl.lit(2020).alias("year"),
+            pl.lit(4).alias("month"),
+            pl.lit(11).alias("mday"),
+        )
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw):
+                result = hs.load_hard_sales()
+        assert result["fiscal_year"][0] == 2021
+        assert result["fq_num"][0] == 1
+        assert result["fiscal_quarter"][0] == "2021FQ1"
+
+    def test_fiscal_year_boundary_on_april_first(self):
+        raw = self._make_raw_df().with_columns(
+            pl.lit("2020-03-26").alias("begin_date"),
+            pl.lit("2020-04-01").alias("end_date"),
+            pl.lit("2020-04-01").alias("report_date"),
+            pl.lit(2020).alias("year"),
+            pl.lit(4).alias("month"),
+            pl.lit(1).alias("mday"),
+        )
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw):
+                result = hs.load_hard_sales()
+        assert result["fiscal_year"][0] == 2021
+        assert result["fq_num"][0] == 1
+        assert result["fiscal_quarter"][0] == "2021FQ1"
+
+    def test_fiscal_year_for_march_uses_same_calendar_year(self):
+        raw = self._make_raw_df().with_columns(
+            pl.lit("2020-03-22").alias("begin_date"),
+            pl.lit("2020-03-28").alias("end_date"),
+            pl.lit("2020-03-28").alias("report_date"),
+            pl.lit(2020).alias("year"),
+            pl.lit(3).alias("month"),
+            pl.lit(28).alias("mday"),
+        )
+        with patch("sqlite3.connect") as mock_connect:
+            mock_conn = MagicMock()
+            mock_connect.return_value = mock_conn
+            with patch("polars.read_database", return_value=raw):
+                result = hs.load_hard_sales()
+        assert result["fiscal_year"][0] == 2020
+        assert result["fq_num"][0] == 4
+        assert result["fiscal_quarter"][0] == "2020FQ4"
 
     def test_uses_global_cache_by_default(self):
         raw = self._make_raw_df()
