@@ -85,15 +85,18 @@ def quarterly_sales_long(df: pl.DataFrame, hw: List[str] = [],
 
         DataFrameのカラム構成:
         - quarter (String): report_dateの四半期（例: "2024Q1"）
+        - fiscal_quarter (String): 会計年度の四半期（例: "2024Q1"）
         - year (Int16): 年
+        - fiscal_year (Int16): 会計年度
         - q_num (Int8): 四半期番号（1, 2, 3, 4）
+        - fq_num (Int8): 会計年度内の四半期番号（1, 2, 3, 4）
         - hw (String): ゲームハードの識別子
         - quarterly_units (Int64): 四半期販売台数
     """
     df = hsf.quarterly_sales(df, begin=begin, end=end)
     if len(hw) > 0:
         df = df.filter(pl.col('hw').is_in(hw))
-    return df.select(['quarter', 'year', 'q_num', 'hw', 'quarterly_units']).sort('quarter')
+    return df.select(['quarter', 'fiscal_quarter', 'year', 'fiscal_year', 'q_num', 'fq_num', 'hw', 'quarterly_units']).sort('quarter')
 
 
 def yearly_sales_long(df: pl.DataFrame, hw: List[str] = [],
