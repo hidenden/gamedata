@@ -288,11 +288,9 @@ class TestPlotSalesPaseDiff:
                     "begin_date": bd,
                     "end_date": rd,
                     "report_date": rd,
-                    "quarter": "2020Q1",
                     "period_date": 7,
                     "hw": hw,
                     "units": 10000,
-                    "adjust_units": 10000,
                     "year": rd.year,
                     "month": rd.month,
                     "mday": rd.day,
@@ -307,12 +305,31 @@ class TestPlotSalesPaseDiff:
                     "maker_name": maker,
                     "full_name": full,
                 })
-        return pl.DataFrame(rows).with_columns([
+        # 最新のカラム構成に合わせてDataFrameを作成
+        df = pl.DataFrame(rows).with_columns([
             pl.col("begin_date").cast(pl.Date),
             pl.col("end_date").cast(pl.Date),
             pl.col("report_date").cast(pl.Date),
             pl.col("launch_date").cast(pl.Date),
         ])
+        # 不要なカラムがあれば削除、必要なカラムがなければ追加
+        # 最新仕様: https://github.com/hidenden/gamedata/blob/master/.github/instructions/datastructure.instructions.md
+        # 必要なカラム一覧
+        required_cols = [
+            "weekly_id", "begin_date", "end_date", "report_date", "period_date",
+            "hw", "units", "year", "month", "mday", "week", "delta_day", "delta_week",
+            "delta_month", "delta_year", "avg_units", "sum_units", "launch_date",
+            "maker_name", "full_name"
+        ]
+        # index_weekカラムを追加（delta_week+1）
+        if "delta_week" in df.columns:
+            df = df.with_columns([
+                (pl.col("delta_week") + 1).alias("index_week")
+            ])
+        # カラム順を揃える（index_weekは末尾に追加）
+        out_cols = [c for c in required_cols if c in df.columns] + (["index_week"] if "index_week" in df.columns else [])
+        df = df.select(out_cols)
+        return df
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
         with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):

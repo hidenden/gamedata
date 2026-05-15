@@ -20,6 +20,7 @@ dependencies = [
     "polars>=1.37.1",
     "pyarrow>=23.0.1",
     "altair>=6.1.0",
+    "pytest>=9.0.3",
 ]
 
 [project.optional-dependencies]
@@ -36,6 +37,11 @@ addopts = "--cov=gamedata --cov-report=term-missing"
 [build-system]
 requires = ["setuptools >= 75.0"]     # 75以上推奨（editable installが安定）
 build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    "pytest-cov>=7.1.0",
+]
 
 # src-layout を正しく扱うための設定（src/gamedata/ の中身をパッケージとして認識）
 [tool.setuptools.packages.find]

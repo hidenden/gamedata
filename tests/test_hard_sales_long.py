@@ -64,7 +64,7 @@ class TestMonthlySalesLong:
 
     def test_has_expected_columns(self, sample_sales_df):
         result = lng.monthly_sales_long(sample_sales_df)
-        assert set(result.columns) == {"year_month", "year", "month", "hw", "monthly_units"}
+        assert set(result.columns) == {"year_month", "year_month_str", "year", "month", "hw", "monthly_units"}
 
     def test_month_column_is_date(self, sample_sales_df):
         result = lng.monthly_sales_long(sample_sales_df)
@@ -99,7 +99,7 @@ class TestQuarterlySalesLong:
 
     def test_has_expected_columns(self, sample_sales_df):
         result = lng.quarterly_sales_long(sample_sales_df)
-        assert set(result.columns) == {"quarter", "hw", "quarterly_units"}
+        assert set(result.columns) == {'quarter', 'fiscal_quarter', 'year', 'fiscal_year', 'q_num', 'fq_num', 'hw', 'quarterly_units'}
 
     def test_filter_by_hw(self, sample_sales_df):
         result = lng.quarterly_sales_long(sample_sales_df, hw=["NSW"])
@@ -261,7 +261,7 @@ class TestSalesWithOffsetLong:
     def test_has_expected_columns(self, sample_sales_df):
         hw_periods = [{"hw": "NSW", "begin": datetime(2020, 1, 1), "label": "NSW"}]
         result = lng.sales_with_offset_long(sample_sales_df, hw_periods)
-        assert set(result.columns) == {"offset_week", "label", "units"}
+        assert set(result.columns) == {"offset_week", "label", "units", "report_date", "hw"}
 
     def test_default_label_contains_hw_name(self, sample_sales_df):
         hw_periods = [{"hw": "NSW", "begin": datetime(2020, 1, 5)}]
@@ -350,7 +350,7 @@ class TestMakerLong:
 
     def test_has_expected_columns(self, sample_sales_df):
         result = lng.maker_long(sample_sales_df)
-        assert set(result.columns) == {"year", "maker_name", "yearly_units"}
+        assert set(result.columns) == {"year", "maker_name", "yearly_units", "yearly_ratio", "yearly_pct"}
 
     def test_with_year_range(self, sample_sales_df):
         result = lng.maker_long(sample_sales_df, begin_year=2020, end_year=2021)
