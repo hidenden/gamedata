@@ -1,13 +1,16 @@
 ---
 applyTo: '**'
 description: 'プロジェクトで使用するデータ構造の情報を提供します。'
-version: 1.1.0
+version: 1.2.0
 ---
-- このプロジェクトでは、load_hard_sales()を使用して、ビュー `hard_sales` からデータを取得することができます。
-- このビューは、ゲームハードの週次販売データ、分析指標、およびハード情報を統合して参照できるように設計されています。
-- ビューのデータは load_hard_sale()内で処理され、Pandas DataFrameとして返されます。
 
-以下に、load_hard_sales()の返すデータ型の詳細を示します。
+# 概要
+このプロジェクトでは、`load_hard_sales()` を使用して、ビュー `hard_sales` からデータを取得することができます。このビューは、ゲームハードの週次販売データ、分析指標、およびハード情報を統合して参照できるように設計されています。
+
+ビューのデータは `load_hard_sales()` 内で処理され、Polars DataFrame として返されます。
+
+# データ構造
+以下に、`load_hard_sales()` の返すデータ型の詳細を示します。
 
 | カラム名      | 型      | 説明                                                         |
 |:------------- |:------- |:------------------------------------------------------------ |
@@ -30,7 +33,12 @@ version: 1.1.0
 | sum_units     | int64 | report_date時点での累計販売台数                              |
 | launch_date   | datetime64 | 発売日                                                |
 | maker_name    | string  | メーカー名                                                |
-| full_name     | string  | ゲームハードの正式名称                                      |　　
+| full_name     | string  | ゲームハードの正式名称                                      |
+| quarter       | string    | report_dateの四半期（例: "2024Q1"）                          |
+| adjust_units | int64 | 週次販売台数の補正値(unitsは補正済みの値である)               |
+| index_week   | int32 | 発売から何週目か（1始まり）                                    |
+| index_month  | int16 | 発売から何ヶ月目か（1始まり）                                  |
+| index_year   | int16 | 発売から何年目か（1始まり）                                    |
 
 
 
