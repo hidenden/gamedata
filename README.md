@@ -73,9 +73,6 @@
 - analysis/ 分析の実施場所    
   - jupyterのnotobookで構成される分析過程､結果が格納される
 
-## 処理の定型化
-
-Makefile(make)によるデータの半自動更新｡
 
 ## テストの実行
 
@@ -125,6 +122,15 @@ uv run pytest tests/test_util.py
 
 ```bash
 uv run pytest -v
+```
+
+
+## ドキュメントの生成
+
+ドキュメントはpdocで作成します｡
+
+```bash
+uv run pdoc src/gamedata/ -o docs/
 ```
 
 ## トラブルシュート: uv で gamedata が import できない
