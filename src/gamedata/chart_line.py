@@ -319,7 +319,7 @@ def chart_line_cumulative_delta(
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
-    if index_mode:
+    if index_mode and end is not None:
         alt_x = alt_x.scale(domain=[1, end + 1]) 
         
     # ハードウェアごとの色を取得

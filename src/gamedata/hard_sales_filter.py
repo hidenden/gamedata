@@ -140,7 +140,7 @@ def quarterly_sales(src_df: pl.DataFrame,
     
     # quarterカラムから年と四半期番号を抽出
     quarterly_sales = (
-        df.group_by(['quarter', 'year', 'q_num', key_column])
+        df.group_by(['quarter', 'fiscal_quarter', 'year', 'fiscal_year', 'q_num', 'fq_num', key_column])
         .agg(pl.col('units').sum().alias('quarterly_units'))
         .sort([key_column, 'year', 'q_num'])
         .with_columns(

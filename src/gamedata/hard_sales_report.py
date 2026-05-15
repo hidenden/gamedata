@@ -51,6 +51,7 @@ def rename_columns(df: pl.DataFrame) -> pl.DataFrame:
         'yearly_units': '年間販売台数',
         'month': '月',
         'year': '年',
+        'fiscal_year': 'FY',
         'week': '週',
     }
     df = df.rename(base_rename_dict, strict=False)
