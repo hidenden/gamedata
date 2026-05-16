@@ -16,6 +16,7 @@ from .chart_bar import (
     chart_bar_sales_by_hard_year,
     chart_bar_yearly_delta,
     chart_bar_month_year,
+    chart_pie_yearly_share_by_maker,
 )
 from .chart_line import (
     chart_line_cumulative,

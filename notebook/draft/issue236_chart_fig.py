@@ -104,9 +104,58 @@ def _():
 
 @app.cell
 def _():
-    _chart = g.chart_bar_month_year(5, 2016, 2026, stacked=False)
+    _chart = g.chart_bar_month_year(5, begin_year=2016, end_year=2026, stacked=False)
     _mo_chart = mo.ui.altair_chart(_chart)
     mo.vstack([_mo_chart], justify="start")
+    return
+
+
+@app.cell
+def _(df_all):
+
+    mdf = g.maker_long(df_all, begin_year=2025, end_year=2026)
+    mdf
+    return (mdf,)
+
+
+@app.cell
+def _(mdf):
+
+    # maker_listを逆向きにする｡
+    maker_list = g.get_maker(mdf)[::-1]
+    maker_color = g.get_maker_colors(maker_list)
+
+    base = alt.Chart(mdf).encode(
+        theta=alt.Theta(field="yearly_pct", type="quantitative").stack(True),
+        color=alt.Color(field="maker_name", type="nominal", title="メーカー",
+                        scale=alt.Scale(domain=maker_list, range=maker_color)),
+                        column=alt.Row("year:O", 
+                                    header=alt.Header(labelAngle=0, 
+                                                    labelAlign="left", labelFontSize=14, title=None))
+        ).properties(width=140, height=150)
+    pie = base.mark_arc(outerRadius=110)
+    text = base.mark_text(radius=130, size=12).encode(
+        text=alt.Text("yearly_ratio:Q", format=".1%"),
+    )
+    _chart = (pie + text).properties(width=150, height=180)
+    _mo_chart = mo.ui.altair_chart(_chart)
+    mo.vstack([_mo_chart], justify="start")
+
+    return
+
+
+@app.cell
+def _():
+    _c = g.chart_pie_yearly_share_by_maker(begin_year=2024, end_year=2026)
+    mo.ui.altair_chart(_c)
+    return
+
+
+@app.cell
+def _():
+    _a = [1, 2, 3, 4, 5]
+    _a.reverse()
+    _a
     return
 
 

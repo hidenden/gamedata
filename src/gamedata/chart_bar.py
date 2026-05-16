@@ -426,9 +426,9 @@ def chart_bar_month_year(
     end = datetime(end_year, 12, 31) if end_year is not None else None
 
     df_all = hs.load_hard_sales()
-    df = hsf.monthly_sales(
-        df_all, maker_mode=True, begin=begin, end=end
-    ).filter(pl.col("month") == month)
+    df = hsf.monthly_sales(df_all, maker_mode=True, begin=begin, end=end).filter(
+        pl.col("month") == month
+    )
     alt_x = alt.X("year:O", title="年")
     alt_y = alt.Y("monthly_units:Q", title="販売台数")
     title = f"{month}月のメーカー別販売台数"
@@ -452,3 +452,45 @@ def chart_bar_month_year(
         legend_orient="top-right",
         xoffset=xoffset,
     )
+
+
+def chart_pie_yearly_share_by_maker(
+    begin_year: int, end_year: int | None = None
+) -> alt.Chart:
+    """メーカー別の年次シェアを円グラフで表示する。
+
+    Returns:
+        alt.Chart: 年ごとのメーカーシェアを表示するチャート。
+    """
+    df_all = hs.load_hard_sales()
+    if end_year is None:
+        end_year = begin_year
+
+    df = hsl.maker_long(df_all, begin_year=begin_year, end_year=end_year)
+    maker_list = hs.get_maker(df)[::-1]
+    maker_color = hi.get_maker_colors(maker_list)
+
+    base = (
+        alt.Chart(df)
+        .encode(
+            theta=alt.Theta(field="yearly_pct", type="quantitative").stack(True),
+            color=alt.Color(
+                field="maker_name",
+                type="nominal",
+                title="メーカー",
+                scale=alt.Scale(domain=maker_list, range=maker_color),
+            ),
+            column=alt.Row(
+                "year:O",
+                header=alt.Header(
+                    labelAngle=0, labelAlign="left", labelFontSize=13, title=None
+                ),
+            ),
+        )
+        .properties(width=140, height=150)
+    )
+    pie = base.mark_arc(outerRadius=110)
+    text = base.mark_text(radius=130, size=12).encode(
+        text=alt.Text("yearly_ratio:Q", format=".1%"),
+    )
+    return (pie + text).properties(width=150, height=180)
