@@ -268,3 +268,75 @@ def chart_hbar_yearly_share_by_maker(
             cornerRadius=5,
         )
     )
+
+
+def chart_bar_sales_by_hard_year(
+    hwy: list[tuple[str, int]],
+    mode: str = "month",
+    stacked: bool = False,
+    ymax: int | None = None,
+) -> alt.Chart:
+    """ハード別の月次売上棒グラフを作成する関数
+    Args:
+        hwy: ハードと年のタプルのリスト
+        mode: 集計の単位（"month", "quarter", デフォルトは"month"）
+        stacked: 棒グラフを積み上げ表示するかどうか（デフォルトはFalse）
+        ymax: Y軸の最大値（オプション）
+
+    Returns:
+        alt.Chart: ハード別の月次売上棒グラフ
+    """
+    df_all = hs.load_hard_sales()
+
+    def data_source(df_all, hwy, fn):
+        dfs = []
+        for h, y in hwy:
+            df = fn(df_all, hw=[h], begin=datetime(y, 1, 1), end=datetime(y, 12, 31))
+            dfs.append(df)
+        return pl.concat(dfs)
+
+    mode_enum = parse_mode(mode)
+    if mode_enum == Mode.MONTH:
+        src_df = data_source(df_all, hwy, hsl.monthly_sales_long)
+        alt_x = alt.X("month:O", title="月")
+        alt_y = alt.Y("monthly_units:Q", title="販売台数")
+        title = "月次販売台数"
+        tooltip = [
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("year:N", title="年"),
+            alt.Tooltip("month:N", title="月"),
+            alt.Tooltip("monthly_units:Q", title="販売台数"),
+        ]
+    elif mode_enum == Mode.QUARTER:
+        src_df = data_source(df_all, hwy, hsl.quarterly_sales_long)
+        alt_x = alt.X("q_num:O", title="四半期")
+        alt_y = alt.Y("quarterly_units:Q", title="販売台数")
+        title = "四半期販売台数"
+        tooltip = [
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("quarter:O", title="四半期"),
+            alt.Tooltip("quarterly_units:Q", title="販売台数"),
+        ]
+    else:
+        raise ValueError(
+            "modeは'month', 'quarter', または 'year'のいずれかでなければなりません"
+        )
+
+    src_df = src_df.with_columns(
+        pl.concat_str([pl.col("hw"), pl.lit("_"), pl.col("year")]).alias("hw_year")
+    )
+
+    alt_color = alt.Color("hw_year:N", title="ハード_年")
+    xoffset = "hw_year:N" if not stacked else None
+
+    return _chart_bar_sales(
+        src_df=src_df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        color=alt_color,
+        title=title,
+        ymax=ymax,
+        ymin=0,
+        xoffset=xoffset,
+        tooltip=tooltip,
+    )

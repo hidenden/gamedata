@@ -66,5 +66,21 @@ def _():
     return
 
 
+@app.cell
+def _():
+    _chart = g.chart_bar_sales_by_hard_year(hwy=[("NSW", 2017), ("NSW", 2020), ("NS2", 2025)], mode="month")
+    _mo_chart = mo.ui.altair_chart(_chart)
+    mo.vstack([_mo_chart], justify="start")
+    return
+
+
+@app.cell
+def _():
+    _chart = g.chart_bar_sales_by_hard_year(hwy=[("PS4", 2020), ("PS5", 2025)] , mode="q")
+    _mo_chart = mo.ui.altair_chart(_chart)
+    mo.vstack([_mo_chart], justify="start")
+    return
+
+
 if __name__ == "__main__":
     app.run()

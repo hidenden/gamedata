@@ -13,6 +13,7 @@ from .chart_bar import (
     chart_bar_hwsales_by_year,
     chart_bar_sales,
     chart_hbar_yearly_share_by_maker,
+    chart_bar_sales_by_hard_year,
 )
 from .chart_line import (
     chart_line_cumulative,
