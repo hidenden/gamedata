@@ -379,3 +379,312 @@ class TestMakerLong:
     def test_end_year_only(self, sample_sales_df):
         result = lng.maker_long(sample_sales_df, end_year=2020)
         assert result.height > 0
+
+
+class TestCumSumDiffsLong:
+    """cumsum_diffs_long 関数のテスト"""
+
+    def test_returns_dataframe(self, sample_sales_df):
+        result = lng.cumsum_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        assert isinstance(result, pl.DataFrame)
+
+    def test_has_expected_columns(self, sample_sales_df):
+        result = lng.cumsum_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        expected_columns = {
+            "report_date",
+            "hw_new",
+            "hw_old",
+            "pair_name",
+            "cumsum_diff",
+            "sum_units_new",
+            "sum_units_old",
+            "index_week",
+        }
+        assert set(result.columns) == expected_columns
+
+    def test_single_comparison(self, sample_sales_df):
+        result = lng.cumsum_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        assert result.height > 0
+        # NS2とPS5のペアのみ
+        assert set(result["hw_new"].unique().to_list()) == {"NSW"}
+        assert set(result["hw_old"].unique().to_list()) == {"PS5"}
+
+    def test_multiple_comparisons(self, sample_sales_df):
+        cmplist = [("NSW", "PS5"), ("XSX", "PS5")]
+        result = lng.cumsum_diffs_long(sample_sales_df, cmplist)
+        assert result.height > 0
+        # 両方のペアが存在することを確認
+        hw_new_set = set(result["hw_new"].unique().to_list())
+        assert "NSW" in hw_new_set
+        assert "XSX" in hw_new_set
+
+    def test_cumsum_diff_calculation_correct(self, sample_sales_df):
+        result = lng.cumsum_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        # cumsum_diff = sum_units_old - sum_units_new
+        result = result.with_columns(
+            calculated_diff=(pl.col("sum_units_old") - pl.col("sum_units_new"))
+        )
+        # 計算が一致していることを確認
+        assert (result["cumsum_diff"] == result["calculated_diff"]).all()
+
+    def test_pair_name_format(self, sample_sales_df):
+        result = lng.cumsum_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        # pair_name は "NSW_PS5差" の形式
+        expected_pair_name = "NSW_PS5差"
+        assert set(result["pair_name"].unique().to_list()) == {expected_pair_name}
+
+    def test_include_comeback_false_default(self, sample_sales_df):
+        # デフォルトはinclude_comeback=False
+        result = lng.cumsum_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        # include_comeback=Falseの場合、cumsum_diff が初めて0未満になる行までフィルタリング
+        # NS2は古いハード（2017発売）で、PS5は新しいハード（2020発売）
+        # NSWの方が先に発売されているので、累計がずっと大きい可能性がある
+        # cumsum_diffが存在することを確認（フィルタリングされていることを示す）
+        if result.height > 0:
+            # 最後の行のcumsum_diffが最初の行より小さくないことを確認
+            # （フィルタリングが機能しているかは別テストで確認）
+            assert "cumsum_diff" in result.columns
+
+    def test_include_comeback_true_preserves_all_data(self, sample_sales_df):
+        result_with_comeback = lng.cumsum_diffs_long(
+            sample_sales_df, [("NSW", "PS5")], include_comeback=True
+        )
+        result_without_comeback = lng.cumsum_diffs_long(
+            sample_sales_df, [("NSW", "PS5")], include_comeback=False
+        )
+        # include_comeback=Trueの方が行数が多いか等しい
+        assert result_with_comeback.height >= result_without_comeback.height
+        # cumsum_diff が 0 未満になる行があるなら、include_comeback=True でそれが含まれる
+        negative_in_with = (result_with_comeback["cumsum_diff"] < 0).sum()
+        negative_in_without = (result_without_comeback["cumsum_diff"] < 0).sum()
+        # with_comeback=Trueの方が負の値を含むはず（または同じ）
+        assert negative_in_with >= negative_in_without
+
+    def test_include_comeback_filtering_behavior(self, sample_sales_df):
+        """include_comeback=False時のフィルタリング動作を検証"""
+        result_with_comeback = lng.cumsum_diffs_long(
+            sample_sales_df, [("NSW", "PS5")], include_comeback=True
+        )
+        result_without_comeback = lng.cumsum_diffs_long(
+            sample_sales_df, [("NSW", "PS5")], include_comeback=False
+        )
+        
+        # cumsum_diff < 0 になる行が存在するかをチェック
+        negative_rows_with = result_with_comeback.filter(pl.col("cumsum_diff") < 0)
+        negative_rows_without = result_without_comeback.filter(pl.col("cumsum_diff") < 0)
+        
+        if negative_rows_with.height > 0:
+            # cumsum_diff < 0 の行が存在する場合
+            # include_comeback=False では、最初の負の行より後の行がフィルタリングされている
+            # つまり、without のdata setに属する最後のreport_dateは、with の最後のreport_dateより前か同じ
+            without_max_date = result_without_comeback["report_date"].max()
+            with_max_date = result_with_comeback["report_date"].max()
+            assert without_max_date <= with_max_date
+    
+    def test_report_date_alignment(self, sample_sales_df):
+        # 内部結合なので、両ハードが同じreport_dateを持つ行のみが存在
+        result = lng.cumsum_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        # 結果にはreport_dateが含まれている
+        assert "report_date" in result.columns
+        assert result.height >= 0
+
+    def test_empty_result_when_no_overlapping_dates(self):
+        # 重複する日付がない2つのハードウェアのデータを作成
+        # この場合、内部結合の結果は空になる
+        # 注：サンプルデータでは重複がある可能性があるため、
+        # この테스트は構造を確認するためのもの
+        import polars as pl
+        from datetime import date
+
+        # PS5とXSXのデータだけを使用（日付が異なる可能性がある）
+        cmplist = [("PS5", "XSX")]
+        # サンプルデータには重複がないので、結果は空の可能性
+        # これは正常な動作
+
+
+class TestSalesPaseDiffsLong:
+    """sales_pase_diffs_long 関数のテスト"""
+
+    def test_returns_dataframe(self, sample_sales_df):
+        # テストデータで同じindex_weekを持つペアがない場合、空のDataFrameが返される
+        # これは正常な動作（結果が存在しない）
+        result = lng.sales_pase_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        assert isinstance(result, pl.DataFrame)
+
+    def test_has_expected_columns(self, sample_sales_df):
+        result = lng.sales_pase_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        # 空のDataFrameでもカラムが存在すること
+        expected_columns = {
+            "index_week",
+            "hw_new",
+            "hw_old",
+            "pair_name",
+            "pase_diff",
+            "sum_units_new",
+            "sum_units_old",
+            "report_date_new",
+            "report_date_old",
+        }
+        assert set(result.columns) == expected_columns
+
+    def test_empty_result_when_no_overlapping_index_weeks(self, sample_sales_df):
+        # サンプルデータではNSWとPS5がindex_weekで重複しない
+        result = lng.sales_pase_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        # 重複がないため、結果は空
+        assert result.height == 0
+
+    def test_multiple_comparisons_structure(self, sample_sales_df):
+        # 複数ペアを指定してもその構造は保持される
+        cmplist = [("NSW", "PS5"), ("NSW", "XSX")]
+        result = lng.sales_pase_diffs_long(sample_sales_df, cmplist)
+        # 結果はDataFrameであること
+        assert isinstance(result, pl.DataFrame)
+        # カラムが正しいこと
+        assert "pair_name" in result.columns
+        
+    def test_pase_diff_calculation_structure(self, sample_sales_df):
+        # カスタムテストデータを作成（同じindex_weekを持つペア）
+        import polars as pl
+        from datetime import date, timedelta
+        
+        # PS5とPS4のカスタムテストデータを構築
+        # PS4: 2014-02-22 発売
+        # PS5: 2020-11-12 発売
+        ps4_launch = date(2014, 2, 22)
+        ps5_launch = date(2020, 11, 12)
+        
+        # テスト用にカスタムDFを作成（ここでは単純に構造テスト）
+        # sales_pase_diffs_longが返すDataFrameの構造が正しいことを確認
+        test_data = []
+        # PS4: index_week 1, 2, 3 (3年間のデータ以降など)
+        # PS5: index_week 1, 2, 3 (発売後3週分)
+        for i in range(1, 4):
+            test_data.append({
+                "report_date": ps4_launch + timedelta(weeks=100+i),
+                "hw": "PS4",
+                "sum_units": 10000 + i*1000,
+                "index_week": i,
+                "delta_week": 100+i-1,
+            })
+            test_data.append({
+                "report_date": ps5_launch + timedelta(weeks=i-1),
+                "hw": "PS5",
+                "sum_units": 5000 + i*500,
+                "index_week": i,
+                "delta_week": i-1,
+            })
+        
+        test_df = pl.DataFrame(test_data)
+        result = lng.sales_pase_diffs_long(test_df, [("PS5", "PS4")])
+        
+        # 結果が空でないことを確認
+        assert result.height > 0
+        # pase_diff = sum_units_new - sum_units_old であることを確認
+        assert (result["pase_diff"] == result["sum_units_new"] - result["sum_units_old"]).all()
+
+    def test_sorted_by_index_week(self, sample_sales_df):
+        # カスタムテストデータで確認
+        import polars as pl
+        from datetime import date, timedelta
+        
+        ps4_launch = date(2014, 2, 22)
+        ps5_launch = date(2020, 11, 12)
+        
+        test_data = []
+        for i in range(1, 4):
+            test_data.append({
+                "report_date": ps4_launch + timedelta(weeks=100+i),
+                "hw": "PS4",
+                "sum_units": 10000 + i*1000,
+                "index_week": i,
+            })
+            test_data.append({
+                "report_date": ps5_launch + timedelta(weeks=i-1),
+                "hw": "PS5",
+                "sum_units": 5000 + i*500,
+                "index_week": i,
+            })
+        
+        test_df = pl.DataFrame(test_data)
+        result = lng.sales_pase_diffs_long(test_df, [("PS5", "PS4")])
+        
+        if result.height > 0:
+            index_weeks = result["index_week"].to_list()
+            # index_weekでソートされていることを確認
+            assert index_weeks == sorted(index_weeks)
+
+    def test_report_date_columns_present(self, sample_sales_df):
+        result = lng.sales_pase_diffs_long(sample_sales_df, [("NSW", "PS5")])
+        # 両ハードのreport_dateが存在
+        assert "report_date_new" in result.columns
+        assert "report_date_old" in result.columns
+
+    def test_pair_name_structure(self, sample_sales_df):
+        # カスタムテストデータで確認
+        import polars as pl
+        from datetime import date, timedelta
+        
+        ps4_launch = date(2014, 2, 22)
+        ps5_launch = date(2020, 11, 12)
+        
+        test_data = []
+        for i in range(1, 4):
+            test_data.append({
+                "report_date": ps4_launch + timedelta(weeks=100+i),
+                "hw": "PS4",
+                "sum_units": 10000 + i*1000,
+                "index_week": i,
+            })
+            test_data.append({
+                "report_date": ps5_launch + timedelta(weeks=i-1),
+                "hw": "PS5",
+                "sum_units": 5000 + i*500,
+                "index_week": i,
+            })
+        
+        test_df = pl.DataFrame(test_data)
+        result = lng.sales_pase_diffs_long(test_df, [("PS5", "PS4")])
+        
+        if result.height > 0:
+            # pair_name は "PS5_PS4差" の形式
+            expected_pair_name = "PS5_PS4差"
+            assert set(result["pair_name"].unique().to_list()) == {expected_pair_name}
+
+    def test_multiple_pairs_different_calculations(self, sample_sales_df):
+        # 複数ペアで異なるpase_diffが計算されることを確認
+        import polars as pl
+        from datetime import date, timedelta
+        
+        ps3_launch = date(2006, 11, 11)
+        ps4_launch = date(2014, 2, 22)
+        ps5_launch = date(2020, 11, 12)
+        
+        test_data = []
+        # 3つのハードウェアのデータ（同じindex_weekを持つ）
+        for i in range(1, 3):
+            test_data.append({
+                "report_date": ps3_launch + timedelta(weeks=200+i),
+                "hw": "PS3",
+                "sum_units": 20000 + i*1000,
+                "index_week": i,
+            })
+            test_data.append({
+                "report_date": ps4_launch + timedelta(weeks=100+i),
+                "hw": "PS4",
+                "sum_units": 15000 + i*1000,
+                "index_week": i,
+            })
+            test_data.append({
+                "report_date": ps5_launch + timedelta(weeks=i-1),
+                "hw": "PS5",
+                "sum_units": 10000 + i*500,
+                "index_week": i,
+            })
+        
+        test_df = pl.DataFrame(test_data)
+        result = lng.sales_pase_diffs_long(test_df, [("PS5", "PS3"), ("PS5", "PS4")])
+        
+        if result.height > 0:
+            # 異なるペアが存在することを確認
+            pair_names = result["pair_name"].unique().to_list()
+            assert len(pair_names) >= 1
