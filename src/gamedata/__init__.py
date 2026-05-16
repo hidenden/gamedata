@@ -19,6 +19,8 @@ from .chart_line import (
     chart_line_cumulative_delta,
     chart_line_sales,
     chart_line_weekly_by_hw_date,
+    chart_line_cumsum_diffs,
+    chart_line_pase_diffs,
 )
 from .hard_event import (
     EVENT_MASK_LONG,
