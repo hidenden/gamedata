@@ -85,6 +85,8 @@ from .hard_sales_long import (
     sales_long,
     sales_with_offset_long,
     yearly_sales_long,
+    cumsum_diffs_long,
+    sales_pase_diffs_long,
 )
 from .hard_sales_pivot import (
     cumsum_diffs,

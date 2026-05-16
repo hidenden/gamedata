@@ -33,7 +33,7 @@ def _():
 def _(df_all):
     _cmplist = [("PS5", "PS4"), ("PS5", "PS3")]
 
-    pase_df = sales_pase_diffs_long(df_all, cmplist=_cmplist)
+    pase_df = g.sales_pase_diffs_long(df_all, cmplist=_cmplist)
     pase_df
     return
 
@@ -343,7 +343,7 @@ def cumsum_diffs_long(df: pl.DataFrame,
 def _(df_all):
     _cmplist = [("NSW", "PS4"), ("NS2", "PS5")]
 
-    difflib_df = cumsum_diffs_long(df_all, cmplist=_cmplist)
+    difflib_df = g.cumsum_diffs_long(df_all, cmplist=_cmplist)
     difflib_df
     return
 
