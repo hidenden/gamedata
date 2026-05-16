@@ -13,12 +13,18 @@ from .chart_bar import (
     chart_bar_hwsales_by_year,
     chart_bar_sales,
     chart_hbar_yearly_share_by_maker,
+    chart_bar_sales_by_hard_year,
+    chart_bar_yearly_delta,
+    chart_bar_month_year,
+    chart_pie_yearly_share_by_maker,
 )
 from .chart_line import (
     chart_line_cumulative,
     chart_line_cumulative_delta,
     chart_line_sales,
     chart_line_weekly_by_hw_date,
+    chart_line_cumsum_diffs,
+    chart_line_pase_diffs,
 )
 from .hard_event import (
     EVENT_MASK_LONG,
@@ -85,6 +91,8 @@ from .hard_sales_long import (
     sales_long,
     sales_with_offset_long,
     yearly_sales_long,
+    cumsum_diffs_long,
+    sales_pase_diffs_long,
 )
 from .hard_sales_pivot import (
     cumsum_diffs,
