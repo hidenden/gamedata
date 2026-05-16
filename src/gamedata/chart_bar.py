@@ -402,3 +402,53 @@ def chart_bar_yearly_delta(
         tooltip=tooltip,
         xoffset=xoffset,
     )
+
+
+def chart_bar_month_year(
+    month: int,
+    begin: int | None = None,
+    end: int | None = None,
+    stacked: bool = True,
+) -> alt.Chart:
+    """
+    指定した月の年ごとの移り変わりをメーカーごとの棒グラフで表示する
+
+    Args:
+        month: 対象月（1-12）
+        begin: 集計開始年
+        end: 集計終了年(
+        stacked: 棒グラフを積み上げ表示するかどうか
+
+    Returns:
+        alt.Chart: 経過年毎販売台数の棒グラフ
+    """
+    begin_date = datetime(begin, 1, 1) if begin is not None else None
+    end_date = datetime(end, 12, 31) if end is not None else None
+
+    df_all = hs.load_hard_sales()
+    df = hsf.monthly_sales(
+        df_all, maker_mode=True, begin=begin_date, end=end_date
+    ).filter(pl.col("month") == month)
+    alt_x = alt.X("year:O", title="年")
+    alt_y = alt.Y("monthly_units:Q", title="販売台数")
+    title = f"{month}月のメーカー別販売台数"
+
+    maker_list = hs.get_maker(df)
+    maker_color = hi.get_maker_colors(maker_list)
+
+    alt_color = alt.Color(
+        "maker_name:N",
+        title="メーカー",
+        scale=alt.Scale(domain=maker_list, range=maker_color),
+    )
+    xoffset = "maker_name:N" if not stacked else None
+
+    return _chart_bar_sales(
+        src_df=df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        color=alt_color,
+        title=title,
+        legend_orient="top-right",
+        xoffset=xoffset,
+    )

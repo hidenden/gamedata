@@ -82,5 +82,33 @@ def _():
     return
 
 
+@app.cell
+def _(df_all):
+    dx = g.delta_yearly_sales(df_all)
+    dx
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    _chart = g.chart_bar_yearly_delta(hw=["PS3", "PS4", "PS5"])
+    _mo_chart = mo.ui.altair_chart(_chart)
+    mo.vstack([_mo_chart], justify="start")
+    return
+
+
+@app.cell
+def _():
+    _chart = g.chart_bar_month_year(5, 2016, 2026, stacked=False)
+    _mo_chart = mo.ui.altair_chart(_chart)
+    mo.vstack([_mo_chart], justify="start")
+    return
+
+
 if __name__ == "__main__":
     app.run()
