@@ -213,6 +213,7 @@ def _():
     ```
     ## cumsum_diffs_long()の出力テーブルの構造案
 
+    - index_week: int: 週番号(1から始まる)
     - report_date: datetime: 集計日
     - hw_new: str : NSW, NS2などの､後から追いかけるマシン
     - hw_old: str: PS4, PS5などの､基準となるマシン(追いつかれる方のマシン)
@@ -231,17 +232,18 @@ def _():
 
     - df_allから､hw_oldとhw_newのデータをそれぞれ別々のdataframeとして抽出する｡
     - カラム名を変更する
-        - old側: hw:hw_old, sum_units: sum_units_old
-        - new側: hw:hw_new, sum_units: sum_units_new
+        - old側: hw:hw_old, sum_units: sum_units_old, index_week:index_week_old
+        - new側: hw:hw_new, sum_units: sum_units_new, index_week:index_week_new
     - 集計日(report_date)を基準をjoinする｡hw_oldを左､hw_newを右にして､集計日で結合する｡
     - selectで必要なカラムを抽出する｡
-        - report_date, hw_old, hw_new, sum_units_old, sum_units_new
+        - report_date, hw_old, hw_new, sum_units_old, sum_units_new, index_week_new
     - 結合後､cumsum_diffを計算する｡ sum_units_old - sum_units_new = cumsum_diff
     - report_dateでソートする
     - cumsum_diffの値で以下の条件でフィルタリングする｡
         - cumsum_diffが0以上の行 と
         - cumsum_diffが0未満の最初の行 (つまり､追いつかれた週) までを残す｡ (これはpolarsでどんな処理になる?)
     - pair_nameを作成する｡ f"{hw_new}_{hw_old}差"
+    - index_week_newをindex_weekにリネームする
     """)
     return
 
@@ -274,10 +276,12 @@ def cumsum_diffs_long(df: pl.DataFrame,
         return df.filter(pl.col("hw") == hw).select([
             "hw",
             "report_date",
-            "sum_units"
+            "sum_units",
+            "index_week"
         ]).rename({
             "hw": f"hw_{role}",
-            "sum_units": f"sum_units_{role}"
+            "sum_units": f"sum_units_{role}",
+            "index_week": f"index_week_{role}"
         })
 
     for hw_new, hw_old in cmplist:
@@ -319,15 +323,18 @@ def cumsum_diffs_long(df: pl.DataFrame,
             "cumsum_diff",
             "sum_units_new",
             "sum_units_old",
-        ])
+            "index_week_new"
+        ]).rename({
+            "index_week_new": "index_week"
+        })
 
         dfs.append(df_pair)
 
     # すべてのペアのdataframeを結合
     result = pl.concat(dfs)
 
-    # report_dateでソート
-    result = result.sort("report_date")
+    # index_weekでソート
+    result = result.sort("index_week")
 
     return result
 
