@@ -13,6 +13,7 @@ from . import hard_info as hi
 # プロジェクト内モジュール
 from . import hard_sales as hs
 from . import hard_sales_long as hsl
+from . import hard_sales_filter as hsf
 from .mode import Mode, parse_mode
 
 
@@ -339,4 +340,65 @@ def chart_bar_sales_by_hard_year(
         ymin=0,
         xoffset=xoffset,
         tooltip=tooltip,
+    )
+
+
+def chart_bar_yearly_delta(
+    hw: list[str],
+    stacked: bool = False,
+    delta_begin: int | None = None,
+    delta_end: int | None = None,
+) -> alt.Chart:
+    """
+    指定した機種の経過年毎販売台数をハード別に棒グラフで表示する
+
+    Args:
+        hw: プロットしたいハードウェア名のリスト
+        delta_begin: 経過年の開始（指定しない場合は0年）
+        delta_end: 経過年の終了（指定しない場合は全期間）
+
+    Returns:
+        alt.Chart: 経過年毎販売台数の棒グラフ
+
+        DataFrameのカラム構成:
+        - index: delta_year (int64): 発売年から何年後か（同じ年なら0）
+        - columns: hw (string): ゲームハードの識別子
+        - values: yearly_units (int64): 経過年次販売台数
+    """
+
+    df_all = hs.load_hard_sales()
+    df = (
+        hsf.delta_yearly_sales(df_all)
+        .filter(pl.col("hw").is_in(hw))
+        .filter(pl.col("delta_year") >= (delta_begin if delta_begin is not None else 0))
+        .filter(
+            pl.col("delta_year")
+            <= (delta_end if delta_end is not None else pl.max("delta_year"))
+        )
+    )
+
+    alt_x = alt.X("delta_year:O", title="経過年")
+    alt_y = alt.Y("yearly_units:Q", title="販売台数")
+    title = "経過年毎販売台数"
+    tooltip = [
+        alt.Tooltip("hw:N", title="ハード"),
+        alt.Tooltip("delta_year:N", title="経過年"),
+        alt.Tooltip("yearly_units:Q", title="販売台数"),
+    ]
+    hw_list = hs.get_hw(df)
+    hw_colors = hi.get_hard_colors(hw_list)
+    alt_color = alt.Color(
+        "hw:N", title="ハード", scale=alt.Scale(domain=hw_list, range=hw_colors)
+    )
+    xoffset = "hw:N" if not stacked else None
+
+    return _chart_bar_sales(
+        src_df=df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        color=alt_color,
+        title=title,
+        legend_orient="top-right",
+        tooltip=tooltip,
+        xoffset=xoffset,
     )
