@@ -406,8 +406,8 @@ def chart_bar_yearly_delta(
 
 def chart_bar_month_year(
     month: int,
-    begin: int | None = None,
-    end: int | None = None,
+    begin_year: int | None = None,
+    end_year: int | None = None,
     stacked: bool = True,
 ) -> alt.Chart:
     """
@@ -415,19 +415,19 @@ def chart_bar_month_year(
 
     Args:
         month: 対象月（1-12）
-        begin: 集計開始年
-        end: 集計終了年(
+        begin_year: 集計開始年
+        end_year: 集計終了年
         stacked: 棒グラフを積み上げ表示するかどうか
 
     Returns:
         alt.Chart: 経過年毎販売台数の棒グラフ
     """
-    begin_date = datetime(begin, 1, 1) if begin is not None else None
-    end_date = datetime(end, 12, 31) if end is not None else None
+    begin = datetime(begin_year, 1, 1) if begin_year is not None else None
+    end = datetime(end_year, 12, 31) if end_year is not None else None
 
     df_all = hs.load_hard_sales()
     df = hsf.monthly_sales(
-        df_all, maker_mode=True, begin=begin_date, end=end_date
+        df_all, maker_mode=True, begin=begin, end=end
     ).filter(pl.col("month") == month)
     alt_x = alt.X("year:O", title="年")
     alt_y = alt.Y("monthly_units:Q", title="販売台数")
