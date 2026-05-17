@@ -29,7 +29,7 @@ def _chart_line_sales(
     with_point: bool = True,
     legend_orient: str = "top-right",
     tooltip: List[alt.Tooltip] | None = None,
-) -> alt.Chart:
+) -> alt.Chart | alt.LayerChart:
     """売上のチャートを作成する関数
 
     Args:
@@ -48,6 +48,7 @@ def _chart_line_sales(
         alt_y = alt_y.scale(domain=[ymin, ymax])
 
     # チャートの作成
+    color = color.legend(orient=legend_orient)
     base_chart = alt.Chart(df).encode(x=alt_x, y=alt_y, color=color)
     chart = base_chart.mark_line(point=with_point)
 
@@ -60,13 +61,10 @@ def _chart_line_sales(
         )
         chart += event_chart
 
-    chart = chart.properties().configure(autosize={"type": "pad"})
     if title is not None:
         chart = chart.properties(title=title)
     if tooltip is not None:
         chart = chart.encode(tooltip=tooltip)
-    chart = chart.configure_legend(orient=legend_orient)
-    # chart = chart.properties(usermeta={"embedOptions": {"actions": False}})
 
     return chart
 
@@ -80,7 +78,7 @@ def chart_line_sales(
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
     with_point: bool = True,
-) -> alt.Chart:
+) -> alt.Chart | alt.LayerChart:
     """売上のチャートを作成する関数
 
     Args:
@@ -171,7 +169,7 @@ def chart_line_sales(
 
 def chart_line_weekly_by_hw_date(
     hw_periods: List[dict] = [], end: int = 52, ymax: int | None = None, ymin: int = 0
-) -> alt.Chart:
+) -> alt.Chart | alt.LayerChart:
     """
     各ハードウェアの異なる期間の販売台数推移を、各期間の開始点を揃えてプロットする
     Args:
@@ -221,7 +219,7 @@ def chart_line_cumulative(
     ymin: int = 0,
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
-) -> alt.Chart:
+) -> alt.Chart | alt.LayerChart:
     """累計販売台数のチャートを作成する関数
     Args:
         hw: ハードウェアのリスト
@@ -287,7 +285,7 @@ def chart_line_cumulative_delta(
     event_mask: he.EventMasks | None = None,
     index_mode: bool = True,
     with_point: bool = False,
-) -> alt.Chart:
+) -> alt.Chart | alt.LayerChart:
     """相対累計販売台数のチャートを作成する関数
     Args:
         hw: ハードウェアのリスト
@@ -358,7 +356,7 @@ def chart_line_cumulative_delta(
 def chart_line_cumsum_diffs(
     cmplist: list[tuple[str, str]],
     ymax: int | None = None,
-) -> alt.Chart:
+) -> alt.Chart | alt.LayerChart:
     """複数ハードウェア間の累計販売台数差分を示す折れ線チャートを作成する関数
 
     カレンダー上の同じ日付における異なるハードウェア間の累計販売台数の差分を時系列で
@@ -406,7 +404,7 @@ def chart_line_cumsum_diffs(
 def chart_line_pase_diffs(
     cmplist: list[tuple[str, str]],
     ymax: int | None = None,
-) -> alt.Chart:
+) -> alt.Chart | alt.LayerChart:
     """複数ハードウェア間の販売ペース差を示す折れ線チャートを作成する関数
 
     各ハードウェアの発売後の相対的な経過週数における累計販売台数を比較し、
@@ -419,7 +417,7 @@ def chart_line_pase_diffs(
         ymax: Y軸の上限値（オプション）。指定しない場合は自動調整
 
     Returns:
-        alt.Chart: 販売ペース差を示すAltairチャート
+        alt.Chart | alt.LayerChart: 販売ペース差を示すAltairチャート
     """
     df_all = hs.load_hard_sales()
     src_df = hsl.sales_pase_diffs_long(df_all, cmplist)

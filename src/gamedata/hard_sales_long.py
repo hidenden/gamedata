@@ -428,30 +428,30 @@ def cumsum_diffs_long(
     df: pl.DataFrame, cmplist: list[tuple[str, str]], include_comeback: bool = False
 ) -> pl.DataFrame:
     """
-        複数のハードウェア間の(カレンダー上の)同時期の累計販売台数の差分を計算してDataFrameで返す。
+    複数のハードウェア間の(カレンダー上の)同時期の累計販売台数の差分を計算してDataFrameで返す。
 
-        Args:
-            df: load_hard_sales()で取得したDataFrame
-            cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
-                     ハードウェアシンボルのペアを指定する。
-                     例えば[("NS2", "PS5"), ("NSW", "PS4")]のように指定する。
-                     hw_oldの累計販売台数からhw_newの累計販売台数を引いた差分を計算する。
-                     これにより、PS5とNS2の差分、PS4とNSWの差分が計算され､
-                     NS2がPS5に､NSWがPS4に追いつく様子を分析できる。
-            include_comeback: bool: Falseの場合、cumsum_diffが0未満の最初の行（追いつかれた週）まで残し､
-                     以降の行をフィルタリングして除外する。Trueの場合、すべての行を含める。
-                     デフォルトはFalseで、逆転を想定していない｡が､これは完璧に実態に沿っているので問題ない｡
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
+                 ハードウェアシンボルのペアを指定する。
+                 例えば[("NS2", "PS5"), ("NSW", "PS4")]のように指定する。
+                 hw_oldの累計販売台数からhw_newの累計販売台数を引いた差分を計算する。
+                 これにより、PS5とNS2の差分、PS4とNSWの差分が計算され､
+                 NS2がPS5に､NSWがPS4に追いつく様子を分析できる。
+        include_comeback: bool: Falseの場合、cumsum_diffが0未満の最初の行（追いつかれた週）まで残し､
+                 以降の行をフィルタリングして除外する。Trueの場合、すべての行を含める。
+                 デフォルトはFalseで、逆転を想定していない｡が､これは完璧に実態に沿っているので問題ない｡
 
-        Returns:
-            pl.DataFrame: 各ペアの差分を列として持つDataFrame
-            - index_week: int: 週番号(1から始まる)
-            - report_date: datetime: 集計日
-            - hw_new: str : NSW, NS2などの､後から追いかけるマシン
-            - hw_old: str: PS4, PS5などの､基準となるマシン(追いつかれる方のマシン)
-            - pair_name: str : PS4_NSW差, PS5_NS2差の様な､比較対象を示す文字列
-            - cumsum_diff : int: old_hwとnew_hwの同じ集計日の累計差分値 (sum_units_old - sum_units_new)
-            - sum_units_new: int: new_hwの累計値
-            - sum_units_old: int: old_hwの累計値
+    Returns:
+        pl.DataFrame: 各ペアの差分を列として持つDataFrame
+        - index_week: int: 週番号(1から始まる)
+        - report_date: datetime: 集計日
+        - hw_new: str : NSW, NS2などの､後から追いかけるマシン
+        - hw_old: str: PS4, PS5などの､基準となるマシン(追いつかれる方のマシン)
+        - pair_name: str : PS4_NSW差, PS5_NS2差の様な､比較対象を示す文字列
+        - cumsum_diff : int: old_hwとnew_hwの同じ集計日の累計差分値 (sum_units_old - sum_units_new)
+        - sum_units_new: int: new_hwの累計値
+        - sum_units_old: int: old_hwの累計値
     """
     dfs = []
 
@@ -524,28 +524,28 @@ def sales_pase_diffs_long(
     df: pl.DataFrame, cmplist: list[tuple[str, str]]
 ) -> pl.DataFrame:
     """
-        複数のハードウェア間の累計販売台数の差分を計算してDataFrameで返す。
+    複数のハードウェア間の累計販売台数の差分を計算してDataFrameで返す。
 
-        Args:
-            df: load_hard_sales()で取得したDataFrame
-            cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
-                     ハードウェアシンボルのペアを指定する。
-                    例えば[("PS5", "PS4"), ("PS5", "PS3")]のように指定する。
-                     hw_newの累計販売台数からhw_oldの累計販売台数を引いた差分を計算する。
-                     これにより、PS5とPS4の差分、PS5とPS3の差分が計算され､PS5がPS4,
-                     PS3と比べて､どの程度早く(あるいは遅く)普及しているかの経緯をを分析できる。
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
+                 ハードウェアシンボルのペアを指定する。
+                例えば[("PS5", "PS4"), ("PS5", "PS3")]のように指定する。
+                 hw_newの累計販売台数からhw_oldの累計販売台数を引いた差分を計算する。
+                 これにより、PS5とPS4の差分、PS5とPS3の差分が計算され､PS5がPS4,
+                 PS3と比べて､どの程度早く(あるいは遅く)普及しているかの経緯をを分析できる。
 
-        Returns:
-            pl.DataFrame: 各ペアの差分を列として持つDataFrame
-            - index_week: int: 週番号(1から始まる)
-            - hw_old: str : 比較対象となる古いマシン
-            - hw_new: str : 普及状況を分析したいマシン
-            - pair_name: str : PS4_NSW差, PS5_NS2差の様な､比較対象を示す文字列
-            - pase_diff : int: hw_oldとhw_newの同じ相対週での累計差分値
-            - sum_units_old: int: hw_oldの累計値
-            - sum_units_new: int: hw_newの累計値
-            - report_date_new: datetime: hw_newのreport_date
-            - report_date_old: datetime: hw_oldのreport_date
+    Returns:
+        pl.DataFrame: 各ペアの差分を列として持つDataFrame
+        - index_week: int: 週番号(1から始まる)
+        - hw_old: str : 比較対象となる古いマシン
+        - hw_new: str : 普及状況を分析したいマシン
+        - pair_name: str : PS4_NSW差, PS5_NS2差の様な､比較対象を示す文字列
+        - pase_diff : int: hw_oldとhw_newの同じ相対週での累計差分値
+        - sum_units_old: int: hw_oldの累計値
+        - sum_units_new: int: hw_newの累計値
+        - report_date_new: datetime: hw_newのreport_date
+        - report_date_old: datetime: hw_oldのreport_date
     """
     dfs = []
 

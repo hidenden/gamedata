@@ -2,7 +2,8 @@
 import sqlite3
 import polars as pl
 
-DB_PATH = '/Users/hide/Documents/sqlite3/gamehard.db'
+DB_PATH = "/Users/hide/Documents/sqlite3/gamehard.db"
+
 
 def load_hard_info() -> pl.DataFrame:
     """ハード情報の読み込み
@@ -15,65 +16,66 @@ def load_hard_info() -> pl.DataFrame:
     # SQLクエリを実行してデータをDataFrameに読み込む
     query = "SELECT * FROM gamehard_info;"
     df = pl.read_database(query, conn)
-    df = df.with_columns(pl.col('launch_date').str.to_date())
+    df = df.with_columns(pl.col("launch_date").str.to_date())
     # 接続を閉じる
     conn.close()
     return df
 
 
 HARD_COLORS = {
-    'PS5': "#1d64ff",
-    'XSX': "#05B83B",
-    'NSW': "#FD1A2D",
-    'NS2': "#B40110",
-    'XBOne': "#165322",
-    'PS4': "#003087",
-    'WiiU': "#1CD3CA",
-    'Vita': "#E787EC",
-    '3DS': "#FA7D00",
-    'Wii': "#00fbff",
-    'PS3': "#D60C59",
-    'XB360': "#69FF4B",
-    'DS': "#b8b1b1",
-    'PSP': "#696EF9",
-    'Xbox': "#4E7E4F",
-    'GC': "#4235A7",
-    'GBA': "#b369da",
-    'PS2': "#0143D2",
-    'WS': "#94581D",
-    'PKS': '#5D6BFF',
-    'DC': "#F3620E",
-    'NeoGeoP': '#FFCF33',
-    'GB': "#A43070",
-    'N64': "#320E50",
-    'PS': "#9998A5",
-    'SATURN': "#58636A"
+    "PS5": "#1d64ff",
+    "XSX": "#05B83B",
+    "NSW": "#FD1A2D",
+    "NS2": "#B40110",
+    "XBOne": "#165322",
+    "PS4": "#003087",
+    "WiiU": "#1CD3CA",
+    "Vita": "#E787EC",
+    "3DS": "#FA7D00",
+    "Wii": "#00fbff",
+    "PS3": "#D60C59",
+    "XB360": "#69FF4B",
+    "DS": "#b8b1b1",
+    "PSP": "#696EF9",
+    "Xbox": "#4E7E4F",
+    "GC": "#4235A7",
+    "GBA": "#b369da",
+    "PS2": "#0143D2",
+    "WS": "#94581D",
+    "PKS": "#5D6BFF",
+    "DC": "#F3620E",
+    "NeoGeoP": "#FFCF33",
+    "GB": "#A43070",
+    "N64": "#320E50",
+    "PS": "#9998A5",
+    "SATURN": "#58636A",
 }
 
 MAKER_COLORS = {
-    'SONY': "#0311B0",
-    'Microsoft': '#107C10',
-    'Nintendo': '#E60012',
-    'BANDAI': "#F5804D",
-    'SEGA': '#008CD2',
-    'SNK': '#FFC400',
-    'PC': '#000000'
+    "SONY": "#0311B0",
+    "Microsoft": "#107C10",
+    "Nintendo": "#E60012",
+    "BANDAI": "#F5804D",
+    "SEGA": "#008CD2",
+    "SNK": "#FFC400",
+    "PC": "#000000",
 }
 
-def get_hard_colors(hw:list[str]) -> list[str]:
+
+def get_hard_colors(hw: list[str]) -> list[str]:
     """
     ハードウェア名のリストから対応する色のリストを取得する。
-    
+
     Args:
         hw: ハードウェア名のリスト
-    
+
     Returns:
         list[str]: ハードウェア名に対応する色のリスト
     """
-    return [HARD_COLORS.get(h, 'black') for h in hw]
+    return [HARD_COLORS.get(h, "black") for h in hw]
 
 
-def get_hard_color(hw:str) -> str:
+def get_hard_color(hw: str) -> str:
     """
     ハードウェア名から対応する色を取得する。
 
@@ -83,10 +85,10 @@ def get_hard_color(hw:str) -> str:
     Returns:
         str: ハードウェア名に対応する色
     """
-    return HARD_COLORS.get(hw, 'black')
+    return HARD_COLORS.get(hw, "black")
 
 
-def get_maker_colors(maker:list[str]) -> list[str]:
+def get_maker_colors(maker: list[str]) -> list[str]:
     """
     メーカー名のリストから対応する色のリストを取得する。
 
@@ -96,7 +98,8 @@ def get_maker_colors(maker:list[str]) -> list[str]:
     Returns:
         list[str]: メーカー名に対応する色のリスト
     """
-    return [MAKER_COLORS.get(m, 'black') for m in maker]
+    return [MAKER_COLORS.get(m, "black") for m in maker]
+
 
 HARD_NAMES = {
     "PS5": "PlayStation5",
@@ -124,10 +127,11 @@ HARD_NAMES = {
     "GB": "GAME BOY",
     "N64": "NINTENDO64",
     "PS": "PlayStation",
-    "SATURN": "SEGA SATURN"
+    "SATURN": "SEGA SATURN",
 }
 
-def get_hard_names(hw:list[str]) -> list[str]:
+
+def get_hard_names(hw: list[str]) -> list[str]:
     """
     Returns a list of hardware names corresponding to the given hardware identifiers.
 
@@ -137,7 +141,8 @@ def get_hard_names(hw:list[str]) -> list[str]:
     Returns:
         list[str]: A list of hardware names. If an identifier is not found, 'unknown' is used.
     """
-    return [HARD_NAMES.get(h, 'unknown') for h in hw]
+    return [HARD_NAMES.get(h, "unknown") for h in hw]
+
 
 def get_hard_dict() -> dict[str, str]:
     """
@@ -148,22 +153,44 @@ def get_hard_dict() -> dict[str, str]:
     """
     return HARD_NAMES
 
+
 HARD_ORDER = [
-    "NS2", "NSW", "WiiU", "3DS", "Wii", "DS", "GC", "GBA", "N64", "GB",
-    "PS5", "PS4", "Vita", "PS3", "PSP", "PS2", "PS",
-    "DC", "SATURN",
-    "XSX", "XBOne", "XB360", "Xbox",
-    "WS", "NeoGeoP", "PKS", 
+    "NS2",
+    "NSW",
+    "WiiU",
+    "3DS",
+    "Wii",
+    "DS",
+    "GC",
+    "GBA",
+    "N64",
+    "GB",
+    "PS5",
+    "PS4",
+    "Vita",
+    "PS3",
+    "PSP",
+    "PS2",
+    "PS",
+    "DC",
+    "SATURN",
+    "XSX",
+    "XBOne",
+    "XB360",
+    "Xbox",
+    "WS",
+    "NeoGeoP",
+    "PKS",
 ]
 
-MAKER_ORDER = [
-    "Nintendo", "SONY", "Microsoft", "SEGA", "BANDAI", 'SNK', 'PC'
-]
+MAKER_ORDER = ["Nintendo", "SONY", "Microsoft", "SEGA", "BANDAI", "SNK", "PC"]
+
 
 def get_hard_order() -> list[str]:
     return HARD_ORDER
 
-def sort_hard(hw:list[str]) -> list[str]:
+
+def sort_hard(hw: list[str]) -> list[str]:
     """
     ハードウェア名のリストをHARD_ORDERに基づいてソートする。
 
@@ -176,10 +203,12 @@ def sort_hard(hw:list[str]) -> list[str]:
     order = get_hard_order()
     return sorted(hw, key=lambda x: order.index(x) if x in order else len(order))
 
+
 def get_maker_order() -> list[str]:
     return MAKER_ORDER
 
-def sort_maker(maker:list[str]) -> list[str]:
+
+def sort_maker(maker: list[str]) -> list[str]:
     """
     メーカー名のリストをMAKER_ORDERに基づいてソートする。
 
