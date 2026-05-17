@@ -64,7 +64,6 @@ def _chart_bar_sales(
         chart = chart.encode(xOffset=xoffset)
     if tooltip is not None:
         chart = chart.encode(tooltip=tooltip)
-    chart = chart.configure_legend(orient=legend_orient)
     chart = chart.properties(usermeta={"embedOptions": {"actions": True}})
     return chart
 

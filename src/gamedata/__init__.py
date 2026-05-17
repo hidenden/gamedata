@@ -75,6 +75,7 @@ from .hard_sales_extract import (
     extract_week_reached_units,
     hard_sales_summary,
     maker_sales_summary,
+    sales_value,
 )
 from .hard_sales_filter import (
     date_filter,

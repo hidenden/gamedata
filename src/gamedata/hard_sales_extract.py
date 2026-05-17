@@ -463,3 +463,56 @@ def maker_sales_summary(
         )
 
     return result
+
+
+def sales_value(
+    hw: str,
+    report_date: date | datetime | None = None,
+    index_week: int | None = None,
+    cumulative: bool = False,
+) -> int:
+    """特定のハードウェアの販売台数（週間または累計）を取得する関数。
+
+    Args:
+        hw: ゲームハードウェアの識別子。
+        report_date: 対象とする集計日（その週のデータを取得）。
+                     `index_week` と同時に指定できない。
+        index_week: 発売からの週番号（1始まり）。
+                    負の値を指定すると最新週のデータを取得する。
+                    `report_date` と同時に指定できない。
+        cumulative: Trueの場合は累計販売台数 `sum_units` を返す。
+                   Falseの場合は週間販売台数 `units` を返す。
+
+    Returns:
+        int: 指定条件に該当する販売台数。
+
+    Raises:
+        ValueError: `report_date` と `index_week` の両方が指定された場合、
+                   または両方が指定されていない（None）場合。
+    """
+    if report_date is not None and index_week is not None:
+        raise ValueError("report_date と index_week は同時に指定できません。")
+
+    df_all = hs.load_hard_sales()
+
+    if report_date:
+        df = extract_by_date(df=df_all, hw=[hw], target_date=report_date)
+
+    elif index_week:
+        if index_week < 0:
+            df = (
+                df_all.filter(pl.col("hw") == hw)
+                .sort(pl.col("index_week"), descending=True)
+                .head(1)
+            )
+        else:
+            df = df_all.filter(
+                (pl.col("hw") == hw) & (pl.col("index_week") == index_week)
+            )
+    else:
+        raise ValueError("report_date または index_week のいずれかを指定してください。")
+
+    column_name = "units"
+    if cumulative:
+        column_name = "sum_units"
+    return df.select(pl.col(column_name)).item()  # 単一の値を取得
