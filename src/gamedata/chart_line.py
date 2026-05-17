@@ -27,7 +27,6 @@ def _chart_line_sales(
     title: str | None = None,
     event_joinner=lambda df: df,
     with_point: bool = True,
-    legend_orient: str = "top-right",
     tooltip: List[alt.Tooltip] | None = None,
 ) -> alt.Chart | alt.LayerChart:
     """売上のチャートを作成する関数
@@ -48,7 +47,6 @@ def _chart_line_sales(
         alt_y = alt_y.scale(domain=[ymin, ymax])
 
     # チャートの作成
-    color = color.legend(orient=legend_orient)
     base_chart = alt.Chart(df).encode(x=alt_x, y=alt_y, color=color)
     chart = base_chart.mark_line(point=with_point)
 
@@ -189,7 +187,7 @@ def chart_line_weekly_by_hw_date(
 
     alt_x = alt.X("offset_week:Q", title="週数")
     alt_y = alt.Y("units:Q", title="販売台数")
-    alt_color = alt.Color("label:N", title="ハード:時期")
+    alt_color = alt.Color("label:N", title="ハード:時期").legend(orient="top-left")
 
     # Tooltipの定義
     tooltip = [
@@ -246,7 +244,7 @@ def chart_line_cumulative(
     hw_colors = hi.get_hard_colors(current_hw)
     alt_color = alt.Color(
         "hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors), title="ハード"
-    )
+    ).legend(orient="top-left")
 
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
         if (event_mask is not None) and (mode_enum == Mode.WEEK):
@@ -271,7 +269,6 @@ def chart_line_cumulative(
         title="累計販売台数",
         event_joinner=event_joinner,
         with_point=False,
-        legend_orient="top-left",
     )
 
 
@@ -325,7 +322,7 @@ def chart_line_cumulative_delta(
     hw_colors = hi.get_hard_colors(current_hw)
     alt_color = alt.Color(
         "hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors), title="ハード"
-    )
+    ).legend(orient="top-left")
 
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
         if (event_mask is not None) and (mode_enum == Mode.WEEK):
@@ -349,7 +346,6 @@ def chart_line_cumulative_delta(
         title="相対累計販売台数",
         event_joinner=event_joinner,
         with_point=with_point,
-        legend_orient="top-left",
     )
 
 
@@ -377,7 +373,7 @@ def chart_line_cumsum_diffs(
     alt_y = alt.Y("cumsum_diff:Q", title="累計販売台数差")
     alt_x = alt.X("index_week:Q", title="販売開始からの週数")
 
-    alt_color = alt.Color("pair_name:N", title="比較ハード")
+    alt_color = alt.Color("pair_name:N", title="比較ハード").legend(orient="top-right")
 
     # Tooltipの定義
     tooltip = [
@@ -396,7 +392,6 @@ def chart_line_cumsum_diffs(
         color=alt_color,
         title="累計販売台数差",
         with_point=False,
-        legend_orient="top-right",
         tooltip=tooltip,
     )
 
@@ -425,7 +420,7 @@ def chart_line_pase_diffs(
     alt_y = alt.Y("pase_diff:Q", title="累計販売台数差分")
     alt_x = alt.X("index_week:Q", title="販売開始からの週数")
 
-    alt_color = alt.Color("pair_name:N", title="比較ハード")
+    alt_color = alt.Color("pair_name:N", title="比較ハード").legend(orient="top-left")
 
     # Tooltipの定義
     tooltip = [
@@ -444,6 +439,5 @@ def chart_line_pase_diffs(
         color=alt_color,
         title="販売ペース差",
         with_point=False,
-        legend_orient="top-left",
         tooltip=tooltip,
     )

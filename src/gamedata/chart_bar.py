@@ -26,7 +26,6 @@ def _chart_bar_sales(
     ymax: int | None = None,
     title: str | None = None,
     xoffset: str | None = None,
-    legend_orient: str = "top-right",
     tooltip: List[alt.Tooltip] | None = None,
 ) -> alt.Chart:
     """売上の棒グラフを作成する内部関数
@@ -208,7 +207,6 @@ def chart_bar_hwsales_by_year(
         title=title,
         ymax=ymax,
         xoffset=xoffset,
-        legend_orient="top-left",
         tooltip=tooltip,
     )
 
@@ -326,7 +324,7 @@ def chart_bar_sales_by_hard_year(
         pl.concat_str([pl.col("hw"), pl.lit("_"), pl.col("year")]).alias("hw_year")
     )
 
-    alt_color = alt.Color("hw_year:N", title="ハード_年")
+    alt_color = alt.Color("hw_year:N", title="ハード_年").legend(orient="top-left")
     xoffset = "hw_year:N" if not stacked else None
 
     return _chart_bar_sales(
@@ -397,7 +395,6 @@ def chart_bar_yearly_delta(
         alt_y=alt_y,
         color=alt_color,
         title=title,
-        legend_orient="top-right",
         tooltip=tooltip,
         xoffset=xoffset,
     )
@@ -448,7 +445,6 @@ def chart_bar_month_year(
         alt_y=alt_y,
         color=alt_color,
         title=title,
-        legend_orient="top-right",
         xoffset=xoffset,
     )
 

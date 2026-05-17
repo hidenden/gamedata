@@ -559,7 +559,7 @@ def _():
     _ns2_ps5_diff = _ps5_last - _ns2_last
 
     _chart = g.chart_line_cumsum_diffs(
-        cmplist=[("NS2", "PS5"), ("NSW", "PS4")],
+        cmplist=[("NSW", "PS4"), ("NS2", "PS5") ],
     )
     _chart = g.chart_line_guide(
         base_chart=_chart,
@@ -567,16 +567,15 @@ def _():
         y=_ns2_ps5_diff,
         x2=78,
         y2=0,
-        stroke=[2, 3],
+        stroke=[2, 4],
         size=2,
-        color="#800000",
+        color="#00a0FF",
     )
     _chart = g.chart_rule_xy(
         base_chart=_chart, y=1, stroke=[10, 2], size=2, color="#000000"
     )
 
     mo.ui.altair_chart(_chart)
-
     return
 
 
