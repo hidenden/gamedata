@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.5"
+__generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -241,33 +241,22 @@ def _():
         with_point=False,
         index_mode=True,
     )
-
-    _latest_ns2 = pl.DataFrame({"index_week": [96], "total_units": [6889546]})
-
-    _v_rule = (
-        alt.Chart(_latest_ns2)
-        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
-        .encode(x="index_week:Q", tooltip=alt.value(None))
+    _chart = g.chart_rule_xy(
+        base_chart=_chart,
+        x=96,
+        y=6889546,
+        stroke=[5, 2],
+        size=2,
+        color="#00000060",
     )
-    _h_rule = (
-        alt.Chart(_latest_ns2)
-        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
-        .encode(y="total_units:Q", tooltip=alt.value(None))
-    )
-
-    _future_ns2 = pl.DataFrame(
-        {
-            "index_week": [44, 96],
-            "total_units": [5011059, 5011059 + 4700000],
-        }
-    )
-    _z_line = (
-        alt.Chart(_future_ns2)
-        .mark_line(color="#800000", strokeDash=[2, 3], size=2)
-        .encode(x="index_week:Q", y="total_units:Q", tooltip=alt.value(None))
+    _chart = g.chart_line_guide(
+        base_chart=_chart,
+        x=44, y=5011059, 
+        x2=96, y2=(5011059 + 4700000), 
+        stroke=[2, 3], size=2, color="#800000"
     )
 
-    ns2_27_chart = mo.ui.altair_chart(_chart + _v_rule + _h_rule + _z_line)
+    ns2_27_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[ns2_27_chart], justify="start")
     return
 
@@ -564,38 +553,25 @@ def _(ns2_info):
         mode="week",
         with_point=False,
     )
-
-    _latest_ns2 = pl.DataFrame(
-        {
-            "index_week": [ns2_info["sales_weeks"]],
-            "total_units": [ns2_info["total_units"]],
-        }
+    _chart = g.chart_rule_xy(
+        base_chart=_chart,
+        x=ns2_info["sales_weeks"],
+        y=ns2_info["total_units"],
+        stroke=[5, 2],
+        size=2,
+        color="#00000060",
     )
-
-    _v_rule = (
-        alt.Chart(_latest_ns2)
-        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
-        .encode(x="index_week:Q", tooltip=alt.value(None))
+    _chart = g.chart_line_guide(
+        base_chart=_chart,
+        x=ns2_info["sales_weeks"],
+        y=ns2_info["total_units"],
+        x2=ns2_info["sales_weeks"] + 20,
+        y2=6400000,
+        stroke=[2, 3],
+        size=2,
+        color="#800000",
     )
-    _h_rule = (
-        alt.Chart(_latest_ns2)
-        .mark_rule(color="#00000060", strokeDash=[5, 2], size=2)
-        .encode(y="total_units:Q", tooltip=alt.value(None))
-    )
-
-    _future_ns2 = pl.DataFrame(
-        {
-            "index_week": [ns2_info["sales_weeks"], ns2_info["sales_weeks"] + 20],
-            "total_units": [ns2_info["total_units"], 6400000],
-        }
-    )
-    _z_line = (
-        alt.Chart(_future_ns2)
-        .mark_line(color="#800000", strokeDash=[2, 3], size=2)
-        .encode(x="index_week:Q", y="total_units:Q", tooltip=alt.value(None))
-    )
-
-    cd_chart = mo.ui.altair_chart(_chart + _v_rule + _h_rule + _z_line)
+    cd_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[cd_chart], justify="start")
     return (cd_chart,)
 
@@ -674,7 +650,7 @@ def _(ps5_info):
     )
     _z_line = (
         alt.Chart(_future_ps5)
-        .mark_line(color="#000080", strokeDash=[2, 3], size=2)
+        .mark_line(color="#0000f0a0", strokeDash=[2, 3], size=2)
         .encode(x="index_week:Q", y="total_units:Q", tooltip=alt.value(None))
     )
 
