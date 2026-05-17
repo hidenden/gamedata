@@ -19,7 +19,12 @@ class HwSelect:
         hw_list: 表示するhw識別子のリスト。Noneの場合はget_hw_all()で取得する。
     """
 
-    def __init__(self, default_list: List[str] | None = None, force_any: bool = False, hw_list: List[str] | None = None):
+    def __init__(
+        self,
+        default_list: List[str] | None = None,
+        force_any: bool = False,
+        hw_list: List[str] | None = None,
+    ):
         # 表示対象のhwリストを決定（未指定なら全ハードを取得）
         self.hw_list = hw_list if hw_list is not None else hs.get_hw_all()
 
@@ -29,7 +34,10 @@ class HwSelect:
 
         # hwリストをチェックボックスの配列として生成し、default_listに含まれるものを初期チェック
         self.checklist = mo.ui.array(
-            [mo.ui.checkbox(label=hw, value=(hw in default_list)) for hw in self.hw_list],
+            [
+                mo.ui.checkbox(label=hw, value=(hw in default_list))
+                for hw in self.hw_list
+            ],
         )
         self.widget = self.checklist
         # 未選択時に全ハードを返すかどうかのフラグ
@@ -40,8 +48,9 @@ class HwSelect:
         if len(self.checklist) > 11:
             # 11件を超える場合は2行に分割して表示
             return mo.vstack(
-                [mo.hstack(self.checklist[:11], justify="start"),   # 前半11件
-                 mo.hstack(self.checklist[11:], justify="start")    # 後半残り
+                [
+                    mo.hstack(self.checklist[:11], justify="start"),  # 前半11件
+                    mo.hstack(self.checklist[11:], justify="start"),  # 後半残り
                 ]
             )
         # 11件以下の場合は1行で表示
@@ -73,7 +82,9 @@ class EventSelect:
     def __init__(self, default_value: str = "middle"):
         self.options = ["short", "middle", "long"]
         # ドロップダウンUIを生成
-        self.dropdown = mo.ui.dropdown(options=self.options, value=default_value, label="イベントマスク")
+        self.dropdown = mo.ui.dropdown(
+            options=self.options, value=default_value, label="イベントマスク"
+        )
         self.widget = self.dropdown
         # 選択肢文字列と実際のイベントマスク定数を対応付ける辞書
         self.event_dict = {
@@ -106,7 +117,12 @@ class MakerSelect:
         maker_list: 表示するメーカー名のリスト。Noneの場合はget_maker_all()で取得する。
     """
 
-    def __init__(self, default_list: List[str] | None = None, force_any: bool = False, maker_list: List[str] | None = None):
+    def __init__(
+        self,
+        default_list: List[str] | None = None,
+        force_any: bool = False,
+        maker_list: List[str] | None = None,
+    ):
         # 表示対象のメーカーリストを決定（未指定なら全メーカーを取得）
         self.maker_list = maker_list if maker_list is not None else hs.get_maker_all()
 
@@ -116,7 +132,10 @@ class MakerSelect:
 
         # メーカーリストをチェックボックスの配列として生成し、default_listに含まれるものを初期チェック
         self.checklist = mo.ui.array(
-            [mo.ui.checkbox(label=maker, value=(maker in default_list)) for maker in self.maker_list],
+            [
+                mo.ui.checkbox(label=maker, value=(maker in default_list))
+                for maker in self.maker_list
+            ],
         )
         self.widget = self.checklist
         # 未選択時に全メーカーを返すかどうかのフラグ
@@ -134,11 +153,10 @@ class MakerSelect:
             チェックされているメーカー名のリスト。
             force_any=Trueかつ何も選択されていない場合は全メーカーを返す。
         """
-        maker_data = [maker for maker, flg in zip(self.maker_list, self.widget.value) if flg]
+        maker_data = [
+            maker for maker, flg in zip(self.maker_list, self.widget.value) if flg
+        ]
         # 何も選択されていない場合にforce_anyが有効なら全メーカーを返す
         if self.force_any and len(maker_data) == 0:
             return self.maker_list
         return maker_data
-
-
-

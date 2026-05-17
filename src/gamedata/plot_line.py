@@ -21,6 +21,7 @@ from .mode import Mode, parse_mode
 
 _BASE_SUNDAY = date(1970, 1, 4)  # 週番号1に対応する日曜日
 
+
 def _weekfloat_to_datetime(x: float) -> datetime:
     """
     浮動小数点の週番号を datetime に変換する。
@@ -33,6 +34,7 @@ def _weekfloat_to_datetime(x: float) -> datetime:
     # 1週 = 7日
     days = (x - 1.0) * 7.0
     return datetime.combine(_BASE_SUNDAY, datetime.min.time()) + timedelta(days=days)
+
 
 def _weekly_plot_on_add(sel):
     ax = sel.artist.axes
@@ -81,32 +83,34 @@ def _plot_sales(
 
     plt.ioff()
     fig, ax = plt.subplots(figsize=pu.get_figsize())
-    plt.rcParams['font.family'] = 'Hiragino Sans'
-    plt.rcParams['axes.unicode_minus'] = False
+    plt.rcParams["font.family"] = "Hiragino Sans"
+    plt.rcParams["axes.unicode_minus"] = False
     # 背景の透明化
     if pu.get_transparent_mode():
-        plt.rcParams['figure.facecolor'] = 'none'
-        plt.rcParams['axes.facecolor'] = 'none'
+        plt.rcParams["figure.facecolor"] = "none"
+        plt.rcParams["axes.facecolor"] = "none"
 
     color_table = hi.get_hard_colors(pd_df.columns.tolist())
     # color_tableの内容がblackのみの場合、デフォルトのカラーマップを使用する
-    if all(c == 'black' for c in color_table):
-        color_table = plt.rcParams['axes.prop_cycle'].by_key()['color'][:len(pd_df.columns)]
+    if all(c == "black" for c in color_table):
+        color_table = plt.rcParams["axes.prop_cycle"].by_key()["color"][
+            : len(pd_df.columns)
+        ]
 
     default_style = {
-        'ax': ax,
-        'kind': 'line',
-        'marker': 'o',
-        'linestyle': '-',
-        'linewidth': 2,
-        'color': color_table
+        "ax": ax,
+        "kind": "line",
+        "marker": "o",
+        "linestyle": "-",
+        "linewidth": 2,
+        "color": color_table,
     }
     if area:
-        default_style['kind'] = 'area'
-        default_style['stacked'] = True
-        del default_style['linewidth']
-        del default_style['marker']
-        del default_style['linestyle']
+        default_style["kind"] = "area"
+        default_style["stacked"] = True
+        del default_style["linewidth"]
+        del default_style["marker"]
+        del default_style["linestyle"]
 
     plot_style = default_style | plot_style
     # 折れ線グラフ
@@ -117,30 +121,43 @@ def _plot_sales(
         event_df = he.load_hard_event()
         filtered_events = annotation_positioner(event_df, df)
         for event_row in filtered_events.iter_rows(named=True):
-            color = hi.get_hard_color(event_row['hw'])
-            ax.annotate(event_row['event_name'], 
-                    xy=(event_row['x_pos'], event_row['y_pos']), 
-                    xytext=(8, 8),
-                    textcoords='offset points',
-                    fontsize=8, color=color, fontweight='bold')
+            color = hi.get_hard_color(event_row["hw"])
+            ax.annotate(
+                event_row["event_name"],
+                xy=(event_row["x_pos"], event_row["y_pos"]),
+                xytext=(8, 8),
+                textcoords="offset points",
+                fontsize=8,
+                color=color,
+                fontweight="bold",
+            )
 
     if labeler is not None:
         labels = labeler(title_key)
-        if labels.title: ax.set_title(labels.title)
-        if labels.xlabel: ax.set_xlabel(labels.xlabel)
-        if labels.ylabel: ax.set_ylabel(labels.ylabel)
-        if labels.legend: ax.legend(title=labels.legend)
+        if labels.title:
+            ax.set_title(labels.title)
+        if labels.xlabel:
+            ax.set_xlabel(labels.xlabel)
+        if labels.ylabel:
+            ax.set_ylabel(labels.ylabel)
+        if labels.legend:
+            ax.legend(title=labels.legend)
 
     if tick_params_fn is not None:
         params = tick_params_fn()
-        ax.tick_params(axis=params.axis, which=params.which, labelsize=params.labelsize, rotation=params.rotation)
-        
+        ax.tick_params(
+            axis=params.axis,
+            which=params.which,
+            labelsize=params.labelsize,
+            rotation=params.rotation,
+        )
+
     # Y軸の上限設定
     if ymax is not None:
         ax.set_ylim(top=ymax)
     if ybottom is not None:
         ax.set_ylim(bottom=ybottom)
-    
+
     # Y軸 ygrid 毎にグリッド線
     if ygrid is not None:
         ax.yaxis.set_major_locator(MultipleLocator(ygrid))
@@ -153,7 +170,7 @@ def _plot_sales(
 
     # 縦軸の表示を指数表示から整数表示に変更
     ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-    ax.ticklabel_format(style='plain', axis='y')
+    ax.ticklabel_format(style="plain", axis="y")
 
     ax.grid(True)
     fig.tight_layout()
@@ -161,7 +178,7 @@ def _plot_sales(
     # カーソル表示
     cursor = mplcursors.cursor(ax.lines, hover=True)
     cursor.connect("add", _weekly_plot_on_add)
-    
+
     dispfunc = pu.get_dispfunc()
     if dispfunc is not None:
         dispfunc(fig)
@@ -169,16 +186,19 @@ def _plot_sales(
     return (fig, df)
 
 
-def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
-                                   xgrid: int | None = None, ygrid: int | None = None,
-                                   mode:str = "week",            
-                                   begin:int | None = None,
-                                   end:int | None = None,
-                                   event_mask : he.EventMasks | None = None,
-                                   ) -> tuple[Figure, pl.DataFrame]:
+def plot_cumulative_sales_by_delta(
+    hw: List[str] = [],
+    ymax: int | None = None,
+    xgrid: int | None = None,
+    ygrid: int | None = None,
+    mode: str = "week",
+    begin: int | None = None,
+    end: int | None = None,
+    event_mask: he.EventMasks | None = None,
+) -> tuple[Figure, pl.DataFrame]:
     """
     各ハードウェアの発売日起点・累計販売台数推移をプロットする
-    
+
     Args:
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         ymax: Y軸の上限値
@@ -188,40 +208,45 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         begin: 集計開始（経過期間の最小値）
         end: 集計終了（経過期間の最大値）
         event_mask: イベント注釈のマスク設定
-        
+
     Returns:
         tuple[matplotlib.figure.Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
-        
+
         DataFrameのカラム構成:
         - index: delta_week (int64) / delta_month (int64) / delta_year (int64): 発売日からの経過期間（modeにより変動）
         - columns: hw (string): ゲームハードの識別子
         - values: sum_units (int64): その経過期間時点での累計販売台数
     """
-    
+
     mode_enum = parse_mode(mode)
 
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
-        df = pv.pivot_cumulative_sales_by_delta(df, hw=hw, mode=mode, begin=begin, end=end)
+        df = pv.pivot_cumulative_sales_by_delta(
+            df, hw=hw, mode=mode, begin=begin, end=end
+        )
         if mode_enum == Mode.MONTH:
-            title_key = '月'
+            title_key = "月"
         elif mode_enum == Mode.YEAR:
-            title_key = '年'
+            title_key = "年"
         elif mode_enum == Mode.WEEK:
-            title_key = '週'
+            title_key = "週"
         else:
-            raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
+            raise ValueError(
+                "modeは'week', 'month', 'year'のいずれかを指定してください。"
+            )
         return (df, title_key)
-    
+
     def labeler(title_key: str) -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f'発売日起点累計販売台数',
-            xlabel=f'発売からの{title_key}数',
-            ylabel='累計販売台数',
-            legend='ハード'
+            title=f"発売日起点累計販売台数",
+            xlabel=f"発売からの{title_key}数",
+            ylabel="累計販売台数",
+            legend="ハード",
         )
 
     if event_mask:
+
         def annotation_positioner(event_df, df):
             event_df = he.delta_event(event_df, hi.load_hard_info())
             new_df = None
@@ -229,7 +254,7 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
             return new_df
     else:
         annotation_positioner = None
-        
+
     return _plot_sales(
         data_source=data_source,
         labeler=labeler,
@@ -237,18 +262,22 @@ def plot_cumulative_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         ymax=ymax,
         xgrid=xgrid,
         ygrid=ygrid,
-        plot_style={'marker': None}
+        plot_style={"marker": None},
     )
 
 
-def plot_sales(hw: List[str] = [], mode: str = "week",
-               begin: datetime | date | None = None, end: datetime | date | None = None,
-               ymax: int | None = None,
-               xgrid: int | None = None, ygrid: int | None = None,
-               event_mask: he.EventMasks | None = None,
-               area: bool = False,
-               ticklabelsize: int | None = None,
-               ) -> tuple[Figure, pl.DataFrame]:
+def plot_sales(
+    hw: List[str] = [],
+    mode: str = "week",
+    begin: datetime | date | None = None,
+    end: datetime | date | None = None,
+    ymax: int | None = None,
+    xgrid: int | None = None,
+    ygrid: int | None = None,
+    event_mask: he.EventMasks | None = None,
+    area: bool = False,
+    ticklabelsize: int | None = None,
+) -> tuple[Figure, pl.DataFrame]:
     """
     各ハードウェアの販売台数推移をプロットする（default = 週単位）
 
@@ -267,7 +296,7 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
 
     Returns:
         tuple[matplotlib.figure.Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
-        
+
         DataFrameのカラム構成（modeにより変動）:
         - mode="week"の場合:
             - index: report_date (datetime64): 集計期間の末日（日曜日）
@@ -292,30 +321,33 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
         df = hs.load_hard_sales()
         if mode_enum == Mode.MONTH:
             df = pv.pivot_monthly_sales(df, hw=hw, begin=begin, end=end)
-            title_key = '月'
+            title_key = "月"
         elif mode_enum == Mode.QUARTER:
             df = pv.pivot_quarterly_sales(df, hw=hw, begin=begin, end=end)
-            title_key = '四半期'
+            title_key = "四半期"
         elif mode_enum == Mode.YEAR:
             df = pv.pivot_yearly_sales(df, hw=hw, begin=begin, end=end)
-            title_key = '年'
+            title_key = "年"
         elif mode_enum == Mode.WEEK:
             df = pv.pivot_sales(df, hw=hw, begin=begin, end=end)
-            title_key = '週'
+            title_key = "週"
         else:
-            raise ValueError("modeは'week', 'month', 'quarter', 'year'のいずれかを指定してください。")
+            raise ValueError(
+                "modeは'week', 'month', 'quarter', 'year'のいずれかを指定してください。"
+            )
         return (df, title_key)
 
     def labeler(title_key: str) -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f'販売台数（{title_key}単位）',
-            xlabel='集計日',
-            ylabel='販売台数',
-            legend='ハード'
+            title=f"販売台数（{title_key}単位）",
+            xlabel="集計日",
+            ylabel="販売台数",
+            legend="ハード",
         )
 
     if event_mask and mode_enum == Mode.WEEK:
-        def annotation_positioner(event_df, df): 
+
+        def annotation_positioner(event_df, df):
             return he.add_event_positions(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
@@ -325,7 +357,7 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
     tick_params_fn = None
     if ticklabelsize is not None:
         tick_params_fn = lambda: pu.TickParams(labelsize=ticklabelsize)
-            
+
     return _plot_sales(
         data_source=data_source,
         labeler=labeler,
@@ -339,16 +371,19 @@ def plot_sales(hw: List[str] = [], mode: str = "week",
     )
 
 
-def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
-                        xgrid: int | None = None, ygrid: int | None = None,
-                        mode:str = "week", 
-                        begin:int | None = None,
-                        end:int | None = None,
-                        event_mask:he.EventMasks | None = None,
-                        ) -> tuple[Figure, pl.DataFrame]:
+def plot_sales_by_delta(
+    hw: List[str] = [],
+    ymax: int | None = None,
+    xgrid: int | None = None,
+    ygrid: int | None = None,
+    mode: str = "week",
+    begin: int | None = None,
+    end: int | None = None,
+    event_mask: he.EventMasks | None = None,
+) -> tuple[Figure, pl.DataFrame]:
     """
     各ハードウェアの発売日起点・販売台数推移をプロットする（default = 週単位）
-    
+
     Args:
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         ymax: Y軸の上限値
@@ -361,7 +396,7 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
 
     Returns:
         tuple[matplotlib.figure.Figure, pl.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
-        
+
         DataFrameのカラム構成:
         - index: delta_week (int64) / delta_month (int64) / delta_year (int64): 発売日からの経過期間（modeにより変動）
         - columns: hw (string): ゲームハードの識別子
@@ -373,24 +408,27 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         df = hs.load_hard_sales()
         df = pv.pivot_sales_by_delta(df, hw=hw, mode=mode, begin=begin, end=end)
         if mode_enum == Mode.MONTH:
-            title_key = '月'
+            title_key = "月"
         elif mode_enum == Mode.YEAR:
-            title_key = '年'
+            title_key = "年"
         elif mode_enum == Mode.WEEK:
-            title_key = '週'
+            title_key = "週"
         else:
-            raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
+            raise ValueError(
+                "modeは'week', 'month', 'year'のいずれかを指定してください。"
+            )
         return (df, title_key)
-    
+
     def labeler(title_key: str) -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f'発売日起点販売台数（{title_key}単位）',
-            xlabel=f'発売からの{title_key}数',
-            ylabel='販売台数',
-            legend='ハード'
+            title=f"発売日起点販売台数（{title_key}単位）",
+            xlabel=f"発売からの{title_key}数",
+            ylabel="販売台数",
+            legend="ハード",
         )
-        
+
     if event_mask and mode_enum == Mode.WEEK:
+
         def annotation_positioner(event_df, df):
             event_df = he.delta_event(event_df, hi.load_hard_info())
             return he.add_event_positions_delta(event_df, df, event_mask=event_mask)
@@ -398,7 +436,7 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         annotation_positioner = None
         if event_mask:
             print("Warning: event_mask is ignored when mode is not 'week'.")
-        
+
     return _plot_sales(
         data_source=data_source,
         labeler=labeler,
@@ -406,13 +444,17 @@ def plot_sales_by_delta(hw: List[str] = [], ymax:int | None=None,
         ymax=ymax,
         ybottom=0,
         xgrid=xgrid,
-        ygrid=ygrid
+        ygrid=ygrid,
     )
 
 
-def plot_sales_with_offset(hw_periods: List[dict] = [], ymax:int | None=None,
-                            xgrid: int | None = None, ygrid: int | None = None,
-                            end:int = 52) -> tuple[Figure, pl.DataFrame]:
+def plot_sales_with_offset(
+    hw_periods: List[dict] = [],
+    ymax: int | None = None,
+    xgrid: int | None = None,
+    ygrid: int | None = None,
+    end: int = 52,
+) -> tuple[Figure, pl.DataFrame]:
     """
     各ハードウェアの異なる期間の販売台数推移を、各期間の開始点を揃えてプロットする
     Args:
@@ -431,39 +473,44 @@ def plot_sales_with_offset(hw_periods: List[dict] = [], ymax:int | None=None,
         - columns: label (string): 各ハードウェアの識別子または指定されたラベル
         - values: units (int64): 販売台数
     """
+
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
         df = pv.pivot_sales_with_offset(df, hw_periods=hw_periods, end=end)
-        title_key = '週'
+        title_key = "週"
         return (df, title_key)
-    
+
     def labeler(title_key: str) -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f'販売台数（開始点揃え）',
-            xlabel=f'開始からの{title_key}数',
-            ylabel='販売台数',
-            legend='ハード(時期)'
+            title=f"販売台数（開始点揃え）",
+            xlabel=f"開始からの{title_key}数",
+            ylabel="販売台数",
+            legend="ハード(時期)",
         )
-        
+
     return _plot_sales(
         data_source=data_source,
         labeler=labeler,
         ymax=ymax,
         ybottom=0,
         xgrid=xgrid,
-        ygrid=ygrid
+        ygrid=ygrid,
     )
 
 
-def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
-                          begin: datetime | None = None,
-                          end: datetime | None = None,
-                          ymax:int | None=None, xgrid: int | None = None,
-                          event_mask:he.EventMasks | None = None,
-                          ygrid: int | None = None) -> tuple[Figure, pl.DataFrame]:
+def plot_cumulative_sales(
+    hw: List[str] = [],
+    mode: str = "week",
+    begin: datetime | None = None,
+    end: datetime | None = None,
+    ymax: int | None = None,
+    xgrid: int | None = None,
+    event_mask: he.EventMasks | None = None,
+    ygrid: int | None = None,
+) -> tuple[Figure, pl.DataFrame]:
     """
     各ハードウェアの累計販売台数をプロットする
-    
+
     Args:
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         mode: "month"の場合は月次、"week"の場合は週単位、"year"の場合は年単位の累計販売台数をプロットする (defaultは"week")
@@ -473,47 +520,50 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         xgrid: X軸のグリッド線の間隔
         ygrid: Y軸のグリッド線の間隔
         event_mask: イベント注釈のマスク設定
-        
+
     Returns:
         tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとプロットに使用したデータのDataFrameのタプル
-        
+
         DataFrameのカラム構成:
         - index: report_date (datetime64): 集計期間の末日（日曜日）。modeが"month"または"year"の場合はリサンプリングされた日付
         - columns: hw (string): ゲームハードの識別子
         - values: sum_units (int64): report_date時点での累計販売台数
     """
-    
+
     mode_enum = parse_mode(mode)
 
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
         df = pv.pivot_cumulative_sales(df, hw=hw, begin=begin, end=end, mode=mode)
         if mode_enum == Mode.WEEK:
-            title_key = '週'
+            title_key = "週"
         elif mode_enum == Mode.MONTH:
-            title_key = '月'
+            title_key = "月"
         elif mode_enum == Mode.YEAR:
-            title_key = '年'
+            title_key = "年"
         else:
-            raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
+            raise ValueError(
+                "modeは'week', 'month', 'year'のいずれかを指定してください。"
+            )
         return (df, title_key)
-    
+
     def labeler(title_key: str) -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f'累計販売台数',
+            title=f"累計販売台数",
             xlabel=title_key,
-            ylabel='累計販売台数',
-            legend='ハード'
+            ylabel="累計販売台数",
+            legend="ハード",
         )
 
     if event_mask and mode_enum == Mode.WEEK:
+
         def annotation_positioner(event_df, df):
             return he.add_event_positions(event_df, df, event_mask=event_mask)
     else:
         annotation_positioner = None
         if event_mask:
             print("Warning: event_mask is ignored when mode is not 'week'.")
-        
+
     return _plot_sales(
         data_source=data_source,
         labeler=labeler,
@@ -522,65 +572,70 @@ def plot_cumulative_sales(hw: List[str] = [], mode:str="week",
         ybottom=0,
         xgrid=xgrid,
         ygrid=ygrid,
-        plot_style={'marker': None}
+        plot_style={"marker": None},
     )
 
-def plot_cumsum_diffs(cmplist: list[tuple[str, str]],
-                      ymax:int | None=None,
-                      xgrid: int | None = None,
-                      ygrid: int | None = None) -> tuple[Figure, pl.DataFrame]:
+
+def plot_cumsum_diffs(
+    cmplist: list[tuple[str, str]],
+    ymax: int | None = None,
+    xgrid: int | None = None,
+    ygrid: int | None = None,
+) -> tuple[Figure, pl.DataFrame]:
     """
     累計販売台数差分の折れ線グラフをプロットする
-    
+
     Args:
         cmplist: 比較対象のHWのタプルのリスト。各タプルは(base_hw, cmp_hw)の形式
         ymax: Y軸の最大値
         xgrid: X軸のメジャーグリッドの間隔
         ygrid: Y軸のメジャーグリッドの間隔
-        
+
     Returns:
         tuple[matplotlib.figure.Figure, pd.DataFrame]: グラフのFigureオブジェクトとDataFrameのタプル
-        
+
         DataFrameのカラム構成:
         - index: 連番（0から始まる整数）
         - columns: "{cmp_hw}_{base_hw}差" (int64): 各ペアの累計販売台数の差分
                    例: "PS5_NSW差"は、PS5の累計販売台数からNSWの累計販売台数を引いた値
     """
-    
+
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
         df = pv.cumsum_diffs(df, cmplist)
-        title_key = '週'
+        title_key = "週"
         return (df, title_key)
-    
+
     def labeler(title_key: str) -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f'累計販売台数差',
-            xlabel='販売開始からの週数',
-            ylabel='累計販売台数の差',
-            legend='販売台数差分'
+            title=f"累計販売台数差",
+            xlabel="販売開始からの週数",
+            ylabel="累計販売台数の差",
+            legend="販売台数差分",
         )
-        
+
     return _plot_sales(
         data_source=data_source,
         labeler=labeler,
-
         ymax=ymax,
         ybottom=0,
         xgrid=xgrid,
         ygrid=ygrid,
-        plot_style={'marker': None}
+        plot_style={"marker": None},
     )
 
-def plot_sales_pase_diff(base_hw: str,
-                         compare_hw: str,
-                         ymax:int | None=None,
-                         ybottom:int | None=None,
-                         xgrid: int | None = None,
-                         ygrid: int | None = None) -> tuple[Figure, pl.DataFrame]:
+
+def plot_sales_pase_diff(
+    base_hw: str,
+    compare_hw: str,
+    ymax: int | None = None,
+    ybottom: int | None = None,
+    xgrid: int | None = None,
+    ygrid: int | None = None,
+) -> tuple[Figure, pl.DataFrame]:
     """
     販売ペース差分の折れ線グラフをプロットする
-    
+
     Args:
         base_hw: 基準ハードウェア名
         compare_hw: 比較ハードウェア名
@@ -588,58 +643,67 @@ def plot_sales_pase_diff(base_hw: str,
         ybottom: Y軸の最小値
         xgrid: X軸のメジャーグリッドの間隔
         ygrid: Y軸のメジャーグリッドの間隔
-        
+
     Returns:
         tuple[matplotlib.figure.Figure, pl.DataFrame]: グラフのFigureオブジェクトとDataFrameのタプル
-        
+
         DataFrameのカラム構成:
         - index: delta_week (int64): 発売日からの経過週数
-        - columns: 
+        - columns:
             - "{compare_hw}累計_{base_hw}累計差" (int64): compare_hwの累計販売台数からbase_hwの累計販売台数を引いた差分
             - "{base_hw.lower()}_report_date" (datetime64): base_hwの集計日
             - "{compare_hw.lower()}_report_date" (datetime64): compare_hwの集計日
     """
-    
+
     def data_source() -> tuple[pl.DataFrame, str]:
         df = hs.load_hard_sales()
         pv1 = pv.pivot_cumulative_sales_by_delta(df, hw=[base_hw, compare_hw])
         # カラムcompare_hwとbase_hwの差分を計算して新しいカラムを追加
-        pv1 = pv1.with_columns((pl.col(compare_hw) - pl.col(base_hw)).alias(f'{compare_hw}累計_{base_hw}累計差'))
-        pv2 = pv1.select(["delta_week", f'{compare_hw}累計_{base_hw}累計差'])
+        pv1 = pv1.with_columns(
+            (pl.col(compare_hw) - pl.col(base_hw)).alias(
+                f"{compare_hw}累計_{base_hw}累計差"
+            )
+        )
+        pv2 = pv1.select(["delta_week", f"{compare_hw}累計_{base_hw}累計差"])
         # カラムの値がNaNの行を取り除く
         pv2 = pv2.drop_nulls()
-        title_key = '週'
+        title_key = "週"
         return (pv2, title_key)
-    
+
     def labeler(title_key: str) -> pu.AxisLabels:
         return pu.AxisLabels(
-            title=f'販売ペース差分',
-            xlabel='販売開始からの週数',
-            ylabel='販売ペースの差（台/週）',
-            legend='販売ペース差分'
+            title=f"販売ペース差分",
+            xlabel="販売開始からの週数",
+            ylabel="販売ペースの差（台/週）",
+            legend="販売ペース差分",
         )
 
-    def combine_report_dates(diff_df:pl.DataFrame, base_hw:str, compare_hw:str) -> pl.DataFrame:
+    def combine_report_dates(
+        diff_df: pl.DataFrame, base_hw: str, compare_hw: str
+    ) -> pl.DataFrame:
         base_df = hs.load_hard_sales()
         delta_weeks = diff_df["delta_week"]
         week_list = delta_weeks.to_list()
         for hw in [base_hw, compare_hw]:
-            if hw not in base_df['hw'].unique():
+            if hw not in base_df["hw"].unique():
                 raise ValueError(f"Invalid hardware: {hw}")
-            
-            hw_df = base_df.filter(pl.col('hw') == hw)
-            if not all(week in hw_df['delta_week'].to_list() for week in week_list):
-                raise ValueError(f"Hardware {hw} does not have all required delta_week values.")
-            
-            hw_report_date = (hw_df
-                              .filter(pl.col("delta_week").is_in(week_list))
-                              .sort("delta_week")
-                              .select(["delta_week", "report_date"]))
-            diff_df = (diff_df
-                       .join(hw_report_date, on="delta_week", how="left")
-                       .rename({"report_date": f"{hw.lower()}_report_date"}))
+
+            hw_df = base_df.filter(pl.col("hw") == hw)
+            if not all(week in hw_df["delta_week"].to_list() for week in week_list):
+                raise ValueError(
+                    f"Hardware {hw} does not have all required delta_week values."
+                )
+
+            hw_report_date = (
+                hw_df.filter(pl.col("delta_week").is_in(week_list))
+                .sort("delta_week")
+                .select(["delta_week", "report_date"])
+            )
+            diff_df = diff_df.join(hw_report_date, on="delta_week", how="left").rename(
+                {"report_date": f"{hw.lower()}_report_date"}
+            )
         return diff_df
-        
+
     (diff_fig, diff_df) = _plot_sales(
         data_source=data_source,
         labeler=labeler,
@@ -647,7 +711,7 @@ def plot_sales_pase_diff(base_hw: str,
         ybottom=ybottom,
         xgrid=xgrid,
         ygrid=ygrid,
-        plot_style={'marker': None}
+        plot_style={"marker": None},
     )
     diff_df = combine_report_dates(diff_df, base_hw, compare_hw)
     return (diff_fig, diff_df)
