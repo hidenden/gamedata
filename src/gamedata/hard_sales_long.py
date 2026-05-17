@@ -9,9 +9,12 @@ from . import hard_info as hi
 from .mode import Mode, parse_mode
 
 
-def sales_long(src_df: pl.DataFrame, hw: List[str] = [],
-               begin: datetime | date | None = None,
-               end: datetime | date | None = None) -> pl.DataFrame:
+def sales_long(
+    src_df: pl.DataFrame,
+    hw: List[str] = [],
+    begin: datetime | date | None = None,
+    end: datetime | date | None = None,
+) -> pl.DataFrame:
     """
     ハードウェアの週単位の販売台数をlong形式で返す。
 
@@ -31,13 +34,16 @@ def sales_long(src_df: pl.DataFrame, hw: List[str] = [],
     """
     df = hsf.date_filter(src_df, begin=begin, end=end)
     if len(hw) > 0:
-        df = df.filter(pl.col('hw').is_in(hw))
-    return df.select(['report_date', 'hw', 'units']).sort('report_date')
+        df = df.filter(pl.col("hw").is_in(hw))
+    return df.select(["report_date", "hw", "units"]).sort("report_date")
 
 
-def monthly_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                       begin: datetime | date| None = None,
-                       end: datetime | date | None = None) -> pl.DataFrame:
+def monthly_sales_long(
+    df: pl.DataFrame,
+    hw: List[str] = [],
+    begin: datetime | date | None = None,
+    end: datetime | date | None = None,
+) -> pl.DataFrame:
     """
     ハードウェアの月単位の販売台数をlong形式で返す。
 
@@ -59,18 +65,21 @@ def monthly_sales_long(df: pl.DataFrame, hw: List[str] = [],
     """
     df = hsf.monthly_sales(df, begin=begin, end=end)
     if len(hw) > 0:
-        df = df.filter(pl.col('hw').is_in(hw))
+        df = df.filter(pl.col("hw").is_in(hw))
     df = df.with_columns(
         year_month=pl.date(pl.col("year"), pl.col("month"), 1).dt.month_end()
-    ).with_columns(
-        year_month_str=pl.col("year_month").dt.strftime("%Y-%m")
-    )
-    return df.select(['year_month', 'year_month_str', 'year', 'month', 'hw', 'monthly_units']).sort('year_month')
+    ).with_columns(year_month_str=pl.col("year_month").dt.strftime("%Y-%m"))
+    return df.select(
+        ["year_month", "year_month_str", "year", "month", "hw", "monthly_units"]
+    ).sort("year_month")
 
 
-def quarterly_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                         begin: datetime | date| None = None,
-                         end: datetime | date | None = None) -> pl.DataFrame:
+def quarterly_sales_long(
+    df: pl.DataFrame,
+    hw: List[str] = [],
+    begin: datetime | date | None = None,
+    end: datetime | date | None = None,
+) -> pl.DataFrame:
     """
     ハードウェアの四半期単位の販売台数をlong形式で返す。
 
@@ -95,13 +104,27 @@ def quarterly_sales_long(df: pl.DataFrame, hw: List[str] = [],
     """
     df = hsf.quarterly_sales(df, begin=begin, end=end)
     if len(hw) > 0:
-        df = df.filter(pl.col('hw').is_in(hw))
-    return df.select(['quarter', 'fiscal_quarter', 'year', 'fiscal_year', 'q_num', 'fq_num', 'hw', 'quarterly_units']).sort('quarter')
+        df = df.filter(pl.col("hw").is_in(hw))
+    return df.select(
+        [
+            "quarter",
+            "fiscal_quarter",
+            "year",
+            "fiscal_year",
+            "q_num",
+            "fq_num",
+            "hw",
+            "quarterly_units",
+        ]
+    ).sort("quarter")
 
 
-def yearly_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                      begin: datetime | date| None = None,
-                      end: datetime | date | None = None) -> pl.DataFrame:
+def yearly_sales_long(
+    df: pl.DataFrame,
+    hw: List[str] = [],
+    begin: datetime | date | None = None,
+    end: datetime | date | None = None,
+) -> pl.DataFrame:
     """
     ハードウェアの年単位の販売台数をlong形式で返す。
 
@@ -121,15 +144,18 @@ def yearly_sales_long(df: pl.DataFrame, hw: List[str] = [],
     """
     df = hsf.yearly_sales(df, begin=begin, end=end)
     if len(hw) > 0:
-        df = df.filter(pl.col('hw').is_in(hw))
-    return df.select(['year', 'hw', 'yearly_units']).sort('year')
+        df = df.filter(pl.col("hw").is_in(hw))
+    return df.select(["year", "hw", "yearly_units"]).sort("year")
 
 
-def cumulative_sales_long(df: pl.DataFrame, hw: List[str] = [],
-                          begin: datetime | None = None,
-                          end: datetime | None = None,
-                          mode: str = "week",
-                          full_name: bool = False) -> pl.DataFrame:
+def cumulative_sales_long(
+    df: pl.DataFrame,
+    hw: List[str] = [],
+    begin: datetime | None = None,
+    end: datetime | None = None,
+    mode: str = "week",
+    full_name: bool = False,
+) -> pl.DataFrame:
     """
     ハードウェアの累計販売台数をlong形式で返す。
 
@@ -151,37 +177,39 @@ def cumulative_sales_long(df: pl.DataFrame, hw: List[str] = [],
     """
     df = hsf.date_filter(df, begin=begin, end=end)
     if len(hw) > 0:
-        df = df.filter(pl.col('hw').is_in(hw))
+        df = df.filter(pl.col("hw").is_in(hw))
 
-    columns_name = 'full_name' if full_name else 'hw'
-    long_df = df.select(['report_date', columns_name, 'sum_units']).sort('report_date')
+    columns_name = "full_name" if full_name else "hw"
+    long_df = df.select(["report_date", columns_name, "sum_units"]).sort("report_date")
 
     mode_enum = parse_mode(mode)
 
     if mode_enum == Mode.MONTH:
-        return (long_df
-                .sort('report_date')
-                .group_by_dynamic(
-                    'report_date',
-                    every='1mo',
-                    closed='right',
-                    period='1mo',
-                    group_by=columns_name
-                )
-                .agg(pl.col('sum_units').last())
-                .sort('report_date'))
+        return (
+            long_df.sort("report_date")
+            .group_by_dynamic(
+                "report_date",
+                every="1mo",
+                closed="right",
+                period="1mo",
+                group_by=columns_name,
+            )
+            .agg(pl.col("sum_units").last())
+            .sort("report_date")
+        )
     elif mode_enum == Mode.YEAR:
-        return (long_df
-                .sort('report_date')
-                .group_by_dynamic(
-                    'report_date',
-                    every='1y',
-                    closed='right',
-                    period='1y',
-                    group_by=columns_name
-                )
-                .agg(pl.col('sum_units').last())
-                .sort('report_date'))
+        return (
+            long_df.sort("report_date")
+            .group_by_dynamic(
+                "report_date",
+                every="1y",
+                closed="right",
+                period="1y",
+                group_by=columns_name,
+            )
+            .agg(pl.col("sum_units").last())
+            .sort("report_date")
+        )
 
     elif mode_enum == Mode.WEEK:
         return long_df
@@ -189,11 +217,14 @@ def cumulative_sales_long(df: pl.DataFrame, hw: List[str] = [],
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
 
-def sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
-                        begin: int | None = None,
-                        end: int | None = None,
-                        hw: List[str] = [],
-                        full_name: bool = False) -> pl.DataFrame:
+def sales_by_delta_long(
+    df: pl.DataFrame,
+    mode: str = "week",
+    begin: int | None = None,
+    end: int | None = None,
+    hw: List[str] = [],
+    full_name: bool = False,
+) -> pl.DataFrame:
     """
     ハードウェアの販売台数を発売日からの経過期間をインデックスとしたlong形式で返す。
 
@@ -217,14 +248,14 @@ def sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
     """
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.WEEK:
-        index_col = 'delta_week'
-        alt_index_col = 'index_week'
+        index_col = "delta_week"
+        alt_index_col = "index_week"
     elif mode_enum == Mode.MONTH:
-        index_col = 'delta_month'
-        alt_index_col = 'index_month'
+        index_col = "delta_month"
+        alt_index_col = "index_month"
     elif mode_enum == Mode.YEAR:
-        index_col = 'delta_year'
-        alt_index_col = 'index_year'
+        index_col = "delta_year"
+        alt_index_col = "index_year"
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
@@ -234,19 +265,20 @@ def sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
         df = df.filter(pl.col(index_col) <= end)
 
     if len(hw) > 0:
-        df = df.filter(pl.col('hw').is_in(hw))
+        df = df.filter(pl.col("hw").is_in(hw))
 
-    on_columns = 'full_name' if full_name else 'hw'
+    on_columns = "full_name" if full_name else "hw"
 
-    return (df
-            .group_by([index_col, alt_index_col, on_columns])
-            .agg(pl.col('units').sum())
-            .sort(by=[index_col, alt_index_col, on_columns]))
+    return (
+        df.group_by([index_col, alt_index_col, on_columns])
+        .agg(pl.col("units").sum())
+        .sort(by=[index_col, alt_index_col, on_columns])
+    )
 
 
-def sales_with_offset_long(src_df: pl.DataFrame,
-                           hw_periods: List[dict],
-                           end: int = 52) -> pl.DataFrame:
+def sales_with_offset_long(
+    src_df: pl.DataFrame, hw_periods: List[dict], end: int = 52
+) -> pl.DataFrame:
     """
     複数のハードウェアの異なる期間のデータを、各期間の開始点を揃えたlong形式で返す。
 
@@ -270,33 +302,37 @@ def sales_with_offset_long(src_df: pl.DataFrame,
     all_data = []
 
     for period in hw_periods:
-        hw = period['hw']
-        begin = period['begin']
+        hw = period["hw"]
+        begin = period["begin"]
         default_label = f"{hw}:{begin.strftime('%Y.%m.%d')}〜"
-        label = period.get('label', default_label)
+        label = period.get("label", default_label)
 
-        hw_df = src_df.filter(pl.col('hw') == hw)
-        hw_df = hw_df.filter(pl.col('report_date') >= begin)
-        hw_df = hw_df.sort('report_date').head(end)
+        hw_df = src_df.filter(pl.col("hw") == hw)
+        hw_df = hw_df.filter(pl.col("report_date") >= begin)
+        hw_df = hw_df.sort("report_date").head(end)
 
         hw_df = hw_df.with_columns(
-            offset_week=((pl.col('report_date') - begin).dt.total_days() / 7).cast(pl.Int32)
+            offset_week=((pl.col("report_date") - begin).dt.total_days() / 7).cast(
+                pl.Int32
+            )
         )
 
-        hw_df = (hw_df
-                 .select(['offset_week', 'units', 'report_date', 'hw'])
-                 .with_columns(label=pl.lit(label))
-                 )
+        hw_df = hw_df.select(
+            ["offset_week", "units", "report_date", "hw"]
+        ).with_columns(label=pl.lit(label))
 
         all_data.append(hw_df)
 
-    return pl.concat(all_data).sort('offset_week')
+    return pl.concat(all_data).sort("offset_week")
 
 
-def cumulative_sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
-                                   hw: List[str] = [],
-                                   begin: int | None = None,
-                                   end: int | None = None) -> pl.DataFrame:
+def cumulative_sales_by_delta_long(
+    df: pl.DataFrame,
+    mode: str = "week",
+    hw: List[str] = [],
+    begin: int | None = None,
+    end: int | None = None,
+) -> pl.DataFrame:
     """
     ハードウェアの累計販売台数を発売日からの経過期間をインデックスとしたlong形式で返す。
 
@@ -319,14 +355,14 @@ def cumulative_sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
     """
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.WEEK:
-        index_col = 'delta_week'
-        alt_index_col = 'index_week'
+        index_col = "delta_week"
+        alt_index_col = "index_week"
     elif mode_enum == Mode.MONTH:
-        index_col = 'delta_month'
-        alt_index_col = 'index_month'
+        index_col = "delta_month"
+        alt_index_col = "index_month"
     elif mode_enum == Mode.YEAR:
-        index_col = 'delta_year'
-        alt_index_col = 'index_year'
+        index_col = "delta_year"
+        alt_index_col = "index_year"
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
@@ -336,17 +372,18 @@ def cumulative_sales_by_delta_long(df: pl.DataFrame, mode: str = "week",
         df = df.filter(pl.col(index_col) <= end)
 
     if len(hw) > 0:
-        df = df.filter(pl.col('hw').is_in(hw))
+        df = df.filter(pl.col("hw").is_in(hw))
 
-    return (df
-            .group_by([index_col, alt_index_col, 'hw'])
-            .agg(pl.col('sum_units').last())
-            .sort(by=[index_col, alt_index_col, 'hw']))
+    return (
+        df.group_by([index_col, alt_index_col, "hw"])
+        .agg(pl.col("sum_units").last())
+        .sort(by=[index_col, alt_index_col, "hw"])
+    )
 
 
-def maker_long(df: pl.DataFrame,
-               begin_year: int | None = None,
-               end_year: int | None = None) -> pl.DataFrame:
+def maker_long(
+    df: pl.DataFrame, begin_year: int | None = None, end_year: int | None = None
+) -> pl.DataFrame:
     """
     ハードウェアのメーカー別年次販売台数をlong形式で返す。
 
@@ -370,11 +407,204 @@ def maker_long(df: pl.DataFrame,
     df = hsf.yearly_maker_sales(df, begin=begin, end=end)
 
     df = df.with_columns(
-        yearly_ratio = (pl.col('yearly_units') / pl.col('yearly_units').sum().over('year')), 
+        yearly_ratio=(
+            pl.col("yearly_units") / pl.col("yearly_units").sum().over("year")
+        ),
     )
-    df = df.with_columns(
-        yearly_pct = pl.col('yearly_ratio')  * 100
-    )
+    df = df.with_columns(yearly_pct=pl.col("yearly_ratio") * 100)
     maker_list = hs.get_maker(df)
-    df = df.sort(by=['year', pl.col(name='maker_name').cast(dtype=pl.Enum(categories=maker_list))])
-    return df.select(['year', 'maker_name', 'yearly_units', 'yearly_ratio', 'yearly_pct'])
+    df = df.sort(
+        by=[
+            "year",
+            pl.col(name="maker_name").cast(dtype=pl.Enum(categories=maker_list)),
+        ]
+    )
+    return df.select(
+        ["year", "maker_name", "yearly_units", "yearly_ratio", "yearly_pct"]
+    )
+
+
+def cumsum_diffs_long(
+    df: pl.DataFrame, cmplist: list[tuple[str, str]], include_comeback: bool = False
+) -> pl.DataFrame:
+    """
+    複数のハードウェア間の(カレンダー上の)同時期の累計販売台数の差分を計算してDataFrameで返す。
+
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
+                 ハードウェアシンボルのペアを指定する。
+                 例えば[("NS2", "PS5"), ("NSW", "PS4")]のように指定する。
+                 hw_oldの累計販売台数からhw_newの累計販売台数を引いた差分を計算する。
+                 これにより、PS5とNS2の差分、PS4とNSWの差分が計算され､
+                 NS2がPS5に､NSWがPS4に追いつく様子を分析できる。
+        include_comeback: bool: Falseの場合、cumsum_diffが0未満の最初の行（追いつかれた週）まで残し､
+                 以降の行をフィルタリングして除外する。Trueの場合、すべての行を含める。
+                 デフォルトはFalseで、逆転を想定していない｡が､これは完璧に実態に沿っているので問題ない｡
+
+    Returns:
+        pl.DataFrame: 各ペアの差分を列として持つDataFrame
+        - index_week: int: 週番号(1から始まる)
+        - report_date: datetime: 集計日
+        - hw_new: str : NSW, NS2などの､後から追いかけるマシン
+        - hw_old: str: PS4, PS5などの､基準となるマシン(追いつかれる方のマシン)
+        - pair_name: str : PS4_NSW差, PS5_NS2差の様な､比較対象を示す文字列
+        - cumsum_diff : int: old_hwとnew_hwの同じ集計日の累計差分値 (sum_units_old - sum_units_new)
+        - sum_units_new: int: new_hwの累計値
+        - sum_units_old: int: old_hwの累計値
+    """
+    dfs = []
+
+    def filter_hw_and_rename(df: pl.DataFrame, hw: str, role: str) -> pl.DataFrame:
+        return (
+            df.filter(pl.col("hw") == hw)
+            .select(["hw", "report_date", "sum_units", "index_week"])
+            .rename(
+                {
+                    "hw": f"hw_{role}",
+                    "sum_units": f"sum_units_{role}",
+                    "index_week": f"index_week_{role}",
+                }
+            )
+        )
+
+    for hw_new, hw_old in cmplist:
+        # old側のデータを抽出
+        df_old = filter_hw_and_rename(df, hw_old, "old")
+        # new側のデータを抽出
+        df_new = filter_hw_and_rename(df, hw_new, "new")
+
+        # report_dateで結合（old左、new右）
+        df_pair = df_old.join(df_new, on="report_date", how="inner")
+
+        # cumsum_diffを計算
+        df_pair = df_pair.with_columns(
+            [(pl.col("sum_units_old") - pl.col("sum_units_new")).alias("cumsum_diff")]
+        )
+        df_pair = df_pair.sort("report_date")
+        if not include_comeback:
+            negative_rows = df_pair.filter(pl.col("cumsum_diff") < 0)
+            if negative_rows.shape[0] > 0:
+                negative_rows = negative_rows.select(pl.col("report_date")).min()
+                df_pair = df_pair.filter(pl.col("report_date") <= negative_rows.item())
+
+        # pair_nameを作成
+        df_pair = df_pair.with_columns(
+            pl.concat_str(
+                [pl.col("hw_new"), pl.lit("_"), pl.col("hw_old"), pl.lit("差")]
+            ).alias("pair_name")
+        )
+
+        # カラムを再配置
+        df_pair = df_pair.select(
+            [
+                "report_date",
+                "hw_new",
+                "hw_old",
+                "pair_name",
+                "cumsum_diff",
+                "sum_units_new",
+                "sum_units_old",
+                "index_week_new",
+            ]
+        ).rename({"index_week_new": "index_week"})
+
+        dfs.append(df_pair)
+
+    # すべてのペアのdataframeを結合
+    result = pl.concat(dfs)
+
+    # index_weekでソート
+    result = result.sort("index_week")
+
+    return result
+
+
+def sales_pase_diffs_long(
+    df: pl.DataFrame, cmplist: list[tuple[str, str]]
+) -> pl.DataFrame:
+    """
+    複数のハードウェア間の累計販売台数の差分を計算してDataFrameで返す。
+
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
+                 ハードウェアシンボルのペアを指定する。
+                例えば[("PS5", "PS4"), ("PS5", "PS3")]のように指定する。
+                 hw_newの累計販売台数からhw_oldの累計販売台数を引いた差分を計算する。
+                 これにより、PS5とPS4の差分、PS5とPS3の差分が計算され､PS5がPS4,
+                 PS3と比べて､どの程度早く(あるいは遅く)普及しているかの経緯をを分析できる。
+
+    Returns:
+        pl.DataFrame: 各ペアの差分を列として持つDataFrame
+        - index_week: int: 週番号(1から始まる)
+        - hw_old: str : 比較対象となる古いマシン
+        - hw_new: str : 普及状況を分析したいマシン
+        - pair_name: str : PS4_NSW差, PS5_NS2差の様な､比較対象を示す文字列
+        - pase_diff : int: hw_oldとhw_newの同じ相対週での累計差分値
+        - sum_units_old: int: hw_oldの累計値
+        - sum_units_new: int: hw_newの累計値
+        - report_date_new: datetime: hw_newのreport_date
+        - report_date_old: datetime: hw_oldのreport_date
+    """
+    dfs = []
+
+    def filter_hw_and_rename(df, hw, role):
+        return (
+            df.filter(pl.col("hw") == hw)
+            .select(["hw", "index_week", "report_date", "sum_units"])
+            .rename(
+                {
+                    "hw": f"hw_{role}",
+                    "report_date": f"report_date_{role}",
+                    "sum_units": f"sum_units_{role}",
+                }
+            )
+        )
+
+    for hw_new, hw_old in cmplist:
+        # old側のデータを抽出
+        df_old = filter_hw_and_rename(df, hw_old, "old")
+        # new側のデータを抽出
+        df_new = filter_hw_and_rename(df, hw_new, "new")
+
+        # index_weekで結合（old左、new右）
+        df_pair = df_old.join(df_new, on="index_week", how="inner")
+
+        # pase_diffを計算
+        df_pair = df_pair.with_columns(
+            [(pl.col("sum_units_new") - pl.col("sum_units_old")).alias("pase_diff")]
+        )
+        df_pair = df_pair.sort("index_week")
+
+        # pair_nameを作成
+        df_pair = df_pair.with_columns(
+            pl.concat_str(
+                [pl.col("hw_new"), pl.lit("_"), pl.col("hw_old"), pl.lit("差")]
+            ).alias("pair_name")
+        )
+
+        # カラムを再配置
+        df_pair = df_pair.select(
+            [
+                "index_week",
+                "hw_new",
+                "hw_old",
+                "pair_name",
+                "pase_diff",
+                "sum_units_new",
+                "sum_units_old",
+                "report_date_new",
+                "report_date_old",
+            ]
+        )
+
+        dfs.append(df_pair)
+
+    # すべてのペアのdataframeを結合
+    result = pl.concat(dfs)
+
+    # index_weekでソート
+    result = result.sort("index_week")
+
+    return result

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+
 def report_begin(date: datetime) -> datetime:
     """4半期単位で「約1年前」に相当するレポート開始日を返す。
 

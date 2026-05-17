@@ -13,6 +13,7 @@ from . import hard_info as hi
 # プロジェクト内モジュール
 from . import hard_sales as hs
 from . import hard_sales_long as hsl
+from . import hard_sales_filter as hsf
 from .mode import Mode, parse_mode
 
 
@@ -25,7 +26,6 @@ def _chart_bar_sales(
     ymax: int | None = None,
     title: str | None = None,
     xoffset: str | None = None,
-    legend_orient: str = "top-right",
     tooltip: List[alt.Tooltip] | None = None,
 ) -> alt.Chart:
     """売上の棒グラフを作成する内部関数
@@ -63,7 +63,6 @@ def _chart_bar_sales(
         chart = chart.encode(xOffset=xoffset)
     if tooltip is not None:
         chart = chart.encode(tooltip=tooltip)
-    chart = chart.configure_legend(orient=legend_orient)
     chart = chart.properties(usermeta={"embedOptions": {"actions": True}})
     return chart
 
@@ -208,7 +207,6 @@ def chart_bar_hwsales_by_year(
         title=title,
         ymax=ymax,
         xoffset=xoffset,
-        legend_orient="top-left",
         tooltip=tooltip,
     )
 
@@ -268,3 +266,226 @@ def chart_hbar_yearly_share_by_maker(
             cornerRadius=5,
         )
     )
+
+
+def chart_bar_sales_by_hard_year(
+    hwy: list[tuple[str, int]],
+    mode: str = "month",
+    stacked: bool = False,
+    ymax: int | None = None,
+) -> alt.Chart:
+    """ハード別の月次売上棒グラフを作成する関数
+    Args:
+        hwy: ハードと年のタプルのリスト
+        mode: 集計の単位（"month", "quarter", デフォルトは"month"）
+        stacked: 棒グラフを積み上げ表示するかどうか（デフォルトはFalse）
+        ymax: Y軸の最大値（オプション）
+
+    Returns:
+        alt.Chart: ハード別の月次売上棒グラフ
+    """
+    df_all = hs.load_hard_sales()
+
+    def data_source(df_all, hwy, fn):
+        dfs = []
+        for h, y in hwy:
+            df = fn(df_all, hw=[h], begin=datetime(y, 1, 1), end=datetime(y, 12, 31))
+            dfs.append(df)
+        return pl.concat(dfs)
+
+    mode_enum = parse_mode(mode)
+    if mode_enum == Mode.MONTH:
+        src_df = data_source(df_all, hwy, hsl.monthly_sales_long)
+        alt_x = alt.X("month:O", title="月")
+        alt_y = alt.Y("monthly_units:Q", title="販売台数")
+        title = "月次販売台数"
+        tooltip = [
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("year:N", title="年"),
+            alt.Tooltip("month:N", title="月"),
+            alt.Tooltip("monthly_units:Q", title="販売台数"),
+        ]
+    elif mode_enum == Mode.QUARTER:
+        src_df = data_source(df_all, hwy, hsl.quarterly_sales_long)
+        alt_x = alt.X("q_num:O", title="四半期")
+        alt_y = alt.Y("quarterly_units:Q", title="販売台数")
+        title = "四半期販売台数"
+        tooltip = [
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("quarter:O", title="四半期"),
+            alt.Tooltip("quarterly_units:Q", title="販売台数"),
+        ]
+    else:
+        raise ValueError(
+            "modeは'month', 'quarter', または 'year'のいずれかでなければなりません"
+        )
+
+    src_df = src_df.with_columns(
+        pl.concat_str([pl.col("hw"), pl.lit("_"), pl.col("year")]).alias("hw_year")
+    )
+
+    alt_color = alt.Color("hw_year:N", title="ハード_年").legend(orient="top-left")
+    xoffset = "hw_year:N" if not stacked else None
+
+    return _chart_bar_sales(
+        src_df=src_df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        color=alt_color,
+        title=title,
+        ymax=ymax,
+        ymin=0,
+        xoffset=xoffset,
+        tooltip=tooltip,
+    )
+
+
+def chart_bar_yearly_delta(
+    hw: list[str],
+    stacked: bool = False,
+    delta_begin: int | None = None,
+    delta_end: int | None = None,
+) -> alt.Chart:
+    """
+    指定した機種の経過年毎販売台数をハード別に棒グラフで表示する
+
+    Args:
+        hw: プロットしたいハードウェア名のリスト
+        delta_begin: 経過年の開始（指定しない場合は0年）
+        delta_end: 経過年の終了（指定しない場合は全期間）
+
+    Returns:
+        alt.Chart: 経過年毎販売台数の棒グラフ
+
+        DataFrameのカラム構成:
+        - index: delta_year (int64): 発売年から何年後か（同じ年なら0）
+        - columns: hw (string): ゲームハードの識別子
+        - values: yearly_units (int64): 経過年次販売台数
+    """
+
+    df_all = hs.load_hard_sales()
+    df = (
+        hsf.delta_yearly_sales(df_all)
+        .filter(pl.col("hw").is_in(hw))
+        .filter(pl.col("delta_year") >= (delta_begin if delta_begin is not None else 0))
+        .filter(
+            pl.col("delta_year")
+            <= (delta_end if delta_end is not None else pl.max("delta_year"))
+        )
+    )
+
+    alt_x = alt.X("delta_year:O", title="経過年")
+    alt_y = alt.Y("yearly_units:Q", title="販売台数")
+    title = "経過年毎販売台数"
+    tooltip = [
+        alt.Tooltip("hw:N", title="ハード"),
+        alt.Tooltip("delta_year:N", title="経過年"),
+        alt.Tooltip("yearly_units:Q", title="販売台数"),
+    ]
+    hw_list = hs.get_hw(df)
+    hw_colors = hi.get_hard_colors(hw_list)
+    alt_color = alt.Color(
+        "hw:N", title="ハード", scale=alt.Scale(domain=hw_list, range=hw_colors)
+    )
+    xoffset = "hw:N" if not stacked else None
+
+    return _chart_bar_sales(
+        src_df=df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        color=alt_color,
+        title=title,
+        tooltip=tooltip,
+        xoffset=xoffset,
+    )
+
+
+def chart_bar_month_year(
+    month: int,
+    begin_year: int | None = None,
+    end_year: int | None = None,
+    stacked: bool = True,
+) -> alt.Chart:
+    """
+    指定した月の年ごとの移り変わりをメーカーごとの棒グラフで表示する
+
+    Args:
+        month: 対象月（1-12）
+        begin_year: 集計開始年
+        end_year: 集計終了年
+        stacked: 棒グラフを積み上げ表示するかどうか
+
+    Returns:
+        alt.Chart: 経過年毎販売台数の棒グラフ
+    """
+    begin = datetime(begin_year, 1, 1) if begin_year is not None else None
+    end = datetime(end_year, 12, 31) if end_year is not None else None
+
+    df_all = hs.load_hard_sales()
+    df = hsf.monthly_sales(df_all, maker_mode=True, begin=begin, end=end).filter(
+        pl.col("month") == month
+    )
+    alt_x = alt.X("year:O", title="年")
+    alt_y = alt.Y("monthly_units:Q", title="販売台数")
+    title = f"{month}月のメーカー別販売台数"
+
+    maker_list = hs.get_maker(df)
+    maker_color = hi.get_maker_colors(maker_list)
+
+    alt_color = alt.Color(
+        "maker_name:N",
+        title="メーカー",
+        scale=alt.Scale(domain=maker_list, range=maker_color),
+    )
+    xoffset = "maker_name:N" if not stacked else None
+
+    return _chart_bar_sales(
+        src_df=df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        color=alt_color,
+        title=title,
+        xoffset=xoffset,
+    )
+
+
+def chart_pie_yearly_share_by_maker(
+    begin_year: int, end_year: int | None = None
+) -> alt.Chart:
+    """メーカー別の年次シェアを円グラフで表示する。
+
+    Returns:
+        alt.Chart: 年ごとのメーカーシェアを表示するチャート。
+    """
+    df_all = hs.load_hard_sales()
+    if end_year is None:
+        end_year = begin_year
+
+    df = hsl.maker_long(df_all, begin_year=begin_year, end_year=end_year)
+    maker_list = hs.get_maker(df)[::-1]
+    maker_color = hi.get_maker_colors(maker_list)
+
+    base = (
+        alt.Chart(df)
+        .encode(
+            theta=alt.Theta(field="yearly_pct", type="quantitative").stack(True),
+            color=alt.Color(
+                field="maker_name",
+                type="nominal",
+                title="メーカー",
+                scale=alt.Scale(domain=maker_list, range=maker_color),
+            ),
+            column=alt.Row(
+                "year:O",
+                header=alt.Header(
+                    labelAngle=0, labelAlign="left", labelFontSize=13, title=None
+                ),
+            ),
+        )
+        .properties(width=140, height=150)
+    )
+    pie = base.mark_arc(outerRadius=110)
+    text = base.mark_text(radius=130, size=12).encode(
+        text=alt.Text("yearly_ratio:Q", format=".1%"),
+    )
+    return (pie + text).properties(width=150, height=180)

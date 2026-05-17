@@ -60,6 +60,24 @@
             <li>
                     <a class="function" href="#get_hard_dict">get_hard_dict</a>
             </li>
+            <li>
+                    <a class="variable" href="#HARD_ORDER">HARD_ORDER</a>
+            </li>
+            <li>
+                    <a class="variable" href="#MAKER_ORDER">MAKER_ORDER</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_hard_order">get_hard_order</a>
+            </li>
+            <li>
+                    <a class="function" href="#sort_hard">sort_hard</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_maker_order">get_maker_order</a>
+            </li>
+            <li>
+                    <a class="function" href="#sort_maker">sort_maker</a>
+            </li>
     </ul>
 
 
@@ -230,6 +248,50 @@
 </span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="sd">        dict[str, str]: A dictionary where keys are hardware identifiers and values are hardware names.</span>
 </span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>    <span class="k">return</span> <span class="n">HARD_NAMES</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a><span class="n">HARD_ORDER</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>    <span class="s2">&quot;NS2&quot;</span><span class="p">,</span> <span class="s2">&quot;NSW&quot;</span><span class="p">,</span> <span class="s2">&quot;WiiU&quot;</span><span class="p">,</span> <span class="s2">&quot;3DS&quot;</span><span class="p">,</span> <span class="s2">&quot;Wii&quot;</span><span class="p">,</span> <span class="s2">&quot;DS&quot;</span><span class="p">,</span> <span class="s2">&quot;GC&quot;</span><span class="p">,</span> <span class="s2">&quot;GBA&quot;</span><span class="p">,</span> <span class="s2">&quot;N64&quot;</span><span class="p">,</span> <span class="s2">&quot;GB&quot;</span><span class="p">,</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>    <span class="s2">&quot;PS5&quot;</span><span class="p">,</span> <span class="s2">&quot;PS4&quot;</span><span class="p">,</span> <span class="s2">&quot;Vita&quot;</span><span class="p">,</span> <span class="s2">&quot;PS3&quot;</span><span class="p">,</span> <span class="s2">&quot;PSP&quot;</span><span class="p">,</span> <span class="s2">&quot;PS2&quot;</span><span class="p">,</span> <span class="s2">&quot;PS&quot;</span><span class="p">,</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;SATURN&quot;</span><span class="p">,</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>    <span class="s2">&quot;XSX&quot;</span><span class="p">,</span> <span class="s2">&quot;XBOne&quot;</span><span class="p">,</span> <span class="s2">&quot;XB360&quot;</span><span class="p">,</span> <span class="s2">&quot;Xbox&quot;</span><span class="p">,</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>    <span class="s2">&quot;WS&quot;</span><span class="p">,</span> <span class="s2">&quot;NeoGeoP&quot;</span><span class="p">,</span> <span class="s2">&quot;PKS&quot;</span><span class="p">,</span> 
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a><span class="p">]</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="n">MAKER_ORDER</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>    <span class="s2">&quot;Nintendo&quot;</span><span class="p">,</span> <span class="s2">&quot;SONY&quot;</span><span class="p">,</span> <span class="s2">&quot;Microsoft&quot;</span><span class="p">,</span> <span class="s2">&quot;SEGA&quot;</span><span class="p">,</span> <span class="s2">&quot;BANDAI&quot;</span><span class="p">,</span> <span class="s1">&#39;SNK&#39;</span><span class="p">,</span> <span class="s1">&#39;PC&#39;</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="p">]</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_hard_order</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>    <span class="k">return</span> <span class="n">HARD_ORDER</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a><span class="k">def</span><span class="w"> </span><span class="nf">sort_hard</span><span class="p">(</span><span class="n">hw</span><span class="p">:</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a><span class="sd">    ハードウェア名のリストをHARD_ORDERに基づいてソートする。</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a><span class="sd">    Args:</span>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a><span class="sd">        hw: ハードウェア名のリスト</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a><span class="sd">    Returns:</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a><span class="sd">        list[str]: HARD_ORDERに基づいてソートされたハードウェア名のリスト</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>    <span class="n">order</span> <span class="o">=</span> <span class="n">get_hard_order</span><span class="p">()</span>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hw</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">order</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>
+</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_maker_order</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>    <span class="k">return</span> <span class="n">MAKER_ORDER</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>
+</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a><span class="k">def</span><span class="w"> </span><span class="nf">sort_maker</span><span class="p">(</span><span class="n">maker</span><span class="p">:</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a><span class="sd">    メーカー名のリストをMAKER_ORDERに基づいてソートする。</span>
+</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a>
+</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a><span class="sd">    Args:</span>
+</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a><span class="sd">        maker: メーカー名のリスト</span>
+</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a>
+</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a><span class="sd">    Returns:</span>
+</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a><span class="sd">        list[str]: MAKER_ORDERに基づいてソートされたメーカー名のリスト</span>
+</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>    <span class="n">order</span> <span class="o">=</span> <span class="n">get_maker_order</span><span class="p">()</span>
+</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">maker</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">order</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
 </span></pre></div>
 
 
@@ -492,6 +554,143 @@
 
 <p>Returns:
     dict[str, str]: A dictionary where keys are hardware identifiers and values are hardware names.</p>
+</div>
+
+
+                </section>
+                <section id="HARD_ORDER">
+                    <div class="attr variable">
+            <span class="name">HARD_ORDER</span>        =
+<input id="HARD_ORDER-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="HARD_ORDER-view-value"></label><span class="default_value">[&#39;NS2&#39;, &#39;NSW&#39;, &#39;WiiU&#39;, &#39;3DS&#39;, &#39;Wii&#39;, &#39;DS&#39;, &#39;GC&#39;, &#39;GBA&#39;, &#39;N64&#39;, &#39;GB&#39;, &#39;PS5&#39;, &#39;PS4&#39;, &#39;Vita&#39;, &#39;PS3&#39;, &#39;PSP&#39;, &#39;PS2&#39;, &#39;PS&#39;, &#39;DC&#39;, &#39;SATURN&#39;, &#39;XSX&#39;, &#39;XBOne&#39;, &#39;XB360&#39;, &#39;Xbox&#39;, &#39;WS&#39;, &#39;NeoGeoP&#39;, &#39;PKS&#39;]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#HARD_ORDER"></a>
+    
+    
+
+                </section>
+                <section id="MAKER_ORDER">
+                    <div class="attr variable">
+            <span class="name">MAKER_ORDER</span>        =
+<span class="default_value">[&#39;Nintendo&#39;, &#39;SONY&#39;, &#39;Microsoft&#39;, &#39;SEGA&#39;, &#39;BANDAI&#39;, &#39;SNK&#39;, &#39;PC&#39;]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MAKER_ORDER"></a>
+    
+    
+
+                </section>
+                <section id="get_hard_order">
+                            <input id="get_hard_order-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_hard_order</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="get_hard_order-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#get_hard_order"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_hard_order-164"><a href="#get_hard_order-164"><span class="linenos">164</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_hard_order</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="get_hard_order-165"><a href="#get_hard_order-165"><span class="linenos">165</span></a>    <span class="k">return</span> <span class="n">HARD_ORDER</span>
+</span></pre></div>
+
+
+    
+
+                </section>
+                <section id="sort_hard">
+                            <input id="sort_hard-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">sort_hard</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">hw</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="sort_hard-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#sort_hard"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="sort_hard-167"><a href="#sort_hard-167"><span class="linenos">167</span></a><span class="k">def</span><span class="w"> </span><span class="nf">sort_hard</span><span class="p">(</span><span class="n">hw</span><span class="p">:</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="sort_hard-168"><a href="#sort_hard-168"><span class="linenos">168</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="sort_hard-169"><a href="#sort_hard-169"><span class="linenos">169</span></a><span class="sd">    ハードウェア名のリストをHARD_ORDERに基づいてソートする。</span>
+</span><span id="sort_hard-170"><a href="#sort_hard-170"><span class="linenos">170</span></a>
+</span><span id="sort_hard-171"><a href="#sort_hard-171"><span class="linenos">171</span></a><span class="sd">    Args:</span>
+</span><span id="sort_hard-172"><a href="#sort_hard-172"><span class="linenos">172</span></a><span class="sd">        hw: ハードウェア名のリスト</span>
+</span><span id="sort_hard-173"><a href="#sort_hard-173"><span class="linenos">173</span></a>
+</span><span id="sort_hard-174"><a href="#sort_hard-174"><span class="linenos">174</span></a><span class="sd">    Returns:</span>
+</span><span id="sort_hard-175"><a href="#sort_hard-175"><span class="linenos">175</span></a><span class="sd">        list[str]: HARD_ORDERに基づいてソートされたハードウェア名のリスト</span>
+</span><span id="sort_hard-176"><a href="#sort_hard-176"><span class="linenos">176</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="sort_hard-177"><a href="#sort_hard-177"><span class="linenos">177</span></a>    <span class="n">order</span> <span class="o">=</span> <span class="n">get_hard_order</span><span class="p">()</span>
+</span><span id="sort_hard-178"><a href="#sort_hard-178"><span class="linenos">178</span></a>    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hw</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">order</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>ハードウェア名のリストをHARD_ORDERに基づいてソートする。</p>
+
+<p>Args:
+    hw: ハードウェア名のリスト</p>
+
+<p>Returns:
+    list[str]: HARD_ORDERに基づいてソートされたハードウェア名のリスト</p>
+</div>
+
+
+                </section>
+                <section id="get_maker_order">
+                            <input id="get_maker_order-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_maker_order</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="get_maker_order-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#get_maker_order"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_maker_order-180"><a href="#get_maker_order-180"><span class="linenos">180</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_maker_order</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="get_maker_order-181"><a href="#get_maker_order-181"><span class="linenos">181</span></a>    <span class="k">return</span> <span class="n">MAKER_ORDER</span>
+</span></pre></div>
+
+
+    
+
+                </section>
+                <section id="sort_maker">
+                            <input id="sort_maker-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">sort_maker</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">maker</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="sort_maker-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#sort_maker"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="sort_maker-183"><a href="#sort_maker-183"><span class="linenos">183</span></a><span class="k">def</span><span class="w"> </span><span class="nf">sort_maker</span><span class="p">(</span><span class="n">maker</span><span class="p">:</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="sort_maker-184"><a href="#sort_maker-184"><span class="linenos">184</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="sort_maker-185"><a href="#sort_maker-185"><span class="linenos">185</span></a><span class="sd">    メーカー名のリストをMAKER_ORDERに基づいてソートする。</span>
+</span><span id="sort_maker-186"><a href="#sort_maker-186"><span class="linenos">186</span></a>
+</span><span id="sort_maker-187"><a href="#sort_maker-187"><span class="linenos">187</span></a><span class="sd">    Args:</span>
+</span><span id="sort_maker-188"><a href="#sort_maker-188"><span class="linenos">188</span></a><span class="sd">        maker: メーカー名のリスト</span>
+</span><span id="sort_maker-189"><a href="#sort_maker-189"><span class="linenos">189</span></a>
+</span><span id="sort_maker-190"><a href="#sort_maker-190"><span class="linenos">190</span></a><span class="sd">    Returns:</span>
+</span><span id="sort_maker-191"><a href="#sort_maker-191"><span class="linenos">191</span></a><span class="sd">        list[str]: MAKER_ORDERに基づいてソートされたメーカー名のリスト</span>
+</span><span id="sort_maker-192"><a href="#sort_maker-192"><span class="linenos">192</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="sort_maker-193"><a href="#sort_maker-193"><span class="linenos">193</span></a>    <span class="n">order</span> <span class="o">=</span> <span class="n">get_maker_order</span><span class="p">()</span>
+</span><span id="sort_maker-194"><a href="#sort_maker-194"><span class="linenos">194</span></a>    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">maker</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">order</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>メーカー名のリストをMAKER_ORDERに基づいてソートする。</p>
+
+<p>Args:
+    maker: メーカー名のリスト</p>
+
+<p>Returns:
+    list[str]: MAKER_ORDERに基づいてソートされたメーカー名のリスト</p>
 </div>
 
 

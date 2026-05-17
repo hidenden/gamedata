@@ -1,9 +1,64 @@
 # データベース設計概要
 
-このリポジトリのデータベースは、ゲームハードの情報・週次販売データ・関連イベント情報を管理するためのSQLite3用スキーマです。  
-本READMEでは、`create_tables.sql` で定義されているテーブル構造とその設計意図について説明します。
+このリポジトリのデータベースは、ゲームハードの情報・週次販売データ・関連イベント情報を
+管理するためのSQLite3用スキーマです。  
+本READMEでは、`create_tables.sql` で定義されているテーブル構造と
+その設計意図について説明します。
 
 ---
+## データベース初期化
+
+### 新規データベースの作成と初期データの投入
+
+init_database.sh を実行することで、SQLite3データベースファイルが作成され、テーブルが初期化されます。
+init_database.shは以下の処理を行います｡
+
+1. データベースファイルを作成する
+2. create_tables.sql を実行してテーブルを作成する
+3. update_tables.sql を実行してカラムの追加､ビューの作成を行う
+4. hard_info.csv の内容を gamehard_info テーブルに投入する
+5. ../data_source/hard_weekly_init.csv の内容を gamehard_weekly テーブルに投入する
+
+### ファミ通データの更新(毎週)
+
+以下の手順で毎週更新を行います｡
+
+```bash
+$ cd update/
+$ ./famitsu.py <ファミ通のハードセールスURL>  # データに間違いがないか確認する｡
+$ ./famitsu.py -c <ファミ通のハードセールスURL> # データベースを更新する｡
+$ ./refresh_analysys.sh # 派生データを更新する｡
+```
+
+### 手動による更新
+
+1. 更新データを含むCSVファイルを用意する（例: `weekly_update.csv`）。
+2. `csvupdate.py -c <csvファイルのパス>` を実行して、データベースを更新する。
+
+デフォルトでは同じ行に対する更新はできません｡(データ破壊防止のため)
+同じ行に対しUPDATEを行う場合には `-f` オプションを付与して強制的に更新することができます｡
+
+更新後は `./refresh_analysys.sh` を実行して、派生データを更新してください｡
+
+
+### イベントデータベースの作成
+
+イベントデータベースの作成は以下のSQLをsqlite3コマンドラインで実行することで行います｡
+
+```sh
+sqlite3 $GAMEHARD_DB < create_events_table.sql
+```
+
+#### イベントデータの投入(更新)
+
+イベントデータは常に既存データを削除→再投入である､更新と初期化の区別はありません。
+データ投入は以下の手順で実施します｡
+
+1. `game_event.csv`を更新します
+2. `refresh_events.sh` を実行して、イベントデータをデータベースに投入します。
+
+
+
 
 ## テーブル一覧
 
@@ -34,6 +89,9 @@
 | period_date   | INTEGER| NOT NULL。集計日数（通常7、時々14など）                                   |
 | hw            | TEXT  | NOT NULL。ゲームハードの識別子。`gamehard_info(id)` への外部キー           |
 | units         | INTEGER| NOT NULL。売上台数（0以上）。                                             |
+| adjust_units  | INTEGER| NOT NULL DEFAULT 0。調整用売上台数（データ補正や手動調整用）。            |
+| flag          | INTEGER| 任意。アプリケーション用のビットマップフラグ。                            |
+| update_at     | TEXT   | レコードの最終更新日時（自動更新）。                                      |
 
 - `hw` は `gamehard_info(id)` を参照する外部キー（ON DELETE CASCADE）。
 - `units` は0以上の整数のみ許可されます。
@@ -102,7 +160,8 @@
 | report_date   | TEXT    | 集計期間の末日                          | gamehard_weekly.report_date |
 | period_date   | INTEGER | 集計日数                               | gamehard_weekly.period_date  |
 | hw            | TEXT    | ゲームハードの識別子                    | gamehard_weekly.hw    |
-| units         | INTEGER | 週次販売台数                            | gamehard_weekly.units |
+| units         | INTEGER | 週次販売台数（units + adjust_units の合算値）| gamehard_weekly.units + adjust_units |
+| adjust_units  | INTEGER | 調整用売上台数                          | gamehard_weekly.adjust_units |
 | year          | INTEGER | report_dateの年                         |  gamehard_weekly_analysis.year  |
 | month         | INTEGER | report_dateの月                         |  gamehard_weekly_analysis.month |
 | mday          | INTEGER | report_dateの日                         |  gamehard_weekly_analysis.mday  |
@@ -121,34 +180,49 @@
 
 ### load_hard_sales()の返すデータ型
 
-`hardsales_utils.py` に定義される `load_hard_sales()` を使うことで、VIEW `hard_sales` から
-pandas.DataFrame型でデータを読み込むことが出来ます。
-`load_hard_sales()` はデータを読み込む際に、日付データをTEXTからdatetime64に型変換します。
+`hard_sales.py` に定義される `load_hard_sales()` を使うことで、VIEW `hard_sales` から
+Polars DataFrameでデータを読み込むことが出来ます。
+`load_hard_sales()` はデータを読み込む際に、日付データをTEXTからDate型に変換し、
+派生カラム（移動平均、会計年度、四半期など）を自動的に計算して返します。
 
-#### load_hard_sales()が返すpandas.DataFrameのカラム一覧
+#### load_hard_sales()が返すDataFrameのカラム一覧
 
-| カラム名      | 型      | 説明                                                         |
-|:------------- |:------- |:------------------------------------------------------------ |
-| weekly_id     | string    | 週次データのID（gamehard_weekly.id）                         |
-| begin_date    | datetime64   | 集計開始日（週の初日）                                       |
-| end_date      | datetime64   | 集計終了日（週の末日、=report_date）                         |
-| report_date   | datetime64   | 集計期間の末日                                               |
-| period_date   | int64 | 集計日数                                                     |
-| hw            | string    | ゲームハードの識別子                                         |
-| units         | int64 | 週次販売台数                                                 |
-| year          | int64 | report_dateの年                                              |
-| month         | int64 | report_dateの月                                              |
-| mday          | int64 | report_dateの日                                              |
-| week          | int64 | report_dateがその月の何番目の日曜日か（0始まり）                   |
-| delta_day     | int64 | 発売日から何日後か                                           |
-| delta_week    | int64 | 発売日から何週間後か                                         |
-| delta_month   | int64 | 発売日から何ヶ月後か                                         |
-| delta_year    | int64 | 発売年から何年後か                                           |
-| avg_units     | int64 | 1日あたりの販売台数                                          |
-| sum_units     | int64 | report_date時点での累計販売台数                              |
-| launch_date   | datetime64 | 発売日                                                       |
-| maker_name    | string  | メーカー名                                                   |
-| full_name     | string  | ゲームハードの正式名称                                       |
+| カラム名        | 型         | 説明                                                         |
+|:--------------- |:---------- |:------------------------------------------------------------ |
+| weekly_id       | string     | 週次データのID（gamehard_weekly.id）                         |
+| begin_date      | date       | 集計開始日（週の初日）、月曜日                               |
+| end_date        | date       | 集計終了日（週の末日、=report_date）                         |
+| report_date     | date       | 集計期間の末日、日曜日                                       |
+| quarter         | string     | report_dateの四半期（例: "2024Q1"）                          |
+| period_date     | int16      | 集計日数(通常は7, 稀に14)                                    |
+| hw              | string     | ゲームハードの識別子                                         |
+| units           | int64      | 週次販売台数（補正済み値）                                   |
+| adjust_units    | int64      | 週次販売台数の補正値                                         |
+| year            | int16      | report_dateの年                                              |
+| month           | int16      | report_dateの月                                              |
+| mday            | int16      | report_dateの日                                              |
+| week            | int16      | report_dateがその月の何番目の日曜日か                        |
+| delta_day       | int32      | 発売日から何日後か                                           |
+| delta_week      | int32      | 発売日から何週間後か                                         |
+| delta_month     | int16      | 発売日から何ヶ月後か                                         |
+| delta_year      | int16      | 発売年から何年後か(同じ年なら0)                              |
+| index_week      | int32      | 発売から何週目か（1始まり）                                  |
+| index_month     | int16      | 発売から何ヶ月目か（1始まり）                                |
+| index_year      | int16      | 発売から何年目か（1始まり）                                  |
+| fiscal_year     | int16      | 4月始まりの会計年度（期末年、例：2026年4月〜2027年3月 => 2027）|
+| fiscal_month    | int8       | 4月を1とする会計月                                           |
+| q_num           | int8       | report_dateの四半期番号（1-4）                               |
+| fq_num          | int8       | fiscal_year内の四半期番号（1-4）                             |
+| fiscal_quarter  | string     | report_dateの会計四半期（例: "2025FQ4"）                     |
+| units_diff      | int64      | 同一ハードの前週比販売台数差分                               |
+| ma4w            | int64      | 4週移動平均（直近4週の平均を四捨五入した整数）               |
+| ma13w           | int64      | 13週移動平均（直近13週の平均を四捨五入した整数）             |
+| ma52w           | int64      | 52週移動平均（直近52週の平均を四捨五入した整数）             |
+| avg_units       | int64      | 1日あたりの販売台数 (units / period_date)                    |
+| sum_units       | int64      | report_date時点での累計販売台数                              |
+| launch_date     | date       | 発売日                                                       |
+| maker_name      | string     | メーカー名                                                   |
+| full_name       | string     | ゲームハードの正式名称                                       |
 
 ----
 
@@ -201,18 +275,4 @@ erDiagram
         INTEGER sum_units
     }
 ```
-
----
-
-## 実行方法
-
-SQLite3コマンドラインで以下のように実行できます。
-
-```sh
-sqlite3 your_database.db < create_tables.sql
-```
-
-```sh
-sqlite3 your_database.db < [create_tables.sql](http://_vscodecontentref_/0)
-
 

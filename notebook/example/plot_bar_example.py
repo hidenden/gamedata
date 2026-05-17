@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
 
@@ -110,7 +110,16 @@ def _(g, mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hws, ui_hws_widget, ui_stacked, ui_ticksize):
+def _(
+    g,
+    mo,
+    ui_begin_date,
+    ui_end_date,
+    ui_hws,
+    ui_hws_widget,
+    ui_stacked,
+    ui_ticksize,
+):
     ui_hws_widget
     (_fig, _df) = g.plot_monthly_bar_by_hard(
         hw=ui_hws.value,
@@ -131,7 +140,16 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hws, ui_hws_widget, ui_stacked, ui_ticksize):
+def _(
+    g,
+    mo,
+    ui_begin_date,
+    ui_end_date,
+    ui_hws,
+    ui_hws_widget,
+    ui_stacked,
+    ui_ticksize,
+):
     ui_hws_widget
     (_fig, _df) = g.plot_quarterly_bar_by_hard(
         hw=ui_hws.value,
@@ -153,7 +171,16 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hws, ui_hws_widget, ui_stacked, ui_ticksize):
+def _(
+    g,
+    mo,
+    ui_begin_date,
+    ui_end_date,
+    ui_hws,
+    ui_hws_widget,
+    ui_stacked,
+    ui_ticksize,
+):
     ui_hws_widget
     (_fig, _df) = g.plot_yearly_bar_by_hard(
         hw=ui_hws.value,
@@ -177,32 +204,42 @@ def _(mo):
 def _(mo):
     ui_hy_number = mo.ui.number(2, stop=5, value=2, label="比較対象の数")
     ui_hy_number
-    return (ui_hy_number,)
+    return
 
 
 @app.cell
-def _(hw_list, mo, ui_hy_number):
-    hwy_ui = mo.ui.array([
-        mo.ui.array([
-            mo.ui.dropdown(options=hw_list, label="HW"),
-            mo.ui.number(start=2001, stop=2026, label="年", value=2025)
-        ]) for _i in range(ui_hy_number.value)
-        ]
+def _(hw_list, mo):
+    drop1 = mo.ui.dropdown(options=hw_list, label="HW")
+    num1 = mo.ui.number(start=2001, stop=2026, label="年", value=2025)
+    drop2 = mo.ui.dropdown(options=hw_list, label="HW")
+    num2 = mo.ui.number(start=2001, stop=2026, label="年", value=2025)
+
+    mo.vstack(
+    [mo.hstack([drop1, num1], justify="start"),
+    mo.hstack([drop2, num2], justify="start")]
     )
-    mo.vstack([mo.hstack(hwy_ui_line, justify="start") for hwy_ui_line in hwy_ui])
-    return (hwy_ui,)
+    return drop1, drop2, num1, num2
 
 
 @app.cell
-def _(hwy_ui):
+def _(drop1):
+    print(drop1.value)
+    return
+
+
+@app.cell
+def _(drop1, drop2, num1, num2):
     # hard_yearsから hwyのtupleの配列に変換する
-    hwy_list = [(hy[0], hy[1]) for hy in hwy_ui.value if hy[0]]
-    return (hwy_list,)
+    hwy_list = [(drop1.value, num1.value), (drop2.value, num2.value)]
+    hwy_list
+    return
 
 
 @app.cell
-def _(g, hwy_list, mo):
-    mo.vstack(g.plot_monthly_bar_by_hard_year(hwy=hwy_list))
+def _(g, mo):
+    _hwy_list = [('NSW', 2025), ('PS5', 2025)]
+
+    mo.vstack(g.plot_monthly_bar_by_hard_year(hwy=_hwy_list))
     return
 
 
@@ -215,8 +252,10 @@ def _(mo):
 
 
 @app.cell
-def _(g, hwy_list, mo):
-    (_fig, _df) = g.plot_quarterly_bar_by_hard_year(hwy=hwy_list)
+def _(g, mo):
+    _hwy_list = [('NSW', 2025), ('PS5', 2025)]
+
+    (_fig, _df) = g.plot_quarterly_bar_by_hard_year(hwy=_hwy_list)
     mo.vstack([_fig, _df])
     return
 
