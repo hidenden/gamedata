@@ -213,7 +213,9 @@ def _(df_all):
     )
     _df2 = _df1.pivot(index=["fiscal_year"], on="fq_num", values="quarterly_units")
     # 各行の最後にカラムfiscal_year以外のカラムの合計値を追加
-    _df3 = _df2.with_columns(pl.sum_horizontal(pl.exclude("fiscal_year")).alias("会計年度合計"))
+    _df3 = _df2.with_columns(
+        pl.sum_horizontal(pl.exclude("fiscal_year")).alias("会計年度合計")
+    )
     g.style_df(_df3)
     return
 
@@ -252,9 +254,13 @@ def _():
     _ns2_44 = g.sales_value(hw="NS2", index_week=44, cumulative=True)
     _chart = g.chart_line_guide(
         base_chart=_chart,
-        x=44, y=_ns2_44, 
-        x2=96, y2=(_ns2_44 + 4700000), 
-        stroke=[2, 3], size=2, color="#800000"
+        x=44,
+        y=_ns2_44,
+        x2=96,
+        y2=(_ns2_44 + 4700000),
+        stroke=[2, 3],
+        size=2,
+        color="#800000",
     )
 
     ns2_27_chart = mo.ui.altair_chart(_chart)
@@ -553,18 +559,20 @@ def _():
     _ns2_ps5_diff = _ps5_last - _ns2_last
 
     _chart = g.chart_line_cumsum_diffs(
-        cmplist = [("NS2", "PS5"), ("NSW", "PS4")],
+        cmplist=[("NS2", "PS5"), ("NSW", "PS4")],
     )
     _chart = g.chart_line_guide(
         base_chart=_chart,
-        x=49, y=_ns2_ps5_diff, 
-        x2=78, y2=0,
-        stroke=[2, 3], size=2, color="#800000"
+        x=49,
+        y=_ns2_ps5_diff,
+        x2=78,
+        y2=0,
+        stroke=[2, 3],
+        size=2,
+        color="#800000",
     )
     _chart = g.chart_rule_xy(
-        base_chart=_chart,
-        y=1,
-        stroke=[10, 2], size=2, color="#000000"
+        base_chart=_chart, y=1, stroke=[10, 2], size=2, color="#000000"
     )
 
     mo.ui.altair_chart(_chart)
