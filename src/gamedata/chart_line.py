@@ -28,6 +28,7 @@ def _chart_line_sales(
     event_joinner=lambda df: df,
     with_point: bool = True,
     tooltip: List[alt.Tooltip] | None = None,
+    multi_line: bool = False,
 ) -> alt.Chart | alt.LayerChart:
     """売上のチャートを作成する関数
 
@@ -44,7 +45,7 @@ def _chart_line_sales(
 
     # Y上限の設定
     if ymax is not None:
-        alt_y = alt_y.scale(domain=[ymin, ymax])
+        alt_y = alt_y.scale(domain=[ymin, ymax], clamp=True)
 
     # チャートの作成
     base_chart = alt.Chart(df).encode(x=alt_x, y=alt_y, color=color)
@@ -64,16 +65,21 @@ def _chart_line_sales(
     if tooltip is not None:
         chart = chart.encode(tooltip=tooltip)
 
-    xf = alt_x.to_dict()["field"]
-    yf = alt_y.to_dict()["field"]
-    nearest = alt.selection_point(nearest=True, on="pointerover", fields=[xf], empty=False)
-    selectors = alt.Chart(df).mark_point().encode(x=alt_x, opacity=alt.value(0)
-                                                  ).add_params(nearest)
-    when_near = alt.when(nearest)
-    points = base_chart.mark_point().encode(opacity=when_near.then(alt.value(1)).otherwise(alt.value(0)))
-    text = base_chart.mark_text(align="left", dx=5, dy=-5).encode(text=when_near.then(yf).otherwise(alt.value(" ")))
-    rules = alt.Chart(df).mark_rule(color="gray").encode(x=alt_x).transform_filter(nearest)
-    chart = alt.layer(chart, selectors, points, rules, text)
+    if multi_line:
+        ### Multi-line対応
+        xf = alt_x.to_dict()["field"]
+        yf = alt_y.to_dict()["field"]
+        nearest = alt.selection_point(nearest=True, on="pointerover", fields=[xf], empty=False)
+        selectors = alt.Chart(df).mark_point().encode(x=alt_x, opacity=alt.value(0)
+                                                    ).add_params(nearest)
+        when_near = alt.when(nearest)
+        points = base_chart.mark_point().encode(opacity=when_near.then(alt.value(1)).otherwise(alt.value(0)))
+        text = base_chart.mark_text(align="left", dx=5, dy=-5).encode(text=when_near.then(yf).otherwise(alt.value(" ")))
+        rules = alt.Chart(df).mark_rule(color="gray").encode(x=alt_x).transform_filter(nearest)
+        chart = alt.layer(chart, selectors, points, rules, text)
+        if ymax is not None:
+            chart = chart.encode(y=alt_y)  # Y軸のスケールを再適用
+        ### Multi-line対応ここまで
 
     return chart
 
@@ -87,6 +93,7 @@ def chart_line_sales(
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
     with_point: bool = True,
+    multi_line: bool = False,
 ) -> alt.Chart | alt.LayerChart:
     """売上のチャートを作成する関数
 
@@ -173,11 +180,12 @@ def chart_line_sales(
         title=title,
         event_joinner=event_joinner,
         with_point=with_point,
+        multi_line=multi_line,
     )
 
 
 def chart_line_weekly_by_hw_date(
-    hw_periods: List[dict] = [], end: int = 52, ymax: int | None = None, ymin: int = 0
+    hw_periods: List[dict] = [], end: int = 52, ymax: int | None = None, ymin: int = 0, multi_line: bool = False
 ) -> alt.Chart | alt.LayerChart:
     """
     各ハードウェアの異なる期間の販売台数推移を、各期間の開始点を揃えてプロットする
@@ -217,6 +225,7 @@ def chart_line_weekly_by_hw_date(
         title="週販推移比較",
         color=alt_color,
         tooltip=tooltip,
+        multi_line=multi_line,
     )
 
 
@@ -228,6 +237,7 @@ def chart_line_cumulative(
     ymin: int = 0,
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
+    multi_line: bool = False,
 ) -> alt.Chart | alt.LayerChart:
     """累計販売台数のチャートを作成する関数
     Args:
@@ -280,6 +290,7 @@ def chart_line_cumulative(
         title="累計販売台数",
         event_joinner=event_joinner,
         with_point=False,
+        multi_line=multi_line,
     )
 
 
@@ -293,6 +304,7 @@ def chart_line_cumulative_delta(
     event_mask: he.EventMasks | None = None,
     index_mode: bool = True,
     with_point: bool = False,
+    multi_line: bool = False,
 ) -> alt.Chart | alt.LayerChart:
     """相対累計販売台数のチャートを作成する関数
     Args:
@@ -357,12 +369,14 @@ def chart_line_cumulative_delta(
         title="相対累計販売台数",
         event_joinner=event_joinner,
         with_point=with_point,
+        multi_line=multi_line,
     )
 
 
 def chart_line_cumsum_diffs(
     cmplist: list[tuple[str, str]],
     ymax: int | None = None,
+    multi_line: bool = False,
 ) -> alt.Chart | alt.LayerChart:
     """複数ハードウェア間の累計販売台数差分を示す折れ線チャートを作成する関数
 
@@ -404,12 +418,14 @@ def chart_line_cumsum_diffs(
         title="累計販売台数差",
         with_point=False,
         tooltip=tooltip,
+        multi_line=multi_line,
     )
 
 
 def chart_line_pase_diffs(
     cmplist: list[tuple[str, str]],
     ymax: int | None = None,
+    multi_line: bool = False,
 ) -> alt.Chart | alt.LayerChart:
     """複数ハードウェア間の販売ペース差を示す折れ線チャートを作成する関数
 
@@ -451,4 +467,5 @@ def chart_line_pase_diffs(
         title="販売ペース差",
         with_point=False,
         tooltip=tooltip,
+        multi_line=multi_line,
     )
