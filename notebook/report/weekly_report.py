@@ -164,7 +164,7 @@ def _(report_date):
     _begin = date(2026, 2, 1)
     _end = report_date
     _chart = g.chart_line_sales(
-        begin=_begin, end=_end, ymax=120000,event_mask=g.EVENT_MASK_MIDDLE
+        begin=_begin, end=_end, ymax=120000, event_mask=g.EVENT_MASK_MIDDLE
     )
     mo.hstack(items=[mo.ui.altair_chart(_chart)], justify="start", wrap=True)
     return
@@ -527,9 +527,9 @@ def _(report_date):
     _chart = g.chart_line_cumulative(
         hw=["NSW", "NS2", "PS5", "XSX"],
         begin=datetime(2017, 3, 1),
-            end=report_date,
-            event_mask=g.EVENT_MASK_LONG,
-            multi_line=True,
+        end=report_date,
+        event_mask=g.EVENT_MASK_LONG,
+        multi_line=True,
     )
     chart_cumulative = mo.ui.altair_chart(_chart)
     chart_cumulative
@@ -563,7 +563,7 @@ def _():
     _ns2_ps5_diff = _ps5_last - _ns2_last
 
     _chart = g.chart_line_cumsum_diffs(
-        cmplist=[("NSW", "PS4"), ("NS2", "PS5") ],
+        cmplist=[("NSW", "PS4"), ("NS2", "PS5")],
         multi_line=True,
     )
     _chart = g.chart_line_guide(

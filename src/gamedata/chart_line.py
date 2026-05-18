@@ -69,13 +69,28 @@ def _chart_line_sales(
         ### Multi-line対応
         xf = alt_x.to_dict()["field"]
         yf = alt_y.to_dict()["field"]
-        nearest = alt.selection_point(nearest=True, on="pointerover", fields=[xf], empty=False)
-        selectors = alt.Chart(df).mark_point().encode(x=alt_x, opacity=alt.value(0)
-                                                    ).add_params(nearest)
+        nearest = alt.selection_point(
+            nearest=True, on="pointerover", fields=[xf], empty=False
+        )
+        selectors = (
+            alt.Chart(df)
+            .mark_point()
+            .encode(x=alt_x, opacity=alt.value(0))
+            .add_params(nearest)
+        )
         when_near = alt.when(nearest)
-        points = base_chart.mark_point().encode(opacity=when_near.then(alt.value(1)).otherwise(alt.value(0)))
-        text = base_chart.mark_text(align="left", dx=5, dy=-5).encode(text=when_near.then(yf).otherwise(alt.value(" ")))
-        rules = alt.Chart(df).mark_rule(color="gray").encode(x=alt_x).transform_filter(nearest)
+        points = base_chart.mark_point().encode(
+            opacity=when_near.then(alt.value(1)).otherwise(alt.value(0))
+        )
+        text = base_chart.mark_text(align="left", dx=5, dy=-5).encode(
+            text=when_near.then(yf).otherwise(alt.value(" "))
+        )
+        rules = (
+            alt.Chart(df)
+            .mark_rule(color="gray")
+            .encode(x=alt_x)
+            .transform_filter(nearest)
+        )
         chart = alt.layer(chart, selectors, points, rules, text)
         if ymax is not None:
             chart = chart.encode(y=alt_y)  # Y軸のスケールを再適用
@@ -185,7 +200,11 @@ def chart_line_sales(
 
 
 def chart_line_weekly_by_hw_date(
-    hw_periods: List[dict] = [], end: int = 52, ymax: int | None = None, ymin: int = 0, multi_line: bool = False
+    hw_periods: List[dict] = [],
+    end: int = 52,
+    ymax: int | None = None,
+    ymin: int = 0,
+    multi_line: bool = False,
 ) -> alt.Chart | alt.LayerChart:
     """
     各ハードウェアの異なる期間の販売台数推移を、各期間の開始点を揃えてプロットする
