@@ -161,7 +161,7 @@ def _():
 
 @app.cell
 def _(report_date):
-    _begin = date(2026, 1, 1)
+    _begin = date(2026, 2, 1)
     _end = report_date
     _chart = g.chart_line_sales(
         begin=_begin, end=_end, ymax=120000, event_mask=g.EVENT_MASK_MIDDLE
@@ -238,10 +238,11 @@ def _():
     _chart = g.chart_line_cumulative_delta(
         hw=["NS2", "NSW", "3DS", "DS"],
         end=100,
-        event_mask=g.EVENT_MASK_MIDDLE,
+        event_mask=g.EVENT_MASK_LONG,
         mode="week",
         with_point=False,
         index_mode=True,
+        multi_line=True,
     )
     _chart = g.chart_rule_xy(
         base_chart=_chart,
@@ -311,6 +312,7 @@ def _():
             {"hw": "PS5", "begin": datetime(2026, 3, 1)},
         ],
         end=20,
+        multi_line=True,
     )
 
     _ps5_offset_chart = mo.ui.altair_chart(_offset_chart)
@@ -346,6 +348,7 @@ def _():
             {"hw": "NS2", "begin": datetime(2026, 3, 1)},
         ],
         end=20,
+        multi_line=True,
     )
 
     _ns2_offset_chart = mo.ui.altair_chart(_offset_chart)
@@ -522,10 +525,11 @@ def _():
 @app.cell
 def _(report_date):
     _chart = g.chart_line_cumulative(
-        hw=["NS2", "PS5", "XSX"],
+        hw=["NSW", "NS2", "PS5", "XSX"],
         begin=datetime(2017, 3, 1),
         end=report_date,
-        event_mask=g.EVENT_MASK_MIDDLE,
+        event_mask=g.EVENT_MASK_LONG,
+        multi_line=True,
     )
     chart_cumulative = mo.ui.altair_chart(_chart)
     chart_cumulative
@@ -559,7 +563,8 @@ def _():
     _ns2_ps5_diff = _ps5_last - _ns2_last
 
     _chart = g.chart_line_cumsum_diffs(
-        cmplist=[("NSW", "PS4"), ("NS2", "PS5") ],
+        cmplist=[("NSW", "PS4"), ("NS2", "PS5")],
+        multi_line=True,
     )
     _chart = g.chart_line_guide(
         base_chart=_chart,
@@ -594,6 +599,7 @@ def _(ns2_info):
         event_mask=g.EVENT_MASK_MIDDLE,
         mode="week",
         with_point=False,
+        multi_line=True,
     )
     _chart = g.chart_rule_xy(
         base_chart=_chart,
@@ -649,10 +655,10 @@ def _(ps5_info):
 @app.cell
 def _(ps5_info):
     _chart = g.chart_line_cumulative_delta(
-        hw=["PS5", "PS4"],
+        hw=["PS5", "PS4", "PS3"],
         end=ps5_info["sales_weeks"] + 60,
-        event_mask=g.EVENT_MASK_LONG,
         mode="week",
+        multi_line=True,
     )
 
     _chart = g.chart_rule_xy(
