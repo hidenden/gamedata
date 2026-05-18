@@ -66,7 +66,7 @@ def _chart_line_sales(
 
     xf = alt_x.to_dict()["field"]
     yf = alt_y.to_dict()["field"]
-    nearest = alt.selection_point(nearest=True, on="pointerover", fields=["report_date"], empty=False)
+    nearest = alt.selection_point(nearest=True, on="pointerover", fields=[xf], empty=False)
     selectors = alt.Chart(df).mark_point().encode(x=alt_x, opacity=alt.value(0)
                                                   ).add_params(nearest)
     when_near = alt.when(nearest)
