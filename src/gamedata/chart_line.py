@@ -64,6 +64,17 @@ def _chart_line_sales(
     if tooltip is not None:
         chart = chart.encode(tooltip=tooltip)
 
+    xf = alt_x.to_dict()["field"]
+    yf = alt_y.to_dict()["field"]
+    nearest = alt.selection_point(nearest=True, on="pointerover", fields=["report_date"], empty=False)
+    selectors = alt.Chart(df).mark_point().encode(x=alt_x, opacity=alt.value(0)
+                                                  ).add_params(nearest)
+    when_near = alt.when(nearest)
+    points = base_chart.mark_point().encode(opacity=when_near.then(alt.value(1)).otherwise(alt.value(0)))
+    text = base_chart.mark_text(align="left", dx=5, dy=-5).encode(text=when_near.then(yf).otherwise(alt.value(" ")))
+    rules = alt.Chart(df).mark_rule(color="gray").encode(x=alt_x).transform_filter(nearest)
+    chart = alt.layer(chart, selectors, points, rules, text)
+
     return chart
 
 
