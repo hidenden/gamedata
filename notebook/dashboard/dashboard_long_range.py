@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
 
@@ -41,11 +41,13 @@ def _(g, mo):
 def _(datetime, g, hw_select, hw_widget, mo, stack_widget):
     hw_widget
     hw_list = hw_select.value
-    (_fig, _df) = g.plot_yearly_bar_by_hard(hw=hw_list,
+    _chart = g.chart_bar_sales(hw=hw_list,
                                        begin=datetime(2000,1,1),
                                        stacked=stack_widget.value, 
-                                       ticklabelsize=8)
-    mo.vstack([hw_select, stack_widget,  _fig, _df])
+                                       mode="year"
+                                       )
+    _mo_chart = mo.ui.altair_chart(_chart)
+    mo.vstack([hw_select, stack_widget,  _mo_chart, _mo_chart.dataframe])
     return
 
 

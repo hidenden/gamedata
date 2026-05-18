@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.5"
+__generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
 
@@ -53,9 +53,9 @@ def _(end, event_select, event_widget, g, hw_widget, hwselect, mo):
     # mo.stop(not run_button.value)
     hw_widget
     event_widget
-    (_fig1, _df1) = g.plot_cumulative_sales(hwselect.value, event_mask=event_select.value)
+    _fig1 = g.chart_line_cumulative(hwselect.value, event_mask=event_select.value)
     (_fig2, _df2) = g.plot_cumulative_sales_by_delta(hw=hwselect.value, end=end.value, event_mask = event_select.value)
-    mo.vstack([_fig1, _fig2,_df1,  _df2])
+    mo.vstack([_fig1, _fig2, _df2])
     return
 
 
