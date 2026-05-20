@@ -161,10 +161,10 @@ def _():
 
 @app.cell
 def _(report_date):
-    _begin = date(2026, 2, 1)
+    _begin = date(2026, 3, 1)
     _end = report_date
     _chart = g.chart_line_sales(
-        begin=_begin, end=_end, ymax=120000, event_mask=g.EVENT_MASK_MIDDLE
+        begin=_begin, end=_end, ymax=135000, event_mask=g.EVENT_MASK_MIDDLE
     )
     mo.hstack(items=[mo.ui.altair_chart(_chart)], justify="start", wrap=True)
     return
@@ -182,107 +182,45 @@ def _():
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    ## FY27(2027年3月期) 日本のSwitch2販売予想
-
-    今年度のSwitch2販売計画が[2026年3月期 決算説明資料](https://www.nintendo.co.jp/ir/pdf/2026/260508_4.pdf)で発表されました｡
-    (台数は全てセルインと思われます)
-
-    - FY27予想 1650万台(World wide:セルイン)
-    - FY26実績 1986万台(World wide:セルイン)
-    - 2027年3月末(22か月間)でNintendo Switchの22か月累計を超える見込み
-
-    同資料で公開された､FY26の地域別のSwitch2販売台数を元に､地域別の比率を求めると以下の値になります｡
-
-     日本 | 米大陸 | 欧州 | その他 |
-    |----|--------|------|-------|
-    | 28.5% | 33.9% | 22.2% | 15.4% |
-
-    この比率が続くなら､日本の今年度のSwitch2販売台数は470万になります｡
-
-    以下に､各会計年度の四半期ごとのNintendo Switchの日本での販売実績を示します｡
-    (年をFiscal Yearで示してます｡日本人の年度感覚から表記が1年ズレてますのでご注意ください)
-    """)
-    return
-
-
-@app.cell
-def _(df_all):
-
-    _df1 = g.quarterly_sales_long(
-        df_all, hw=["NSW"], begin=datetime(2017, 4, 1), end=datetime(2025, 3, 31)
-    )
-    _df2 = _df1.pivot(index=["fiscal_year"], on="fq_num", values="quarterly_units")
-    # 各行の最後にカラムfiscal_year以外のカラムの合計値を追加
-    _df3 = _df2.with_columns(
-        pl.sum_horizontal(pl.exclude("fiscal_year")).alias("会計年度合計")
-    )
-    g.style_df(_df3)
-    return
-
-
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    年間470万台を超えているのはFY2020(Lite､剣盾)､FY2021(コロナ､あつ森)､
-    FY2022(OLEDモデル)の3年度のみです｡
-    470万台というのはなかなかに高い値です｡
-
-    また､ワールドワイドでは発売後から22ヶ月後(96週)の累計販売台数がNintendo Switchを超える見込みとのこと
-    なので､日本での22ヶ月後(96週)後の様子を見てみます｡
+    ## Switch2のPS5への販売台数推移
     """)
     return
 
 
 @app.cell
 def _():
-    _chart = g.chart_line_cumulative_delta(
-        hw=["NS2", "NSW", "3DS", "DS"],
-        end=100,
-        event_mask=g.EVENT_MASK_LONG,
-        mode="week",
-        with_point=False,
-        index_mode=True,
+    _ps5_last = g.sales_value(hw="PS5", index_week=-1, cumulative=True)
+    _ns2_last = g.sales_value(hw="NS2", index_week=-1, cumulative=True)
+    _ns2_ps5_diff = _ps5_last - _ns2_last
+
+    _chart = g.chart_line_cumsum_diffs(
+        cmplist=[("NSW", "PS4"), ("NS2", "PS5")],
         multi_line=True,
     )
-    _chart = g.chart_rule_xy(
-        base_chart=_chart,
-        x=96,
-        y=g.sales_value(hw="NSW", index_week=96, cumulative=True),
-        stroke=[5, 2],
-        size=2,
-        color="#00000060",
-    )
-    _ns2_44 = g.sales_value(hw="NS2", index_week=44, cumulative=True)
     _chart = g.chart_line_guide(
         base_chart=_chart,
-        x=44,
-        y=_ns2_44,
-        x2=96,
-        y2=(_ns2_44 + 4700000),
-        stroke=[2, 3],
+        x=49,
+        y=_ns2_ps5_diff,
+        x2=78,
+        y2=0,
+        stroke=[2, 4],
         size=2,
-        color="#800000",
+        color="#00a0FF",
     )
 
-    ns2_27_chart = mo.ui.altair_chart(_chart)
-    mo.vstack(items=[ns2_27_chart], justify="start")
-    return
+    _chart = g.chart_rule_xy(
+        base_chart=_chart, x=49, 
+        y = _ns2_ps5_diff,
+        stroke=[2, 1], size=2, color="#40404080"
+    )   
+
+    _chart = g.chart_rule_xy(
+        base_chart=_chart, y=1, stroke=[10, 2], size=2, color="#000000"
+    )
 
 
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    セルインとセルスルーの合算なので概算になりますが､
-    96週(2027年3月末)の時点でNintendo Switchを280万台程度上回る見込みです｡
-    普及速度歴代一位の座はDSに譲るものの､
-    Nintendo Switchとの差は昨年度末の時点で約140万台だったものが､
-    今後の1年でさらに倍の差に拡大する見通しです｡
 
-    これ *全然弱気の予想には見えません*
-
-    なお､ゲーム機の初期の累計値は「何回年末商戦を迎えたか」で大きく数字がブレます｡
-    今回はSwitchの2回目の年末商戦を含めての比較なので､フェアな比較と言えます｡
-    """)
+    mo.ui.altair_chart(_chart)
     return
 
 
@@ -327,40 +265,6 @@ def _():
     PS5DE日本語版の価格抑制施策が功を奏しているのかもしれません｡
     ただSwitch2の国内値上げで値上げの余地が発生したので､
     今後､利益確保の値上げの動きが出てくる可能性はあります｡
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    ### Nintendo Switch2: 2026年と, Switch 2018,2019年 3月1日以降
-    """)
-    return
-
-
-@app.cell
-def _():
-    _offset_chart = g.chart_line_weekly_by_hw_date(
-        hw_periods=[
-            {"hw": "NSW", "begin": datetime(2018, 3, 1)},
-            {"hw": "NSW", "begin": datetime(2019, 3, 1)},
-            {"hw": "NS2", "begin": datetime(2026, 3, 1)},
-        ],
-        end=20,
-        multi_line=True,
-    )
-
-    _ns2_offset_chart = mo.ui.altair_chart(_offset_chart)
-    _ns2_offset_chart
-    return
-
-
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    もう過去のSwitchの推移と比べる意味は無いですね｡
-    FY27の目標値との比較の方が有意義だと思います｡
     """)
     return
 
@@ -548,42 +452,6 @@ def _(chart_cumulative, is_publish):
     return
 
 
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    ## Nintendo Switch2 がPS5を抜くのはいつか?
-    """)
-    return
-
-
-@app.cell
-def _():
-    _ps5_last = g.sales_value(hw="PS5", index_week=-1, cumulative=True)
-    _ns2_last = g.sales_value(hw="NS2", index_week=-1, cumulative=True)
-    _ns2_ps5_diff = _ps5_last - _ns2_last
-
-    _chart = g.chart_line_cumsum_diffs(
-        cmplist=[("NSW", "PS4"), ("NS2", "PS5")],
-        multi_line=True,
-    )
-    _chart = g.chart_line_guide(
-        base_chart=_chart,
-        x=49,
-        y=_ns2_ps5_diff,
-        x2=78,
-        y2=0,
-        stroke=[2, 4],
-        size=2,
-        color="#00a0FF",
-    )
-    _chart = g.chart_rule_xy(
-        base_chart=_chart, y=1, stroke=[10, 2], size=2, color="#000000"
-    )
-
-    mo.ui.altair_chart(_chart)
-    return
-
-
 @app.cell
 def _(ns2_info):
     _ns2_weeks = ns2_info["sales_weeks"]
@@ -594,7 +462,7 @@ def _(ns2_info):
 @app.cell
 def _(ns2_info):
     _chart = g.chart_line_cumulative_delta(
-        hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA", "PS2", "Wii"],
+        hw=["NS2", "NSW", "PS5", "3DS", "DS", "GBA",  ],
         end=ns2_info["sales_weeks"] + 20,
         event_mask=g.EVENT_MASK_MIDDLE,
         mode="week",
