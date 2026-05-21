@@ -87,6 +87,13 @@ def _with_derived_columns(df: pl.DataFrame) -> pl.DataFrame:
             .cast(pl.Int64)
             .over("hw")
             .alias("ma52w"),
+            pl.col("units")
+            .cum_sum()
+            .over(pl.col("hw"), pl.col("year"))
+            .alias("yearly_sum_units"),
+        )
+        .with_columns(
+            pl.col("report_date").dt.ordinal_day().alias("yday").cast(pl.Int16),
         )
     )
 
@@ -116,6 +123,7 @@ def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
         - year (Int16): report_dateの年
         - month (Int16): report_dateの月
         - mday (Int16): report_dateの日
+        - yday (Int16): report_dateの日がその年の何日目か（1-366）
         - week (Int16): report_dateがその月の何番目の日曜日か
         - delta_day (Int32): 発売日から何日後か
         - delta_week (Int32): 発売日から何週間後か
@@ -135,6 +143,7 @@ def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
         - ma52w (Int64): 52週移動平均（直近52週の平均を四捨五入した整数）
         - avg_units (Int64): 1日あたりの販売台数 (units / period_date)
         - sum_units (Int64): report_date時点での累計販売台数
+        - yearly_sum_units (Int64): report_date時点での年次累計販売台数(暦年単位)
         - launch_date (Date): 発売日
         - maker_name (String): メーカー名
         - full_name (String): ゲームハードの正式名称
