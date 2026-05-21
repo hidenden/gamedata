@@ -325,6 +325,89 @@ def sales_with_offset_long(
 
     return pl.concat(all_data).sort("offset_week")
 
+def yearly_cumulative_long(
+    df: pl.DataFrame,
+    year: int = 2026,
+    hw: List[str] = [],
+    begin: int  = 1,
+    end: int  = 366,
+) -> pl.DataFrame:
+    """
+    複数のハードウェアの同じ年の年次累積データをlong形式で返す。
+
+    Args:
+        df: load_hard_sales()で取得したDataFrame
+        year: 対象年
+        hw: 対象ハードウェア名のリスト。[]の場合は全ハードウェアを対象
+        begin: 集計開始（年次累積の最小値、1から始まる）
+        end: 集計終了（年次累積の最大値、1から始まる）beginより大きい値を指定すること
+
+    Returns:
+        pl.DataFrame: long形式のDataFrame
+
+        DataFrameのカラム構成:
+        - yday (Int16): Year of Date, 各期間の開始日からの経過日数
+        - year (Int16): report_dateの年
+        - hw (String): ゲームハードの識別子
+        - yearly_sum_units (Int64): 年次累積販売台数
+        - report_date (Date): 集計日 (イベント情報等との結合用)
+    """
+    if len(hw) > 0:
+        df = df.filter(pl.col("hw").is_in(hw))
+    df = (df
+          .filter(pl.col("year") == year)
+          .filter(pl.col("yday") >= begin)
+          .filter(pl.col("yday") <= end)
+          .sort("yday")
+    )
+    return df
+
+
+def yearly_cumulative_by_hwy_long(
+    src_df: pl.DataFrame,
+    hw_years: list[tuple[str, int]],
+    begin: int  = 1,
+    end: int  = 366,
+) -> pl.DataFrame:
+    """
+    複数のハードウェアの異なる年の年次累積データをlong形式で返す。
+
+    Args:
+        src_df: load_hard_sales()で取得したDataFrame
+        hw_years: 各ハードウェアの年次設定のリスト
+            各要素は(hw, year)のタプル形式で、hwはハードウェアの識別子、yearは対象年を指定する。
+             例えば[("NS2", 2024), ("PS5", 2020)]のように指定する。
+             これにより、NS2の2024年の年次累積とPS5の2020年の年次累積を比較できる。
+        begin: 集計開始（年次累積の最小値、1から始まる）
+        end: 集計終了（年次累積の最大値、1から始まる）beginより大きい値を指定すること
+
+    Returns:
+        pl.DataFrame: long形式のDataFrame
+
+        DataFrameのカラム構成:
+        - yday (Int16): Year of Date, 各期間の開始日からの経過日数
+        - year (Int16): report_dateの年
+        - hw (String): ゲームハードの識別子
+        - label (String): ハードウェアのラベル ("{hw}:{year}"の形式)
+        - yearly_sum_units (Int64): 年次累積販売台数
+        - report_date (Date): 集計日 (イベント情報等との結合用)
+    """
+    all_data = []
+
+    for hw, year in hw_years:
+        hw_df = (src_df
+                 .filter(pl.col("hw") == hw)
+                 .filter(pl.col("year") == year)
+                 .filter(pl.col("yday") >= begin)
+                 .filter(pl.col("yday") <= end)
+        )
+        label = f"{hw}:{year}"
+        hw_df = hw_df.with_columns(
+            label=pl.lit(label),
+        )
+        all_data.append(hw_df)
+
+    return pl.concat(all_data).sort("yday")
 
 def cumulative_sales_by_delta_long(
     df: pl.DataFrame,
