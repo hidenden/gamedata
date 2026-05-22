@@ -9,5 +9,5 @@ def get_config() -> dict:
         "date": the_date,
         "year": the_date.year,
         "large": True,
-        "description": f"Switch2 1万円値上げで駆け込み需要:{date_str}ハード週販レポート",
+        "description": f"Switch2に年末商戦級駆け込み需要:{date_str}ハード週販レポート",
     }

@@ -25,6 +25,8 @@ from .chart_line import (
     chart_line_weekly_by_hw_date,
     chart_line_cumsum_diffs,
     chart_line_pase_diffs,
+    chart_line_ycumulative,
+    chart_line_ycumulative_by_hw_year,
 )
 from .chart_rule import (
     chart_line_guide,
@@ -98,6 +100,8 @@ from .hard_sales_long import (
     yearly_sales_long,
     cumsum_diffs_long,
     sales_pase_diffs_long,
+    yearly_cumulative_long,
+    yearly_cumulative_by_hwy_long,
 )
 from .hard_sales_pivot import (
     cumsum_diffs,
