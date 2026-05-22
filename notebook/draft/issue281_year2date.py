@@ -31,6 +31,12 @@ def _():
 
 @app.cell
 def _(df_all):
+    df_all
+    return
+
+
+@app.cell
+def _(df_all):
     ydf = g.yearly_cumulative_by_hwy_long(df_all,
             hw_years=[("NS2", 2026), ("NSW", 2026), ("PS5", 2026)],
     )

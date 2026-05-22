@@ -55,7 +55,7 @@ def _chart_line_sales(
     if "event_name" in df.columns:
         event_chart = (
             base_chart.transform_filter(alt.datum.event_name != None)
-            .mark_text(align="center", baseline="middle", dx=10, dy=-10)
+            .mark_text(align="center", baseline="middle", dx=10, dy=-20)
             .encode(text="event_name:N")
         )
         chart += event_chart
@@ -170,6 +170,13 @@ def chart_line_sales(
         "hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors), title="ハード"
     )
 
+    # Tooltipの定義
+    tooltip = [
+        alt.Tooltip("hw:N", title="ハード"),
+        alt.Tooltip("report_date:T", title="日付", format="%Y-%m-%d"),
+        alt.Tooltip("units:Q", title="販売台数"),
+    ]
+
     # イベント結合関数の定義
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
         if (event_mask is not None) and (mode_enum == Mode.WEEK):
@@ -196,6 +203,7 @@ def chart_line_sales(
         event_joinner=event_joinner,
         with_point=with_point,
         multi_line=multi_line,
+        tooltip=tooltip,
     )
 
 
@@ -584,6 +592,13 @@ def chart_line_ycumulative_by_hw_year(
         "label:N", title="ハード年"
     ).legend(orient="top-left")
 
+    # Tooltipの定義
+    tooltip = [
+        alt.Tooltip("hw:N", title="ハード"),
+        alt.Tooltip("report_date:T", title="日付", format="%Y-%m-%d"),
+        alt.Tooltip("yearly_sum_units:Q", title="年間累計販売台数"),
+    ]
+
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
         if (event_mask is not None):
             event_df = he.mask_event(he.load_hard_event(), event_mask)
@@ -607,4 +622,5 @@ def chart_line_ycumulative_by_hw_year(
         event_joinner=event_joinner,
         with_point=True,
         multi_line=multi_line,
+        tooltip=tooltip,
     )
