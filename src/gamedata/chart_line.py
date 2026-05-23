@@ -29,7 +29,7 @@ def _chart_line_sales(
     with_point: bool = True,
     tooltip: List[alt.Tooltip] | None = None,
     multi_line: bool = False,
-) -> alt.Chart | alt.LayerChart:
+) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """売上のチャートを作成する関数
 
     Args:
@@ -38,7 +38,7 @@ def _chart_line_sales(
         labeler: ラベル付け関数（オプション）
 
     Returns:
-        alt.Chart: 売上のチャート
+        alt.Chart | alt.LayerChart | alt.FacetChart: 売上のチャート
     """
     # データの取得とイベントの結合
     df: pl.DataFrame = event_joinner(src_df)
@@ -109,7 +109,7 @@ def chart_line_sales(
     event_mask: he.EventMasks | None = None,
     with_point: bool = True,
     multi_line: bool = False,
-) -> alt.Chart | alt.LayerChart:
+) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """売上のチャートを作成する関数
 
     Args:
@@ -213,7 +213,7 @@ def chart_line_weekly_by_hw_date(
     ymax: int | None = None,
     ymin: int = 0,
     multi_line: bool = False,
-) -> alt.Chart | alt.LayerChart:
+) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """
     各ハードウェアの異なる期間の販売台数推移を、各期間の開始点を揃えてプロットする
     Args:
@@ -224,7 +224,7 @@ def chart_line_weekly_by_hw_date(
         end: 各期間の最大週数（デフォルトは52週）
         ymax: Y軸の上限値（省略時は自動調整）
     Returns:
-        alt.Chart: 作成されたAltairチャートオブジェクト
+        alt.Chart | alt.LayerChart | alt.FacetChart: 作成されたAltairチャートオブジェクト
     """
 
     # データソースの定義
@@ -265,7 +265,7 @@ def chart_line_cumulative(
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
     multi_line: bool = False,
-) -> alt.Chart | alt.LayerChart:
+) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """累計販売台数のチャートを作成する関数
     Args:
         hw: ハードウェアのリスト
@@ -274,7 +274,7 @@ def chart_line_cumulative(
         end: 集計終了日
         event_mask: イベントマスク（オプション）
     Returns:
-        alt.Chart: 累計販売台数のチャート
+        alt.Chart | alt.LayerChart | alt.FacetChart: 累計販売台数のチャート
     """
     df_all = hs.load_hard_sales()
     mode_enum = parse_mode(mode)
@@ -332,7 +332,7 @@ def chart_line_cumulative_delta(
     index_mode: bool = True,
     with_point: bool = False,
     multi_line: bool = False,
-) -> alt.Chart | alt.LayerChart:
+) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """相対累計販売台数のチャートを作成する関数
     Args:
         hw: ハードウェアのリスト
@@ -404,7 +404,7 @@ def chart_line_cumsum_diffs(
     cmplist: list[tuple[str, str]],
     ymax: int | None = None,
     multi_line: bool = False,
-) -> alt.Chart | alt.LayerChart:
+) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """複数ハードウェア間の累計販売台数差分を示す折れ線チャートを作成する関数
 
     カレンダー上の同じ日付における異なるハードウェア間の累計販売台数の差分を時系列で
@@ -453,7 +453,7 @@ def chart_line_pase_diffs(
     cmplist: list[tuple[str, str]],
     ymax: int | None = None,
     multi_line: bool = False,
-) -> alt.Chart | alt.LayerChart:
+) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """複数ハードウェア間の販売ペース差を示す折れ線チャートを作成する関数
 
     各ハードウェアの発売後の相対的な経過週数における累計販売台数を比較し、
@@ -506,7 +506,7 @@ def chart_line_ycumulative(
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
     multi_line: bool = False,
-) -> alt.Chart | alt.LayerChart:
+) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """複数のハードウェアの同じ年の年次累積のチャートを作成する関数
     Args:
         hw: ハードウェアのリスト。例: ["NS2", "NSW", "PS5"]
@@ -535,7 +535,7 @@ def chart_line_ycumulative(
     ).legend(orient="top-left")
 
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
-        if (event_mask is not None):
+        if event_mask is not None:
             event_df = he.mask_event(he.load_hard_event(), event_mask)
             df_with_event = df.join(
                 other=event_df,
@@ -567,7 +567,7 @@ def chart_line_ycumulative_by_hw_year(
     ymax: int | None = None,
     event_mask: he.EventMasks | None = None,
     multi_line: bool = False,
-) -> alt.Chart | alt.LayerChart:
+) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """複数のハードウェアの異なる年の年次累積のチャートを作成する関数
     Args:
         hw_years: ハードウェアと年のタプルのリスト。例: [("NS2", 2026), ("NSW", 2026), ("PS5", 2026)]
@@ -580,7 +580,9 @@ def chart_line_ycumulative_by_hw_year(
         alt.Chart: 年次累計販売台数のチャート
     """
     df_all = hs.load_hard_sales()
-    src_df = hsl.yearly_cumulative_by_hwy_long(df_all, hw_years=hw_years, begin=begin, end=end)
+    src_df = hsl.yearly_cumulative_by_hwy_long(
+        df_all, hw_years=hw_years, begin=begin, end=end
+    )
     alt_x = alt.X(
         "yday:Q",
         title="年間通算日",
@@ -588,9 +590,7 @@ def chart_line_ycumulative_by_hw_year(
     alt_y = alt.Y("yearly_sum_units:Q", title="年間累計販売台数")
     title = "年間累計販売台数"
 
-    alt_color = alt.Color(
-        "label:N", title="ハード年"
-    ).legend(orient="top-left")
+    alt_color = alt.Color("label:N", title="ハード年").legend(orient="top-left")
 
     # Tooltipの定義
     tooltip = [
@@ -600,7 +600,7 @@ def chart_line_ycumulative_by_hw_year(
     ]
 
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
-        if (event_mask is not None):
+        if event_mask is not None:
             event_df = he.mask_event(he.load_hard_event(), event_mask)
             df_with_event = df.join(
                 other=event_df,

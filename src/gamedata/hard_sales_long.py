@@ -325,12 +325,13 @@ def sales_with_offset_long(
 
     return pl.concat(all_data).sort("offset_week")
 
+
 def yearly_cumulative_long(
     df: pl.DataFrame,
     year: int = 2026,
     hw: List[str] = [],
-    begin: int  = 1,
-    end: int  = 366,
+    begin: int = 1,
+    end: int = 366,
 ) -> pl.DataFrame:
     """
     複数のハードウェアの同じ年の年次累積データをlong形式で返す。
@@ -354,11 +355,11 @@ def yearly_cumulative_long(
     """
     if len(hw) > 0:
         df = df.filter(pl.col("hw").is_in(hw))
-    df = (df
-          .filter(pl.col("year") == year)
-          .filter(pl.col("yday") >= begin)
-          .filter(pl.col("yday") <= end)
-          .sort("yday")
+    df = (
+        df.filter(pl.col("year") == year)
+        .filter(pl.col("yday") >= begin)
+        .filter(pl.col("yday") <= end)
+        .sort("yday")
     )
     return df
 
@@ -366,8 +367,8 @@ def yearly_cumulative_long(
 def yearly_cumulative_by_hwy_long(
     src_df: pl.DataFrame,
     hw_years: list[tuple[str, int]],
-    begin: int  = 1,
-    end: int  = 366,
+    begin: int = 1,
+    end: int = 366,
 ) -> pl.DataFrame:
     """
     複数のハードウェアの異なる年の年次累積データをlong形式で返す。
@@ -395,11 +396,11 @@ def yearly_cumulative_by_hwy_long(
     all_data = []
 
     for hw, year in hw_years:
-        hw_df = (src_df
-                 .filter(pl.col("hw") == hw)
-                 .filter(pl.col("year") == year)
-                 .filter(pl.col("yday") >= begin)
-                 .filter(pl.col("yday") <= end)
+        hw_df = (
+            src_df.filter(pl.col("hw") == hw)
+            .filter(pl.col("year") == year)
+            .filter(pl.col("yday") >= begin)
+            .filter(pl.col("yday") <= end)
         )
         label = f"{hw}:{year}"
         hw_df = hw_df.with_columns(
@@ -408,6 +409,7 @@ def yearly_cumulative_by_hwy_long(
         all_data.append(hw_df)
 
     return pl.concat(all_data).sort("yday")
+
 
 def cumulative_sales_by_delta_long(
     df: pl.DataFrame,

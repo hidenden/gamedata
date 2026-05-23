@@ -12,6 +12,10 @@ import os
 
 DB_PATH = "/Users/hide/Documents/sqlite3/gamehard.db"
 ANNOTATION_CSV = "./game_annotation.csv"
+# ISO 8601形式の曜日定数
+ISO_MONDAY = 1
+ISO_SUNDAY = 7
+
 
 def initialize_table(_conn: sqlite3.Connection, _debug: bool = False):
     # table:gamehard_annotationが存在する場合は削除
@@ -23,6 +27,7 @@ def initialize_table(_conn: sqlite3.Connection, _debug: bool = False):
     CREATE TABLE gamehard_annotation (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT NOT NULL CHECK(date GLOB '????-??-??'),
+        report_date TEXT NOT NULL CHECK(report_date GLOB '????-??-??'),
         hw TEXT NOT NULL,
         note TEXT NOT NULL,
         level INTEGER NOT NULL CHECK(level >= 1 AND level <= 50))
@@ -40,17 +45,45 @@ def initialize_table(_conn: sqlite3.Connection, _debug: bool = False):
     return
 
 
-def load_annotation_csv(_conn: sqlite3.Connection, _csv_path: str, _debug: bool = False):
+def load_annotation_csv(
+    _conn: sqlite3.Connection, _csv_path: str, _debug: bool = False
+):
     # CSVファイルを読み込む
     _df = pl.read_csv(_csv_path, encoding="utf-8", has_header=True)
+
+    # 日付カラムをdatetime型に変換し､カラム:annotation_dateを作成する
+    _df = _df.with_columns(
+        pl.col("date").str.strptime(pl.Date, format="%Y-%m-%d").alias("annotation_date")
+    )
+    # report_dateカラムを作成する。annotation_dateが日曜日ならそのまま、そうでなければ直近の日曜日を設定
+    _df = _df.with_columns(
+        pl.when(pl.col("annotation_date").dt.weekday() == ISO_SUNDAY)
+        .then(pl.col("annotation_date"))
+        .otherwise(
+            pl.col("annotation_date")
+            + pl.duration(days=(ISO_SUNDAY - pl.col("annotation_date").dt.weekday()))
+        )
+        .alias("report_date")
+    )
+    # report_dateカラムを文字列型に変換する
+    _df = _df.with_columns(
+        pl.col("report_date").dt.strftime(format="%Y-%m-%d").alias("report_date_str")
+    )
 
     # データベースに挿入
     id = 0
     for row in _df.iter_rows(named=True):
         id += 1
         _conn.execute(
-            "INSERT INTO gamehard_annotation (id, date, hw, note, level) VALUES (?, ?, ?, ?, ?)",
-            (id, row["date"], row["hw"], row["note"], row["level"])
+            "INSERT INTO gamehard_annotation (id, date, report_date, hw, note, level) VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                id,
+                row["date"],
+                row["report_date_str"],
+                row["hw"],
+                row["note"],
+                row["level"],
+            ),
         )
     _conn.commit()
 
@@ -84,4 +117,3 @@ def refresh_annotation(_default_db_path, _annotation_csv, _debug: bool = False):
 
 if __name__ == "__main__":
     refresh_annotation(DB_PATH, ANNOTATION_CSV, _debug=True)
-
