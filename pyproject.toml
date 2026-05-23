@@ -53,3 +53,6 @@ namespaces = false       # 必要に応じて（通常 false でOK）
 # 必要に応じて追加（オプション）
 # [tool.setuptools]
 # package-dir = {"" = "src"}
+
+[tool.marimo.runtime]
+watcher_on_save = "autorun"
