@@ -42,7 +42,7 @@ def _(is_publish):
     from report_config import get_config
 
     config = get_config()
-    report_date = config["date"]
+    report_date:datetime = config["date"]
 
     def show_title(d: datetime):
         last_updated_str = d.strftime("%Y-%m-%d")
@@ -57,7 +57,7 @@ def _(is_publish):
 
 
 @app.cell
-def _(report_date, show_title):
+def _(report_date: datetime, show_title):
     show_title(report_date)
     return
 
@@ -81,7 +81,7 @@ def _():
 
 
 @app.cell
-def _(df_all, report_date):
+def _(df_all, report_date: datetime):
     _table = g.units_by_date_hw_table(
         df_all, begin=g.weeks_before(report_date, 3), end=report_date
     )
@@ -142,10 +142,11 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _begin = g.report_begin(report_date)
     _end = report_date
     _chart = g.chart_line_sales(begin=_begin, end=_end, event_mask=g.EVENT_MASK_MIDDLE)
+
     _weekly_chart = mo.ui.altair_chart(_chart)
     mo.hstack(items=[_weekly_chart], justify="start", wrap=True)
     return
@@ -321,7 +322,7 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _bar = g.chart_bar_sales(begin=datetime(2025, 3, 1), end=report_date, stacked=True)
     bar_chart = mo.ui.altair_chart(_bar)
     bar_chart
@@ -399,14 +400,14 @@ def _():
 
 @app.cell(hide_code=True)
 def _():
-    mo.md(r"""
+    mo.md(r"""g
     ### Nintendo Switch:月間販売台数
     """)
     return
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _begin = g.years_ago(report_date)
     _end = report_date
     _chart_bar = mo.ui.altair_chart(
@@ -419,7 +420,7 @@ def _(report_date):
 
 
 @app.cell
-def _(ns_df_pivot, report_date):
+def _(ns_df_pivot, report_date: datetime):
     _this_year = report_date.year
     my_ns_df2 = ns_df_pivot.drop(str(_this_year - 2))
     my_ns_df2 = my_ns_df2.with_columns(
@@ -447,7 +448,7 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _begin = g.years_ago(report_date)
     _end = report_date
     _chart_bar = mo.ui.altair_chart(
@@ -460,7 +461,7 @@ def _(report_date):
 
 
 @app.cell
-def _(ps5_df_pivot, report_date):
+def _(ps5_df_pivot, report_date: datetime):
     _this_year = report_date.year
     my_ps5_df2 = ps5_df_pivot.drop(str(_this_year - 2))
     my_ps5_df2 = my_ps5_df2.with_columns(
@@ -488,7 +489,7 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _chart = g.chart_line_cumulative(
         hw=["NSW", "NS2", "PS5", "XSX"],
         begin=datetime(2017, 3, 1),
@@ -658,7 +659,7 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _year_bar = mo.ui.altair_chart(
         g.chart_bar_sales(
             mode="year",
@@ -695,6 +696,8 @@ def _():
     _chart = g.chart_hbar_yearly_share_by_maker(2015, 2026)
     share_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[share_chart], justify="start")
+    _df: pl.DataFrame = share_chart.dataframe
+    _df.sum_horizontal
     return
 
 
