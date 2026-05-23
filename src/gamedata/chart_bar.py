@@ -438,7 +438,14 @@ def chart_bar_month_year(
         scale=alt.Scale(domain=maker_list, range=maker_color),
     )
     xoffset = "maker_name:N" if not stacked else None
-
+    
+    # Tooltipの定義
+    # tooltip = [
+    #     alt.Tooltip("maker_name:N", title="メーカー"),
+    #     alt.Tooltip("year:O", title="日付", format=f"%Y-{month}"),
+    #     alt.Tooltip("monthly_units:Q", title="月間販売台数"),
+    # ]
+    
     return _chart_bar_sales(
         src_df=df,
         alt_x=alt_x,
@@ -446,6 +453,7 @@ def chart_bar_month_year(
         color=alt_color,
         title=title,
         xoffset=xoffset,
+#        tooltip=tooltip,
     )
 
 

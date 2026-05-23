@@ -55,7 +55,7 @@ def _chart_line_sales(
     if "event_name" in df.columns:
         event_chart = (
             base_chart.transform_filter(alt.datum.event_name != None)
-            .mark_text(align="center", baseline="middle", dx=10, dy=-10)
+            .mark_text(align="center", baseline="middle", dx=10, dy=-20)
             .encode(text="event_name:N")
         )
         chart += event_chart
@@ -170,6 +170,13 @@ def chart_line_sales(
         "hw:N", scale=alt.Scale(domain=current_hw, range=hw_colors), title="ハード"
     )
 
+    # Tooltipの定義
+    tooltip = [
+        alt.Tooltip("hw:N", title="ハード"),
+        alt.Tooltip("report_date:T", title="日付", format="%Y-%m-%d"),
+        alt.Tooltip("units:Q", title="販売台数"),
+    ]
+
     # イベント結合関数の定義
     def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
         if (event_mask is not None) and (mode_enum == Mode.WEEK):
@@ -196,6 +203,7 @@ def chart_line_sales(
         event_joinner=event_joinner,
         with_point=with_point,
         multi_line=multi_line,
+        tooltip=tooltip,
     )
 
 
@@ -487,4 +495,132 @@ def chart_line_pase_diffs(
         with_point=False,
         tooltip=tooltip,
         multi_line=multi_line,
+    )
+
+
+def chart_line_ycumulative(
+    hw: list[str] = [],
+    year: int = 2026,
+    begin: int = 1,
+    end: int = 366,
+    ymax: int | None = None,
+    event_mask: he.EventMasks | None = None,
+    multi_line: bool = False,
+) -> alt.Chart | alt.LayerChart:
+    """複数のハードウェアの同じ年の年次累積のチャートを作成する関数
+    Args:
+        hw: ハードウェアのリスト。例: ["NS2", "NSW", "PS5"]
+        year: 集計対象の年
+        begin: 集計開始日
+        end: 集計終了日
+        ymax: Y軸の上限値（オプション）。指定しない場合は自動調整
+        event_mask: イベントマスク（オプション）
+        multi_line: Trueの場合、Multi-Line-Tooltipを有効化
+    Returns:
+        alt.Chart: 年次累計販売台数のチャート
+    """
+    df_all = hs.load_hard_sales()
+    src_df = hsl.yearly_cumulative_long(df_all, hw=hw, year=year, begin=begin, end=end)
+    alt_x = alt.X(
+        "yday:Q",
+        title="年間通算日",
+    )
+    alt_y = alt.Y("yearly_sum_units:Q", title="年間累計販売台数")
+    title = "年間累計販売台数"
+
+    current_hw = hw if hw else hs.get_hw(src_df)
+    hw_colors = hi.get_hard_colors(current_hw)
+    alt_color = alt.Color(
+        "hw:N", title="ハード", scale=alt.Scale(domain=current_hw, range=hw_colors)
+    ).legend(orient="top-left")
+
+    def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
+        if (event_mask is not None):
+            event_df = he.mask_event(he.load_hard_event(), event_mask)
+            df_with_event = df.join(
+                other=event_df,
+                left_on=["report_date", "hw"],
+                right_on=["report_date", "hw"],
+                how="left",
+            )
+            return df_with_event
+        else:
+            return df
+
+    return _chart_line_sales(
+        src_df=src_df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        ymax=ymax,
+        color=alt_color,
+        title=title,
+        event_joinner=event_joinner,
+        with_point=True,
+        multi_line=multi_line,
+    )
+
+
+def chart_line_ycumulative_by_hw_year(
+    hw_years: List[tuple[str, int]],
+    begin: int = 1,
+    end: int = 366,
+    ymax: int | None = None,
+    event_mask: he.EventMasks | None = None,
+    multi_line: bool = False,
+) -> alt.Chart | alt.LayerChart:
+    """複数のハードウェアの異なる年の年次累積のチャートを作成する関数
+    Args:
+        hw_years: ハードウェアと年のタプルのリスト。例: [("NS2", 2026), ("NSW", 2026), ("PS5", 2026)]
+        begin: 集計開始日
+        end: 集計終了日
+        ymax: Y軸の上限値（オプション）。指定しない場合は自動調整
+        event_mask: イベントマスク（オプション）
+        multi_line: Trueの場合、Multi-Line-Tooltipを有効化
+    Returns:
+        alt.Chart: 年次累計販売台数のチャート
+    """
+    df_all = hs.load_hard_sales()
+    src_df = hsl.yearly_cumulative_by_hwy_long(df_all, hw_years=hw_years, begin=begin, end=end)
+    alt_x = alt.X(
+        "yday:Q",
+        title="年間通算日",
+    )
+    alt_y = alt.Y("yearly_sum_units:Q", title="年間累計販売台数")
+    title = "年間累計販売台数"
+
+    alt_color = alt.Color(
+        "label:N", title="ハード年"
+    ).legend(orient="top-left")
+
+    # Tooltipの定義
+    tooltip = [
+        alt.Tooltip("hw:N", title="ハード"),
+        alt.Tooltip("report_date:T", title="日付", format="%Y-%m-%d"),
+        alt.Tooltip("yearly_sum_units:Q", title="年間累計販売台数"),
+    ]
+
+    def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
+        if (event_mask is not None):
+            event_df = he.mask_event(he.load_hard_event(), event_mask)
+            df_with_event = df.join(
+                other=event_df,
+                left_on=["report_date", "hw"],
+                right_on=["report_date", "hw"],
+                how="left",
+            )
+            return df_with_event
+        else:
+            return df
+
+    return _chart_line_sales(
+        src_df=src_df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        ymax=ymax,
+        color=alt_color,
+        title=title,
+        event_joinner=event_joinner,
+        with_point=True,
+        multi_line=multi_line,
+        tooltip=tooltip,
     )

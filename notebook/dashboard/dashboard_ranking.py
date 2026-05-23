@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
 
@@ -30,10 +30,9 @@ def _(mo):
 
 @app.cell
 def _(g):
-    _df_all = g.load_hard_sales()
+    _df_all = g.load_hard_sales(True)
     _df = g.extract_total(_df_all, compact = True)
     g.style_df(_df, bar=True)
-
     return
 
 
