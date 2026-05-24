@@ -50,6 +50,7 @@ def _(is_publish):
         return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode}")
 
     df_all = g.load_hard_sales(True)
+    _annotation_df : pl.DataFrame = g.load_hard_annotation(no_cache=True)
     [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
         df_all, hw=["NS2", "PS5", "NSW"]
     )
@@ -145,7 +146,7 @@ def _():
 def _(report_date: datetime):
     _begin = g.report_begin(report_date)
     _end = report_date
-    _chart = g.chart_line_sales(begin=_begin, end=_end, annotation_level=15)
+    _chart = g.chart_line_sales(begin=_begin, end=_end, annotation_level=19)
 
     _weekly_chart = mo.ui.altair_chart(_chart)
     mo.hstack(items=[_weekly_chart], justify="start", wrap=True)
@@ -241,7 +242,6 @@ def _():
         base_chart=_chart, y=1, stroke=[10, 0], size=2, color="#000000"
     )
     mo.ui.altair_chart(_chart)
-
     return
 
 
@@ -382,11 +382,10 @@ def _():
 
 @app.cell
 def _(report_date: datetime):
-    mo.ui.altair_chart(
-        g.chart_bar_sales(
+    _chart =     g.chart_bar_sales(
             hw=["NS2"], begin=datetime(2025, 3, 1), end=report_date, stacked=True
         )
-    )
+
     _chart = g.chart_rule_xy(_chart, y=432360, stroke=[2, 3], size=3, color="#d06080")
 
     mo.ui.altair_chart(_chart)
@@ -499,7 +498,7 @@ def _(report_date: datetime):
         hw=["NSW", "NS2", "PS5", "XSX"],
         begin=datetime(2017, 3, 1),
         end=report_date,
-        annotation_level=5,
+        annotation_level=8,
         multi_line=True,
     )
     chart_cumulative = mo.ui.altair_chart(_chart)
@@ -546,7 +545,7 @@ def _(ns2_info):
             "GBA",
         ],
         end=ns2_info["sales_weeks"] + 20,
-        annotation_level=20,
+        annotation_level=10,
         mode="week",
         with_point=False,
         multi_line=True,
@@ -608,7 +607,7 @@ def _(ps5_info):
         end=ps5_info["sales_weeks"] + 60,
         mode="week",
         multi_line=True,
-        annotation_level=5,
+        annotation_level=11,
     )
 
     _chart = g.chart_rule_xy(
