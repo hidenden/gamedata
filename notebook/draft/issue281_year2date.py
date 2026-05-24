@@ -63,7 +63,7 @@ def _():
 def _():
     _chart = g.chart_line_ycumulative_by_hw_year(
             hw_years=[("PS5", 2024), ("PS5", 2025), ("PS5", 2026)],
-            event_mask=g.EVENT_MASK_MIDDLE
+            annotation_level=30,
     )
     mo.ui.altair_chart(_chart)
     return
@@ -78,7 +78,7 @@ def _(df_all):
 
 @app.cell
 def _():
-    _chart = g.chart_line_ycumulative(year=2026, multi_line=True)
+    _chart = g.chart_line_ycumulative(year=2026, multi_line=True, annotation_level=15)
     mo.ui.altair_chart(_chart)
     return
 

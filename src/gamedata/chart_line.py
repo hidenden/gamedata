@@ -7,7 +7,6 @@ import altair as alt
 # サードパーティライブラリ
 import polars as pl
 
-from . import hard_event as he
 from . import hard_info as hi
 from . import hard_annotation as ha
 
@@ -476,7 +475,7 @@ def chart_line_ycumulative(
     begin: int = 1,
     end: int = 366,
     ymax: int | None = None,
-    event_mask: he.EventMasks | None = None,
+    annotation_level: int | None = None,
     multi_line: bool = False,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """複数のハードウェアの同じ年の年次累積のチャートを作成する関数
@@ -486,7 +485,7 @@ def chart_line_ycumulative(
         begin: 集計開始日
         end: 集計終了日
         ymax: Y軸の上限値（オプション）。指定しない場合は自動調整
-        event_mask: イベントマスク（オプション）
+        annotation_level: 注釈レベル（オプション）
         multi_line: Trueの場合、Multi-Line-Tooltipを有効化
     Returns:
         alt.Chart: 年次累計販売台数のチャート
@@ -506,18 +505,10 @@ def chart_line_ycumulative(
         "hw:N", title="ハード", scale=alt.Scale(domain=current_hw, range=hw_colors)
     ).legend(orient="top-left")
 
-    def event_joinner(df: pl.DataFrame) -> pl.DataFrame:
-        if event_mask is not None:
-            event_df = he.mask_event(he.load_hard_event(), event_mask)
-            df_with_event = df.join(
-                other=event_df,
-                left_on=["report_date", "hw"],
-                right_on=["report_date", "hw"],
-                how="left",
-            )
-            return df_with_event
-        else:
-            return df
+    if annotation_level is not None:
+        src_df = ha.join_annotation(
+            src_df, level=annotation_level, mode="week", hw_col="hw"
+        )
 
     return _chart_line_sales(
         src_df=src_df,
@@ -526,7 +517,6 @@ def chart_line_ycumulative(
         ymax=ymax,
         color=alt_color,
         title=title,
-        annotation_joinner=event_joinner,
         with_point=True,
         multi_line=multi_line,
     )
