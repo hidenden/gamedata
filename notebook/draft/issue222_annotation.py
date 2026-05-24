@@ -25,15 +25,15 @@ with app.setup:
 
 @app.cell
 def _():
-    df_annotation: pl.DataFrame = g.load_hard_annotation()
+    df_annotation: pl.DataFrame = g.load_hard_annotation(True)
     df_annotation
-    return
+    return (df_annotation,)
 
 
 @app.cell
-def _():
-    _df = g.get_annotation(level=20, mode="w", begin=date(2024, 1, 1), end=date(2026, 12, 31))
-    _df
+def _(df_annotation: pl.DataFrame):
+    _dfm = g.summarize_annotation(df_annotation, mode="month")
+    _dfm
     return
 
 
@@ -41,6 +41,43 @@ def _():
 def _():
     df_all = g.load_hard_sales()
     df_all
+    return (df_all,)
+
+
+@app.cell
+def _(df_all):
+    _df = g.sales_long(df_all)
+    _df = g.join_annotation(_df)
+    _df
+    return
+
+
+@app.cell
+def _(df_all):
+    _df = g.sales_by_delta_long(df_all)
+    _df = g.join_annotation(_df, delta=True)
+    _df
+    return
+
+
+@app.cell
+def _(df_all):
+    _df = g.monthly_sales_long(df_all)
+    _df = g.join_annotation(_df, mode="month")
+    _df
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _(df_all):
+    _df = g.sales_by_delta_long(df_all, mode="month")
+    _df = g.join_annotation(_df, delta=True, mode="month")
+    _df
     return
 
 
