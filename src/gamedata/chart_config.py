@@ -10,7 +10,6 @@ def publish_theme():
                 "ticks": True,
                 "grid": True,
                 "labelFontSize": 14,
-                "labelAngle": 0,
                 "titleFontSize": 14,
                 "gridOpacity": 0.7,
             },
@@ -20,22 +19,18 @@ def publish_theme():
             # 色分けした際の項目
             "legend": {
                 "labelFontSize": 14,
-                "labelAngle": 0,
                 "titleFontSize": 12,
-                "titleAngle": 0,
             },
             # グラフ上部の文字
             "header": {
                 "labelFontSize": 20,
-                "labelAngle": 0,
                 "titleFontSize": 20,
-                "titleAngle": 0,
             },
             "text": {
-                "fontSize": 12,
+                "fontSize": 10,
                 "fontWeight": "bold",
-                "opacity": 0.85,
-                "limit": 120,
+                "opacity": 0.8,
+                "limit": 130,
             },
             "line": {"strokeWidth": 2},
             "point": {"filled": True, "size": 80, "opacity": 0.7, "fillOpacity": 0.7},
@@ -73,26 +68,22 @@ def edit_theme():
             # 色分けした際の項目
             "legend": {
                 "labelFontSize": 14,
-                "labelAngle": 0,
                 "labelColor": "black",
                 "titleFontSize": 14,
-                "titleAngle": 0,
                 "titleColor": "black",
             },
             # グラフ上部の文字
             "header": {
                 "labelFontSize": 20,
-                "labelAngle": 0,
                 "labelColor": "black",
                 "titleFontSize": 25,
-                "titleAngle": 0,
                 "titleColor": "black",
             },
             "text": {
-                "fontSize": 12,
+                "fontSize": 10,
                 "fontWeight": "bold",
-                "opacity": 0.85,
-                "limit": 120,
+                "opacity": 0.8,
+                "limit": 150,
             },
             "line": {"strokeWidth": 2},
             "point": {"filled": True, "size": 90, "opacity": 0.7, "fillOpacity": 0.7},

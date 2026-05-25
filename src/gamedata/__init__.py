@@ -32,6 +32,11 @@ from .chart_rule import (
     chart_line_guide,
     chart_rule_xy,
 )
+from .hard_annotation import (
+    load_hard_annotation,
+    summarize_annotation,
+    join_annotation,
+)
 from .hard_event import (
     EVENT_MASK_LONG,
     EVENT_MASK_MIDDLE,

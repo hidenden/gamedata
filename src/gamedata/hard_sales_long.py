@@ -180,41 +180,34 @@ def cumulative_sales_long(
         df = df.filter(pl.col("hw").is_in(hw))
 
     columns_name = "full_name" if full_name else "hw"
-    long_df = df.select(["report_date", columns_name, "sum_units"]).sort("report_date")
+    long_df = df.sort("report_date")
 
     mode_enum = parse_mode(mode)
-
-    if mode_enum == Mode.MONTH:
-        return (
-            long_df.sort("report_date")
-            .group_by_dynamic(
-                "report_date",
-                every="1mo",
-                closed="right",
-                period="1mo",
-                group_by=columns_name,
-            )
-            .agg(pl.col("sum_units").last())
-            .sort("report_date")
-        )
-    elif mode_enum == Mode.YEAR:
-        return (
-            long_df.sort("report_date")
-            .group_by_dynamic(
-                "report_date",
-                every="1y",
-                closed="right",
-                period="1y",
-                group_by=columns_name,
-            )
-            .agg(pl.col("sum_units").last())
-            .sort("report_date")
-        )
-
-    elif mode_enum == Mode.WEEK:
+    if mode_enum == Mode.WEEK:
         return long_df
+    
+    if mode_enum == Mode.MONTH:
+        partition_cols = ["hw", "year", "month"]
+    elif mode_enum == Mode.QUARTER:
+        partition_cols = ["hw", "year", "q_num"]
+    elif mode_enum == Mode.FISCAL_QUARTER:
+        partition_cols = ["hw", "fiscal_year", "fq_num"]
+    elif mode_enum == Mode.YEAR:
+        partition_cols = ["hw", "year"]
+    elif mode_enum == Mode.FISCAL_YEAR:
+        partition_cols = ["hw", "fiscal_year"]
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
+
+    long_df = (long_df
+               .with_columns(
+                   pl.col(name="sum_units").max().over(partition_cols).alias("max_units")
+               )
+               .filter(pl.col("sum_units") == pl.col("max_units"))
+               .drop("max_units")
+               .sort(by=["report_date"])
+               )
+    return long_df      
 
 
 def sales_by_delta_long(
@@ -325,12 +318,13 @@ def sales_with_offset_long(
 
     return pl.concat(all_data).sort("offset_week")
 
+
 def yearly_cumulative_long(
     df: pl.DataFrame,
     year: int = 2026,
     hw: List[str] = [],
-    begin: int  = 1,
-    end: int  = 366,
+    begin: int = 1,
+    end: int = 366,
 ) -> pl.DataFrame:
     """
     複数のハードウェアの同じ年の年次累積データをlong形式で返す。
@@ -354,11 +348,11 @@ def yearly_cumulative_long(
     """
     if len(hw) > 0:
         df = df.filter(pl.col("hw").is_in(hw))
-    df = (df
-          .filter(pl.col("year") == year)
-          .filter(pl.col("yday") >= begin)
-          .filter(pl.col("yday") <= end)
-          .sort("yday")
+    df = (
+        df.filter(pl.col("year") == year)
+        .filter(pl.col("yday") >= begin)
+        .filter(pl.col("yday") <= end)
+        .sort("yday")
     )
     return df
 
@@ -366,8 +360,8 @@ def yearly_cumulative_long(
 def yearly_cumulative_by_hwy_long(
     src_df: pl.DataFrame,
     hw_years: list[tuple[str, int]],
-    begin: int  = 1,
-    end: int  = 366,
+    begin: int = 1,
+    end: int = 366,
 ) -> pl.DataFrame:
     """
     複数のハードウェアの異なる年の年次累積データをlong形式で返す。
@@ -395,11 +389,11 @@ def yearly_cumulative_by_hwy_long(
     all_data = []
 
     for hw, year in hw_years:
-        hw_df = (src_df
-                 .filter(pl.col("hw") == hw)
-                 .filter(pl.col("year") == year)
-                 .filter(pl.col("yday") >= begin)
-                 .filter(pl.col("yday") <= end)
+        hw_df = (
+            src_df.filter(pl.col("hw") == hw)
+            .filter(pl.col("year") == year)
+            .filter(pl.col("yday") >= begin)
+            .filter(pl.col("yday") <= end)
         )
         label = f"{hw}:{year}"
         hw_df = hw_df.with_columns(
@@ -408,6 +402,7 @@ def yearly_cumulative_by_hwy_long(
         all_data.append(hw_df)
 
     return pl.concat(all_data).sort("yday")
+
 
 def cumulative_sales_by_delta_long(
     df: pl.DataFrame,

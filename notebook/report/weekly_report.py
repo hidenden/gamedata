@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.5"
+__generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -42,7 +42,7 @@ def _(is_publish):
     from report_config import get_config
 
     config = get_config()
-    report_date = config["date"]
+    report_date: datetime = config["date"]
 
     def show_title(d: datetime):
         last_updated_str = d.strftime("%Y-%m-%d")
@@ -50,6 +50,7 @@ def _(is_publish):
         return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode}")
 
     df_all = g.load_hard_sales(True)
+    _annotation_df : pl.DataFrame = g.load_hard_annotation(no_cache=True)
     [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
         df_all, hw=["NS2", "PS5", "NSW"]
     )
@@ -57,7 +58,7 @@ def _(is_publish):
 
 
 @app.cell
-def _(report_date, show_title):
+def _(report_date: datetime, show_title):
     show_title(report_date)
     return
 
@@ -81,7 +82,7 @@ def _():
 
 
 @app.cell
-def _(df_all, report_date):
+def _(df_all, report_date: datetime):
     _table = g.units_by_date_hw_table(
         df_all, begin=g.weeks_before(report_date, 3), end=report_date
     )
@@ -142,10 +143,11 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _begin = g.report_begin(report_date)
     _end = report_date
-    _chart = g.chart_line_sales(begin=_begin, end=_end, event_mask=g.EVENT_MASK_MIDDLE)
+    _chart = g.chart_line_sales(begin=_begin, end=_end, annotation_level=32)
+
     _weekly_chart = mo.ui.altair_chart(_chart)
     mo.hstack(items=[_weekly_chart], justify="start", wrap=True)
     return
@@ -170,11 +172,11 @@ def _():
 
 
 @app.cell
-def _(report_date):
-    _begin = date(2026, 2, 15)
+def _(report_date: datetime):
+    _begin = date(2026, 2, 1)
     _end = report_date
     _chart = g.chart_line_sales(
-        hw=["NSW", "PS5", "XSX"], begin=_begin, end=_end, event_mask=g.EVENT_MASK_MIDDLE
+        hw=["NSW", "PS5", "XSX"], begin=_begin, end=_end, annotation_level=50
     )
     mo.hstack(items=[mo.ui.altair_chart(_chart)], justify="start", wrap=True)
     return
@@ -218,7 +220,9 @@ def _():
     _chart = g.chart_line_cumsum_diffs(
         cmplist=[("NSW", "PS4"), ("NS2", "PS5")],
         multi_line=True,
+        annotation_level=29,
     )
+
     _chart = g.chart_line_guide(
         base_chart=_chart,
         x=50,
@@ -237,7 +241,6 @@ def _():
     _chart = g.chart_rule_xy(
         base_chart=_chart, y=1, stroke=[10, 0], size=2, color="#000000"
     )
-
     mo.ui.altair_chart(_chart)
     return
 
@@ -270,7 +273,7 @@ def _():
 def _():
     _chart = g.chart_line_ycumulative_by_hw_year(
         hw_years=[("PS5", 2024), ("PS5", 2025), ("PS5", 2026)],
-        event_mask=g.EVENT_MASK_MIDDLE,
+        annotation_level=31,
     )
     mo.ui.altair_chart(_chart)
     return
@@ -298,7 +301,7 @@ def _():
 def _():
     _chart = g.chart_line_ycumulative_by_hw_year(
         hw_years=[("NSW", 2024), ("NSW", 2025), ("NSW", 2026)],
-        event_mask=g.EVENT_MASK_MIDDLE,
+        annotation_level=39,
     )
     mo.ui.altair_chart(_chart)
     return
@@ -321,7 +324,7 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _bar = g.chart_bar_sales(begin=datetime(2025, 3, 1), end=report_date, stacked=True)
     bar_chart = mo.ui.altair_chart(_bar)
     bar_chart
@@ -378,10 +381,11 @@ def _():
 
 
 @app.cell
-def _(report_date):
-    _chart = g.chart_bar_sales(
-        hw=["NS2"], begin=datetime(2025, 3, 1), end=report_date, stacked=True
-    )
+def _(report_date: datetime):
+    _chart =     g.chart_bar_sales(
+            hw=["NS2"], begin=datetime(2025, 3, 1), end=report_date, stacked=True
+        )
+
     _chart = g.chart_rule_xy(_chart, y=432360, stroke=[2, 3], size=3, color="#d06080")
 
     mo.ui.altair_chart(_chart)
@@ -400,13 +404,14 @@ def _():
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
+    g
     ### Nintendo Switch:月間販売台数
     """)
     return
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _begin = g.years_ago(report_date)
     _end = report_date
     _chart_bar = mo.ui.altair_chart(
@@ -419,7 +424,7 @@ def _(report_date):
 
 
 @app.cell
-def _(ns_df_pivot, report_date):
+def _(ns_df_pivot, report_date: datetime):
     _this_year = report_date.year
     my_ns_df2 = ns_df_pivot.drop(str(_this_year - 2))
     my_ns_df2 = my_ns_df2.with_columns(
@@ -447,7 +452,7 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _begin = g.years_ago(report_date)
     _end = report_date
     _chart_bar = mo.ui.altair_chart(
@@ -460,7 +465,7 @@ def _(report_date):
 
 
 @app.cell
-def _(ps5_df_pivot, report_date):
+def _(ps5_df_pivot, report_date: datetime):
     _this_year = report_date.year
     my_ps5_df2 = ps5_df_pivot.drop(str(_this_year - 2))
     my_ps5_df2 = my_ps5_df2.with_columns(
@@ -488,13 +493,14 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _chart = g.chart_line_cumulative(
         hw=["NSW", "NS2", "PS5", "XSX"],
         begin=datetime(2017, 3, 1),
         end=report_date,
-        event_mask=g.EVENT_MASK_LONG,
+        annotation_level=15,
         multi_line=True,
+        mode="week",
     )
     chart_cumulative = mo.ui.altair_chart(_chart)
     chart_cumulative
@@ -540,7 +546,7 @@ def _(ns2_info):
             "GBA",
         ],
         end=ns2_info["sales_weeks"] + 20,
-        event_mask=g.EVENT_MASK_MIDDLE,
+        annotation_level=23,
         mode="week",
         with_point=False,
         multi_line=True,
@@ -602,6 +608,7 @@ def _(ps5_info):
         end=ps5_info["sales_weeks"] + 60,
         mode="week",
         multi_line=True,
+        annotation_level=11,
     )
 
     _chart = g.chart_rule_xy(
@@ -658,7 +665,7 @@ def _():
 
 
 @app.cell
-def _(report_date):
+def _(report_date: datetime):
     _year_bar = mo.ui.altair_chart(
         g.chart_bar_sales(
             mode="year",
@@ -695,6 +702,7 @@ def _():
     _chart = g.chart_hbar_yearly_share_by_maker(2015, 2026)
     share_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[share_chart], justify="start")
+
     return
 
 
