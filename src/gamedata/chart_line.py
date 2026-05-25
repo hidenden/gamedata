@@ -28,6 +28,7 @@ def _chart_line_sales(
     with_point: bool = True,
     tooltip: List[alt.Tooltip] | None = None,
     multi_line: bool = False,
+    text_angle: int = 0,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """売上のチャートを作成する関数
 
@@ -51,7 +52,7 @@ def _chart_line_sales(
     if "note" in src_df.columns:
         annotation_chart = (
             base_chart.transform_filter(alt.datum.note != None)
-            .mark_text(align="center", baseline="middle", dx=10, dy=-20)
+            .mark_text(align="center", baseline="bottom", dx=5, dy=-10, angle=text_angle)
             .encode(text="note:N")
         )
         chart += annotation_chart
@@ -78,7 +79,7 @@ def _chart_line_sales(
         points = base_chart.mark_point().encode(
             opacity=when_near.then(alt.value(1)).otherwise(alt.value(0))
         )
-        text = base_chart.mark_text(align="left", dx=5, dy=-5).encode(
+        text = base_chart.mark_text(align="left", dx=10, dy=-15).encode(
             text=when_near.then(yf).otherwise(alt.value(" "))
         )
         rules = (

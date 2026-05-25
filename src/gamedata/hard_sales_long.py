@@ -180,41 +180,34 @@ def cumulative_sales_long(
         df = df.filter(pl.col("hw").is_in(hw))
 
     columns_name = "full_name" if full_name else "hw"
-    long_df = df.select(["report_date", columns_name, "sum_units"]).sort("report_date")
+    long_df = df.sort("report_date")
 
     mode_enum = parse_mode(mode)
-
-    if mode_enum == Mode.MONTH:
-        return (
-            long_df.sort("report_date")
-            .group_by_dynamic(
-                "report_date",
-                every="1mo",
-                closed="right",
-                period="1mo",
-                group_by=columns_name,
-            )
-            .agg(pl.col("sum_units").last())
-            .sort("report_date")
-        )
-    elif mode_enum == Mode.YEAR:
-        return (
-            long_df.sort("report_date")
-            .group_by_dynamic(
-                "report_date",
-                every="1y",
-                closed="right",
-                period="1y",
-                group_by=columns_name,
-            )
-            .agg(pl.col("sum_units").last())
-            .sort("report_date")
-        )
-
-    elif mode_enum == Mode.WEEK:
+    if mode_enum == Mode.WEEK:
         return long_df
+    
+    if mode_enum == Mode.MONTH:
+        partition_cols = ["hw", "year", "month"]
+    elif mode_enum == Mode.QUARTER:
+        partition_cols = ["hw", "year", "q_num"]
+    elif mode_enum == Mode.FISCAL_QUARTER:
+        partition_cols = ["hw", "fiscal_year", "fq_num"]
+    elif mode_enum == Mode.YEAR:
+        partition_cols = ["hw", "year"]
+    elif mode_enum == Mode.FISCAL_YEAR:
+        partition_cols = ["hw", "fiscal_year"]
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
+
+    long_df = (long_df
+               .with_columns(
+                   pl.col(name="sum_units").max().over(partition_cols).alias("max_units")
+               )
+               .filter(pl.col("sum_units") == pl.col("max_units"))
+               .drop("max_units")
+               .sort(by=["report_date"])
+               )
+    return long_df      
 
 
 def sales_by_delta_long(

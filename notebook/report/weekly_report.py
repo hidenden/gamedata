@@ -146,7 +146,7 @@ def _():
 def _(report_date: datetime):
     _begin = g.report_begin(report_date)
     _end = report_date
-    _chart = g.chart_line_sales(begin=_begin, end=_end, annotation_level=19)
+    _chart = g.chart_line_sales(begin=_begin, end=_end, annotation_level=32)
 
     _weekly_chart = mo.ui.altair_chart(_chart)
     mo.hstack(items=[_weekly_chart], justify="start", wrap=True)
@@ -220,7 +220,7 @@ def _():
     _chart = g.chart_line_cumsum_diffs(
         cmplist=[("NSW", "PS4"), ("NS2", "PS5")],
         multi_line=True,
-        annotation_level=10,
+        annotation_level=29,
     )
 
     _chart = g.chart_line_guide(
@@ -273,7 +273,7 @@ def _():
 def _():
     _chart = g.chart_line_ycumulative_by_hw_year(
         hw_years=[("PS5", 2024), ("PS5", 2025), ("PS5", 2026)],
-        annotation_level=20,
+        annotation_level=31,
     )
     mo.ui.altair_chart(_chart)
     return
@@ -301,7 +301,7 @@ def _():
 def _():
     _chart = g.chart_line_ycumulative_by_hw_year(
         hw_years=[("NSW", 2024), ("NSW", 2025), ("NSW", 2026)],
-        annotation_level=20,
+        annotation_level=39,
     )
     mo.ui.altair_chart(_chart)
     return
@@ -498,8 +498,9 @@ def _(report_date: datetime):
         hw=["NSW", "NS2", "PS5", "XSX"],
         begin=datetime(2017, 3, 1),
         end=report_date,
-        annotation_level=8,
+        annotation_level=15,
         multi_line=True,
+        mode="week",
     )
     chart_cumulative = mo.ui.altair_chart(_chart)
     chart_cumulative
@@ -545,7 +546,7 @@ def _(ns2_info):
             "GBA",
         ],
         end=ns2_info["sales_weeks"] + 20,
-        annotation_level=10,
+        annotation_level=23,
         mode="week",
         with_point=False,
         multi_line=True,
@@ -701,8 +702,7 @@ def _():
     _chart = g.chart_hbar_yearly_share_by_maker(2015, 2026)
     share_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[share_chart], justify="start")
-    _df: pl.DataFrame = share_chart.dataframe
-    _df.sum_horizontal
+
     return
 
 
