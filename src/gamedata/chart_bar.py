@@ -196,7 +196,8 @@ def chart_bar_hwsales_by_year(
     else:
         raise ValueError("modeは'month'または'quarter'のいずれかでなければなりません")
 
-    alt_color = alt.Color("year:O", title="年")
+    alt_color = alt.Color("year:O", title="年", 
+                          scale=alt.Scale(scheme="category10"))
     xoffset = "year:O"
 
     return _chart_bar_sales(
@@ -324,7 +325,8 @@ def chart_bar_sales_by_hard_year(
         pl.concat_str([pl.col("hw"), pl.lit("_"), pl.col("year")]).alias("hw_year")
     )
 
-    alt_color = alt.Color("hw_year:N", title="ハード_年").legend(orient="top-left")
+    alt_color = alt.Color("hw_year:N", title="ハード_年", 
+                          scale=alt.Scale(scheme="category10")).legend(orient="top-left")
     xoffset = "hw_year:N" if not stacked else None
 
     return _chart_bar_sales(
