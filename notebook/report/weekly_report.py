@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.6"
+__generated_with = "0.23.5"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -120,7 +120,7 @@ def md_weekly_summary_2():
 @app.cell(hide_code=True)
 def md_weekly_summary_3():
     mo.md(r"""
-    Switchから半減して1万台を割り込みました｡
+    Switchは半減して1万台を割り込みました｡
     来週以降､値上げの影響で落ち込むのは間違いないと思いますが､
     SwitchはSwitch2と異なり､落ち込んだらそのまま低下し､販売数が戻らない可能性も高く､PS5を下回る週が増えるでしょう｡
 
