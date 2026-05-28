@@ -24,8 +24,8 @@ def parse_mode(mode: str) -> Mode:
     if normalized in {"year", "y", "cy"}:
         return Mode.YEAR
     if normalized in {"fiscalquarter", "fiscalquater", "fq"}:
-        raise NotImplementedError("Fiscal quarter mode is not supported yet.")
+        return Mode.FISCAL_QUARTER
     if normalized in {"fiscalyear", "fy"}:
-        raise NotImplementedError("Fiscal year mode is not supported yet.")
+        return Mode.FISCAL_YEAR
 
     raise ValueError(f"Unsupported mode: {mode}")

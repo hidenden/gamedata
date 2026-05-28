@@ -196,7 +196,8 @@ def chart_bar_hwsales_by_year(
     else:
         raise ValueError("modeは'month'または'quarter'のいずれかでなければなりません")
 
-    alt_color = alt.Color("year:O", title="年")
+    alt_color = alt.Color("year:O", title="年", 
+                          scale=alt.Scale(scheme="category10"))
     xoffset = "year:O"
 
     return _chart_bar_sales(
@@ -213,7 +214,7 @@ def chart_bar_hwsales_by_year(
 
 def chart_hbar_yearly_share_by_maker(
     begin: datetime | date | None = None, end: datetime | date | None = None
-) -> alt.Chart:
+) -> alt.LayerChart | alt.FacetChart:
     """メーカー別の年次シェアを100%積み上げ横棒グラフで表示する。
 
     Args:
@@ -221,7 +222,7 @@ def chart_hbar_yearly_share_by_maker(
         end: 集計終了日（オプション）。
 
     Returns:
-        alt.Chart: 年ごとのメーカーシェアと割合ラベルを表示するチャート。
+        alt.LayerChart: 年ごとのメーカーシェアと割合ラベルを表示するチャート。
     """
     _df_all = hs.load_hard_sales()
     _df = hsl.maker_long(_df_all, begin_year=begin, end_year=end)
@@ -324,7 +325,8 @@ def chart_bar_sales_by_hard_year(
         pl.concat_str([pl.col("hw"), pl.lit("_"), pl.col("year")]).alias("hw_year")
     )
 
-    alt_color = alt.Color("hw_year:N", title="ハード_年").legend(orient="top-left")
+    alt_color = alt.Color("hw_year:N", title="ハード_年", 
+                          scale=alt.Scale(scheme="category10")).legend(orient="top-left")
     xoffset = "hw_year:N" if not stacked else None
 
     return _chart_bar_sales(
@@ -438,14 +440,14 @@ def chart_bar_month_year(
         scale=alt.Scale(domain=maker_list, range=maker_color),
     )
     xoffset = "maker_name:N" if not stacked else None
-    
+
     # Tooltipの定義
     # tooltip = [
     #     alt.Tooltip("maker_name:N", title="メーカー"),
     #     alt.Tooltip("year:O", title="日付", format=f"%Y-{month}"),
     #     alt.Tooltip("monthly_units:Q", title="月間販売台数"),
     # ]
-    
+
     return _chart_bar_sales(
         src_df=df,
         alt_x=alt_x,
@@ -453,17 +455,17 @@ def chart_bar_month_year(
         color=alt_color,
         title=title,
         xoffset=xoffset,
-#        tooltip=tooltip,
+        #        tooltip=tooltip,
     )
 
 
 def chart_pie_yearly_share_by_maker(
     begin_year: int, end_year: int | None = None
-) -> alt.Chart:
+) -> alt.Chart | alt.FacetChart | alt.LayerChart:
     """メーカー別の年次シェアを円グラフで表示する。
 
     Returns:
-        alt.Chart: 年ごとのメーカーシェアを表示するチャート。
+        alt.Chart | alt.FacetChart | alt.LayerChart: 年ごとのメーカーシェアを表示するチャート。
     """
     df_all = hs.load_hard_sales()
     if end_year is None:
