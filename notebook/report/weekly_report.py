@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.5"
+__generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -109,7 +109,7 @@ def weekly_sales_ranking():
 @app.cell(hide_code=True)
 def md_weekly_summary_2():
     mo.md(r"""
-    Switch2の駆け込み需要は年末商戦を越える勢いでした｡
+    Switch2の駆け込み需要は年末商戦を超える勢いでした｡
     値上げを商戦期に転換する任天堂の作戦勝ちです｡
     来週以降はしばらくこの反動があります｡2万台前後の水準が一ヶ月程度続く可能性があります｡
     ただビッグタイトルがリリースされるタイミングで販売台数は戻ってくるでしょう｡
@@ -646,7 +646,7 @@ def ps5_cumulative_delta_table(ps_cd_chart):
 def md_ps5_cumulative_delta_1():
     mo.md(r"""
     PS5は､PS4,PS3に比べて販売ペースが遅い状態で安定しています｡
-    PS5DE日本語版が日本のゲーム機最安値となったことでブースト効果があるのかどうかが注目されます｡
+    PS5 DE日本語版が日本のゲーム機最安値となったことでブースト効果があるのかどうかが注目されます｡
     """)
     return
 
