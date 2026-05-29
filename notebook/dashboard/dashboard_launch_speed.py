@@ -8,13 +8,16 @@ app = marimo.App(width="medium")
 def _():
     # 標準ライブラリ
     from datetime import datetime, timedelta, date
+
     # サードパーティライブラリ
     import polars as pl
+
     # import polars.selectors as cs
     import marimo as mo
 
     # プロジェクト内モジュール
     import gamedata as g
+
     g.set_dispfunc(func=None)
     return g, mo
 

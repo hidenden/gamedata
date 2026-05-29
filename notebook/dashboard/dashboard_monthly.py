@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import marimo as mo
+
     # 標準ライブラリ
     from datetime import datetime, timedelta, date
 
@@ -16,6 +17,7 @@ def _():
 
     # プロジェクト内モジュール
     import gamedata as g
+
     g.set_dispfunc(func=None)
     return date, datetime, g, mo
 
@@ -31,7 +33,7 @@ def _(g, mo):
 
 @app.cell
 def _(date, range_year, target_year):
-    begin_year= date(target_year.value - range_year.value + 1, 1, 1)
+    begin_year = date(target_year.value - range_year.value + 1, 1, 1)
     end_year = date(target_year.value, 12, 31)
     return begin_year, end_year
 
@@ -44,8 +46,13 @@ def _(hw_select, mo, range_year, target_year):
 
 @app.cell
 def _(begin_year, end_year, g, hw_select, mo):
-    (_fig, _df) = g.plot_monthly_bar_by_year(hw=hw_select.value, begin=begin_year, end=end_year)
-    mo.vstack([_fig, _df], justify="start")
+    _chart = g.chart_bar_hwsales_by_year(
+        hw=hw_select.value,
+        begin=begin_year,
+        end=end_year,
+        mode="month",
+    )
+    mo.vstack([_chart], justify="start")
     return
 
 
@@ -68,14 +75,15 @@ def _(mo):
 
 
 @app.cell
-def _(begin_year2, datetime, end_year2, g, mo, month, stacked):
-    _begin = datetime(begin_year2.value, 1, 1)
-    _end = datetime(end_year2.value, 12, 31)
-    (_fig, _df) = g.plot_yearly_bar_by_month(month=month.value, stacked=stacked.value,
-                                            ticklabelsize=8,
-                                            begin=_begin, end=_end)
+def _(begin_year2, end_year2, g, mo, month, stacked):
+    _chart = g.chart_bar_month_year(
+        month=month.value,
+        begin_year=begin_year2.value,
+        end_year=end_year2.value,
+        stacked=stacked.value,
+    )
 
-    mo.vstack([begin_year2, end_year2, stacked, month, _fig, _df], justify="start")
+    mo.vstack([begin_year2, end_year2, stacked, month, _chart], justify="start")
 
     return
 

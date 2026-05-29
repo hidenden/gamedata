@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import marimo as mo
+
     # 標準ライブラリ
     from datetime import datetime, timedelta, date
 
@@ -16,6 +17,7 @@ def _():
 
     # プロジェクト内モジュール
     import gamedata as g
+
     g.set_dispfunc(func=None)
     return g, mo
 
@@ -31,7 +33,7 @@ def _(mo):
 @app.cell
 def _(g):
     _df_all = g.load_hard_sales(True)
-    _df = g.extract_total(_df_all, compact = True)
+    _df = g.extract_total(_df_all, compact=True)
     g.style_df(_df, bar=True)
     return
 
@@ -48,16 +50,22 @@ def _(mo):
 def _(g, mo):
     hwselect = g.HwSelect(force_any=True)
     hw_widget = hwselect.widget
-    rank_num = mo.ui.number(start=5, stop=30, step=1, value=10, label="ランキング表示数")
-    mo.vstack([hwselect,rank_num], justify="start")
+    rank_num = mo.ui.number(
+        start=5, stop=30, step=1, value=10, label="ランキング表示数"
+    )
+    mo.vstack([hwselect, rank_num], justify="start")
     return hw_widget, hwselect, rank_num
 
 
 @app.cell
 def _(g, hw_widget, hwselect, rank_num):
     hw_widget
-    best_week_ranking = g.style_df(g.weekly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True)
-    worst_week_ranking = g.style_df(g.weekly_sales_ranking(rank_n=-rank_num.value, hw=hwselect.value ), bar=True)
+    best_week_ranking = g.style_df(
+        g.weekly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True
+    )
+    worst_week_ranking = g.style_df(
+        g.weekly_sales_ranking(rank_n=-rank_num.value, hw=hwselect.value), bar=True
+    )
     return best_week_ranking, worst_week_ranking
 
 
@@ -100,8 +108,12 @@ def _(mo):
 @app.cell
 def _(g, hw_widget, hwselect, rank_num):
     hw_widget
-    best_month_ranking = g.style_df(g.monthly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True)
-    worst_month_ranking = g.style_df(g.monthly_sales_ranking(rank_n=-rank_num.value, hw=hwselect.value ), bar=True)
+    best_month_ranking = g.style_df(
+        g.monthly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True
+    )
+    worst_month_ranking = g.style_df(
+        g.monthly_sales_ranking(rank_n=-rank_num.value, hw=hwselect.value), bar=True
+    )
     return best_month_ranking, worst_month_ranking
 
 
@@ -130,8 +142,12 @@ def _(mo):
 @app.cell
 def _(g, hw_widget, hwselect, rank_num):
     hw_widget
-    best_year_ranking = g.style_df(g.yearly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True)
-    worst_year_ranking = g.style_df(g.yearly_sales_ranking(rank_n=-rank_num.value, hw=hwselect.value ), bar=True)
+    best_year_ranking = g.style_df(
+        g.yearly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True
+    )
+    worst_year_ranking = g.style_df(
+        g.yearly_sales_ranking(rank_n=-rank_num.value, hw=hwselect.value), bar=True
+    )
     return best_year_ranking, worst_year_ranking
 
 
@@ -166,8 +182,14 @@ def _(g):
 @app.cell
 def _(g, maker_select, maker_widget, rank_num):
     maker_widget
-    best_maker_ranking = g.style_df(g.yearly_sales_ranking(rank_n=rank_num.value, maker=maker_select.value), bar=True)
-    worst_maker_ranking = g.style_df(g.yearly_sales_ranking(rank_n=-rank_num.value, maker=maker_select.value ), bar=True)
+    best_maker_ranking = g.style_df(
+        g.yearly_sales_ranking(rank_n=rank_num.value, maker=maker_select.value),
+        bar=True,
+    )
+    worst_maker_ranking = g.style_df(
+        g.yearly_sales_ranking(rank_n=-rank_num.value, maker=maker_select.value),
+        bar=True,
+    )
     return best_maker_ranking, worst_maker_ranking
 
 
@@ -193,7 +215,9 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    weeks = mo.ui.number(start=1, stop=500, step=1, value=40, label="経過週累計ランキングの累計週")
+    weeks = mo.ui.number(
+        start=1, stop=500, step=1, value=40, label="経過週累計ランキングの累計週"
+    )
     return (weeks,)
 
 

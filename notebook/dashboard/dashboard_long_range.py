@@ -22,6 +22,7 @@ def _():
 
     # プロジェクト内モジュール
     import gamedata as g
+
     g.set_dispfunc(func=None)
     return datetime, g, timedelta
 
@@ -41,13 +42,11 @@ def _(g, mo):
 def _(datetime, g, hw_select, hw_widget, mo, stack_widget):
     hw_widget
     hw_list = hw_select.value
-    _chart = g.chart_bar_sales(hw=hw_list,
-                                       begin=datetime(2000,1,1),
-                                       stacked=stack_widget.value, 
-                                       mode="year"
-                                       )
+    _chart = g.chart_bar_sales(
+        hw=hw_list, begin=datetime(2000, 1, 1), stacked=stack_widget.value, mode="year"
+    )
     _mo_chart = mo.ui.altair_chart(_chart)
-    mo.vstack([hw_select, stack_widget,  _mo_chart, _mo_chart.dataframe])
+    mo.vstack([hw_select, stack_widget, _mo_chart, _mo_chart.dataframe])
     return
 
 
@@ -62,15 +61,22 @@ def _(g):
 @app.cell
 def _(datetime, g, hw_select_area, hw_widget_area, mo):
     hw_widget_area
-    (_fig, _df) = g.plot_sales(hw=hw_select_area.value,mode='year', begin=datetime(2001,1,1), area=True)
-    mo.vstack([hw_select_area, _fig, _df])
+    _chart = g.chart_bar_sales(
+        hw=hw_select_area.value,
+        mode="year",
+        begin=datetime(2001, 1, 1),
+        stacked=True,
+    )
+    mo.vstack([hw_select_area, _chart])
     return
 
 
 @app.cell
 def _(mo):
     # 年を入力するNumber UI
-    year_end = mo.ui.number(label="シェア確認年", value=2026, start=2002, stop=2026, step=1)
+    year_end = mo.ui.number(
+        label="シェア確認年", value=2026, start=2002, stop=2026, step=1
+    )
     return (year_end,)
 
 
@@ -78,12 +84,18 @@ def _(mo):
 def _(datetime, g, mo, timedelta, year_end):
     year_begin = year_end.value - 2
 
-    (_pie_fig, _pie_df) = g.plot_maker_share_pie(begin_year=year_begin, end_year=year_end.value)
+    _pie_chart = g.chart_pie_yearly_share_by_maker(
+        begin_year=year_begin,
+        end_year=year_end.value,
+    )
     _end_date = datetime(year_end.value, 12, 31)
-    _begin_date = _end_date - timedelta(days=365*7)
-    (_bar_fig, _) = g.plot_maker_share_bar(begin=_begin_date, end=_end_date)
+    _begin_date = _end_date - timedelta(days=365 * 7)
+    _bar_chart = g.chart_hbar_yearly_share_by_maker(
+        begin=_begin_date,
+        end=_end_date,
+    )
 
-    mo.vstack([year_end, _pie_fig, _pie_df, _bar_fig])
+    mo.vstack([year_end, _pie_chart, _bar_chart])
     return
 
 
