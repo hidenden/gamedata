@@ -35,7 +35,7 @@ def sales_long(
     df = hsf.date_filter(src_df, begin=begin, end=end)
     if len(hw) > 0:
         df = df.filter(pl.col("hw").is_in(hw))
-    return df.select(["report_date", "hw", "units"]).sort("report_date")
+    return df.sort("report_date")
 
 
 def monthly_sales_long(
@@ -145,7 +145,7 @@ def yearly_sales_long(
     df = hsf.yearly_sales(df, begin=begin, end=end)
     if len(hw) > 0:
         df = df.filter(pl.col("hw").is_in(hw))
-    return df.select(["year", "hw", "yearly_units"]).sort("year")
+    return df.sort("year")
 
 
 def cumulative_sales_long(
@@ -185,7 +185,7 @@ def cumulative_sales_long(
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.WEEK:
         return long_df
-    
+
     if mode_enum == Mode.MONTH:
         partition_cols = ["hw", "year", "month"]
     elif mode_enum == Mode.QUARTER:
@@ -199,15 +199,15 @@ def cumulative_sales_long(
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
-    long_df = (long_df
-               .with_columns(
-                   pl.col(name="sum_units").max().over(partition_cols).alias("max_units")
-               )
-               .filter(pl.col("sum_units") == pl.col("max_units"))
-               .drop("max_units")
-               .sort(by=["report_date"])
-               )
-    return long_df      
+    long_df = (
+        long_df.with_columns(
+            pl.col(name="sum_units").max().over(partition_cols).alias("max_units")
+        )
+        .filter(pl.col("sum_units") == pl.col("max_units"))
+        .drop("max_units")
+        .sort(by=["report_date"])
+    )
+    return long_df
 
 
 def sales_by_delta_long(
