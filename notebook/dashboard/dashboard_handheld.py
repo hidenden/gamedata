@@ -3,13 +3,11 @@ import marimo
 __generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
-
-@app.cell
-def _():
+with app.setup:
     import marimo as mo
 
     # 標準ライブラリ
-    from datetime import datetime, timedelta, date
+    from datetime import date, datetime, timedelta
 
     # サードパーティライブラリ
     import polars as pl
@@ -19,11 +17,10 @@ def _():
     import gamedata as g
 
     g.set_dispfunc(func=None)
-    return date, g, mo
 
 
 @app.cell
-def _(g, mo):
+def _():
     hw_select = g.HwSelect(hw_list=["GBA", "DS", "3DS", "PSP", "Vita", "NSW", "NS2"])
     hw_widget = hw_select.widget
     annotation_level = mo.ui.number(
@@ -36,7 +33,7 @@ def _(g, mo):
 
 
 @app.cell
-def _(date, mo):
+def _():
     begin_date = mo.ui.date(start=date(2001, 1, 1), value=date(2011, 12, 1))
     end_date = mo.ui.date(start=date(2001, 1, 1), value=date(2012, 11, 30))
     mo.hstack(items=[begin_date, end_date], justify="start")
@@ -48,10 +45,8 @@ def _(
     begin_date,
     end_date,
     annotation_level,
-    g,
     hw_select,
     hw_widget,
-    mo,
     mode_select,
 ):
     hw_widget

@@ -3,18 +3,11 @@ import marimo
 __generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
-
-@app.cell
-def _():
+with app.setup:
     import marimo as mo
 
-    return (mo,)
-
-
-@app.cell
-def _():
     # 標準ライブラリ
-    from datetime import datetime, timedelta, date
+    from datetime import date, datetime, timedelta
 
     # サードパーティライブラリ
     import polars as pl
@@ -24,11 +17,10 @@ def _():
     import gamedata as g
 
     g.set_dispfunc(func=None)
-    return datetime, g, timedelta
 
 
 @app.cell
-def _(g, mo):
+def _():
     # HW select widget
     hw_select = g.HwSelect(default_list=["NSW", "PS5"], force_any=True)
     hw_widget = hw_select.widget
@@ -39,7 +31,7 @@ def _(g, mo):
 
 
 @app.cell
-def _(datetime, g, hw_select, hw_widget, mo, stack_widget):
+def _(hw_select, hw_widget, stack_widget):
     hw_widget
     hw_list = hw_select.value
     _chart = g.chart_bar_sales(
@@ -51,7 +43,7 @@ def _(datetime, g, hw_select, hw_widget, mo, stack_widget):
 
 
 @app.cell
-def _(g):
+def _():
     # HW select widget
     hw_select_area = g.HwSelect(default_list=[])
     hw_widget_area = hw_select_area.widget
@@ -59,7 +51,7 @@ def _(g):
 
 
 @app.cell
-def _(datetime, g, hw_select_area, hw_widget_area, mo):
+def _(hw_select_area, hw_widget_area):
     hw_widget_area
     _chart = g.chart_bar_sales(
         hw=hw_select_area.value,
@@ -72,7 +64,7 @@ def _(datetime, g, hw_select_area, hw_widget_area, mo):
 
 
 @app.cell
-def _(mo):
+def _():
     # 年を入力するNumber UI
     year_end = mo.ui.number(
         label="シェア確認年", value=2026, start=2002, stop=2026, step=1
@@ -81,7 +73,7 @@ def _(mo):
 
 
 @app.cell
-def _(datetime, g, mo, timedelta, year_end):
+def _(year_end):
     year_begin = year_end.value - 2
 
     _pie_chart = g.chart_pie_yearly_share_by_maker(

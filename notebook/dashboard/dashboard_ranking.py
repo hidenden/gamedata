@@ -3,13 +3,11 @@ import marimo
 __generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
-
-@app.cell
-def _():
+with app.setup:
     import marimo as mo
 
     # 標準ライブラリ
-    from datetime import datetime, timedelta, date
+    from datetime import date, datetime, timedelta
 
     # サードパーティライブラリ
     import polars as pl
@@ -19,11 +17,10 @@ def _():
     import gamedata as g
 
     g.set_dispfunc(func=None)
-    return g, mo
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 累計ランキング
     """)
@@ -31,7 +28,7 @@ def _(mo):
 
 
 @app.cell
-def _(g):
+def _():
     _df_all = g.load_hard_sales(True)
     _df = g.extract_total(_df_all, compact=True)
     g.style_df(_df, bar=True)
@@ -39,7 +36,7 @@ def _(g):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 週販ランキング
     """)
@@ -47,7 +44,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo):
+def _():
     hwselect = g.HwSelect(force_any=True)
     hw_widget = hwselect.widget
     rank_num = mo.ui.number(
@@ -58,7 +55,7 @@ def _(g, mo):
 
 
 @app.cell
-def _(g, hw_widget, hwselect, rank_num):
+def _(hw_widget, hwselect, rank_num):
     hw_widget
     best_week_ranking = g.style_df(
         g.weekly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True
@@ -70,7 +67,7 @@ def _(g, hw_widget, hwselect, rank_num):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ### ベストランキング
     """)
@@ -84,7 +81,7 @@ def _(best_week_ranking):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ### ワーストランキング
     """)
@@ -98,7 +95,7 @@ def _(worst_week_ranking):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 月間ランキング
     """)
@@ -106,7 +103,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, hw_widget, hwselect, rank_num):
+def _(hw_widget, hwselect, rank_num):
     hw_widget
     best_month_ranking = g.style_df(
         g.monthly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True
@@ -130,7 +127,7 @@ def _(worst_month_ranking):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 年間ランキング
 
@@ -140,7 +137,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, hw_widget, hwselect, rank_num):
+def _(hw_widget, hwselect, rank_num):
     hw_widget
     best_year_ranking = g.style_df(
         g.yearly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True
@@ -164,7 +161,7 @@ def _(worst_year_ranking):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ### 年間メーカーランキング
     """)
@@ -172,7 +169,7 @@ def _(mo):
 
 
 @app.cell
-def _(g):
+def _():
     maker_select = g.MakerSelect(force_any=True)
     maker_widget = maker_select.widget
     maker_select
@@ -180,7 +177,7 @@ def _(g):
 
 
 @app.cell
-def _(g, maker_select, maker_widget, rank_num):
+def _(maker_select, maker_widget, rank_num):
     maker_widget
     best_maker_ranking = g.style_df(
         g.yearly_sales_ranking(rank_n=rank_num.value, maker=maker_select.value),
@@ -206,7 +203,7 @@ def _(worst_maker_ranking):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     mo.md(r"""
     ## 経過週累計ランキング
     """)
@@ -214,7 +211,7 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def _():
     weeks = mo.ui.number(
         start=1, stop=500, step=1, value=40, label="経過週累計ランキングの累計週"
     )
@@ -222,7 +219,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, weeks):
+def _(weeks):
     _delta_ranking = g.style_df(g.delta_week_ranking(weeks.value), bar=True)
     mo.vstack([weeks, _delta_ranking], justify="start")
     return

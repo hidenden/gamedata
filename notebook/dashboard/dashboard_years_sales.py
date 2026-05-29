@@ -3,25 +3,24 @@ import marimo
 __generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
-
-@app.cell
-def _():
+with app.setup:
     import marimo as mo
     from datetime import datetime, timedelta
 
     # サードパーティライブラリ
     import polars as pl
+
     # import polars.selectors as cs
+    from ipywidgets.embed import DEFAULT_EMBED_REQUIREJS_URL
 
     # プロジェクト内モジュール
     import gamedata as g
 
     g.set_dispfunc(func=None)
-    return datetime, g, mo
 
 
 @app.cell
-def _(datetime, g, mo):
+def _():
     def sales_by_year(year: int, hw=["NS2", "NSW", "PS5"], stacked=False):
         begin = datetime(year, 1, 1)
         end = datetime(year + 1, 1, 1)
@@ -57,9 +56,7 @@ def _(datetime, g, mo):
 
 
 @app.cell
-def _(g, mo):
-    from ipywidgets.embed import DEFAULT_EMBED_REQUIREJS_URL
-
+def _():
     year = mo.ui.number(start=2001, stop=2026, step=1, value=2025, label="対象年")
     hwselect = g.HwSelect()
     hw_widget = hwselect.widget
@@ -68,7 +65,7 @@ def _(g, mo):
 
 
 @app.cell
-def _(hw_widget, hwselect, mo, sales_by_year, stacked, year):
+def _(hw_widget, hwselect, sales_by_year, stacked, year):
     hw_widget
     (_title, _chart1, _chart_cum, _chart2) = sales_by_year(
         year=year.value, hw=hwselect.value, stacked=stacked.value
@@ -80,7 +77,7 @@ def _(hw_widget, hwselect, mo, sales_by_year, stacked, year):
 
 
 @app.cell
-def _(g, mo):
+def _():
     hw_dropdown = mo.ui.dropdown(
         options=g.get_hw_all(), value="NSW", label="ハード選択:"
     )
@@ -88,7 +85,7 @@ def _(g, mo):
 
 
 @app.cell
-def _(g, hw_dropdown, mo):
+def _(hw_dropdown):
     _chart = g.chart_bar_hwsales_by_year(hw=hw_dropdown.value, mode="quarter")
     mo.vstack(
         [

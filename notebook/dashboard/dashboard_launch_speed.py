@@ -3,11 +3,9 @@ import marimo
 __generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
-
-@app.cell
-def _():
+with app.setup:
     # 標準ライブラリ
-    from datetime import datetime, timedelta, date
+    from datetime import date, datetime, timedelta
 
     # サードパーティライブラリ
     import polars as pl
@@ -19,17 +17,16 @@ def _():
     import gamedata as g
 
     g.set_dispfunc(func=None)
-    return g, mo
 
 
 @app.cell
-def _(mo):
+def _():
     num = mo.ui.number(start=500000, step=500000, value=5000000, label="累積台数")
     return (num,)
 
 
 @app.cell
-def _(g, mo, num):
+def _(num):
     _df = g.reached_unit_summary(num.value, all=True)
     mo.vstack([num, _df])
     return

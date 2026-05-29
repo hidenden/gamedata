@@ -3,18 +3,11 @@ import marimo
 __generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
-
-@app.cell
-def _():
+with app.setup:
     import marimo as mo
 
-    return (mo,)
-
-
-@app.cell
-def _():
     # 標準ライブラリ
-    from datetime import datetime, timedelta, date
+    from datetime import date, datetime, timedelta
 
     # サードパーティライブラリ
     import polars as pl
@@ -24,11 +17,10 @@ def _():
     import gamedata as g
 
     g.set_dispfunc(func=None)
-    return (g,)
 
 
 @app.cell
-def _(g, mo):
+def _():
     end = mo.ui.number(label="累積グラフ週数", value=52, start=10, stop=1000, step=5)
     annotation_level = mo.ui.number(
         start=1, stop=50, value=20, label="アノテーションレベル"
@@ -38,20 +30,20 @@ def _(g, mo):
 
 
 @app.cell
-def _(g):
+def _():
     hwselect = g.HwSelect(default_list=["NS2", "PS5", "NSW"])
     hw_widget = hwselect.widget
     return hw_widget, hwselect
 
 
 @app.cell
-def _(annotation_level, end, hwselect, mo):
+def _(annotation_level, end, hwselect):
     mo.vstack([hwselect, annotation_level, end])
     return
 
 
 @app.cell
-def _(annotation_level, end, g, hw_widget, hwselect, mo):
+def _(annotation_level, end, hw_widget, hwselect):
     # mo.stop(not run_button.value)
     hw_widget
     _chart1 = g.chart_line_cumulative(
