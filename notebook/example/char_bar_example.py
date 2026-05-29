@@ -19,7 +19,7 @@ with app.setup:
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_01():
     mo.md(r"""
     # chart_bar.py
     """)
@@ -27,7 +27,7 @@ def _():
 
 
 @app.cell
-def _():
+def calc_all_01():
     # 実データを読み込み、日付UIの初期値に最新集計日を利用する
     df_all = g.load_hard_sales()
     latest_date = g.current_report_date(df_all)
@@ -35,7 +35,7 @@ def _():
 
 
 @app.cell
-def _(latest_date):
+def latest_date(latest_date):
     ui_hws = g.HwSelect(default_list=["NSW", "PS5", "NS2"], force_any=True)
     ui_hw_single = mo.ui.dropdown(
         options=g.get_hw_all(), value="PS5", label="単一ハード"
@@ -59,7 +59,7 @@ def _(latest_date):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_02():
     mo.md(r"""
     ## chart_bar_sales
     """)
@@ -67,7 +67,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_date, ui_end_date, ui_hws, ui_mode, ui_stacked, ui_ymax):
+def ui_begin_date(ui_begin_date, ui_end_date, ui_hws, ui_mode, ui_stacked, ui_ymax):
     # 選択したハードの期間別販売台数を棒グラフで確認する
     g.chart_bar_sales(
         hw=ui_hws.value,
@@ -81,7 +81,7 @@ def _(ui_begin_date, ui_end_date, ui_hws, ui_mode, ui_stacked, ui_ymax):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_03():
     mo.md(r"""
     ## chart_bar_hwsales_by_year
     """)
@@ -89,7 +89,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_date, ui_end_date, ui_hw_single, ui_ymax):
+def ui_begin_date_2(ui_begin_date, ui_end_date, ui_hw_single, ui_ymax):
     # 単一ハードの月別推移を年ごとに並べて比較する
     g.chart_bar_hwsales_by_year(
         hw=ui_hw_single.value,
@@ -102,7 +102,7 @@ def _(ui_begin_date, ui_end_date, ui_hw_single, ui_ymax):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_04():
     mo.md(r"""
     ## chart_hbar_yearly_share_by_maker
     """)
@@ -110,7 +110,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_date, ui_end_date):
+def ui_begin_date_3(ui_begin_date, ui_end_date):
     # 年ごとのメーカーシェアを100%積み上げ横棒で表示する
     g.chart_hbar_yearly_share_by_maker(
         begin=ui_begin_date.value,
@@ -120,7 +120,7 @@ def _(ui_begin_date, ui_end_date):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_05():
     mo.md(r"""
     ## chart_bar_sales_by_hard_year
     """)
@@ -128,7 +128,7 @@ def _():
 
 
 @app.cell
-def _():
+def ui_hwy_01():
     ui_hwy = mo.ui.array(
         [
             mo.ui.array(
@@ -150,7 +150,7 @@ def _():
 
 
 @app.cell
-def _(ui_hwy, ui_mode, ui_stacked, ui_ymax):
+def ui_hwy(ui_hwy, ui_mode, ui_stacked, ui_ymax):
     # ハードと年の組み合わせを月別/四半期別に比較する
     hwy = [(row[0], row[1]) for row in ui_hwy.value]
     mode = ui_mode.value if ui_mode.value in ["month", "quarter"] else "month"
@@ -164,7 +164,7 @@ def _(ui_hwy, ui_mode, ui_stacked, ui_ymax):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_06():
     mo.md(r"""
     ## chart_bar_yearly_delta
     """)
@@ -172,7 +172,7 @@ def _():
 
 
 @app.cell
-def _(ui_hws, ui_stacked):
+def ui_hws(ui_hws, ui_stacked):
     # 発売年からの経過年ごとの販売台数を比較する
     g.chart_bar_yearly_delta(
         hw=ui_hws.value,
@@ -184,7 +184,7 @@ def _(ui_hws, ui_stacked):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_07():
     mo.md(r"""
     ## chart_bar_month_year
     """)
@@ -192,7 +192,7 @@ def _():
 
 
 @app.cell
-def _():
+def ui_month_02():
     ui_month = mo.ui.number(start=1, stop=12, value=12, label="対象月")
     ui_begin_year = mo.ui.number(start=2001, stop=2026, value=2017, label="開始年")
     ui_end_year = mo.ui.number(start=2001, stop=2026, value=2026, label="終了年")
@@ -201,7 +201,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_year, ui_end_year, ui_month, ui_stacked):
+def ui_begin_year(ui_begin_year, ui_end_year, ui_month, ui_stacked):
     # 指定月だけを取り出し、年ごとのメーカー販売台数を見る
     g.chart_bar_month_year(
         month=ui_month.value,
@@ -213,7 +213,7 @@ def _(ui_begin_year, ui_end_year, ui_month, ui_stacked):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_08():
     mo.md(r"""
     ## chart_pie_yearly_share_by_maker
     """)
@@ -221,7 +221,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_year, ui_end_year):
+def ui_begin_year_2(ui_begin_year, ui_end_year):
     # メーカー別年次シェアを円グラフで表示する
     g.chart_pie_yearly_share_by_maker(
         begin_year=ui_begin_year.value,

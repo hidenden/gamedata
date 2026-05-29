@@ -5,14 +5,14 @@ app = marimo.App(width="medium")
 
 
 @app.cell
-def _():
+def calc_cell_01():
     import marimo as mo
 
     return (mo,)
 
 
 @app.cell
-def _():
+def calc_cell_02():
     # 標準ライブラリ
     from datetime import datetime, timedelta, date
     # サードパーティライブラリ
@@ -26,13 +26,13 @@ def _():
 
 
 @app.cell
-def _(g):
+def sales_cell(g):
     base_df = g.load_hard_sales()
     return (base_df,)
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_hard_info(mo):
     mo.md(r"""
     # hard_info.py
     """)
@@ -40,7 +40,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_load_hard_info(mo):
     mo.md(r"""
     ## load_hard_info
     """)
@@ -48,14 +48,14 @@ def _(mo):
 
 
 @app.cell
-def _(g):
+def sales_cell_2(g):
     hard_info = g.load_hard_info()
     hard_info
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_get_hard_colors(mo):
     mo.md(r"""
     ## get_hard_colors
     """)
@@ -63,7 +63,7 @@ def _(mo):
 
 
 @app.cell
-def _(base_df, g, mo):
+def base_df(base_df, g, mo):
     hw_list = g.get_hw(base_df)
     ui_hw = mo.ui.multiselect(options=hw_list, value=["NSW", "NS2", "PS5", "XSX"])
     ui_hw
@@ -71,14 +71,14 @@ def _(base_df, g, mo):
 
 
 @app.cell
-def _(g, ui_hw):
+def ui_hw(g, ui_hw):
     hw_colors = g.get_hard_colors(hw=ui_hw.value)
     hw_colors
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_get_maker_colors(mo):
     mo.md(r"""
     ## get_maker_colors
     """)
@@ -86,7 +86,7 @@ def _(mo):
 
 
 @app.cell
-def _(base_df, g, mo):
+def base_df_2(base_df, g, mo):
     makers = g.get_maker(base_df)
     ui_maker = mo.ui.multiselect(options=makers, value=["SONY", "Nintendo"])
     ui_maker
@@ -94,14 +94,14 @@ def _(base_df, g, mo):
 
 
 @app.cell
-def _(g, ui_maker):
+def ui_maker(g, ui_maker):
     maker_colors = g.get_maker_colors(maker=ui_maker.value)
     maker_colors
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_get_hard_names(mo):
     mo.md(r"""
     ## get_hard_names
     """)
@@ -109,14 +109,14 @@ def _(mo):
 
 
 @app.cell
-def _(g, ui_hw):
+def ui_hw_2(g, ui_hw):
     hw_names = g.get_hard_names(hw=ui_hw.value)
     hw_names
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_get_hard_dict(mo):
     mo.md(r"""
     ## get_hard_dict
     """)
@@ -124,7 +124,7 @@ def _(mo):
 
 
 @app.cell
-def _(g):
+def cell(g):
     hard_dict = g.get_hard_dict()
     hard_dict
     return

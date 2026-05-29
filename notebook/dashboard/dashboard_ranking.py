@@ -20,7 +20,7 @@ with app.setup:
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_01():
     mo.md(r"""
     ## 累計ランキング
     """)
@@ -28,7 +28,7 @@ def _():
 
 
 @app.cell
-def _():
+def table__df_all_01():
     _df_all = g.load_hard_sales(True)
     _df = g.extract_total(_df_all, compact=True)
     g.style_df(_df, bar=True)
@@ -36,7 +36,7 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_02():
     mo.md(r"""
     ## 週販ランキング
     """)
@@ -44,7 +44,7 @@ def _():
 
 
 @app.cell
-def _():
+def ui_hwselect_01():
     hwselect = g.HwSelect(force_any=True)
     hw_widget = hwselect.widget
     rank_num = mo.ui.number(
@@ -55,7 +55,7 @@ def _():
 
 
 @app.cell
-def _(hw_widget, hwselect, rank_num):
+def hw_widget(hw_widget, hwselect, rank_num):
     hw_widget
     best_week_ranking = g.style_df(
         g.weekly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True
@@ -67,7 +67,7 @@ def _(hw_widget, hwselect, rank_num):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_03():
     mo.md(r"""
     ### ベストランキング
     """)
@@ -75,13 +75,13 @@ def _():
 
 
 @app.cell
-def _(best_week_ranking):
+def best_week_ranking(best_week_ranking):
     best_week_ranking
     return
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_04():
     mo.md(r"""
     ### ワーストランキング
     """)
@@ -89,13 +89,13 @@ def _():
 
 
 @app.cell
-def _(worst_week_ranking):
+def worst_week_ranking(worst_week_ranking):
     worst_week_ranking
     return
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_05():
     mo.md(r"""
     ## 月間ランキング
     """)
@@ -103,7 +103,7 @@ def _():
 
 
 @app.cell
-def _(hw_widget, hwselect, rank_num):
+def hw_widget_2(hw_widget, hwselect, rank_num):
     hw_widget
     best_month_ranking = g.style_df(
         g.monthly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True
@@ -115,19 +115,19 @@ def _(hw_widget, hwselect, rank_num):
 
 
 @app.cell
-def _(best_month_ranking):
+def best_month_ranking(best_month_ranking):
     best_month_ranking
     return
 
 
 @app.cell
-def _(worst_month_ranking):
+def worst_month_ranking(worst_month_ranking):
     worst_month_ranking
     return
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_06():
     mo.md(r"""
     ## 年間ランキング
 
@@ -137,7 +137,7 @@ def _():
 
 
 @app.cell
-def _(hw_widget, hwselect, rank_num):
+def hw_widget_3(hw_widget, hwselect, rank_num):
     hw_widget
     best_year_ranking = g.style_df(
         g.yearly_sales_ranking(rank_n=rank_num.value, hw=hwselect.value), bar=True
@@ -149,19 +149,19 @@ def _(hw_widget, hwselect, rank_num):
 
 
 @app.cell
-def _(best_year_ranking):
+def best_year_ranking(best_year_ranking):
     best_year_ranking
     return
 
 
 @app.cell
-def _(worst_year_ranking):
+def worst_year_ranking(worst_year_ranking):
     worst_year_ranking
     return
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_07():
     mo.md(r"""
     ### 年間メーカーランキング
     """)
@@ -169,7 +169,7 @@ def _():
 
 
 @app.cell
-def _():
+def ui_maker_select_02():
     maker_select = g.MakerSelect(force_any=True)
     maker_widget = maker_select.widget
     maker_select
@@ -177,7 +177,7 @@ def _():
 
 
 @app.cell
-def _(maker_select, maker_widget, rank_num):
+def maker_select(maker_select, maker_widget, rank_num):
     maker_widget
     best_maker_ranking = g.style_df(
         g.yearly_sales_ranking(rank_n=rank_num.value, maker=maker_select.value),
@@ -191,19 +191,19 @@ def _(maker_select, maker_widget, rank_num):
 
 
 @app.cell
-def _(best_maker_ranking):
+def best_maker_ranking(best_maker_ranking):
     best_maker_ranking
     return
 
 
 @app.cell
-def _(worst_maker_ranking):
+def worst_maker_ranking(worst_maker_ranking):
     worst_maker_ranking
     return
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_08():
     mo.md(r"""
     ## 経過週累計ランキング
     """)
@@ -211,7 +211,7 @@ def _():
 
 
 @app.cell
-def _():
+def ui_weeks_03():
     weeks = mo.ui.number(
         start=1, stop=500, step=1, value=40, label="経過週累計ランキングの累計週"
     )
@@ -219,7 +219,7 @@ def _():
 
 
 @app.cell
-def _(weeks):
+def weeks(weeks):
     _delta_ranking = g.style_df(g.delta_week_ranking(weeks.value), bar=True)
     mo.vstack([weeks, _delta_ranking], justify="start")
     return

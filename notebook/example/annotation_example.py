@@ -22,7 +22,7 @@ with app.setup:
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_01():
     mo.md(r"""
     # hard_annotation.py
     """)
@@ -30,7 +30,7 @@ def _():
 
 
 @app.cell
-def _():
+def ui_hws_01():
     ui_hws = g.HwSelect(default_list=["NSW", "PS5", "NS2"], force_any=True)
     ui_begin_date = mo.ui.date(label="開始日", value=date(2025, 1, 1))
     ui_end_date = mo.ui.date(label="終了日", value=date(2026, 12, 31))
@@ -48,7 +48,7 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_02():
     mo.md(r"""
     ## load_hard_annotation
     """)
@@ -56,7 +56,7 @@ def _():
 
 
 @app.cell
-def _(ui_hws, ui_level):
+def ui_hws(ui_hws, ui_level):
     # アノテーションの実データを読み込み、選択HWとレベルで絞り込む
     annotation_df = (
         g.load_hard_annotation()
@@ -69,7 +69,7 @@ def _(ui_hws, ui_level):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_03():
     mo.md(r"""
     ## summarize_annotation
     """)
@@ -77,14 +77,14 @@ def _():
 
 
 @app.cell
-def _(annotation_df, ui_mode):
+def annotation_df(annotation_df, ui_mode):
     # 月次・四半期・年次では同一期間の代表アノテーションに要約する
     g.summarize_annotation(annotation_df, mode=ui_mode.value)
     return
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_04():
     mo.md(r"""
     ## join_annotation
     """)
@@ -92,7 +92,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_date, ui_end_date, ui_hws, ui_level, ui_mode):
+def ui_begin_date(ui_begin_date, ui_end_date, ui_hws, ui_level, ui_mode):
     # 販売データにアノテーションを結合し、note列をチャート表示に利用する
     df_all = g.load_hard_sales()
     mode = ui_mode.value
@@ -118,7 +118,7 @@ def _(ui_begin_date, ui_end_date, ui_hws, ui_level, ui_mode):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_05():
     mo.md(r"""
     ## chart_line_sales annotation_level
     """)
@@ -126,7 +126,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_date, ui_end_date, ui_hws, ui_level, ui_mode):
+def ui_begin_date_2(ui_begin_date, ui_end_date, ui_hws, ui_level, ui_mode):
     # join_annotationを内部利用するチャート関数で注釈表示を確認する
     g.chart_line_sales(
         hw=ui_hws.value,

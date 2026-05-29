@@ -20,7 +20,7 @@ with app.setup:
 
 
 @app.cell
-def _():
+def md_cell_01():
     def sales_by_year(year: int, hw=["NS2", "NSW", "PS5"], stacked=False):
         begin = datetime(year, 1, 1)
         end = datetime(year + 1, 1, 1)
@@ -56,7 +56,7 @@ def _():
 
 
 @app.cell
-def _():
+def ui_year_01():
     year = mo.ui.number(start=2001, stop=2026, step=1, value=2025, label="対象年")
     hwselect = g.HwSelect()
     hw_widget = hwselect.widget
@@ -65,7 +65,7 @@ def _():
 
 
 @app.cell
-def _(hw_widget, hwselect, sales_by_year, stacked, year):
+def hw_widget(hw_widget, hwselect, sales_by_year, stacked, year):
     hw_widget
     (_title, _chart1, _chart_cum, _chart2) = sales_by_year(
         year=year.value, hw=hwselect.value, stacked=stacked.value
@@ -77,7 +77,7 @@ def _(hw_widget, hwselect, sales_by_year, stacked, year):
 
 
 @app.cell
-def _():
+def ui_hw_dropdown_02():
     hw_dropdown = mo.ui.dropdown(
         options=g.get_hw_all(), value="NSW", label="ハード選択:"
     )
@@ -85,7 +85,7 @@ def _():
 
 
 @app.cell
-def _(hw_dropdown):
+def md_cell(hw_dropdown):
     _chart = g.chart_bar_hwsales_by_year(hw=hw_dropdown.value, mode="quarter")
     mo.vstack(
         [

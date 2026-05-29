@@ -5,14 +5,14 @@ app = marimo.App(width="medium")
 
 
 @app.cell
-def _():
+def calc_cell_01():
     import marimo as mo
 
     return (mo,)
 
 
 @app.cell
-def _():
+def calc_cell_02():
     # 標準ライブラリ
     import os
     import sys
@@ -30,7 +30,7 @@ def _():
 
 
 @app.cell
-def _(g, pl):
+def sales_cell(g, pl):
     df_all: pl.DataFrame = g.load_hard_sales()
     hw_list = g.get_hw(df_all)
     g.set_dispfunc(func=None)
@@ -38,7 +38,7 @@ def _(g, pl):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_bar(mo):
     mo.md(r"""
     # plot_bar.py
     """)
@@ -46,7 +46,7 @@ def _(mo):
 
 
 @app.cell
-def _(hw_list, mo):
+def hw_list(hw_list, mo):
     ui_hw = mo.ui.dropdown(options=hw_list, value="PS5", label="ハード")
     ui_begin_date = mo.ui.date(value="2023-01-01", label="開始日")
     ui_end_date = mo.ui.date(value="2026-04-01", label="終了日")
@@ -56,7 +56,7 @@ def _(hw_list, mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_monthly_bar_by_year(mo):
     mo.md(r"""
     ## plot_monthly_bar_by_year
     """)
@@ -64,7 +64,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hw):
+def ui_begin_date(g, mo, ui_begin_date, ui_end_date, ui_hw):
     _out = g.plot_monthly_bar_by_year(
         hw=ui_hw.value,
         begin=ui_begin_date.value,
@@ -74,7 +74,7 @@ def _(g, mo, ui_begin_date, ui_end_date, ui_hw):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_quarterly_bar_by_year(mo):
     mo.md(r"""
     ## plot_quarterly_bar_by_year
     """)
@@ -82,7 +82,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo, ui_begin_date, ui_end_date, ui_hw):
+def ui_begin_date_2(g, mo, ui_begin_date, ui_end_date, ui_hw):
     (_fig, _df) = g.plot_quarterly_bar_by_year(
         hw=ui_hw.value,
         begin=ui_begin_date.value,
@@ -92,7 +92,7 @@ def _(g, mo, ui_begin_date, ui_end_date, ui_hw):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_monthly_bar_by_hard(mo):
     mo.md(r"""
     ## plot_monthly_bar_by_hard
     """)
@@ -100,7 +100,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo):
+def ui_cell(g, mo):
     ui_hws = g.HwSelect(default_list=["NSW", "PS5"])
     ui_hws_widget = ui_hws.widget
     ui_stacked = mo.ui.switch(label="stacked", value=False)
@@ -110,7 +110,7 @@ def _(g, mo):
 
 
 @app.cell
-def _(
+def ui_begin_date_3(
     g,
     mo,
     ui_begin_date,
@@ -132,7 +132,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_quarterly_bar_by_hard(mo):
     mo.md(r"""
     ## plot_quarterly_bar_by_hard
     """)
@@ -140,7 +140,7 @@ def _(mo):
 
 
 @app.cell
-def _(
+def ui_begin_date_4(
     g,
     mo,
     ui_begin_date,
@@ -163,7 +163,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_yearly_bar_by_hard(mo):
     mo.md(r"""
     ## plot_yearly_bar_by_hard
     """)
@@ -171,7 +171,7 @@ def _(mo):
 
 
 @app.cell
-def _(
+def ui_begin_date_5(
     g,
     mo,
     ui_begin_date,
@@ -193,7 +193,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_monthly_bar_by_hard_year(mo):
     mo.md(r"""
     ## plot_monthly_bar_by_hard_year
     """)
@@ -201,14 +201,14 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_2(mo):
     ui_hy_number = mo.ui.number(2, stop=5, value=2, label="比較対象の数")
     ui_hy_number
     return
 
 
 @app.cell
-def _(hw_list, mo):
+def hw_list_2(hw_list, mo):
     drop1 = mo.ui.dropdown(options=hw_list, label="HW")
     num1 = mo.ui.number(start=2001, stop=2026, label="年", value=2025)
     drop2 = mo.ui.dropdown(options=hw_list, label="HW")
@@ -222,13 +222,13 @@ def _(hw_list, mo):
 
 
 @app.cell
-def _(drop1):
+def drop1(drop1):
     print(drop1.value)
     return
 
 
 @app.cell
-def _(drop1, drop2, num1, num2):
+def drop1_2(drop1, drop2, num1, num2):
     # hard_yearsから hwyのtupleの配列に変換する
     hwy_list = [(drop1.value, num1.value), (drop2.value, num2.value)]
     hwy_list
@@ -236,7 +236,7 @@ def _(drop1, drop2, num1, num2):
 
 
 @app.cell
-def _(g, mo):
+def plot_cell(g, mo):
     _hwy_list = [('NSW', 2025), ('PS5', 2025)]
 
     mo.vstack(g.plot_monthly_bar_by_hard_year(hwy=_hwy_list))
@@ -244,7 +244,7 @@ def _(g, mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_quarterly_bar_by_hard_year(mo):
     mo.md(r"""
     ## plot_quarterly_bar_by_hard_year
     """)
@@ -252,7 +252,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo):
+def plot_cell_2(g, mo):
     _hwy_list = [('NSW', 2025), ('PS5', 2025)]
 
     (_fig, _df) = g.plot_quarterly_bar_by_hard_year(hwy=_hwy_list)
@@ -261,7 +261,7 @@ def _(g, mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_yearly_bar_by_month(mo):
     mo.md(r"""
     ## plot_yearly_bar_by_month
     """)
@@ -269,14 +269,14 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_3(mo):
     ui_month_num = mo.ui.number(start=1, stop=12, value=12)
     ui_month_num
     return (ui_month_num,)
 
 
 @app.cell
-def _(
+def ui_begin_date_6(
     g,
     mo,
     ui_begin_date,
@@ -297,7 +297,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_delta_yearly_bar(mo):
     mo.md(r"""
     ## plot_delta_yearly_bar
     """)
@@ -305,14 +305,14 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_4(mo):
     ui_delta_range = mo.ui.range_slider(start=0, stop=15, step=1, value=[0, 10], full_width=True)
     ui_delta_range
     return (ui_delta_range,)
 
 
 @app.cell
-def _(g, mo, ui_delta_range, ui_hws, ui_hws_widget):
+def ui_delta_range(g, mo, ui_delta_range, ui_hws, ui_hws_widget):
     ui_hws_widget
     (_fig, _df) = g.plot_delta_yearly_bar(hw=ui_hws.value,
         delta_begin=ui_delta_range.value[0],
@@ -323,7 +323,7 @@ def _(g, mo, ui_delta_range, ui_hws, ui_hws_widget):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_maker_share_bar(mo):
     mo.md(r"""
     ## plot_maker_share_bar
     """)
@@ -331,14 +331,14 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_5(mo):
     ui_begin_year = mo.ui.number(start=2001, stop=2026, value=2015)
     ui_end_year = mo.ui.number(start=2001, stop=2026, value=2026)
     return ui_begin_year, ui_end_year
 
 
 @app.cell
-def _(date, g, mo, ui_begin_year, ui_end_year):
+def ui_begin_year(date, g, mo, ui_begin_year, ui_end_year):
     _begin = date(ui_begin_year.value, 1, 1)
     _end = date(year=ui_end_year.value, month=12, day=31)
     (_fig, _) = g.plot_maker_share_bar(begin=_begin, end=_end)
@@ -347,7 +347,7 @@ def _(date, g, mo, ui_begin_year, ui_end_year):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_pie(mo):
     mo.md(r"""
     # plot_pie.py
     """)
@@ -355,7 +355,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_maker_share_pie(mo):
     mo.md(r"""
     ## plot_maker_share_pie
     """)
@@ -363,14 +363,14 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_6(mo):
     pie_begin = mo.ui.number(start=2001, stop=2026, value=2023)
     pie_end = mo.ui.number(start=2001, stop=2026, value=2026)
     return pie_begin, pie_end
 
 
 @app.cell
-def _(g, mo, pie_begin, pie_end):
+def pie_begin(g, mo, pie_begin, pie_end):
     mo.vstack([
         pie_begin, pie_end,
         g.plot_maker_share_pie(begin_year=pie_begin.value, end_year=pie_end.value)[0]

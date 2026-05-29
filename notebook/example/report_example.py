@@ -22,7 +22,7 @@ with app.setup:
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_01():
     mo.md(r"""
     # hard_sales_report.py
     """)
@@ -30,7 +30,7 @@ def _():
 
 
 @app.cell
-def _():
+def calc_all_01():
     # レポート系関数も実データを読み込んで表示例を作る
     df_all = g.load_hard_sales()
     latest_date = g.current_report_date(df_all)
@@ -38,7 +38,7 @@ def _():
 
 
 @app.cell
-def _(latest_date):
+def latest_date(latest_date):
     ui_hws = g.HwSelect(default_list=["NSW", "PS5", "NS2"], force_any=True)
     ui_makers = g.MakerSelect(default_list=["任天堂", "ソニー"], force_any=True)
     ui_begin_date = mo.ui.date(label="開始日", value=latest_date - timedelta(weeks=12))
@@ -55,7 +55,7 @@ def _(latest_date):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_02():
     mo.md(r"""
     ## units_by_date_hw_table
     """)
@@ -63,7 +63,7 @@ def _():
 
 
 @app.cell
-def _(df_all, ui_begin_date, ui_end_date):
+def sales_all(df_all, ui_begin_date, ui_end_date):
     # 指定期間の日付・ハード別販売台数テーブルをStylerで表示する
     g.units_by_date_hw_table(
         df_all,
@@ -74,7 +74,7 @@ def _(df_all, ui_begin_date, ui_end_date):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_03():
     mo.md(r"""
     ## weekly_sales_ranking
     """)
@@ -82,7 +82,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_date, ui_end_date, ui_hws, ui_rank_n):
+def ui_begin_date(ui_begin_date, ui_end_date, ui_hws, ui_rank_n):
     # 週次販売台数のランキングを作成する
     g.weekly_sales_ranking(
         rank_n=ui_rank_n.value,
@@ -94,7 +94,7 @@ def _(ui_begin_date, ui_end_date, ui_hws, ui_rank_n):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_04():
     mo.md(r"""
     ## monthly_sales_ranking
     """)
@@ -102,7 +102,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_date, ui_end_date, ui_hws, ui_rank_n):
+def ui_begin_date_2(ui_begin_date, ui_end_date, ui_hws, ui_rank_n):
     # 月次販売台数のランキングを作成する
     g.monthly_sales_ranking(
         rank_n=ui_rank_n.value,
@@ -114,7 +114,7 @@ def _(ui_begin_date, ui_end_date, ui_hws, ui_rank_n):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_05():
     mo.md(r"""
     ## yearly_sales_ranking
     """)
@@ -122,7 +122,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_date, ui_end_date, ui_hws, ui_rank_n):
+def ui_begin_date_3(ui_begin_date, ui_end_date, ui_hws, ui_rank_n):
     # 年次販売台数のランキングを作成する
     g.yearly_sales_ranking(
         rank_n=ui_rank_n.value,
@@ -134,7 +134,7 @@ def _(ui_begin_date, ui_end_date, ui_hws, ui_rank_n):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_06():
     mo.md(r"""
     ## maker ranking
     """)
@@ -142,7 +142,7 @@ def _():
 
 
 @app.cell
-def _(ui_begin_date, ui_end_date, ui_makers, ui_rank_n):
+def ui_begin_date_4(ui_begin_date, ui_end_date, ui_makers, ui_rank_n):
     # メーカー名をMakerSelectで選択してランキングを作成する
     g.monthly_sales_ranking(
         rank_n=ui_rank_n.value,
@@ -154,7 +154,7 @@ def _(ui_begin_date, ui_end_date, ui_makers, ui_rank_n):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_07():
     mo.md(r"""
     ## delta_week_ranking
     """)
@@ -162,7 +162,7 @@ def _():
 
 
 @app.cell
-def _():
+def ui_delta_week_01():
     ui_delta_week = mo.ui.number(start=0, value=52, label="経過週")
     ui_reached_units = mo.ui.number(
         start=100000, step=100000, value=1000000, label="到達台数"
@@ -172,14 +172,14 @@ def _():
 
 
 @app.cell
-def _(ui_delta_week):
+def ui_delta_week(ui_delta_week):
     # 発売後の指定週時点における累計販売台数ランキングを表示する
     g.delta_week_ranking(delta_week=ui_delta_week.value)
     return
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_08():
     mo.md(r"""
     ## reached_unit_summary
     """)
@@ -187,14 +187,14 @@ def _():
 
 
 @app.cell
-def _(ui_reached_units):
+def ui_reached_units(ui_reached_units):
     # 指定台数に到達した週と集計日を確認する
     g.reached_unit_summary(n=ui_reached_units.value, all=False)
     return
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_09():
     mo.md(r"""
     ## rename_columns / rename_hw / style_df
     """)
@@ -202,7 +202,7 @@ def _():
 
 
 @app.cell
-def _(df_all, ui_begin_date, ui_end_date, ui_hws):
+def sales_all_2(df_all, ui_begin_date, ui_end_date, ui_hws):
     # 表示用にハード名と列名を整え、数値列に簡単なスタイルを付ける
     sample_df = (
         g.sales_long(

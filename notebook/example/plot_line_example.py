@@ -5,14 +5,14 @@ app = marimo.App(width="medium")
 
 
 @app.cell
-def _():
+def calc_cell_01():
     import marimo as mo
 
     return (mo,)
 
 
 @app.cell
-def _():
+def calc_cell_02():
     # 標準ライブラリ
     import os
     import sys
@@ -30,14 +30,14 @@ def _():
 
 
 @app.cell
-def _(g, pl):
+def sales_cell(g, pl):
     df_all: pl.DataFrame = g.load_hard_sales()
     g.set_dispfunc(func=None)
     return (df_all,)
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_line(mo):
     mo.md(r"""
     # plot_line.py
     """)
@@ -45,7 +45,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_cell(mo):
     mo.md(r"""
     ### パラメータの設定
     """)
@@ -53,7 +53,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo):
+def ui_cell(g, mo):
     _uia = []
 
     # 相対期間の設定
@@ -99,14 +99,14 @@ def _(g, mo):
 
 
 @app.cell
-def _(ui_event, ui_event_widget):
+def ui_event(ui_event, ui_event_widget):
     ui_event_widget
     current_event_mask = ui_event.value
     return (current_event_mask,)
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_cumulative_sale_by_delta(mo):
     mo.md(r"""
     ## plot_cumulative_sale_by_delta
     """)
@@ -114,7 +114,7 @@ def _(mo):
 
 
 @app.cell
-def _(
+def current_event_mask(
     current_event_mask,
     g,
     mo,
@@ -146,7 +146,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_sales(mo):
     mo.md(r"""
     ## plot_sales
     """)
@@ -154,7 +154,7 @@ def _(mo):
 
 
 @app.cell
-def _(
+def current_event_mask_2(
     current_event_mask,
     g,
     mo,
@@ -175,7 +175,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_sales_by_delta(mo):
     mo.md(r"""
     ## plot_sales_by_delta
     """)
@@ -183,7 +183,7 @@ def _(mo):
 
 
 @app.cell
-def _(
+def current_event_mask_3(
     current_event_mask,
     current_mode,
     g,
@@ -206,7 +206,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_cumulative_sales(mo):
     mo.md(r"""
     ## plot_cumulative_sales
     """)
@@ -214,7 +214,7 @@ def _(mo):
 
 
 @app.cell
-def _(current_event_mask, g, mo, ui_hw, ui_hw_widget, ui_period_mode):
+def current_event_mask_4(current_event_mask, g, mo, ui_hw, ui_hw_widget, ui_period_mode):
     ui_hw_widget
     from cffi.cffi_opcode import F_PACKED
     _plot = g.plot_cumulative_sales(
@@ -226,7 +226,7 @@ def _(current_event_mask, g, mo, ui_hw, ui_hw_widget, ui_period_mode):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_sales_with_offset(mo):
     mo.md(r"""
     ## plot_sales_with_offset
     """)
@@ -234,7 +234,7 @@ def _(mo):
 
 
 @app.cell
-def _(date, hw_list, mo):
+def hw_list(date, hw_list, mo):
     _hwnum : int = 3
     _init_hw = ["NSW", "NS2", "PS5"]
     _init_date = [date(2017,3,3), 
@@ -255,7 +255,7 @@ def _(date, hw_list, mo):
 
 
 @app.cell
-def _(g, hw_periods_ui, mo, period_end, ui_items):
+def hw_periods_ui(g, hw_periods_ui, mo, period_end, ui_items):
     hw_periods = [
         {
             "hw": _ui[0],
@@ -270,7 +270,7 @@ def _(g, hw_periods_ui, mo, period_end, ui_items):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_cumsum_diffs(mo):
     mo.md(r"""
     ## plot_cumsum_diffs
     """)
@@ -278,7 +278,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo):
+def plot_cell(g, mo):
     _cmplist = [("NSW", "PS4"), ("NS2", "PS5")]
     _plot = g.plot_cumsum_diffs(_cmplist)
     mo.vstack(_plot)
@@ -286,7 +286,7 @@ def _(g, mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_plot_sales_pase_diff(mo):
     mo.md(r"""
     ## plot_sales_pase_diff
     """)
@@ -294,7 +294,7 @@ def _(mo):
 
 
 @app.cell
-def _(g, mo):
+def plot_cell_2(g, mo):
     _plot = g.plot_sales_pase_diff(base_hw='PS4', compare_hw='PS5')
     mo.vstack(_plot)
     return

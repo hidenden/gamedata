@@ -20,13 +20,13 @@ with app.setup:
 
 
 @app.cell
-def _():
+def ui_num_01():
     num = mo.ui.number(start=500000, step=500000, value=5000000, label="累積台数")
     return (num,)
 
 
 @app.cell
-def _(num):
+def num(num):
     _df = g.reached_unit_summary(num.value, all=True)
     mo.vstack([num, _df])
     return

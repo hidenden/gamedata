@@ -16,7 +16,7 @@ with app.setup:
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_01():
     mo.md(r"""
     # chart_rule.py
     """)
@@ -24,7 +24,7 @@ def _():
 
 
 @app.cell
-def _():
+def ui_hws_01():
     ui_hws = g.HwSelect(default_list=["NSW", "PS5"], force_any=True)
     ui_rule_x = mo.ui.number(start=1, value=52, label="縦線: 週数")
     ui_rule_y = mo.ui.number(start=0, step=100000, value=5000000, label="横線: 台数")
@@ -33,7 +33,7 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_02():
     mo.md(r"""
     ## chart_rule_xy
     """)
@@ -41,7 +41,7 @@ def _():
 
 
 @app.cell
-def _(ui_hws, ui_rule_x, ui_rule_y):
+def ui_hws(ui_hws, ui_rule_x, ui_rule_y):
     # ベースチャートに縦横の基準線を重ねる
     _base_chart = g.chart_line_cumulative_delta(
         hw=ui_hws.value,
@@ -61,7 +61,7 @@ def _(ui_hws, ui_rule_x, ui_rule_y):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cell_03():
     mo.md(r"""
     ## chart_line_guide
     """)
@@ -69,7 +69,7 @@ def _():
 
 
 @app.cell
-def _(ui_hws):
+def ui_hws_2(ui_hws):
     # 2点を結ぶ補助線を重ね、販売ペースの目安として使う
     _base_chart = g.chart_line_cumulative_delta(
         hw=ui_hws.value,

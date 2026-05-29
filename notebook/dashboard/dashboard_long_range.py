@@ -20,7 +20,7 @@ with app.setup:
 
 
 @app.cell
-def _():
+def ui_hw_select_01():
     # HW select widget
     hw_select = g.HwSelect(default_list=["NSW", "PS5"], force_any=True)
     hw_widget = hw_select.widget
@@ -31,7 +31,7 @@ def _():
 
 
 @app.cell
-def _(hw_select, hw_widget, stack_widget):
+def hw_select(hw_select, hw_widget, stack_widget):
     hw_widget
     hw_list = hw_select.value
     _chart = g.chart_bar_sales(
@@ -43,7 +43,7 @@ def _(hw_select, hw_widget, stack_widget):
 
 
 @app.cell
-def _():
+def ui_hw_select_area_02():
     # HW select widget
     hw_select_area = g.HwSelect(default_list=[])
     hw_widget_area = hw_select_area.widget
@@ -51,7 +51,7 @@ def _():
 
 
 @app.cell
-def _(hw_select_area, hw_widget_area):
+def hw_select_area(hw_select_area, hw_widget_area):
     hw_widget_area
     _chart = g.chart_bar_sales(
         hw=hw_select_area.value,
@@ -64,7 +64,7 @@ def _(hw_select_area, hw_widget_area):
 
 
 @app.cell
-def _():
+def ui_year_end_03():
     # 年を入力するNumber UI
     year_end = mo.ui.number(
         label="シェア確認年", value=2026, start=2002, stop=2026, step=1
@@ -73,7 +73,7 @@ def _():
 
 
 @app.cell
-def _(year_end):
+def year_end(year_end):
     year_begin = year_end.value - 2
 
     _pie_chart = g.chart_pie_yearly_share_by_maker(
