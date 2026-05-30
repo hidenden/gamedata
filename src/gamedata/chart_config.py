@@ -2,7 +2,7 @@
 import altair as alt
 
 # PNG/SVG保存時の出力解像度を上げる倍率
-ALT_EMBED_SCALE_FACTOR = 4
+ALT_EMBED_SCALE_FACTOR = 2
 ALT_EMBED_OPTIONS = {
     "actions": {
         "export": True,
@@ -53,7 +53,7 @@ def publish_theme():
             },
             # 図の大きさ
             "view": {"width": 760, "height": 380},
-        }
+        },
     }
 
 
@@ -114,5 +114,5 @@ def edit_theme():
             },
             # 図の背景
             "background": "white",
-        }
+        },
     }
