@@ -62,60 +62,61 @@
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="k">def</span><span class="w"> </span><span class="nf">report_begin</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;4半期単位で「約1年前」に相当するレポート開始日を返す。</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="sd">    入力月に応じて、以下の日付（いずれも月初）を返す。</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">    - 1〜3月: 前年 4/1</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">    - 4〜6月: 前年 7/1</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">    - 7〜9月: 前年 10/1</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    - 10〜12月: 当年 1/1</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    Args:</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">        date: 基準となる日付。</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">    Returns:</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">        レポート開始日（datetime、時刻は 00:00:00）。</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">month</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">month</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="k">if</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="k">elif</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]:</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="k">elif</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]:</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="k">else</span><span class="p">:</span>  <span class="c1"># month in [10, 11, 12]</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="k">def</span><span class="w"> </span><span class="nf">report_begin</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;4半期単位で「約1年前」に相当するレポート開始日を返す。</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">    入力月に応じて、以下の日付（いずれも月初）を返す。</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">    - 1〜3月: 前年 4/1</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">    - 4〜6月: 前年 7/1</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    - 7〜9月: 前年 10/1</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    - 10〜12月: 当年 1/1</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">    Args:</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">        date: 基準となる日付。</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">    Returns:</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">        レポート開始日（datetime、時刻は 00:00:00）。</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="n">month</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">month</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="k">if</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="k">elif</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]:</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="k">elif</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]:</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="k">else</span><span class="p">:</span>  <span class="c1"># month in [10, 11, 12]</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="k">def</span><span class="w"> </span><span class="nf">years_ago</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">diff_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;指定年数だけ遡った年の1月1日を返す。</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">    Args:</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">        date: 基準となる日付。</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">        diff_year: 何年前にするか（年数）。</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">    Returns:</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">        (date.year - diff_year) 年の 1/1（datetime、時刻は 00:00:00）。</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="n">diff_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="k">def</span><span class="w"> </span><span class="nf">years_ago</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">diff_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;指定年数だけ遡った年の1月1日を返す。</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">    Args:</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">        date: 基準となる日付。</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">        diff_year: 何年前にするか（年数）。</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">    Returns:</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">        (date.year - diff_year) 年の 1/1（datetime、時刻は 00:00:00）。</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="n">diff_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="k">def</span><span class="w"> </span><span class="nf">weeks_before</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">diff_week</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;指定週数だけ前の日付を返す。</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">    Args:</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">        date: 基準となる日付。</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="sd">        diff_week: 何週間前にするか（週数）。</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">    Returns:</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="sd">        date から diff_week 週間前の datetime。</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="k">return</span> <span class="n">date</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="n">diff_week</span><span class="p">)</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="k">def</span><span class="w"> </span><span class="nf">weeks_before</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">diff_week</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;指定週数だけ前の日付を返す。</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">    Args:</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="sd">        date: 基準となる日付。</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">        diff_week: 何週間前にするか（週数）。</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="sd">    Returns:</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="sd">        date から diff_week 週間前の datetime。</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="k">return</span> <span class="n">date</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="n">diff_week</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -131,33 +132,33 @@
 
     </div>
     <a class="headerlink" href="#report_begin"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="report_begin-4"><a href="#report_begin-4"><span class="linenos"> 4</span></a><span class="k">def</span><span class="w"> </span><span class="nf">report_begin</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
-</span><span id="report_begin-5"><a href="#report_begin-5"><span class="linenos"> 5</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;4半期単位で「約1年前」に相当するレポート開始日を返す。</span>
-</span><span id="report_begin-6"><a href="#report_begin-6"><span class="linenos"> 6</span></a>
-</span><span id="report_begin-7"><a href="#report_begin-7"><span class="linenos"> 7</span></a><span class="sd">    入力月に応じて、以下の日付（いずれも月初）を返す。</span>
-</span><span id="report_begin-8"><a href="#report_begin-8"><span class="linenos"> 8</span></a>
-</span><span id="report_begin-9"><a href="#report_begin-9"><span class="linenos"> 9</span></a><span class="sd">    - 1〜3月: 前年 4/1</span>
-</span><span id="report_begin-10"><a href="#report_begin-10"><span class="linenos">10</span></a><span class="sd">    - 4〜6月: 前年 7/1</span>
-</span><span id="report_begin-11"><a href="#report_begin-11"><span class="linenos">11</span></a><span class="sd">    - 7〜9月: 前年 10/1</span>
-</span><span id="report_begin-12"><a href="#report_begin-12"><span class="linenos">12</span></a><span class="sd">    - 10〜12月: 当年 1/1</span>
-</span><span id="report_begin-13"><a href="#report_begin-13"><span class="linenos">13</span></a>
-</span><span id="report_begin-14"><a href="#report_begin-14"><span class="linenos">14</span></a><span class="sd">    Args:</span>
-</span><span id="report_begin-15"><a href="#report_begin-15"><span class="linenos">15</span></a><span class="sd">        date: 基準となる日付。</span>
-</span><span id="report_begin-16"><a href="#report_begin-16"><span class="linenos">16</span></a>
-</span><span id="report_begin-17"><a href="#report_begin-17"><span class="linenos">17</span></a><span class="sd">    Returns:</span>
-</span><span id="report_begin-18"><a href="#report_begin-18"><span class="linenos">18</span></a><span class="sd">        レポート開始日（datetime、時刻は 00:00:00）。</span>
-</span><span id="report_begin-19"><a href="#report_begin-19"><span class="linenos">19</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="report_begin-20"><a href="#report_begin-20"><span class="linenos">20</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span>
-</span><span id="report_begin-21"><a href="#report_begin-21"><span class="linenos">21</span></a>    <span class="n">month</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">month</span>
-</span><span id="report_begin-22"><a href="#report_begin-22"><span class="linenos">22</span></a>
-</span><span id="report_begin-23"><a href="#report_begin-23"><span class="linenos">23</span></a>    <span class="k">if</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
-</span><span id="report_begin-24"><a href="#report_begin-24"><span class="linenos">24</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="report_begin-25"><a href="#report_begin-25"><span class="linenos">25</span></a>    <span class="k">elif</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]:</span>
-</span><span id="report_begin-26"><a href="#report_begin-26"><span class="linenos">26</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="report_begin-27"><a href="#report_begin-27"><span class="linenos">27</span></a>    <span class="k">elif</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]:</span>
-</span><span id="report_begin-28"><a href="#report_begin-28"><span class="linenos">28</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="report_begin-29"><a href="#report_begin-29"><span class="linenos">29</span></a>    <span class="k">else</span><span class="p">:</span>  <span class="c1"># month in [10, 11, 12]</span>
-</span><span id="report_begin-30"><a href="#report_begin-30"><span class="linenos">30</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="report_begin-5"><a href="#report_begin-5"><span class="linenos"> 5</span></a><span class="k">def</span><span class="w"> </span><span class="nf">report_begin</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+</span><span id="report_begin-6"><a href="#report_begin-6"><span class="linenos"> 6</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;4半期単位で「約1年前」に相当するレポート開始日を返す。</span>
+</span><span id="report_begin-7"><a href="#report_begin-7"><span class="linenos"> 7</span></a>
+</span><span id="report_begin-8"><a href="#report_begin-8"><span class="linenos"> 8</span></a><span class="sd">    入力月に応じて、以下の日付（いずれも月初）を返す。</span>
+</span><span id="report_begin-9"><a href="#report_begin-9"><span class="linenos"> 9</span></a>
+</span><span id="report_begin-10"><a href="#report_begin-10"><span class="linenos">10</span></a><span class="sd">    - 1〜3月: 前年 4/1</span>
+</span><span id="report_begin-11"><a href="#report_begin-11"><span class="linenos">11</span></a><span class="sd">    - 4〜6月: 前年 7/1</span>
+</span><span id="report_begin-12"><a href="#report_begin-12"><span class="linenos">12</span></a><span class="sd">    - 7〜9月: 前年 10/1</span>
+</span><span id="report_begin-13"><a href="#report_begin-13"><span class="linenos">13</span></a><span class="sd">    - 10〜12月: 当年 1/1</span>
+</span><span id="report_begin-14"><a href="#report_begin-14"><span class="linenos">14</span></a>
+</span><span id="report_begin-15"><a href="#report_begin-15"><span class="linenos">15</span></a><span class="sd">    Args:</span>
+</span><span id="report_begin-16"><a href="#report_begin-16"><span class="linenos">16</span></a><span class="sd">        date: 基準となる日付。</span>
+</span><span id="report_begin-17"><a href="#report_begin-17"><span class="linenos">17</span></a>
+</span><span id="report_begin-18"><a href="#report_begin-18"><span class="linenos">18</span></a><span class="sd">    Returns:</span>
+</span><span id="report_begin-19"><a href="#report_begin-19"><span class="linenos">19</span></a><span class="sd">        レポート開始日（datetime、時刻は 00:00:00）。</span>
+</span><span id="report_begin-20"><a href="#report_begin-20"><span class="linenos">20</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="report_begin-21"><a href="#report_begin-21"><span class="linenos">21</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span>
+</span><span id="report_begin-22"><a href="#report_begin-22"><span class="linenos">22</span></a>    <span class="n">month</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">month</span>
+</span><span id="report_begin-23"><a href="#report_begin-23"><span class="linenos">23</span></a>
+</span><span id="report_begin-24"><a href="#report_begin-24"><span class="linenos">24</span></a>    <span class="k">if</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+</span><span id="report_begin-25"><a href="#report_begin-25"><span class="linenos">25</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="report_begin-26"><a href="#report_begin-26"><span class="linenos">26</span></a>    <span class="k">elif</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]:</span>
+</span><span id="report_begin-27"><a href="#report_begin-27"><span class="linenos">27</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="report_begin-28"><a href="#report_begin-28"><span class="linenos">28</span></a>    <span class="k">elif</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]:</span>
+</span><span id="report_begin-29"><a href="#report_begin-29"><span class="linenos">29</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="report_begin-30"><a href="#report_begin-30"><span class="linenos">30</span></a>    <span class="k">else</span><span class="p">:</span>  <span class="c1"># month in [10, 11, 12]</span>
+</span><span id="report_begin-31"><a href="#report_begin-31"><span class="linenos">31</span></a>        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -192,18 +193,18 @@
 
     </div>
     <a class="headerlink" href="#years_ago"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="years_ago-33"><a href="#years_ago-33"><span class="linenos">33</span></a><span class="k">def</span><span class="w"> </span><span class="nf">years_ago</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">diff_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
-</span><span id="years_ago-34"><a href="#years_ago-34"><span class="linenos">34</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;指定年数だけ遡った年の1月1日を返す。</span>
-</span><span id="years_ago-35"><a href="#years_ago-35"><span class="linenos">35</span></a>
-</span><span id="years_ago-36"><a href="#years_ago-36"><span class="linenos">36</span></a><span class="sd">    Args:</span>
-</span><span id="years_ago-37"><a href="#years_ago-37"><span class="linenos">37</span></a><span class="sd">        date: 基準となる日付。</span>
-</span><span id="years_ago-38"><a href="#years_ago-38"><span class="linenos">38</span></a><span class="sd">        diff_year: 何年前にするか（年数）。</span>
-</span><span id="years_ago-39"><a href="#years_ago-39"><span class="linenos">39</span></a>
-</span><span id="years_ago-40"><a href="#years_ago-40"><span class="linenos">40</span></a><span class="sd">    Returns:</span>
-</span><span id="years_ago-41"><a href="#years_ago-41"><span class="linenos">41</span></a><span class="sd">        (date.year - diff_year) 年の 1/1（datetime、時刻は 00:00:00）。</span>
-</span><span id="years_ago-42"><a href="#years_ago-42"><span class="linenos">42</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="years_ago-43"><a href="#years_ago-43"><span class="linenos">43</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span>
-</span><span id="years_ago-44"><a href="#years_ago-44"><span class="linenos">44</span></a>    <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="n">diff_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="years_ago-34"><a href="#years_ago-34"><span class="linenos">34</span></a><span class="k">def</span><span class="w"> </span><span class="nf">years_ago</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">diff_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+</span><span id="years_ago-35"><a href="#years_ago-35"><span class="linenos">35</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;指定年数だけ遡った年の1月1日を返す。</span>
+</span><span id="years_ago-36"><a href="#years_ago-36"><span class="linenos">36</span></a>
+</span><span id="years_ago-37"><a href="#years_ago-37"><span class="linenos">37</span></a><span class="sd">    Args:</span>
+</span><span id="years_ago-38"><a href="#years_ago-38"><span class="linenos">38</span></a><span class="sd">        date: 基準となる日付。</span>
+</span><span id="years_ago-39"><a href="#years_ago-39"><span class="linenos">39</span></a><span class="sd">        diff_year: 何年前にするか（年数）。</span>
+</span><span id="years_ago-40"><a href="#years_ago-40"><span class="linenos">40</span></a>
+</span><span id="years_ago-41"><a href="#years_ago-41"><span class="linenos">41</span></a><span class="sd">    Returns:</span>
+</span><span id="years_ago-42"><a href="#years_ago-42"><span class="linenos">42</span></a><span class="sd">        (date.year - diff_year) 年の 1/1（datetime、時刻は 00:00:00）。</span>
+</span><span id="years_ago-43"><a href="#years_ago-43"><span class="linenos">43</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="years_ago-44"><a href="#years_ago-44"><span class="linenos">44</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span>
+</span><span id="years_ago-45"><a href="#years_ago-45"><span class="linenos">45</span></a>    <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="n">diff_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -230,17 +231,17 @@
 
     </div>
     <a class="headerlink" href="#weeks_before"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="weeks_before-47"><a href="#weeks_before-47"><span class="linenos">47</span></a><span class="k">def</span><span class="w"> </span><span class="nf">weeks_before</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">diff_week</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
-</span><span id="weeks_before-48"><a href="#weeks_before-48"><span class="linenos">48</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;指定週数だけ前の日付を返す。</span>
-</span><span id="weeks_before-49"><a href="#weeks_before-49"><span class="linenos">49</span></a>
-</span><span id="weeks_before-50"><a href="#weeks_before-50"><span class="linenos">50</span></a><span class="sd">    Args:</span>
-</span><span id="weeks_before-51"><a href="#weeks_before-51"><span class="linenos">51</span></a><span class="sd">        date: 基準となる日付。</span>
-</span><span id="weeks_before-52"><a href="#weeks_before-52"><span class="linenos">52</span></a><span class="sd">        diff_week: 何週間前にするか（週数）。</span>
-</span><span id="weeks_before-53"><a href="#weeks_before-53"><span class="linenos">53</span></a>
-</span><span id="weeks_before-54"><a href="#weeks_before-54"><span class="linenos">54</span></a><span class="sd">    Returns:</span>
-</span><span id="weeks_before-55"><a href="#weeks_before-55"><span class="linenos">55</span></a><span class="sd">        date から diff_week 週間前の datetime。</span>
-</span><span id="weeks_before-56"><a href="#weeks_before-56"><span class="linenos">56</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="weeks_before-57"><a href="#weeks_before-57"><span class="linenos">57</span></a>    <span class="k">return</span> <span class="n">date</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="n">diff_week</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="weeks_before-48"><a href="#weeks_before-48"><span class="linenos">48</span></a><span class="k">def</span><span class="w"> </span><span class="nf">weeks_before</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">diff_week</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+</span><span id="weeks_before-49"><a href="#weeks_before-49"><span class="linenos">49</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;指定週数だけ前の日付を返す。</span>
+</span><span id="weeks_before-50"><a href="#weeks_before-50"><span class="linenos">50</span></a>
+</span><span id="weeks_before-51"><a href="#weeks_before-51"><span class="linenos">51</span></a><span class="sd">    Args:</span>
+</span><span id="weeks_before-52"><a href="#weeks_before-52"><span class="linenos">52</span></a><span class="sd">        date: 基準となる日付。</span>
+</span><span id="weeks_before-53"><a href="#weeks_before-53"><span class="linenos">53</span></a><span class="sd">        diff_week: 何週間前にするか（週数）。</span>
+</span><span id="weeks_before-54"><a href="#weeks_before-54"><span class="linenos">54</span></a>
+</span><span id="weeks_before-55"><a href="#weeks_before-55"><span class="linenos">55</span></a><span class="sd">    Returns:</span>
+</span><span id="weeks_before-56"><a href="#weeks_before-56"><span class="linenos">56</span></a><span class="sd">        date から diff_week 週間前の datetime。</span>
+</span><span id="weeks_before-57"><a href="#weeks_before-57"><span class="linenos">57</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="weeks_before-58"><a href="#weeks_before-58"><span class="linenos">58</span></a>    <span class="k">return</span> <span class="n">date</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="n">diff_week</span><span class="p">)</span>
 </span></pre></div>
 
 

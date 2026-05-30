@@ -6,7 +6,6 @@ import polars as pl
 from datetime import datetime, timedelta, date
 from typing import List
 from . import hard_sales as hs
-from . import hard_event as he
 
 
 class HwSelect:
@@ -69,42 +68,6 @@ class HwSelect:
         if self.force_any and len(hw_data) == 0:
             return self.hw_list
         return hw_data
-
-
-class EventSelect:
-    """イベントマスクの適用範囲をドロップダウンで選択するUIウィジェット。
-
-    Args:
-        default_value: 初期選択値。"short" / "middle" / "long" のいずれか。
-                       デフォルトは "middle"。
-    """
-
-    def __init__(self, default_value: str = "middle"):
-        self.options = ["short", "middle", "long"]
-        # ドロップダウンUIを生成
-        self.dropdown = mo.ui.dropdown(
-            options=self.options, value=default_value, label="イベントマスク"
-        )
-        self.widget = self.dropdown
-        # 選択肢文字列と実際のイベントマスク定数を対応付ける辞書
-        self.event_dict = {
-            "short": he.EVENT_MASK_SHORT,
-            "middle": he.EVENT_MASK_MIDDLE,
-            "long": he.EVENT_MASK_LONG,
-        }
-
-    def _display_(self):
-        """Marimoセル上での表示レイアウト。"""
-        return self.widget
-
-    @property
-    def value(self) -> he.EventMasks:
-        """選択中のイベントマスク定数を返す。
-
-        Returns:
-            選択された範囲に対応するEventMasks定数。
-        """
-        return self.event_dict[self.widget.value]
 
 
 class MakerSelect:

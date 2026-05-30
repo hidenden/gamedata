@@ -5,14 +5,14 @@ app = marimo.App(width="medium")
 
 
 @app.cell
-def _():
+def calc_cell_01():
     import marimo as mo
 
     return (mo,)
 
 
 @app.cell
-def _():
+def calc_cell_02():
     # 標準ライブラリ
     import os
     import sys
@@ -30,14 +30,14 @@ def _():
 
 
 @app.cell
-def _(g, pl):
+def sales_cell(g, pl):
     df_all: pl.DataFrame = g.load_hard_sales()
     hw_list = g.get_hw(df_all)
     return df_all, hw_list
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_hard_sales_pivot(mo):
     mo.md(r"""
     # hard_sales_pivot
     """)
@@ -45,14 +45,14 @@ def _(mo):
 
 
 @app.cell
-def _(hw_list, mo):
+def hw_list(hw_list, mo):
     hw_multiselect = mo.ui.multiselect(options=hw_list, 
         value=['NSW', "PS5", "NS2"], label="ハードウェアを選択してください")
     return (hw_multiselect,)
 
 
 @app.cell
-def _(date, mo):
+def ui_cell(date, mo):
     begin_date = mo.ui.date(label="開始日", value=date(2017,3,3))
     end_date = mo.ui.date(label="終了日")
     date_select = mo.hstack([begin_date, end_date], justify="start",align="stretch")
@@ -60,7 +60,7 @@ def _(date, mo):
 
 
 @app.cell
-def _(mo):
+def md_pivot_sales(mo):
     mo.md(r"""
     ## pivot_sales
     """)
@@ -68,7 +68,7 @@ def _(mo):
 
 
 @app.cell
-def _(
+def begin_date(
     begin_date,
     date_select,
     df_all: "pl.DataFrame",
@@ -83,7 +83,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_pivot_monthly_sales(mo):
     mo.md(r"""
     ## pivot_monthly_sales
     """)
@@ -91,13 +91,13 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g, hw_multiselect):
+def begin_date_2(begin_date, df_all: "pl.DataFrame", end_date, g, hw_multiselect):
     g.pivot_monthly_sales(df_all, begin=begin_date.value, end=end_date.value, hw=hw_multiselect.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_pivot_quarterly_sales(mo):
     mo.md(r"""
     ## pivot_quarterly_sales
     """)
@@ -105,13 +105,13 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g, hw_multiselect):
+def begin_date_3(begin_date, df_all: "pl.DataFrame", end_date, g, hw_multiselect):
     g.pivot_quarterly_sales(df_all, begin=begin_date.value, end=end_date.value, hw=hw_multiselect.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_pivot_yearly_sales(mo):
     mo.md(r"""
     ## pivot_yearly_sales
     """)
@@ -119,13 +119,13 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g, hw_multiselect):
+def begin_date_4(begin_date, df_all: "pl.DataFrame", end_date, g, hw_multiselect):
     g.pivot_yearly_sales(df_all, begin=begin_date.value, end=end_date.value, hw=hw_multiselect.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_pivot_cumulative_sales(mo):
     mo.md(r"""
     ## pivot_cumulative_sales
     """)
@@ -133,7 +133,7 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_2(mo):
     mode_dropdown = mo.ui.dropdown(options = ["week", "month", "year"], 
         value="week", label="集計単位を選択してください")
     mode_dropdown
@@ -141,7 +141,7 @@ def _(mo):
 
 
 @app.cell
-def _(
+def begin_date_5(
     begin_date,
     df_all: "pl.DataFrame",
     end_date,
@@ -155,7 +155,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_pivot_sales_by_delta(mo):
     mo.md(r"""
     ## pivot_sales_by_delta
     """)
@@ -163,7 +163,7 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_3(mo):
     delta_begin = mo.ui.number(start=0, label="経過期間の最小値", value=0)
     delta_end = mo.ui.number(start=1, label="経過期間の最大値", value=52)
 
@@ -172,7 +172,7 @@ def _(mo):
 
 
 @app.cell
-def _(
+def delta_begin(
     delta_begin,
     delta_end,
     df_all: "pl.DataFrame",
@@ -188,7 +188,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_pivot_cumulative_sales_by_delta(mo):
     mo.md(r"""
     ## pivot_cumulative_sales_by_delta
     """)
@@ -196,7 +196,7 @@ def _(mo):
 
 
 @app.cell
-def _(
+def delta_begin_2(
     delta_begin,
     delta_end,
     df_all: "pl.DataFrame",
@@ -212,7 +212,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_pivot_maker(mo):
     mo.md(r"""
     ## pivot_maker
     """)
@@ -220,7 +220,7 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g):
+def begin_date_6(begin_date, df_all: "pl.DataFrame", end_date, g):
     g.pivot_maker(df_all, 
         begin_year=begin_date.value.year, 
         end_year=end_date.value.year)
@@ -228,7 +228,7 @@ def _(begin_date, df_all: "pl.DataFrame", end_date, g):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_pivot_sales_with_offset(mo):
     mo.md(r"""
     ## pivot_sales_with_offset
     """)
@@ -236,7 +236,7 @@ def _(mo):
 
 
 @app.cell
-def _(date, hw_list, mo):
+def hw_list_2(date, hw_list, mo):
     _hwnum : int = 3
     _init_hw = ["NSW", "NS2", "PS5"]
     _init_date = [date(2017,3,3), 
@@ -257,7 +257,7 @@ def _(date, hw_list, mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g, hw_periods_ui, mo, period_end, ui_items):
+def sales_all(df_all: "pl.DataFrame", g, hw_periods_ui, mo, period_end, ui_items):
     hw_periods = [
         {
             "hw": _ui[0],
@@ -272,7 +272,7 @@ def _(df_all: "pl.DataFrame", g, hw_periods_ui, mo, period_end, ui_items):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_cumsum_diff(mo):
     mo.md(r"""
     ## cumsum_diff
     """)
@@ -280,7 +280,7 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g):
+def sales_all_2(df_all: "pl.DataFrame", g):
     _cmplist = [("NSW", "PS4"), ("NS2", "PS5")]
     g.cumsum_diffs(df_all, cmplist=_cmplist)
     return

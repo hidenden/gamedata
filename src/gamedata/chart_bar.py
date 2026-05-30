@@ -196,8 +196,7 @@ def chart_bar_hwsales_by_year(
     else:
         raise ValueError("modeは'month'または'quarter'のいずれかでなければなりません")
 
-    alt_color = alt.Color("year:O", title="年", 
-                          scale=alt.Scale(scheme="category10"))
+    alt_color = alt.Color("year:O", title="年", scale=alt.Scale(scheme="category10"))
     xoffset = "year:O"
 
     return _chart_bar_sales(
@@ -225,7 +224,7 @@ def chart_hbar_yearly_share_by_maker(
         alt.LayerChart: 年ごとのメーカーシェアと割合ラベルを表示するチャート。
     """
     _df_all = hs.load_hard_sales()
-    _df = hsl.maker_long(_df_all, begin_year=begin, end_year=end)
+    _df = hsl.maker_long(_df_all, begin_year=begin.year, end_year=end.year)
     _df = _df.with_columns(
         (
             (pl.col("yearly_pct").cum_sum().over("year") - pl.col("yearly_pct") / 2)
@@ -325,8 +324,9 @@ def chart_bar_sales_by_hard_year(
         pl.concat_str([pl.col("hw"), pl.lit("_"), pl.col("year")]).alias("hw_year")
     )
 
-    alt_color = alt.Color("hw_year:N", title="ハード_年", 
-                          scale=alt.Scale(scheme="category10")).legend(orient="top-left")
+    alt_color = alt.Color(
+        "hw_year:N", title="ハード_年", scale=alt.Scale(scheme="category10")
+    ).legend(orient="top-left")
     xoffset = "hw_year:N" if not stacked else None
 
     return _chart_bar_sales(
