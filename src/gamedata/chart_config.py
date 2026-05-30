@@ -1,10 +1,22 @@
 # chart configuration for gamedata project
 import altair as alt
 
+ALT_EMBED_SCALE_FACTOR = 4
+ALT_EMBED_OPTIONS = {
+    "actions": {
+        "export": True,
+        "source": False,
+        "compiled": False,
+        "editor": False,
+    },
+    "scaleFactor": ALT_EMBED_SCALE_FACTOR,
+}
+
 
 @alt.theme.register(name="publish", enable=False)
 def publish_theme():
     return {
+        "usermeta": {"embedOptions": ALT_EMBED_OPTIONS},
         "config": {
             "axis": {
                 "ticks": True,
@@ -47,6 +59,7 @@ def publish_theme():
 @alt.theme.register(name="edit", enable=True)
 def edit_theme():
     return {
+        "usermeta": {"embedOptions": ALT_EMBED_OPTIONS},
         "config": {
             "axis": {
                 "ticks": True,
