@@ -37,6 +37,9 @@ def test_chart_line_sales_embed_options_from_theme():
 
 
 def test_chart_hbar_yearly_share_by_maker_embed_options(sample_sales_df):
+    assert (
+        sample_sales_df.filter(pl.col("year").is_between(2020, 2021)).height > 0
+    )
     with patch.object(cb.hs, "load_hard_sales", return_value=sample_sales_df):
         chart = cb.chart_hbar_yearly_share_by_maker(
             begin=date(2020, 1, 1), end=date(2021, 12, 31)
@@ -45,6 +48,9 @@ def test_chart_hbar_yearly_share_by_maker_embed_options(sample_sales_df):
 
 
 def test_chart_pie_yearly_share_by_maker_embed_options(sample_sales_df):
+    assert (
+        sample_sales_df.filter(pl.col("year").is_between(2020, 2021)).height > 0
+    )
     with patch.object(cb.hs, "load_hard_sales", return_value=sample_sales_df):
         chart = cb.chart_pie_yearly_share_by_maker(begin_year=2020, end_year=2021)
     _assert_embed_options(chart)

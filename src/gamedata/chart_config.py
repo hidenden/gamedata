@@ -1,6 +1,7 @@
 # chart configuration for gamedata project
 import altair as alt
 
+# PNG/SVG保存時の出力解像度を上げる倍率
 ALT_EMBED_SCALE_FACTOR = 4
 ALT_EMBED_OPTIONS = {
     "actions": {
