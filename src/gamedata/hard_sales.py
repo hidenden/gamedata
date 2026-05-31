@@ -94,6 +94,7 @@ def _with_derived_columns(df: pl.DataFrame) -> pl.DataFrame:
         )
         .with_columns(
             pl.col("report_date").dt.ordinal_day().alias("yday").cast(pl.Int16),
+            (pl.col("report_date").dt.strftime("%U").cast(pl.Int16) + 1).alias("yweek"),
         )
     )
 
@@ -125,6 +126,7 @@ def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
         - mday (Int16): report_dateの日
         - yday (Int16): report_dateの日がその年の何日目か（1-366）
         - week (Int16): report_dateがその月の何番目の日曜日か
+        - yweek (Int16): report_dateがその年の何番目の日曜日か（1-53）
         - delta_day (Int32): 発売日から何日後か
         - delta_week (Int32): 発売日から何週間後か
         - delta_month (Int16): 発売日から何ヶ月後か

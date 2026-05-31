@@ -28,6 +28,9 @@ from .chart_line import (
     chart_line_ycumulative,
     chart_line_ycumulative_by_hw_year,
 )
+from .chart_heatmap import (
+    chart_heatmap,
+)
 from .chart_rule import (
     chart_line_guide,
     chart_rule_xy,

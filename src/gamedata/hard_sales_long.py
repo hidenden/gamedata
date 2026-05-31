@@ -10,7 +10,7 @@ from .mode import Mode, parse_mode
 
 
 def sales_long(
-    src_df: pl.DataFrame,
+    df: pl.DataFrame,
     hw: List[str] = [],
     begin: datetime | date | None = None,
     end: datetime | date | None = None,
@@ -32,7 +32,7 @@ def sales_long(
         - hw (String): ゲームハードの識別子
         - units (Int64): 週次販売台数
     """
-    df = hsf.date_filter(src_df, begin=begin, end=end)
+    df = hsf.date_filter(df, begin=begin, end=end)
     if len(hw) > 0:
         df = df.filter(pl.col("hw").is_in(hw))
     return df.sort("report_date")
