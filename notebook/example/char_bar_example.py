@@ -31,7 +31,7 @@ def calc_all_01():
     # 実データを読み込み、日付UIの初期値に最新集計日を利用する
     df_all = g.load_hard_sales()
     latest_date = g.current_report_date(df_all)
-    return df_all, latest_date
+    return (latest_date,)
 
 
 @app.cell
@@ -55,7 +55,15 @@ def latest_date(latest_date):
             mo.hstack([ui_begin_date, ui_end_date, ui_ymax], justify="start"),
         ]
     )
-    return ui_begin_date, ui_end_date, ui_hw_single, ui_hws, ui_mode, ui_stacked, ui_ymax
+    return (
+        ui_begin_date,
+        ui_end_date,
+        ui_hw_single,
+        ui_hws,
+        ui_mode,
+        ui_stacked,
+        ui_ymax,
+    )
 
 
 @app.cell(hide_code=True)
@@ -67,7 +75,14 @@ def md_cell_02():
 
 
 @app.cell
-def ui_begin_date(ui_begin_date, ui_end_date, ui_hws, ui_mode, ui_stacked, ui_ymax):
+def ui_begin_date(
+    ui_begin_date,
+    ui_end_date,
+    ui_hws,
+    ui_mode,
+    ui_stacked,
+    ui_ymax,
+):
     # 選択したハードの期間別販売台数を棒グラフで確認する
     g.chart_bar_sales(
         hw=ui_hws.value,
