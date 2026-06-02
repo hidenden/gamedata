@@ -23,7 +23,6 @@ def extract_week_reached_units(df: pl.DataFrame, threshold_units: int) -> pl.Dat
         - begin_date (Date): 集計開始日（週の初日）、月曜日である
         - end_date (Date): 集計終了日（週の末日、=report_date）
         - report_date (Date): 集計期間の末日、日曜日である
-        - quarter (String): report_dateの四半期（例: "2024Q1"）
         - period_date (Int16): 集計日数(通常は7, 稀に14)
         - hw (String): ゲームハードの識別子
         - units (Int64): 週次販売台数
@@ -41,6 +40,22 @@ def extract_week_reached_units(df: pl.DataFrame, threshold_units: int) -> pl.Dat
         - launch_date (Date): 発売日
         - maker_name (String): メーカー名
         - full_name (String): ゲームハードの正式名称
+        - q_num (Int8): report_dateの四半期番号（1-4）
+        - fiscal_year (Int16): 4月始まりの会計年度
+        - fiscal_month (Int8): 4月を1とする会計月
+        - index_week (Int32): 発売から何週目か（1始まり）
+        - index_month (Int16): 発売から何ヶ月目か（1始まり）
+        - index_year (Int16): 発売から何年目か（1始まり）
+        - fq_num (Int8): fiscal_year内の四半期番号（1-4）
+        - quarter (String): report_dateの四半期（例: "2024Q1"）
+        - fiscal_quarter (String): report_dateの会計四半期（例: "2025FQ4"）
+        - units_diff (Int64): 同一ハードの前週比販売台数差分
+        - ma4w (Int64): 4週移動平均
+        - ma13w (Int64): 13週移動平均
+        - ma52w (Int64): 52週移動平均
+        - yearly_sum_units (Int64): report_date時点での年次累計販売台数(暦年単位)
+        - yday (Int16): report_dateの日がその年の何日目か（1-366）
+        - yweek (Int16): report_dateがその年の何番目の日曜日か（1-53）
     """
     # ハードごとに累計販売台数が閾値を超えた最初の週を取得
     result = (
@@ -73,7 +88,6 @@ def extract_by_date(
         - begin_date (Date): 集計開始日（週の初日）、月曜日である
         - end_date (Date): 集計終了日（週の末日、=report_date）
         - report_date (Date): 集計期間の末日、日曜日である
-        - quarter (String): report_dateの四半期（例: "2024Q1"）
         - period_date (Int16): 集計日数(通常は7, 稀に14)
         - hw (String): ゲームハードの識別子
         - units (Int64): 週次販売台数
@@ -91,6 +105,22 @@ def extract_by_date(
         - launch_date (Date): 発売日
         - maker_name (String): メーカー名
         - full_name (String): ゲームハードの正式名称
+        - q_num (Int8): report_dateの四半期番号（1-4）
+        - fiscal_year (Int16): 4月始まりの会計年度
+        - fiscal_month (Int8): 4月を1とする会計月
+        - index_week (Int32): 発売から何週目か（1始まり）
+        - index_month (Int16): 発売から何ヶ月目か（1始まり）
+        - index_year (Int16): 発売から何年目か（1始まり）
+        - fq_num (Int8): fiscal_year内の四半期番号（1-4）
+        - quarter (String): report_dateの四半期（例: "2024Q1"）
+        - fiscal_quarter (String): report_dateの会計四半期（例: "2025FQ4"）
+        - units_diff (Int64): 同一ハードの前週比販売台数差分
+        - ma4w (Int64): 4週移動平均
+        - ma13w (Int64): 13週移動平均
+        - ma52w (Int64): 52週移動平均
+        - yearly_sum_units (Int64): report_date時点での年次累計販売台数(暦年単位)
+        - yday (Int16): report_dateの日がその年の何日目か（1-366）
+        - yweek (Int16): report_dateがその年の何番目の日曜日か（1-53）
 
     """
     # target_dateがbegin_dateからend_dateの範囲にある行を抽出
@@ -120,7 +150,6 @@ def extract_latest(df: pl.DataFrame, weeks: int = 1) -> pl.DataFrame:
         - begin_date (Date): 集計開始日（週の初日）、月曜日である
         - end_date (Date): 集計終了日（週の末日、=report_date）
         - report_date (Date): 集計期間の末日、日曜日である
-        - quarter (String): report_dateの四半期（例: "2024Q1"）
         - period_date (Int16): 集計日数(通常は7, 稀に14)
         - hw (String): ゲームハードの識別子
         - units (Int64): 週次販売台数
@@ -138,6 +167,22 @@ def extract_latest(df: pl.DataFrame, weeks: int = 1) -> pl.DataFrame:
         - launch_date (Date): 発売日
         - maker_name (String): メーカー名
         - full_name (String): ゲームハードの正式名称
+        - q_num (Int8): report_dateの四半期番号（1-4）
+        - fiscal_year (Int16): 4月始まりの会計年度
+        - fiscal_month (Int8): 4月を1とする会計月
+        - index_week (Int32): 発売から何週目か（1始まり）
+        - index_month (Int16): 発売から何ヶ月目か（1始まり）
+        - index_year (Int16): 発売から何年目か（1始まり）
+        - fq_num (Int8): fiscal_year内の四半期番号（1-4）
+        - quarter (String): report_dateの四半期（例: "2024Q1"）
+        - fiscal_quarter (String): report_dateの会計四半期（例: "2025FQ4"）
+        - units_diff (Int64): 同一ハードの前週比販売台数差分
+        - ma4w (Int64): 4週移動平均
+        - ma13w (Int64): 13週移動平均
+        - ma52w (Int64): 52週移動平均
+        - yearly_sum_units (Int64): report_date時点での年次累計販売台数(暦年単位)
+        - yday (Int16): report_dateの日がその年の何日目か（1-366）
+        - yweek (Int16): report_dateがその年の何番目の日曜日か（1-53）
     """
     target_date = hs.current_report_date(df)
     if 1 < weeks:
@@ -158,12 +203,11 @@ def extract_total(df: pl.DataFrame, compact: bool = False) -> pl.DataFrame:
     Returns:
         pl.DataFrame: 各ハードの最新の累計値行のDataFrame
 
-        DataFrameのカラム詳細:
+        DataFrameのカラム詳細（compact=Falseの場合）:
         - weekly_id (String): 週次データのID（gamehard_weekly.id）
         - begin_date (Date): 集計開始日（週の初日）、月曜日である
         - end_date (Date): 集計終了日（週の末日、=report_date）
         - report_date (Date): 集計期間の末日、日曜日である
-        - quarter (String): report_dateの四半期（例: "2024Q1"）
         - period_date (Int16): 集計日数(通常は7, 稀に14)
         - hw (String): ゲームハードの識別子
         - units (Int64): 週次販売台数
@@ -181,6 +225,27 @@ def extract_total(df: pl.DataFrame, compact: bool = False) -> pl.DataFrame:
         - launch_date (Date): 発売日
         - maker_name (String): メーカー名
         - full_name (String): ゲームハードの正式名称
+        - q_num (Int8): report_dateの四半期番号（1-4）
+        - fiscal_year (Int16): 4月始まりの会計年度
+        - fiscal_month (Int8): 4月を1とする会計月
+        - index_week (Int32): 発売から何週目か（1始まり）
+        - index_month (Int16): 発売から何ヶ月目か（1始まり）
+        - index_year (Int16): 発売から何年目か（1始まり）
+        - fq_num (Int8): fiscal_year内の四半期番号（1-4）
+        - quarter (String): report_dateの四半期（例: "2024Q1"）
+        - fiscal_quarter (String): report_dateの会計四半期（例: "2025FQ4"）
+        - units_diff (Int64): 同一ハードの前週比販売台数差分
+        - ma4w (Int64): 4週移動平均
+        - ma13w (Int64): 13週移動平均
+        - ma52w (Int64): 52週移動平均
+        - yearly_sum_units (Int64): report_date時点での年次累計販売台数(暦年単位)
+        - yday (Int16): report_dateの日がその年の何日目か（1-366）
+        - yweek (Int16): report_dateがその年の何番目の日曜日か（1-53）
+
+        compact=Trueの場合:
+        - hw (String): ゲームハードの識別子
+        - sum_units (Int64): report_date時点での累計販売台数
+        - report_date (Date): 集計期間の末日、日曜日である
     """
     df = (
         df.sort(["hw", "sum_units"])  # sum_units昇順でソート

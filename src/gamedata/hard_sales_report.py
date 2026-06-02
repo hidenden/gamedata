@@ -91,10 +91,9 @@ def units_by_date_hw_table(
     Returns:
         pd.io.formats.style.Styler: スタイル適用済みのStylerオブジェクト
 
-    以下のコメントは後で削除､現在は実装の参考のために残す
-        DataFrameのカラム構成:
-        - index: 集計日 (datetime64), ハード (string): 日付とハード名のマルチインデックス
-        - columns: 販売台数 (int64), 累計台数 (int64)
+        Stylerの表示構成:
+        - index: 集計日 (date), ハード (string): 日付とハード名のマルチインデックス
+        - columns: 販売台数 (int64), 前週差 (int64), 累計台数 (int64), 週数 (int32)
     """
     # beginの1週間前の日付を得る
 
@@ -153,12 +152,12 @@ def _build_periodic_ranking(
         headers: 出力に含めるヘッダー列のリスト
 
     Returns:
-        pl.DataFrame: ランキングデータのDataFrame。インデックスは順位（1から開始）
+        pl.DataFrame: ランキングデータのDataFrame。
 
         DataFrameのカラム構成（headersとsort_columnにより変動）:
-        - 週間: 集計日, ハード/メーカー, 週間販売台数
-        - 月間: 年, 月, ハード/メーカー, 月間販売台数
-        - 年間: 年, ハード/メーカー, 年間販売台数
+        - 週間: 順位, 集計日, ハード/メーカー, 週間販売台数
+        - 月間: 順位, 年, 月, ハード/メーカー, 月間販売台数
+        - 年間: 順位, 年, ハード/メーカー, 年間販売台数
     """
     df_all = hs.load_hard_sales()
     if (not hw) and maker:
@@ -224,8 +223,10 @@ def weekly_sales_ranking(
         pl.DataFrame: 週間ランキングのDataFrame
 
         DataFrameのカラム構成:
-        - index: 順位（1から開始）
-        - columns: 集計日 (datetime64), ハード/メーカー (string), 週間販売台数 (int64)
+        - 順位 (Int16): 順位（1から開始）
+        - 集計日 (Date): 集計期間の末日
+        - ハード/メーカー (String): ハード名またはメーカー名
+        - 週間販売台数 (Int64): 週次販売台数
     """
     return _build_periodic_ranking(
         rank_n=rank_n,
@@ -257,11 +258,14 @@ def monthly_sales_ranking(
         maker: メーカー名リスト（空の場合は全メーカー）
 
     Returns:
-        pd.DataFrame: 月間ランキングのDataFrame
+        pl.DataFrame: 月間ランキングのDataFrame
 
         DataFrameのカラム構成:
-        - index: 順位（1から開始）
-        - columns: 年 (int64), 月 (int64), ハード/メーカー (string), 月間販売台数 (int64)
+        - 順位 (Int16): 順位（1から開始）
+        - 年 (Int16): report_dateの年
+        - 月 (Int16): report_dateの月
+        - ハード/メーカー (String): ハード名またはメーカー名
+        - 月間販売台数 (Int64): 月次販売台数
     """
     return _build_periodic_ranking(
         rank_n=rank_n,
@@ -293,11 +297,13 @@ def yearly_sales_ranking(
         maker: メーカー名リスト（空の場合は全メーカー）
 
     Returns:
-        pd.DataFrame: 年間ランキングのDataFrame
+        pl.DataFrame: 年間ランキングのDataFrame
 
         DataFrameのカラム構成:
-        - index: 順位（1から開始）
-        - columns: 年 (int64), ハード/メーカー (string), 年間販売台数 (int64)
+        - 順位 (Int16): 順位（1から開始）
+        - 年 (Int16): report_dateの年
+        - ハード/メーカー (String): ハード名またはメーカー名
+        - 年間販売台数 (Int64): 年次販売台数
     """
     return _build_periodic_ranking(
         rank_n=rank_n,
@@ -322,11 +328,11 @@ def delta_week_ranking(delta_week: int) -> pl.DataFrame:
         pl.DataFrame: 経過週数時点での累計販売台数ランキングのDataFrame
 
         DataFrameのカラム構成:
-        - 順位（1から開始）
-        - 集計日 (datetime64)
-        - 週数 (int64)
-        - ハード (string)
-        - 累計台数 (int64)
+        - 順位 (Int16): 順位（1から開始）
+        - 集計日 (Date): 集計期間の末日
+        - 週差 (Int32): 発売日からの経過週数
+        - ハード (String): ゲームハードの正式名称
+        - 累計台数 (Int64): 累計販売台数
     """
 
     df = hs.load_hard_sales()

@@ -91,5 +91,40 @@ def ns2_ps5_cumulative_difference_chart():
     return
 
 
+@app.cell
+def _():
+    _chart = g.chart_line_cumulative(
+        hw=["NS2", "PS5"],
+        begin=datetime(2025, 4, 20),
+        annotation_level=15,
+        multi_line=True,
+        mode="week",
+    )
+    _chart = g.chart_line_guide(
+        base_chart=_chart,
+        x=date(2026, 5, 28),
+        y=5833462,
+        x2=date(2026, 12, 31),
+        y2=8350000,
+        stroke=[5, 4],
+        size=2,
+        color="#af0000",
+    )
+    _chart = g.chart_line_guide(
+        base_chart=_chart,
+        x=date(2026, 5, 28),
+        y=7567489,
+        x2=date(2026, 12, 31),
+        y2=8100000,
+        stroke=[5, 4],
+        size=2,
+        color="#0040a0",
+    )   
+
+    chart_cumulative = mo.ui.altair_chart(_chart)
+    chart_cumulative
+    return
+
+
 if __name__ == "__main__":
     app.run()
