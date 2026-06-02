@@ -34,7 +34,7 @@ def md_alt_title():
 @app.cell
 def load_hard_sales():
     df_all = g.load_hard_sales()
-    return
+    return (df_all,)
 
 
 @app.cell(hide_code=True)
@@ -95,8 +95,8 @@ def ns2_ps5_cumulative_difference_chart():
 def _():
     _chart = g.chart_line_cumulative(
         hw=["NS2", "PS5"],
-        begin=datetime(2025, 4, 20),
-        annotation_level=15,
+        begin=datetime(2025, 3, 20),
+        annotation_level=30,
         multi_line=True,
         mode="week",
     )
@@ -104,8 +104,8 @@ def _():
         base_chart=_chart,
         x=date(2026, 5, 28),
         y=5833462,
-        x2=date(2026, 12, 31),
-        y2=8350000,
+        x2=date(2027, 1, 31),
+        y2=8600000,
         stroke=[5, 4],
         size=2,
         color="#af0000",
@@ -114,7 +114,7 @@ def _():
         base_chart=_chart,
         x=date(2026, 5, 28),
         y=7567489,
-        x2=date(2026, 12, 31),
+        x2=date(2027, 1, 31),
         y2=8100000,
         stroke=[5, 4],
         size=2,
@@ -123,6 +123,20 @@ def _():
 
     chart_cumulative = mo.ui.altair_chart(_chart)
     chart_cumulative
+    return
+
+
+@app.cell
+def _(df_all):
+    _m13w = g.extract_latest(df_all).filter(pl.col("hw") == "NS2")["ma13w"].item()
+    _m13w
+    return
+
+
+@app.cell
+def _(df_all):
+    _m13w = g.extract_latest(df_all).filter(pl.col("hw") == "PS5")["ma13w"].item()
+    _m13w
     return
 
 
