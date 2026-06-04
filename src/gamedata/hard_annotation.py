@@ -26,6 +26,26 @@ def load_hard_annotation(no_cache: bool = False) -> pl.DataFrame:
     Returns:
         pl.DataFrame: ハードウェアアノテーションデータのDataFrame。
 
+        DataFrameのカラム構成:
+        - id (Int64): アノテーションのID
+        - annotation_date (Date): アノテーション登録日
+        - hw (String): ゲームハードの識別子
+        - note (String): アノテーションの内容
+        - level (Int64): アノテーションのレベル
+        - report_date (Date): 対象の集計日
+        - launch_date (Date): 発売日
+        - delta_week (Int32): 発売日から何週間後か
+        - year (Int32): report_dateの年
+        - month (Int8): report_dateの月
+        - delta_year (Int32): 発売年から何年後か
+        - delta_month (Int32): 発売日から何ヶ月後か
+        - q_num (Int8): report_dateの四半期番号（1-4）
+        - fiscal_year (Int16): 4月始まりの会計年度
+        - fiscal_month (Int8): 4月を1とする会計月
+        - index_week (Int32): 発売から何週目か（1始まり）
+        - index_month (Int16): 発売から何ヶ月目か（1始まり）
+        - index_year (Int16): 発売から何年目か（1始まり）
+        - fq_num (Int8): fiscal_year内の四半期番号（1-4）
     """
     global _annotation_dataframe
 
@@ -195,11 +215,13 @@ def join_annotation(
     level (int): 取得するアノテーションの最大レベル。デフォルトは50で、1から50の範囲で指定する必要があります。
 
     Returns:
-    pl.DataFrame: フィルタリングされたハードウェアアノテーションのDataFrame。追加されるカラムは以下の通りです。
-        - id (Int32): アノテーションのID
-        - hw (String): ゲームハードの識別子
+    pl.DataFrame: sales_dfにアノテーション情報を左結合したDataFrame。追加される主なカラムは以下の通りです。
+        - id (Int64): アノテーションのID
+        - annotation_date (Date): アノテーション登録日
         - note (String): アノテーションの内容
-        - level (Int32): アノテーションのレベル
+        - level (Int64): アノテーションのレベル
+        - launch_date_right (Date): アノテーション側の発売日（sales_dfにlaunch_dateがある場合）
+        - *_right: sales_dfと重複するアノテーション側の日付・相対日付カラム
     """
 
     def contains_all(main_list: list[str], required: list[str]) -> bool:

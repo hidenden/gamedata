@@ -28,6 +28,9 @@ from .chart_line import (
     chart_line_ycumulative,
     chart_line_ycumulative_by_hw_year,
 )
+from .chart_heatmap import (
+    chart_heatmap,
+)
 from .chart_rule import (
     chart_line_guide,
     chart_rule_xy,
@@ -36,20 +39,6 @@ from .hard_annotation import (
     load_hard_annotation,
     summarize_annotation,
     join_annotation,
-)
-from .hard_event import (
-    EVENT_MASK_LONG,
-    EVENT_MASK_MIDDLE,
-    EVENT_MASK_SHORT,
-    EventMasks,
-    add_event_positions,
-    add_event_positions_delta,
-    add_event_positions_delta_long,
-    add_event_positions_long,
-    delta_event,
-    filter_event,
-    load_hard_event,
-    mask_event,
 )
 from .hard_info import (
     get_hard_color,
@@ -134,43 +123,8 @@ from .hard_sales_report import (
     yearly_sales_ranking,
 )
 from .marimo_util import (
-    EventSelect,
     HwSelect,
     MakerSelect,
-)
-from .plot_bar import (
-    plot_delta_yearly_bar,
-    plot_maker_share_bar,
-    plot_monthly_bar_by_hard,
-    plot_monthly_bar_by_hard_year,
-    plot_monthly_bar_by_year,
-    plot_quarterly_bar_by_hard,
-    plot_quarterly_bar_by_hard_year,
-    plot_quarterly_bar_by_year,
-    plot_yearly_bar_by_hard,
-    plot_yearly_bar_by_month,
-)
-from .plot_line import (
-    plot_cumsum_diffs,
-    plot_cumulative_sales,
-    plot_cumulative_sales_by_delta,
-    plot_sales,
-    plot_sales_by_delta,
-    plot_sales_pase_diff,
-    plot_sales_with_offset,
-)
-from .plot_pie import (
-    plot_maker_share_pie,
-)
-from .plot_util import (
-    AxisLabels,
-    TickParams,
-    get_dispfunc,
-    get_figsize,
-    get_transparent_mode,
-    set_dispfunc,
-    set_figsize,
-    set_transparent_mode,
 )
 from .util import (
     # Utility functions can be added here

@@ -10,7 +10,7 @@ from .mode import Mode, parse_mode
 
 
 def sales_long(
-    src_df: pl.DataFrame,
+    df: pl.DataFrame,
     hw: List[str] = [],
     begin: datetime | date | None = None,
     end: datetime | date | None = None,
@@ -28,14 +28,12 @@ def sales_long(
         pl.DataFrame: long形式の販売台数DataFrame
 
         DataFrameのカラム構成:
-        - report_date (Date): 集計期間の末日（日曜日）
-        - hw (String): ゲームハードの識別子
-        - units (Int64): 週次販売台数
+        - load_hard_sales()の全カラム: 指定期間・指定ハードでフィルタリングし、report_date順にソートした販売データ
     """
-    df = hsf.date_filter(src_df, begin=begin, end=end)
+    df = hsf.date_filter(df, begin=begin, end=end)
     if len(hw) > 0:
         df = df.filter(pl.col("hw").is_in(hw))
-    return df.select(["report_date", "hw", "units"]).sort("report_date")
+    return df.sort("report_date")
 
 
 def monthly_sales_long(
@@ -58,8 +56,9 @@ def monthly_sales_long(
 
         DataFrameのカラム構成:
         - year_month (Date): 月の末日
+        - year_month_str (String): 年月（YYYY-MM形式）
         - year (Int16): 年
-        - month (Int8): 月
+        - month (Int16): 月
         - hw (String): ゲームハードの識別子
         - monthly_units (Int64): 月次販売台数
     """
@@ -141,11 +140,12 @@ def yearly_sales_long(
         - year (Int16): report_dateの年
         - hw (String): ゲームハードの識別子
         - yearly_units (Int64): 年次販売台数
+        - sum_units (Int64): その年時点での累計販売台数
     """
     df = hsf.yearly_sales(df, begin=begin, end=end)
     if len(hw) > 0:
         df = df.filter(pl.col("hw").is_in(hw))
-    return df.select(["year", "hw", "yearly_units"]).sort("year")
+    return df.sort("year")
 
 
 def cumulative_sales_long(
@@ -171,9 +171,7 @@ def cumulative_sales_long(
         pl.DataFrame: long形式の累計販売台数DataFrame
 
         DataFrameのカラム構成:
-        - report_date (Date): 集計期間の末日（日曜日）
-        - hw または full_name (String): ゲームハードの識別子またはフルネーム
-        - sum_units (Int64): 累計販売台数
+        - load_hard_sales()の全カラム: 指定modeの期間末行に絞り込んだ累計販売データ（mode="week"では週次全行）
     """
     df = hsf.date_filter(df, begin=begin, end=end)
     if len(hw) > 0:
@@ -185,7 +183,7 @@ def cumulative_sales_long(
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.WEEK:
         return long_df
-    
+
     if mode_enum == Mode.MONTH:
         partition_cols = ["hw", "year", "month"]
     elif mode_enum == Mode.QUARTER:
@@ -199,15 +197,15 @@ def cumulative_sales_long(
     else:
         raise ValueError("modeは'week', 'month', 'year'のいずれかを指定してください。")
 
-    long_df = (long_df
-               .with_columns(
-                   pl.col(name="sum_units").max().over(partition_cols).alias("max_units")
-               )
-               .filter(pl.col("sum_units") == pl.col("max_units"))
-               .drop("max_units")
-               .sort(by=["report_date"])
-               )
-    return long_df      
+    long_df = (
+        long_df.with_columns(
+            pl.col(name="sum_units").max().over(partition_cols).alias("max_units")
+        )
+        .filter(pl.col("sum_units") == pl.col("max_units"))
+        .drop("max_units")
+        .sort(by=["report_date"])
+    )
+    return long_df
 
 
 def sales_by_delta_long(
@@ -236,6 +234,9 @@ def sales_by_delta_long(
         - delta_week (Int32): 発売日からの経過週数（modeが"week"の場合）
         - delta_month (Int16): 発売日からの経過ヶ月数（modeが"month"の場合）
         - delta_year (Int16): 発売年からの経過年数（modeが"year"の場合）
+        - index_week (Int32): 発売から何週目か（modeが"week"の場合）
+        - index_month (Int16): 発売から何ヶ月目か（modeが"month"の場合）
+        - index_year (Int16): 発売から何年目か（modeが"year"の場合）
         - hw または full_name (String): ゲームハードの識別子またはフルネーム
         - units (Int64): 販売台数
     """
@@ -289,8 +290,10 @@ def sales_with_offset_long(
 
         DataFrameのカラム構成:
         - offset_week (Int32): 各期間の開始日からの経過週数
-        - label (String): ハードウェアのラベル
         - units (Int64): 週次販売台数
+        - report_date (Date): 集計期間の末日（日曜日）
+        - hw (String): ゲームハードの識別子
+        - label (String): ハードウェアのラベル
     """
     all_data = []
 
@@ -340,11 +343,7 @@ def yearly_cumulative_long(
         pl.DataFrame: long形式のDataFrame
 
         DataFrameのカラム構成:
-        - yday (Int16): Year of Date, 各期間の開始日からの経過日数
-        - year (Int16): report_dateの年
-        - hw (String): ゲームハードの識別子
-        - yearly_sum_units (Int64): 年次累積販売台数
-        - report_date (Date): 集計日 (イベント情報等との結合用)
+        - load_hard_sales()の全カラム: 指定年・指定yday範囲でフィルタリングした年次累積販売データ
     """
     if len(hw) > 0:
         df = df.filter(pl.col("hw").is_in(hw))
@@ -379,12 +378,8 @@ def yearly_cumulative_by_hwy_long(
         pl.DataFrame: long形式のDataFrame
 
         DataFrameのカラム構成:
-        - yday (Int16): Year of Date, 各期間の開始日からの経過日数
-        - year (Int16): report_dateの年
-        - hw (String): ゲームハードの識別子
-        - label (String): ハードウェアのラベル ("{hw}:{year}"の形式)
-        - yearly_sum_units (Int64): 年次累積販売台数
-        - report_date (Date): 集計日 (イベント情報等との結合用)
+        - load_hard_sales()の全カラム: 指定ハード・指定年・指定yday範囲でフィルタリングした年次累積販売データ
+        - label (String): ハードウェアのラベル（"{hw}:{year}"の形式）
     """
     all_data = []
 
@@ -428,6 +423,9 @@ def cumulative_sales_by_delta_long(
         - delta_week (Int32): 発売日からの経過週数（modeが"week"の場合）
         - delta_month (Int16): 発売日からの経過ヶ月数（modeが"month"の場合）
         - delta_year (Int16): 発売年からの経過年数（modeが"year"の場合）
+        - index_week (Int32): 発売から何週目か（modeが"week"の場合）
+        - index_month (Int16): 発売から何ヶ月目か（modeが"month"の場合）
+        - index_year (Int16): 発売から何年目か（modeが"year"の場合）
         - hw (String): ゲームハードの識別子
         - sum_units (Int64): 累計販売台数
     """
@@ -477,8 +475,8 @@ def maker_long(
         - year (Int16): report_dateの年
         - maker_name (String): メーカー名
         - yearly_units (Int64): 年次販売台数
-        - yearly_percentage (Float64): 年次販売台数のシェア()
-        （同年の全ハードウェアの年次販売台数に対する割合のパーセント）
+        - yearly_ratio (Float64): 年次販売台数のシェア（0.0〜1.0）
+        - yearly_pct (Float64): 年次販売台数のシェア（パーセント）
     """
     begin = None if begin_year is None else datetime(begin_year, 1, 1)
     end = None if end_year is None else datetime(end_year, 12, 31)

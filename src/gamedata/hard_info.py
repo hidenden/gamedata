@@ -10,6 +10,12 @@ def load_hard_info() -> pl.DataFrame:
 
     Returns:
         pl.DataFrame: ハード情報
+
+        DataFrameのカラム構成:
+        - id (String): ゲームハードの識別子
+        - launch_date (Date): 発売日
+        - maker_name (String): メーカー名
+        - full_name (String): ゲームハードの正式名称
     """
     # SQLite3データベースに接続
     conn = sqlite3.connect(DB_PATH)

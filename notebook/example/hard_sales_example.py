@@ -5,14 +5,14 @@ app = marimo.App(width="medium")
 
 
 @app.cell
-def _():
+def calc_cell_01():
     import marimo as mo
 
     return (mo,)
 
 
 @app.cell
-def _():
+def calc_cell_02():
     # 標準ライブラリ
     import os
     import sys
@@ -30,7 +30,7 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_hard_sales(mo):
     mo.md(r"""
     # hard_sales
     """)
@@ -38,7 +38,7 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def md_load_hard_sales(mo):
     mo.md(r"""
     ## load_hard_sales
     """)
@@ -46,14 +46,14 @@ def _(mo):
 
 
 @app.cell
-def _(g, pl):
+def sales_cell(g, pl):
     df_all: pl.DataFrame = g.load_hard_sales()
     df_all
     return (df_all,)
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", pl):
+def sales_all(df_all: "pl.DataFrame", pl):
     ns_df = df_all.filter(
         pl.col("hw") == "NS2").filter(
             pl.col("index_week") <= 45).filter(
@@ -63,7 +63,7 @@ def _(df_all: "pl.DataFrame", pl):
 
 
 @app.cell
-def _(mo):
+def md_current_report_date(mo):
     mo.md(r"""
     ## current_report_date
     """)
@@ -71,14 +71,14 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g):
+def sales_all_2(df_all: "pl.DataFrame", g):
     report_date = g.current_report_date(df_all)
     report_date
     return
 
 
 @app.cell
-def _(mo):
+def md_get_hw(mo):
     mo.md(r"""
     ## get_hw
     """)
@@ -86,13 +86,13 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g):
+def sales_all_3(df_all: "pl.DataFrame", g):
     hw_list = g.get_hw(df_all)
     return (hw_list,)
 
 
 @app.cell
-def _(mo):
+def md_get_active_hw(mo):
     mo.md(r"""
     ## get_active_hw
     """)
@@ -100,7 +100,7 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell(mo):
     # 数値を入力する
     number = mo.ui.number(start=7, stop=3650, step=1, value=365, label="Active HWと判定する範囲(日数)")
     number
@@ -108,14 +108,14 @@ def _(mo):
 
 
 @app.cell
-def _(g, number):
+def number(g, number):
     _hw_active_list = g.get_active_hw(days = number.value)
     _hw_active_list
     return
 
 
 @app.cell
-def _(mo):
+def md_derived_columns(mo):
     mo.md(r"""
     ## derived columns
     """)
@@ -123,14 +123,14 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", pl):
+def sales_all_4(df_all: "pl.DataFrame", pl):
     df_diff: pl.DataFrame = df_all
     df_diff
     return (df_diff,)
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_rolling_mean_columns(mo):
     mo.md(r"""
     ## rolling mean columns
     """)
@@ -138,7 +138,7 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", pl):
+def sales_all_5(df_all: "pl.DataFrame", pl):
     _rolling_df = df_all.select(pl.col("report_date"), 
     pl.col("hw"), pl.col("units"), 
     pl.col("ma4w"), pl.col("ma13w"), pl.col("ma52w"))
@@ -147,7 +147,7 @@ def _(df_all: "pl.DataFrame", pl):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_add_week_number(mo):
     mo.md(r"""
     ## add_week_number
     """)
@@ -155,14 +155,14 @@ def _(mo):
 
 
 @app.cell
-def _(df_diff: "pl.DataFrame", g, pl):
+def sales_diff(df_diff: "pl.DataFrame", g, pl):
     _df2: pl.DataFrame = g.add_week_number(df_diff)
     _df2.columns
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_hard_sales_filter(mo):
     mo.md(r"""
     # hard_sales_filter
     """)
@@ -170,7 +170,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_data_filter(mo):
     mo.md(r"""
     ## data_filter
     """)
@@ -178,14 +178,14 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g):
+def begin_date(begin_date, df_all: "pl.DataFrame", end_date, g):
     _df_filtered = g.date_filter(df_all, begin_date.value, end_date.value)
     _df_filtered
     return
 
 
 @app.cell
-def _(date, mo):
+def ui_cell_2(date, mo):
     begin_date = mo.ui.date(label="開始日", value=date(2017,3,3))
     end_date = mo.ui.date(label="終了日")
     # mo.hstack([begin_date, end_date], justify="start",
@@ -195,7 +195,7 @@ def _(date, mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_weekly_sales(mo):
     mo.md(r"""
     ## weekly_sales
     """)
@@ -203,20 +203,20 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g, maker_mode):
+def begin_date_2(begin_date, df_all: "pl.DataFrame", end_date, g, maker_mode):
     g.weekly_sales(df_all, begin_date.value, end_date.value, maker_mode.value)
     return
 
 
 @app.cell
-def _(mo):
+def ui_cell_3(mo):
     maker_mode = mo.ui.switch(label="メーカー別集計", value=False)
     maker_mode
     return (maker_mode,)
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_monthly_sales(mo):
     mo.md(r"""
     ## monthly_sales
     """)
@@ -224,13 +224,13 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g, maker_mode):
+def begin_date_3(begin_date, df_all: "pl.DataFrame", end_date, g, maker_mode):
     g.monthly_sales(df_all, begin_date.value, end_date.value, maker_mode.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_quartely_sales(mo):
     mo.md(r"""
     ## quartely_sales
     """)
@@ -238,13 +238,13 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g, maker_mode):
+def begin_date_4(begin_date, df_all: "pl.DataFrame", end_date, g, maker_mode):
     g.quarterly_sales(df_all, begin_date.value, end_date.value, maker_mode.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_yarly_sales(mo):
     mo.md(r"""
     ## yarly_sales
     """)
@@ -252,13 +252,13 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g, maker_mode):
+def begin_date_5(begin_date, df_all: "pl.DataFrame", end_date, g, maker_mode):
     g.yearly_sales(df_all, begin_date.value, end_date.value, maker_mode.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_yarly_maker_sales(mo):
     mo.md(r"""
     ## yarly_maker_sales
     """)
@@ -266,13 +266,13 @@ def _(mo):
 
 
 @app.cell
-def _(begin_date, df_all: "pl.DataFrame", end_date, g):
+def begin_date_6(begin_date, df_all: "pl.DataFrame", end_date, g):
     g.yearly_maker_sales(df_all, begin_date.value, end_date.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_delta_yearly_sales(mo):
     mo.md(r"""
     ## delta_yearly_sales
     """)
@@ -280,13 +280,13 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g):
+def sales_all_6(df_all: "pl.DataFrame", g):
     g.delta_yearly_sales(df_all)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_hard_sales_extract(mo):
     mo.md(r"""
     # hard_sales_extract
     """)
@@ -294,7 +294,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_extract_week_reached_units(mo):
     mo.md(r"""
     ## extract_week_reached_units
     """)
@@ -302,7 +302,7 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_4(mo):
     # 数値を入力する
     threshold_number = mo.ui.number(start=1000000, stop=40000000, step=500000, label="しきい値を入力してください")
     threshold_number
@@ -310,13 +310,13 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g, threshold_number):
+def sales_all_7(df_all: "pl.DataFrame", g, threshold_number):
     g.extract_week_reached_units(df_all, threshold_number.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_extract_by_date(mo):
     mo.md(r"""
     ## extract_by_date
     """)
@@ -324,7 +324,7 @@ def _(mo):
 
 
 @app.cell
-def _(date, hw_list, mo):
+def hw_list(date, hw_list, mo):
     hw_options = hw_list
     hw_multiselect = mo.ui.multiselect(options=hw_options, label="ハードウェアを選択してください", value=['NSW', "PS5", "NS2"])
     extract_date = mo.ui.date(label="抽出日を選択してください", value=date(2026, 3, 25))
@@ -334,13 +334,13 @@ def _(date, hw_list, mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", extract_date, g, hw_multiselect):
+def sales_all_8(df_all: "pl.DataFrame", extract_date, g, hw_multiselect):
     g.extract_by_date(df_all, target_date = extract_date.value, hw = hw_multiselect.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_extract_latest(mo):
     mo.md(r"""
     ## extract_latest
     """)
@@ -348,7 +348,7 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_5(mo):
     # 数値を入力する
     latest_weeks = mo.ui.number(start=1, stop=12, step=1, label="週数を入力してください")
     latest_weeks
@@ -356,13 +356,13 @@ def _(mo):
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g, latest_weeks):
+def sales_all_9(df_all: "pl.DataFrame", g, latest_weeks):
     g.extract_latest(df_all, weeks = latest_weeks.value)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_extract_total(mo):
     mo.md(r"""
     ## extract_total
     """)
@@ -370,13 +370,13 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def ui_cell_6(mo):
     compact_flag = mo.ui.checkbox(label="compactモード", value=False)
     return (compact_flag,)
 
 
 @app.cell
-def _(compact_flag, df_all: "pl.DataFrame", g, mo):
+def compact_flag(compact_flag, df_all: "pl.DataFrame", g, mo):
     _df = g.extract_total(df_all, compact = compact_flag.value)
     mo.vstack([
         compact_flag,
@@ -387,7 +387,7 @@ def _(compact_flag, df_all: "pl.DataFrame", g, mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_hard_sales_summary(mo):
     mo.md(r"""
     ## hard_sales_summary
     """)
@@ -395,14 +395,14 @@ def _(mo):
 
 
 @app.cell
-def _(g):
+def cell(g):
     hwselect = g.HwSelect(force_any = True, default_list = ["NS2"])
     hw_widget = hwselect.widget
     return hw_widget, hwselect
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g, hw_widget, hwselect, mo):
+def sales_all_10(df_all: "pl.DataFrame", g, hw_widget, hwselect, mo):
     hw_widget
     _summarys = g.hard_sales_summary(df_all, hw = hwselect.value)
     mo.vstack([
@@ -413,7 +413,7 @@ def _(df_all: "pl.DataFrame", g, hw_widget, hwselect, mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def md_maker_sales_summary(mo):
     mo.md(r"""
     ## maker_sales_summary
     """)
@@ -421,14 +421,14 @@ def _(mo):
 
 
 @app.cell
-def _(g):
+def cell_2(g):
     maker_select = g.MakerSelect(default_list = ["Nintendo"], force_any = True)
     maker_widget = maker_select.widget
     return maker_select, maker_widget
 
 
 @app.cell
-def _(df_all: "pl.DataFrame", g, maker_select, maker_widget, mo):
+def sales_all_11(df_all: "pl.DataFrame", g, maker_select, maker_widget, mo):
     maker_widget
     _maker_summary = g.maker_sales_summary(df_all, makers = maker_select.value)
     mo.vstack([

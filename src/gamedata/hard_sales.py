@@ -94,6 +94,7 @@ def _with_derived_columns(df: pl.DataFrame) -> pl.DataFrame:
         )
         .with_columns(
             pl.col("report_date").dt.ordinal_day().alias("yday").cast(pl.Int16),
+            (pl.col("report_date").dt.strftime("%U").cast(pl.Int16) + 1).alias("yweek"),
         )
     )
 
@@ -115,7 +116,6 @@ def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
         - begin_date (Date): 集計開始日（週の初日）、月曜日である
         - end_date (Date): 集計終了日（週の末日、=report_date）
         - report_date (Date): 集計期間の末日、日曜日である
-        - quarter (String): report_dateの四半期（例: "2024Q1"）
         - period_date (Int16): 集計日数(通常は7, 稀に14)
         - hw (String): ゲームハードの識別子
         - units (Int64): 週次販売台数
@@ -123,30 +123,32 @@ def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
         - year (Int16): report_dateの年
         - month (Int16): report_dateの月
         - mday (Int16): report_dateの日
-        - yday (Int16): report_dateの日がその年の何日目か（1-366）
         - week (Int16): report_dateがその月の何番目の日曜日か
         - delta_day (Int32): 発売日から何日後か
         - delta_week (Int32): 発売日から何週間後か
         - delta_month (Int16): 発売日から何ヶ月後か
         - delta_year (Int16): 発売年から何年後か(同じ年なら0)
+        - avg_units (Int64): 1日あたりの販売台数 (units / period_date)
+        - sum_units (Int64): report_date時点での累計販売台数
+        - launch_date (Date): 発売日
+        - maker_name (String): メーカー名
+        - full_name (String): ゲームハードの正式名称
+        - q_num (Int8): report_dateの四半期番号（1-4）
+        - fiscal_year (Int16): 4月始まりの会計年度（期末年、例：2026年4月〜2027年3月 => 2027）
+        - fiscal_month (Int8): 4月を1とする会計月
         - index_week (Int32): 発売から何週目か（1始まり）
         - index_month (Int16): 発売から何ヶ月目か（1始まり）
         - index_year (Int16): 発売から何年目か（1始まり）
-        - fiscal_year (Int16): 4月始まりの会計年度（期末年、例：2026年4月〜2027年3月 => 2027）
-        - fiscal_month (Int8): 4月を1とする会計月
-        - q_num (Int8): report_dateの四半期番号（1-4）
         - fq_num (Int8): fiscal_year内の四半期番号（1-4）
+        - quarter (String): report_dateの四半期（例: "2024Q1"）
         - fiscal_quarter (String): report_dateの会計四半期（例: "2025FQ4"）
         - units_diff (Int64): 同一ハードの前週比販売台数差分
         - ma4w (Int64): 4週移動平均（直近4週の平均を四捨五入した整数）
         - ma13w (Int64): 13週移動平均（直近13週の平均を四捨五入した整数）
         - ma52w (Int64): 52週移動平均（直近52週の平均を四捨五入した整数）
-        - avg_units (Int64): 1日あたりの販売台数 (units / period_date)
-        - sum_units (Int64): report_date時点での累計販売台数
         - yearly_sum_units (Int64): report_date時点での年次累計販売台数(暦年単位)
-        - launch_date (Date): 発売日
-        - maker_name (String): メーカー名
-        - full_name (String): ゲームハードの正式名称
+        - yday (Int16): report_dateの日がその年の何日目か（1-366）
+        - yweek (Int16): report_dateがその年の何番目の日曜日か（1-53）
     """
     global _hard_sales_cache, _all_hw_list, _all_maker_list
 

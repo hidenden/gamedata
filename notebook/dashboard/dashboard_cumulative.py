@@ -3,18 +3,11 @@ import marimo
 __generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
-
-@app.cell
-def _():
+with app.setup:
     import marimo as mo
 
-    return (mo,)
-
-
-@app.cell
-def _():
     # 標準ライブラリ
-    from datetime import datetime, timedelta, date
+    from datetime import date, datetime, timedelta
 
     # サードパーティライブラリ
     import polars as pl
@@ -22,40 +15,49 @@ def _():
 
     # プロジェクト内モジュール
     import gamedata as g
+
     g.set_dispfunc(func=None)
-    return (g,)
 
 
 @app.cell
-def _(g, mo):
+def ui_end_01():
     end = mo.ui.number(label="累積グラフ週数", value=52, start=10, stop=1000, step=5)
-    event_select = g.EventSelect()
-    event_widget = event_select.widget
+    annotation_level = mo.ui.number(
+        start=1, stop=50, value=20, label="アノテーションレベル"
+    )
     # run_button = mo.ui.run_button(label="更新", kind="success")
-    return end, event_select, event_widget
+    return annotation_level, end
 
 
 @app.cell
-def _(g):
+def ui_hwselect_02():
     hwselect = g.HwSelect(default_list=["NS2", "PS5", "NSW"])
     hw_widget = hwselect.widget
     return hw_widget, hwselect
 
 
 @app.cell
-def _(end, event_select, hwselect, mo):
-    mo.vstack([hwselect, event_select, end])
+def annotation_level(annotation_level, end, hwselect):
+    mo.vstack([hwselect, annotation_level, end])
     return
 
 
 @app.cell
-def _(end, event_select, event_widget, g, hw_widget, hwselect, mo):
+def annotation_level_2(annotation_level, end, hw_widget, hwselect):
     # mo.stop(not run_button.value)
     hw_widget
-    event_widget
-    _fig1 = g.chart_line_cumulative(hwselect.value, event_mask=event_select.value)
-    (_fig2, _df2) = g.plot_cumulative_sales_by_delta(hw=hwselect.value, end=end.value, event_mask = event_select.value)
-    mo.vstack([_fig1, _fig2, _df2])
+    _chart1 = g.chart_line_cumulative(
+        hw=hwselect.value,
+        annotation_level=annotation_level.value,
+        multi_line=True,
+    )
+    _chart2 = g.chart_line_cumulative_delta(
+        hw=hwselect.value,
+        end=end.value,
+        annotation_level=annotation_level.value,
+        multi_line=True,
+    )
+    mo.vstack([_chart1, _chart2])
     return
 
 

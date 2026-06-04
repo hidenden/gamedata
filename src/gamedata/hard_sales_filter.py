@@ -134,8 +134,11 @@ def quarterly_sales(
 
         DataFrameのカラム詳細:
         - quarter (String): report_dateの四半期（例: "2024Q1"）
+        - fiscal_quarter (String): report_dateの会計四半期（例: "2025FQ4"）
         - year (Int16): report_dateの年
-        - q_num (Int16): report_dateの四半期番号(1~4)
+        - fiscal_year (Int16): 4月始まりの会計年度
+        - q_num (Int8): report_dateの四半期番号(1~4)
+        - fq_num (Int8): fiscal_year内の四半期番号(1~4)
         - hw (String): ゲームハードの識別子 (maker_mode=Falseの場合)
         - maker_name (String): メーカー名 (maker_mode=Trueの場合)
         - quarterly_units (Int64): 四半期販売台数

@@ -32,7 +32,6 @@ def pivot_sales(
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
-        full_name: フルネームを使用するかどうか
 
     Returns:
         pl.DataFrame: report_dateをカラム、hwを列、unitsを値とするピボットテーブル
@@ -63,10 +62,10 @@ def pivot_monthly_sales(
         end: 集計終了日
 
     Returns:
-        pl.DataFrame: year, monthをカラム、hwを列、monthly_unitsを値とするピボットテーブル
+        pl.DataFrame: monthをカラム、hwを列、monthly_unitsを値とするピボットテーブル
 
         DataFrameのカラム構成:
-        - month (Date): 月の末日
+        - month (Int16): report_dateの月
         - 各hw (Int64): ゲームハード別の月次販売台数
     """
     long_df = monthly_sales_long(df, hw=hw, begin=begin, end=end)
