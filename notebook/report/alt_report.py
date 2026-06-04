@@ -119,7 +119,7 @@ def _():
         stroke=[5, 4],
         size=2,
         color="#0040a0",
-    )   
+    )
 
     chart_cumulative = mo.ui.altair_chart(_chart)
     chart_cumulative
@@ -137,6 +137,68 @@ def _(df_all):
 def _(df_all):
     _m13w = g.extract_latest(df_all).filter(pl.col("hw") == "PS5")["ma13w"].item()
     _m13w
+    return
+
+
+@app.cell
+def md_ps5_sales_weeks_title(ps5_info):
+    ps5_weeks = ps5_info["sales_weeks"]
+    mo.md(f"### PS5:{ps5_weeks}週目の状況")
+    return
+
+
+@app.cell
+def ps5_cumulative_delta_chart(ps5_info):
+    _chart = g.chart_line_cumulative_delta(
+        hw=["PS5", "PS4", "PS3"],
+        end=ps5_info["sales_weeks"] + 60,
+        mode="week",
+        multi_line=True,
+        annotation_level=15,
+    )
+
+    _chart = g.chart_rule_xy(
+        base_chart=_chart,
+        x=ps5_info["sales_weeks"],
+        y=ps5_info["total_units"],
+        stroke=[5, 2],
+        size=2,
+        color="#00000060",
+    )
+
+    _chart = g.chart_line_guide(
+        base_chart=_chart,
+        x=ps5_info["sales_weeks"],
+        y=ps5_info["total_units"],
+        x2=ps5_info["sales_weeks"] + 60,
+        y2=8200000,
+        stroke=[3, 3],
+        size=2,
+        color="#4060f0",
+    )
+
+    ps_cd_chart = mo.ui.altair_chart(_chart)
+    ps_cd_chart
+    return (ps_cd_chart,)
+
+
+@app.cell
+def ps5_cumulative_delta_table(ps_cd_chart):
+    _df = (
+        ps_cd_chart.dataframe.filter(pl.col("delta_week") == 284)
+        .select(["hw", "sum_units"])
+        .sort("sum_units", descending=True)
+    )
+    g.style_df(g.rename_columns(_df), bar=True)
+    return
+
+
+@app.cell(hide_code=True)
+def md_ps5_cumulative_delta_1():
+    mo.md(r"""
+    PS5は､PS4,PS3に比べて販売ペースが遅い状態で安定しています｡
+    PS5 DE日本語版が日本のゲーム機最安値となったことでブースト効果があるのかどうかが注目されます｡
+    """)
     return
 
 

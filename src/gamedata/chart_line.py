@@ -1,5 +1,5 @@
 # 標準ライブラリ
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import List
 
 import altair as alt
@@ -52,7 +52,9 @@ def _chart_line_sales(
     if "note" in src_df.columns:
         annotation_chart = (
             base_chart.transform_filter(alt.datum.note != None)
-            .mark_text(align="center", baseline="bottom", dx=5, dy=-10, angle=text_angle)
+            .mark_text(
+                align="center", baseline="bottom", dx=5, dy=-10, angle=text_angle
+            )
             .encode(text="note:N")
         )
         chart += annotation_chart
@@ -141,9 +143,13 @@ def chart_line_sales(
         title = "年次販売台数"
     elif mode_enum == Mode.WEEK:
         df = hsl.sales_long(src_df, hw=hw, begin=begin, end=end)
+        x_min = df["report_date"].min()
+        x_max = df["report_date"].max() + timedelta(days=7)  # 1週間の余裕を持たせる
+        scale = alt.Scale(domain=[x_min, x_max])
         alt_x = alt.X(
             "report_date:T",
             title="日付",
+            scale=scale,
             axis=alt.Axis(
                 format={
                     "year": "%Y",
