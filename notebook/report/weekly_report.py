@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.5"
+__generated_with = "0.23.6"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -54,7 +54,7 @@ def report_setup(is_publish):
     [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
         df_all, hw=["NS2", "PS5", "NSW"]
     )
-    return df_all, ns2_info, ps5_info, report_date, show_title
+    return df_all, ns2_info, report_date, show_title
 
 
 @app.cell
@@ -76,7 +76,7 @@ def md_prologue():
 @app.cell(hide_code=True)
 def md_weekly_summary_title():
     mo.md(r"""
-    ## 直近4週間のハード売り上げ／累計推移
+    ## 直近4週間のハード売上／累計推移
     """)
     return
 
@@ -93,26 +93,13 @@ def units_by_date_hw_table(df_all: pl.DataFrame, report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_summary_1():
     mo.md(r"""
-    Switch2日本語版の値上げ直前の週販です｡
-    非常に強い駆け込み需要により先週から3万台増加し24万7千台を販売しました｡
-    これは歴代2位の記録です｡
-    """)
-    return
+    Switch2日本語版の値上げ直後の週販は､前週から21万台減の31,751台でした｡
+    これはSwitch2の週販ワースト記録です｡これまでのワーストは2025年8月24日の35,359台でした｡
+    これはSwitch2の品薄時期の週販で､これまで唯一4万台を割り込んだ記録でした｡
+    一方､今回は在庫十分のまま4万台を割り込んだ初のケースです｡
 
-
-@app.cell
-def weekly_sales_ranking():
-    g.style_df(g.weekly_sales_ranking(rank_n=10, hw=["NS2"]))
-    return
-
-
-@app.cell(hide_code=True)
-def md_weekly_summary_2():
-    mo.md(r"""
-    Switch2の駆け込み需要は年末商戦を超える勢いでした｡
-    値上げを商戦期に転換する任天堂の作戦勝ちです｡
-    来週以降はしばらくこの反動があります｡2万台前後の水準が一ヶ月程度続く可能性があります｡
-    ただビッグタイトルがリリースされるタイミングで販売台数は戻ってくるでしょう｡
+    今後､Nintendo Direct, Star Fox, スプラトゥーン・レイダース, ELDEN RINGなどで
+    話題性を高めて販売数を回復していくことが期待されます｡
     """)
     return
 
@@ -120,16 +107,16 @@ def md_weekly_summary_2():
 @app.cell(hide_code=True)
 def md_weekly_summary_3():
     mo.md(r"""
-    Switchは半減して1万台を割り込みました｡
-    来週以降､値上げの影響で落ち込むのは間違いないと思いますが､
-    SwitchはSwitch2と異なり､落ち込んだらそのまま低下し､販売数が戻らない可能性も高く､PS5を下回る週が増えるでしょう｡
+    Switchの6,201台も最低記録です｡これまでの最低は2026年2月8日の8,892台でした｡一気に2,000台以上減少しました｡
+    Switchの場合は値上げと在庫不足のダブルパンチで大きく減少したと考えられます｡
+    この先､回復していくのかどうか､このまま終息に向かうのか注目されます｡
 
-    PS5も減少して9000台を割り込みました｡
-    しかし､次回集計からは『日本最安値のゲーム機』となるので､その効果が現れるか注目です｡
+    PS5も減少して8,373台となりました｡ゲーム機最安値(日本語版)のチャンスを活かせていません｡
+    「価格」はゲーム機の機種選択において関係ないとまでは言えませんが､支配的な要因ではないのでしょう｡
+    PS5DE日本語版の低価格を維持する必要があるのかどうか､疑問を感じる結果です｡
 
-    Xbox Series X|Sが倍増しました｡
-    Forza Horizon 6の影響が強く現れていると考えられます｡
-    FH6は口コミで評判を広げており､しばらくは好調が続くと良いですね｡
+    Xbox Series X|Sは(比較)好調を維持しています｡
+    Forza Horizon 6の影響が続いています｡
     """)
     return
 
@@ -146,7 +133,9 @@ def md_weekly_sales_trend():
 def weekly_sales_trend(report_date: datetime):
     _begin = g.report_begin(report_date)
     _end = report_date
-    _chart = g.chart_line_sales(hw=["NSW", "NS2", "PS5", "XSX"], begin=_begin, end=_end, annotation_level=32)
+    _chart = g.chart_line_sales(
+        hw=["NSW", "NS2", "PS5", "XSX"], begin=_begin, end=_end, annotation_level=32
+    )
 
     _weekly_chart = mo.ui.altair_chart(_chart)
     mo.hstack(items=[_weekly_chart], justify="start", wrap=True)
@@ -156,10 +145,8 @@ def weekly_sales_trend(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_1():
     mo.md(r"""
-    Switch2駆け込み需要の高いピークが現れています｡
-    ただし､年末商戦とは異なり､来週からは激しい落ち込みが予想されます｡
-    駆け込み需要直前が45000台前後だったので､ここから半減の2万2千台前後がしばらく続くと予想しますが､
-    こればっかりは分かりませんね｡
+    Switch2の値上げが始まり極端に落ち込みました｡
+    Switch2は週販が極端に動くケースが多く､発売から1年経過しても平常時の週販水準が判別できない状況です｡
     """)
     return
 
@@ -186,8 +173,8 @@ def weekly_sales_trend_2(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_3():
     mo.md(r"""
-    Switch2以外は1万台を割り込む寂しい水準です｡
-    次回集計ではSwitch2,Switchが値上げされます｡PS5へのプラス影響としては現れるか注目です｡
+    Switch2以外はいずれも1万台を割り込み､減少傾向が続く寂しい週販です｡
+    6月は(E3は無くなりましたが)各プラットフォームがプロモーションを強化する月です｡今月は週販が回復していくことを期待したいですね｡
     """)
     return
 
@@ -203,7 +190,7 @@ def md_yearly_cumulative_comparison_title():
 @app.cell(hide_code=True)
 def md_yearly_cumulative_comparison_1():
     mo.md(r"""
-    各年の1月からの累計を比較し､今年が今までと比べてどの程度のペースで販売できているかを比較します｡
+    各年の1月からの累計を比較し、今年が過去と比べてどの程度のペースで販売できているかを確認します。
     """)
     return
 
@@ -217,11 +204,6 @@ def md_ps5_yearly_cumulative_title():
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell
 def ps5_yearly_cumulative_chart():
     _chart = g.chart_line_ycumulative_by_hw_year(
         hw_years=[("PS5", 2024), ("PS5", 2025), ("PS5", 2026)],
@@ -229,8 +211,8 @@ def ps5_yearly_cumulative_chart():
     )
     _chart = g.chart_line_guide(
         _chart,
-        x=139,
-        y=267706,
+        x=151,
+        y=284752,
         x2=365,
         y2=600000,
         stroke=[3, 2],
@@ -245,7 +227,8 @@ def ps5_yearly_cumulative_chart():
 @app.cell(hide_code=True)
 def md_ps5_yearly_cumulative_1():
     mo.md(r"""
-    昨年と同程度で推移しています｡昨年のMHWs牽引分の差がマイナスになっています｡
+    昨年と同程度で推移しています｡
+    昨年はMHWsによる牽引分があったため、その差がマイナス要因になっています。
     11月のGTA6でブーストすれば､年間累計が2025年並になる可能性もあります｡
     """)
     return
@@ -267,10 +250,10 @@ def switch_yearly_cumulative_chart():
     )
     _chart = g.chart_line_guide(
         _chart,
-        x=139,
-        y=427205,
+        x=151,
+        y=442945,
         x2=365,
-        y2=850000,
+        y2=700000,
         stroke=[3, 2],
         size=2,
         color="#ff000080",
@@ -282,7 +265,7 @@ def switch_yearly_cumulative_chart():
 @app.cell(hide_code=True)
 def md_switch_yearly_cumulative_1():
     mo.md(r"""
-    2026年のSwitchは現時点では2025年の6割弱ですが､5月25日の値上げにより､さらにペースが落ちて昨年の半分以下になる可能性が高いです｡
+    5月25日の値上げにより販売ペースが落ちました｡現状のペースだと昨年の半分程度になる可能性が高いです｡
     """)
     return
 
@@ -303,10 +286,10 @@ def _():
     )
     _chart = g.chart_line_guide(
         _chart,
-        x=142,
-        y=2049395,
+        x=151,
+        y=2081146,
         x2=365,
-        y2=4500000,
+        y2=4200000,
         stroke=[3, 2],
         size=2,
         color="#ffa00080",
@@ -318,8 +301,8 @@ def _():
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    2026年のSwitch2販売台数が200万台を超えました｡
-    値上げ後は9月頃(240週)まではゆっくりとした上昇カーブを描くと予想されます｡
+    予想ラインは調整しましたが､正直､この先がどうなっていくかは､今週の結果だけから予想するのは難しいです。
+    この落ち込みがこのまま続くのか､今回が特別な落ち込みなのか､今後の週販の動きに注目する必要があります｡
     """)
     return
 
@@ -337,32 +320,15 @@ def monthly_sales_trend_chart(report_date: datetime):
     _bar = g.chart_bar_sales(begin=datetime(2025, 3, 1), end=report_date, stacked=True)
     bar_chart = mo.ui.altair_chart(_bar)
     bar_chart
-    return (bar_chart,)
+    return
 
 
 @app.cell(hide_code=True)
 def md_monthly_sales_trend_1():
     mo.md(r"""
-    2026年5月の販売台数は795,517台に達しました｡現時点で2025年11月を超えました｡
-    5月はあと1回集計を残しているので80万台を超えるのは確実です｡
-    """)
-    return
-
-
-@app.cell
-def monthly_sales_trend_table(bar_chart, is_publish):
-    if is_publish:
-        mo.stop(True)
-
-    _s = bar_chart.dataframe.pivot(index="year_month", on="hw", values="monthly_units")
-    mo.hstack(items=[_s], justify="start", wrap=True)
-    return
-
-
-@app.cell(hide_code=True)
-def md_may_monthly_sales_comparison_1():
-    mo.md(r"""
-    5月の月間販売台数としてDSブームの2006年､2007年に次ぐ歴代3位の記録になりました｡
+    2026年の5月のハード販売台数が80万台を超えました｡
+    5月の月間販売台数としてDSブームの2006年、2007年に次ぐ歴代3位の記録であり、今後この記録を超えるのは困難でしょう｡
+    Switch2の値上げは年末商戦期に匹敵するピークを作り出しました｡
     """)
     return
 
@@ -373,7 +339,7 @@ def may_monthly_sales_chart():
         month=5, begin_year=2001, end_year=2026, stacked=True
     )
     _chart = g.chart_rule_xy(
-        base_chart=_chart, y=720000, stroke=[10, 3], size=2, color="#00000080"
+        base_chart=_chart, y=843000, stroke=[10, 3], size=2, color="#00000080"
     )
     m_chart = mo.ui.altair_chart(_chart)
     m_chart
@@ -394,7 +360,7 @@ def ns2_monthly_sales_chart(report_date: datetime):
         hw=["NS2"], begin=datetime(2025, 3, 1), end=report_date, stacked=True
     )
 
-    _chart = g.chart_rule_xy(_chart, y=680240, stroke=[2, 3], size=3, color="#d06080")
+    _chart = g.chart_rule_xy(_chart, y=711991, stroke=[2, 3], size=3, color="#d06080")
 
     mo.ui.altair_chart(_chart)
     return
@@ -403,8 +369,8 @@ def ns2_monthly_sales_chart(report_date: datetime):
 @app.cell(hide_code=True)
 def md_ns2_monthly_sales_1():
     mo.md(r"""
-    2026年5月のSwitch2は60万台を軽く突破し68万台に到達しました｡
-    あと2万台で70万台ですが､値上げ直後にどこまで行けるか注目されます｡
+    Switch2は値上げ後も3万台超を販売し､2026年5月の販売台数が71万台を超えました｡
+    第2のロンチとも言える盛り上がりでした｡
     """)
     return
 
@@ -412,7 +378,7 @@ def md_ns2_monthly_sales_1():
 @app.cell(hide_code=True)
 def md_switch_monthly_sales_title():
     mo.md(r"""
-    ### Nintendo Switch:月間販売台数
+    ### Nintendo Switch: 月間販売台数
     """)
     return
 
@@ -444,8 +410,8 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_switch_monthly_sales_1():
     mo.md(r"""
-    先週に続いてSwitchの駆け込み需要は発生していません｡
-    値上げ後の来月以降､本格的な落ち込みが予想されます｡
+    Switchの2026年5月は前年比73%でした｡
+    ここから先は値上げの影響も出るため､さらに落ち込むと予想されます｡
     """)
     return
 
@@ -485,8 +451,9 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ps5_monthly_sales_1():
     mo.md(r"""
-    5月のPS5は快調とは言えませんが､昨年よりはマシな状況です｡
-    あと1回集計があるので､5万台を超える可能性があります｡
+    PS5の5月は5万台を超え､前年比156%と､昨年と比べて好調なペースでした｡
+    ただし、この好調さも今月までで、
+    昨年6月はセールの影響で販売を伸ばしたため､今年の6月は昨年比で落ち込む可能性が高いです｡
     """)
     return
 
@@ -505,7 +472,7 @@ def cumulative_sales_trend_chart(report_date: datetime):
         hw=["NSW", "NS2", "PS5", "XSX"],
         begin=datetime(2017, 3, 1),
         end=report_date,
-        annotation_level=15,
+        annotation_level=12,
         multi_line=True,
         mode="week",
     )
@@ -515,9 +482,52 @@ def cumulative_sales_trend_chart(report_date: datetime):
 
 
 @app.cell(hide_code=True)
+def _():
+    mo.md(r"""
+    ### 累計販売推移(Switch2, PS5拡大)
+    """)
+    return
+
+
+@app.cell
+def _():
+    _chart = g.chart_line_cumulative(
+        hw=["NS2", "PS5"],
+        begin=datetime(2025, 3, 20),
+        annotation_level=30,
+        multi_line=True,
+        mode="week",
+    )
+    _chart = g.chart_line_guide(
+        base_chart=_chart,
+        x=date(2026, 5, 31),
+        y=5865213,
+        x2=date(2027, 1, 31),
+        y2=8400000,
+        stroke=[5, 4],
+        size=2,
+        color="#af000080",
+    )
+    _chart = g.chart_line_guide(
+        base_chart=_chart,
+        x=date(2026, 5, 31),
+        y=7582962,
+        x2=date(2027, 1, 31),
+        y2=8050000,
+        stroke=[5, 4],
+        size=2,
+        color="#0040a080",
+    )
+
+    _chart_ns2_cumulative = mo.ui.altair_chart(_chart)
+    _chart_ns2_cumulative
+    return
+
+
+@app.cell(hide_code=True)
 def md_cumulative_sales_trend_1():
     mo.md(r"""
-    Switch2がPS5に急速に迫っています｡その差は174万台まで縮まりました｡
+    Switch2の値上げ後のトレンドが大きく下がらない限りは2026年内にSwitch2はPS5の国内累計を追い抜くでしょう｡
     """)
     return
 
@@ -525,7 +535,7 @@ def md_cumulative_sales_trend_1():
 @app.cell
 def md_ns2_sales_weeks_title(ns2_info):
     _ns2_weeks = ns2_info["sales_weeks"]
-    mo.md(f"### Switch2:{_ns2_weeks}週目の状況")
+    mo.md(f"### Switch2: {_ns2_weeks}週目の状況")
     return
 
 
@@ -535,7 +545,6 @@ def ns2_cumulative_delta_chart(ns2_info):
         hw=[
             "NS2",
             "NSW",
-            "PS5",
             "3DS",
             "DS",
             "GBA",
@@ -559,94 +568,22 @@ def ns2_cumulative_delta_chart(ns2_info):
         x=ns2_info["sales_weeks"],
         y=ns2_info["total_units"],
         x2=ns2_info["sales_weeks"] + 20,
-        y2=6900000,
+        y2=7000000,
         stroke=[2, 3],
         size=2,
         color="#800000",
     )
     cd_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[cd_chart], justify="start")
-    return (cd_chart,)
-
-
-@app.cell
-def ns2_cumulative_delta_table(cd_chart, ns2_info):
-    _df = (
-        cd_chart.dataframe.filter(pl.col("index_week") == ns2_info["sales_weeks"])
-        .select(["hw", "sum_units"])
-        .sort("sum_units", descending=True)
-    )
-    g.style_df(g.rename_columns(_df), bar=True)
     return
 
 
 @app.cell(hide_code=True)
 def md_ns2_cumulative_delta_1():
     mo.md(r"""
-    駆け込み需要の影響で､Switch2の歴代最速記録は70週目(10月頃)まで続きそうです｡
-    10月に入れば年末モードに突入します｡歴代最速の座をDSに譲るのは年明けになるかも知れません｡
-    """)
-    return
-
-
-@app.cell
-def md_ps5_sales_weeks_title(ps5_info):
-    ps5_weeks = ps5_info["sales_weeks"]
-    mo.md(f"### PS5:{ps5_weeks}週目の状況")
-    return
-
-
-@app.cell
-def ps5_cumulative_delta_chart(ps5_info):
-    _chart = g.chart_line_cumulative_delta(
-        hw=["PS5", "PS4", "PS3"],
-        end=ps5_info["sales_weeks"] + 60,
-        mode="week",
-        multi_line=True,
-        annotation_level=15,
-    )
-
-    _chart = g.chart_rule_xy(
-        base_chart=_chart,
-        x=ps5_info["sales_weeks"],
-        y=ps5_info["total_units"],
-        stroke=[5, 2],
-        size=2,
-        color="#00000060",
-    )
-
-    _chart = g.chart_line_guide(
-        base_chart=_chart,
-        x=ps5_info["sales_weeks"],
-        y=ps5_info["total_units"],
-        x2=ps5_info["sales_weeks"] + 60,
-        y2=8200000,
-        stroke=[3, 3],
-        size=2,
-        color="#4060f0",
-    )
-
-    ps_cd_chart = mo.ui.altair_chart(_chart)
-    ps_cd_chart
-    return (ps_cd_chart,)
-
-
-@app.cell
-def ps5_cumulative_delta_table(ps_cd_chart):
-    _df = (
-        ps_cd_chart.dataframe.filter(pl.col("delta_week") == 284)
-        .select(["hw", "sum_units"])
-        .sort("sum_units", descending=True)
-    )
-    g.style_df(g.rename_columns(_df), bar=True)
-    return
-
-
-@app.cell(hide_code=True)
-def md_ps5_cumulative_delta_1():
-    mo.md(r"""
-    PS5は､PS4,PS3に比べて販売ペースが遅い状態で安定しています｡
-    PS5 DE日本語版が日本のゲーム機最安値となったことでブースト効果があるのかどうかが注目されます｡
+    駆け込み需要の影響で､Switch2の歴代最速記録は当面維持される見込みです｡
+    Switch2値上げ後の販売ペースが明らかになると､予想が変わる可能性はあります｡
+    (このSwitch2の推移､後年見たら絶対年末商戦と誤認して混乱するやつなので､ほんと注意が必要)
     """)
     return
 
@@ -694,7 +631,7 @@ def md_yearly_maker_share_title():
 
 @app.cell
 def yearly_maker_share_chart():
-    _chart = g.chart_hbar_yearly_share_by_maker(2015, 2026)
+    _chart = g.chart_hbar_yearly_share_by_maker(date(2015, 1, 1), date(2026, 12, 31))
     share_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[share_chart], justify="start")
     return
@@ -703,9 +640,8 @@ def yearly_maker_share_chart():
 @app.cell(hide_code=True)
 def md_yearly_maker_share_1():
     mo.md(r"""
-    Switch2の年末商戦級の駆け込み需要の影響で任天堂のシェアが89.6%に達しました｡
-    任天堂が5月に一人年末商戦をやったせいです｡
-    2026年のピークはここでしょう｡この先は徐々に任天堂のシェアが低下し87%程度で落ち着くと思われます｡
+    Switch2とSwitch値上げに伴う販売台数の減少により､任天堂のシェアは89.6%から89.5%に低下しました｡
+    もっと低下するかと思いましたが､PS5も伸びていないので､あまり変化がありませんでした｡
     """)
     return
 
