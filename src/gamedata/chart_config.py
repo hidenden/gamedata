@@ -20,8 +20,8 @@ def publish_theme():
             "axis": {
                 "ticks": True,
                 "grid": True,
-                "labelFontSize": 14,
-                "titleFontSize": 14,
+                "labelFontSize": 11,
+                "titleFontSize": 10,
                 "gridOpacity": 0.7,
             },
             "axisX": {
@@ -29,7 +29,7 @@ def publish_theme():
             },
             # 色分けした際の項目
             "legend": {
-                "labelFontSize": 14,
+                "labelFontSize": 12,
                 "titleFontSize": 12,
             },
             # グラフ上部の文字
@@ -46,8 +46,8 @@ def publish_theme():
             "line": {"strokeWidth": 2},
             "point": {"filled": True, "size": 80, "opacity": 0.7, "fillOpacity": 0.7},
             "title": {
-                "fontSize": 14,
-                "subtitleFontSize": 12,
+                "fontSize": 12,
+                "subtitleFontSize": 11,
             },
             # 図の大きさ
             "view": {"width": 760, "height": 380},

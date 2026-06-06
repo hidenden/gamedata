@@ -63,6 +63,15 @@ def set_page_title(soup: BeautifulSoup) -> BeautifulSoup:
     return soup
 
 
+def set_html_lang(soup: BeautifulSoup) -> BeautifulSoup:
+    html = soup.find("html")
+    if not html:
+        raise Exception("Error: <html> not found")
+
+    html["lang"] = "ja"
+    return soup
+
+
 def insert_og_tags(soup: BeautifulSoup) -> BeautifulSoup:
     head = soup.find("head")
     if not head:
@@ -167,16 +176,19 @@ def main():
     # Phase 3: タイトルの設定
     title_soup: BeautifulSoup = set_page_title(soup)
 
-    # Phase 4
-    og_soup: BeautifulSoup = insert_og_tags(title_soup)
+    # Phase 4: HTML lang 属性の設定
+    lang_soup: BeautifulSoup = set_html_lang(title_soup)
 
     # Phase 5
-    css_soup: BeautifulSoup = insert_css_link(og_soup)
-
-    # Phase 5.5: faviconの削除
-    no_favicon_soup: BeautifulSoup = remove_favicon_link(css_soup)
+    og_soup: BeautifulSoup = insert_og_tags(lang_soup)
 
     # Phase 6
+    css_soup: BeautifulSoup = insert_css_link(og_soup)
+
+    # Phase 7: faviconの削除
+    no_favicon_soup: BeautifulSoup = remove_favicon_link(css_soup)
+
+    # Phase 8
     save_soup(no_favicon_soup)
 
 
