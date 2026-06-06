@@ -1,23 +1,21 @@
 # chart configuration for gamedata project
 import altair as alt
 
-# PNG/SVG保存時の出力解像度を上げる倍率
-ALT_EMBED_SCALE_FACTOR = 2
-ALT_EMBED_OPTIONS = {
-    "actions": {
-        "export": True,
-        "source": False,
-        "compiled": False,
-        "editor": False,
-    },
-    "scaleFactor": ALT_EMBED_SCALE_FACTOR,
-}
-
 
 @alt.theme.register(name="publish", enable=False)
 def publish_theme():
     return {
-        "usermeta": {"embedOptions": ALT_EMBED_OPTIONS},
+        "usermeta": {
+            "embedOptions": {
+                "actions": {
+                    "export": True,
+                    "source": False,
+                    "compiled": False,
+                    "editor": False,
+                },
+                "scaleFactor": 2,
+            }
+        },
         "config": {
             "axis": {
                 "ticks": True,
@@ -60,7 +58,17 @@ def publish_theme():
 @alt.theme.register(name="edit", enable=True)
 def edit_theme():
     return {
-        "usermeta": {"embedOptions": ALT_EMBED_OPTIONS},
+        "usermeta": {
+            "embedOptions": {
+                "actions": {
+                    "export": True,
+                    "source": False,
+                    "compiled": False,
+                    "editor": False,
+                },
+                "scaleFactor": 1,
+            }
+        },
         "config": {
             "axis": {
                 "ticks": True,

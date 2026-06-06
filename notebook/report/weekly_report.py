@@ -135,7 +135,7 @@ def weekly_sales_trend(report_date: datetime):
     _end = report_date
     _chart = g.chart_line_sales(
         hw=["NSW", "NS2", "PS5", "XSX"], begin=_begin, end=_end, annotation_level=32,
-        padding_end = 1,
+        padding_end = 2,
     )
 
     _weekly_chart = mo.ui.altair_chart(_chart)
