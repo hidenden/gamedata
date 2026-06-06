@@ -1,6 +1,6 @@
 # 標準ライブラリ
 from datetime import date, datetime, timedelta
-from typing import List
+from typing import List, Tuple
 
 import altair as alt
 
@@ -29,6 +29,8 @@ def _chart_line_sales(
     tooltip: List[alt.Tooltip] | None = None,
     multi_line: bool = False,
     text_angle: int = 0,
+    size: Tuple[int, int] | None = None,
+    alt_text: alt.Text | None = None,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """売上のチャートを作成する関数
 
@@ -42,7 +44,7 @@ def _chart_line_sales(
     """
     # Y上限の設定
     if ymax is not None:
-        alt_y = alt_y.scale(domain=[ymin, ymax], clamp=True)
+        alt_y = alt_y.scale(domain=[ymin, ymax], zero=True, nice=True)
 
     # チャートの作成
     base_chart = alt.Chart(src_df).encode(x=alt_x, y=alt_y, color=color)
@@ -50,19 +52,28 @@ def _chart_line_sales(
 
     # dfがカラム note を持っている場合は、mark_text()でアノテーション名を表示する
     if "note" in src_df.columns:
+        dy = -10
+        if alt_text is not None:
+            dy = -30
         annotation_chart = (
             base_chart.transform_filter(alt.datum.note != None)
-            .mark_text(
-                align="center", baseline="bottom", dx=5, dy=-10, angle=text_angle
-            )
+            .mark_text(align="center", baseline="bottom", dx=5, dy=dy, angle=text_angle)
             .encode(text="note:N")
         )
         chart += annotation_chart
+
+    if alt_text is not None:
+        number_chart = base_chart.mark_text(
+            align="center", baseline="top", dx=0, dy=-14, fontSize=8
+        ).encode(text=alt_text)
+        chart += number_chart
 
     if title is not None:
         chart = chart.properties(title=title)
     if tooltip is not None:
         chart = chart.encode(tooltip=tooltip)
+    if size is not None:
+        chart = chart.properties(width=size[0], height=size[1])
 
     if multi_line:
         ### Multi-line対応
@@ -108,6 +119,10 @@ def chart_line_sales(
     annotation_level: int | None = None,
     with_point: bool = True,
     multi_line: bool = False,
+    size: Tuple[int, int] | None = None,
+    value_label: bool = False,
+    padding_begin: int = 0,
+    padding_end: int = 0,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """売上のチャートを作成する関数
 
@@ -117,34 +132,38 @@ def chart_line_sales(
         begin: 集計開始日
         end: 集計終了日
         annotation_level: アノテーションレベル（オプション）
+        value_label: 値ラベルを表示するかどうか（オプション）
+        padding_begin: 集計開始日のパディング（オプション）
+        padding_end: 集計終了日のパディング（オプション）
 
     Returns:
-        alt.Chart: 売上のチャート
+        alt.Chart | alt.LayerChart | alt.FacetChart: 売上のチャート
     """
     # データソースの定義
     src_df: pl.DataFrame = hs.load_hard_sales()
 
     mode_enum = parse_mode(mode)
+    unit_col: str = ""
 
     if mode_enum == Mode.MONTH:
         df = hsl.monthly_sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("year_month:T", title="年月")
-        alt_y = alt.Y("monthly_units:Q", title="販売台数")
+        unit_col = "monthly_units"
         title = "月次販売台数"
     elif mode_enum == Mode.QUARTER:
         df = hsl.quarterly_sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("quarter:O", title="四半期")
-        alt_y = alt.Y("quarterly_units:Q", title="販売台数")
+        unit_col = "quarterly_units"
         title = "四半期販売台数"
     elif mode_enum == Mode.YEAR:
         df = hsl.yearly_sales_long(src_df, hw=hw, begin=begin, end=end)
         alt_x = alt.X("year:O", title="年")
-        alt_y = alt.Y("yearly_units:Q", title="販売台数")
+        unit_col = "yearly_units"
         title = "年次販売台数"
     elif mode_enum == Mode.WEEK:
         df = hsl.sales_long(src_df, hw=hw, begin=begin, end=end)
-        x_min = df["report_date"].min()
-        x_max = df["report_date"].max() + timedelta(days=7)  # 1週間の余裕を持たせる
+        x_min = df["report_date"].min() - timedelta(weeks=padding_begin)  # 最初の余白
+        x_max = df["report_date"].max() + timedelta(weeks=padding_end)  # 最後の余白
         scale = alt.Scale(domain=[x_min, x_max])
         alt_x = alt.X(
             "report_date:T",
@@ -159,12 +178,14 @@ def chart_line_sales(
                 }
             ),
         )
-        alt_y = alt.Y("units:Q", title="販売台数")
+        unit_col = "units"
         title = "週次販売台数"
     else:
         raise ValueError(
             "modeは'week', 'month', 'quarter', 'year'のいずれかを指定してください。"
         )
+
+    alt_y = alt.Y(f"{unit_col}:Q", title="販売台数")
 
     # ハードウェアごとの色を取得
     current_hw = hw if hw else hs.get_hw(df)
@@ -177,12 +198,17 @@ def chart_line_sales(
     tooltip = [
         alt.Tooltip("hw:N", title="ハード"),
         alt.Tooltip("report_date:T", title="日付", format="%Y-%m-%d"),
-        alt.Tooltip("units:Q", title="販売台数"),
+        alt.Tooltip(f"{unit_col}:Q", title="販売台数"),
     ]
 
     # アノテーションテーブルの結合
     if annotation_level is not None:
         df = ha.join_annotation(df, level=annotation_level, mode=mode)
+
+    if value_label:
+        alt_text = alt.Text(f"{unit_col}:Q", format=",")
+    else:
+        alt_text = None
 
     # チャートの作成
     return _chart_line_sales(
@@ -196,6 +222,8 @@ def chart_line_sales(
         with_point=with_point,
         multi_line=multi_line,
         tooltip=tooltip,
+        size=size,
+        alt_text=alt_text,
     )
 
 
@@ -205,6 +233,8 @@ def chart_line_weekly_by_hw_date(
     ymax: int | None = None,
     ymin: int = 0,
     multi_line: bool = False,
+    size: Tuple[int, int] | None = None,
+    value_label: bool = False,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """
     各ハードウェアの異なる期間の販売台数推移を、各期間の開始点を揃えてプロットする
@@ -234,6 +264,11 @@ def chart_line_weekly_by_hw_date(
         alt.Tooltip("units:Q", title="販売台数"),
     ]
 
+    if value_label:
+        alt_text = alt.Text("units:Q", format=",")
+    else:
+        alt_text = None
+
     # チャートの作成
     return _chart_line_sales(
         src_df=src_df,
@@ -245,6 +280,8 @@ def chart_line_weekly_by_hw_date(
         color=alt_color,
         tooltip=tooltip,
         multi_line=multi_line,
+        size=size,
+        alt_text=alt_text,
     )
 
 
@@ -257,6 +294,8 @@ def chart_line_cumulative(
     ymax: int | None = None,
     annotation_level: int | None = None,
     multi_line: bool = False,
+    size: Tuple[int, int] | None = None,
+    padding_end: int = 0,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """累計販売台数のチャートを作成する関数
     Args:
@@ -269,12 +308,16 @@ def chart_line_cumulative(
         alt.Chart | alt.LayerChart | alt.FacetChart: 累計販売台数のチャート
     """
     df_all = hs.load_hard_sales()
-    mode_enum = parse_mode(mode)
     src_df = hsl.cumulative_sales_long(df_all, hw=hw, mode=mode, begin=begin, end=end)
+
+    x_min = src_df["report_date"].min()
+    x_max = src_df["report_date"].max() + timedelta(weeks=padding_end)  # 最後の余白
+    scale = alt.Scale(domain=[x_min, x_max])
     alt_x = alt.X(
         "report_date:T",
         title="販売年月",
         axis=alt.Axis(format="%Y-%m", formatType="time"),
+        scale=scale,
     )
     alt_y = alt.Y("sum_units:Q", title="累計販売台数")
     title = "累計販売台数"
@@ -293,12 +336,13 @@ def chart_line_cumulative(
         src_df=src_df,
         alt_x=alt_x,
         alt_y=alt_y,
-        ymax=None,
+        ymax=ymax,
         ymin=ymin,
         color=alt_color,
-        title="累計販売台数",
+        title=title,
         with_point=False,
         multi_line=multi_line,
+        size=size,
     )
 
 
@@ -313,6 +357,7 @@ def chart_line_cumulative_delta(
     index_mode: bool = True,
     with_point: bool = False,
     multi_line: bool = False,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """相対累計販売台数のチャートを作成する関数
     Args:
@@ -369,6 +414,7 @@ def chart_line_cumulative_delta(
         title="相対累計販売台数",
         with_point=with_point,
         multi_line=multi_line,
+        size=size,
     )
 
 
@@ -377,6 +423,7 @@ def chart_line_cumsum_diffs(
     ymax: int | None = None,
     multi_line: bool = False,
     annotation_level: int | None = None,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """複数ハードウェア間の累計販売台数差分を示す折れ線チャートを作成する関数
 
@@ -424,6 +471,7 @@ def chart_line_cumsum_diffs(
         with_point=False,
         tooltip=tooltip,
         multi_line=multi_line,
+        size=size,
     )
 
 
@@ -431,6 +479,7 @@ def chart_line_pase_diffs(
     cmplist: list[tuple[str, str]],
     ymax: int | None = None,
     multi_line: bool = False,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """複数ハードウェア間の販売ペース差を示す折れ線チャートを作成する関数
 
@@ -473,6 +522,7 @@ def chart_line_pase_diffs(
         with_point=False,
         tooltip=tooltip,
         multi_line=multi_line,
+        size=size,
     )
 
 
@@ -484,6 +534,7 @@ def chart_line_ycumulative(
     ymax: int | None = None,
     annotation_level: int | None = None,
     multi_line: bool = False,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """複数のハードウェアの同じ年の年次累積のチャートを作成する関数
     Args:
@@ -526,6 +577,7 @@ def chart_line_ycumulative(
         title=title,
         with_point=True,
         multi_line=multi_line,
+        size=size,
     )
 
 
@@ -536,6 +588,7 @@ def chart_line_ycumulative_by_hw_year(
     ymax: int | None = None,
     annotation_level: int | None = None,
     multi_line: bool = False,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart | alt.LayerChart | alt.FacetChart:
     """複数のハードウェアの異なる年の年次累積のチャートを作成する関数
     Args:
@@ -583,4 +636,5 @@ def chart_line_ycumulative_by_hw_year(
         with_point=True,
         multi_line=multi_line,
         tooltip=tooltip,
+        size=size,
     )

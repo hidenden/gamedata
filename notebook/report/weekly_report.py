@@ -134,7 +134,8 @@ def weekly_sales_trend(report_date: datetime):
     _begin = g.report_begin(report_date)
     _end = report_date
     _chart = g.chart_line_sales(
-        hw=["NSW", "NS2", "PS5", "XSX"], begin=_begin, end=_end, annotation_level=32
+        hw=["NSW", "NS2", "PS5", "XSX"], begin=_begin, end=_end, annotation_level=32,
+        padding_end = 1,
     )
 
     _weekly_chart = mo.ui.altair_chart(_chart)
@@ -154,17 +155,17 @@ def md_weekly_sales_trend_1():
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_2():
     mo.md(r"""
-    ### 週販推移(Switch2以外)
+    ### 週販推移(拡大)
     """)
     return
 
 
 @app.cell
 def weekly_sales_trend_2(report_date: datetime):
-    _begin = date(2026, 2, 1)
+    _begin = date(2026, 1, 15)
     _end = report_date
     _chart = g.chart_line_sales(
-        hw=["NSW", "PS5", "XSX"], begin=_begin, end=_end, annotation_level=50
+        hw=["NSW", "PS5", "XSX", "NS2"], begin=_begin, end=_end, annotation_level=50, ymax=50000, padding_end=1
     )
     mo.hstack(items=[mo.ui.altair_chart(_chart)], justify="start", wrap=True)
     return
@@ -475,6 +476,7 @@ def cumulative_sales_trend_chart(report_date: datetime):
         annotation_level=12,
         multi_line=True,
         mode="week",
+        padding_end = 6,
     )
     chart_cumulative = mo.ui.altair_chart(_chart)
     chart_cumulative
@@ -494,9 +496,11 @@ def _():
     _chart = g.chart_line_cumulative(
         hw=["NS2", "PS5"],
         begin=datetime(2025, 3, 20),
+        end=datetime(2026, 12, 31),
         annotation_level=30,
         multi_line=True,
         mode="week",
+        padding_end=36
     )
     _chart = g.chart_line_guide(
         base_chart=_chart,
@@ -518,6 +522,7 @@ def _():
         size=2,
         color="#0040a080",
     )
+
 
     _chart_ns2_cumulative = mo.ui.altair_chart(_chart)
     _chart_ns2_cumulative
