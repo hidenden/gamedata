@@ -1,6 +1,6 @@
 # 標準ライブラリ
 from datetime import date, datetime
-from typing import List
+from typing import List, Tuple
 
 import altair as alt
 
@@ -27,6 +27,7 @@ def _chart_bar_sales(
     title: str | None = None,
     xoffset: str | None = None,
     tooltip: List[alt.Tooltip] | None = None,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart:
     """売上の棒グラフを作成する内部関数
 
@@ -63,6 +64,9 @@ def _chart_bar_sales(
         chart = chart.encode(xOffset=xoffset)
     if tooltip is not None:
         chart = chart.encode(tooltip=tooltip)
+    if size is not None:
+        chart = chart.properties(width=size[0], height=size[1])
+
     return chart
 
 
@@ -73,6 +77,7 @@ def chart_bar_sales(
     mode: str = "month",
     stacked: bool = False,
     ymax: int | None = None,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart:
     """ハード別の月次売上棒グラフを作成する関数
     Args:
@@ -145,6 +150,7 @@ def chart_bar_sales(
         ymin=0,
         xoffset=xoffset,
         tooltip=tooltip,
+        size=size,
     )
 
 
@@ -154,6 +160,7 @@ def chart_bar_hwsales_by_year(
     end: datetime | date | None = None,
     mode: str = "month",
     ymax: int | None = None,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart:
     """
     指定したハードウェアの月間販売台数を年別に棒グラフで表示する
@@ -207,6 +214,7 @@ def chart_bar_hwsales_by_year(
         ymax=ymax,
         xoffset=xoffset,
         tooltip=tooltip,
+        size=size,
     )
 
 
@@ -272,6 +280,7 @@ def chart_bar_sales_by_hard_year(
     mode: str = "month",
     stacked: bool = False,
     ymax: int | None = None,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart:
     """ハード別の月次売上棒グラフを作成する関数
     Args:
@@ -338,6 +347,7 @@ def chart_bar_sales_by_hard_year(
         ymin=0,
         xoffset=xoffset,
         tooltip=tooltip,
+        size=size,
     )
 
 
@@ -346,6 +356,7 @@ def chart_bar_yearly_delta(
     stacked: bool = False,
     delta_begin: int | None = None,
     delta_end: int | None = None,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart:
     """
     指定した機種の経過年毎販売台数をハード別に棒グラフで表示する
@@ -398,6 +409,7 @@ def chart_bar_yearly_delta(
         title=title,
         tooltip=tooltip,
         xoffset=xoffset,
+        size=size,
     )
 
 
@@ -406,6 +418,7 @@ def chart_bar_month_year(
     begin_year: int | None = None,
     end_year: int | None = None,
     stacked: bool = True,
+    size: Tuple[int, int] | None = None,
 ) -> alt.Chart:
     """
     指定した月の年ごとの移り変わりをメーカーごとの棒グラフで表示する
@@ -454,6 +467,7 @@ def chart_bar_month_year(
         color=alt_color,
         title=title,
         xoffset=xoffset,
+        size=size,
         #        tooltip=tooltip,
     )
 
