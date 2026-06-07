@@ -54,7 +54,7 @@ def report_setup(is_publish):
     [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
         df_all, hw=["NS2", "PS5", "NSW"]
     )
-    return df_all, ns2_info, report_date, show_title
+    return df_all, ns2_info, ps5_info, report_date, show_title
 
 
 @app.cell
@@ -334,19 +334,6 @@ def md_monthly_sales_trend_1():
     return
 
 
-@app.cell
-def may_monthly_sales_chart():
-    _chart = g.chart_bar_month_year(
-        month=5, begin_year=2001, end_year=2026, stacked=True
-    )
-    _chart = g.chart_rule_xy(
-        base_chart=_chart, y=843000, stroke=[10, 3], size=2, color="#00000080"
-    )
-    m_chart = mo.ui.altair_chart(_chart)
-    m_chart
-    return
-
-
 @app.cell(hide_code=True)
 def md_ns2_monthly_sales_title():
     mo.md(r"""
@@ -356,14 +343,27 @@ def md_ns2_monthly_sales_title():
 
 
 @app.cell
-def ns2_monthly_sales_chart(report_date: datetime):
-    _chart = g.chart_bar_sales(
-        hw=["NS2"], begin=datetime(2025, 3, 1), end=report_date, stacked=True
+def _(report_date: datetime):
+    _begin = g.years_ago(report_date)
+    _end = report_date
+    _chart_bar = mo.ui.altair_chart(
+        g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="NS2")
     )
+    ns2_df = _chart_bar.dataframe
+    ns2_df_pivot = ns2_df.pivot(index="month", on="year", values="monthly_units")
+    mo.vstack(items=[_chart_bar], justify="start")
+    return (ns2_df_pivot,)
 
-    _chart = g.chart_rule_xy(_chart, y=711991, stroke=[2, 3], size=3, color="#d06080")
 
-    mo.ui.altair_chart(_chart)
+@app.cell
+def _(ns2_df_pivot, report_date: datetime):
+    _this_year = report_date.year
+    # my_ns2_df2 = ns2_df_pivot.drop(str(_this_year - 2))
+    my_ns2_df2 = ns2_df_pivot
+    my_ns2_df2 = my_ns2_df2.with_columns(
+        YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
+    )
+    g.style_df(g.rename_columns(my_ns2_df2))
     return
 
 
@@ -492,7 +492,7 @@ def _():
 
 
 @app.cell
-def _():
+def _(ns2_info, ps5_info):
     _chart = g.chart_line_cumulative(
         hw=["NS2", "PS5"],
         begin=datetime(2025, 3, 20),
@@ -505,7 +505,7 @@ def _():
     _chart = g.chart_line_guide(
         base_chart=_chart,
         x=date(2026, 5, 31),
-        y=5865213,
+        y=ns2_info["total_units"],
         x2=date(2027, 1, 31),
         y2=8400000,
         stroke=[5, 4],
@@ -515,7 +515,7 @@ def _():
     _chart = g.chart_line_guide(
         base_chart=_chart,
         x=date(2026, 5, 31),
-        y=7582962,
+        y=ps5_info["total_units"],
         x2=date(2027, 1, 31),
         y2=8050000,
         stroke=[5, 4],
