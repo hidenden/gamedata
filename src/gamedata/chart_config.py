@@ -1,29 +1,27 @@
 # chart configuration for gamedata project
 import altair as alt
 
-# PNG/SVG保存時の出力解像度を上げる倍率
-ALT_EMBED_SCALE_FACTOR = 2
-ALT_EMBED_OPTIONS = {
-    "actions": {
-        "export": True,
-        "source": False,
-        "compiled": False,
-        "editor": False,
-    },
-    "scaleFactor": ALT_EMBED_SCALE_FACTOR,
-}
-
 
 @alt.theme.register(name="publish", enable=False)
 def publish_theme():
     return {
-        "usermeta": {"embedOptions": ALT_EMBED_OPTIONS},
+        "usermeta": {
+            "embedOptions": {
+                "actions": {
+                    "export": True,
+                    "source": False,
+                    "compiled": False,
+                    "editor": False,
+                },
+                "scaleFactor": 2,
+            }
+        },
         "config": {
             "axis": {
                 "ticks": True,
                 "grid": True,
-                "labelFontSize": 14,
-                "titleFontSize": 14,
+                "labelFontSize": 11,
+                "titleFontSize": 10,
                 "gridOpacity": 0.7,
             },
             "axisX": {
@@ -31,7 +29,7 @@ def publish_theme():
             },
             # 色分けした際の項目
             "legend": {
-                "labelFontSize": 14,
+                "labelFontSize": 12,
                 "titleFontSize": 12,
             },
             # グラフ上部の文字
@@ -48,8 +46,8 @@ def publish_theme():
             "line": {"strokeWidth": 2},
             "point": {"filled": True, "size": 80, "opacity": 0.7, "fillOpacity": 0.7},
             "title": {
-                "fontSize": 14,
-                "subtitleFontSize": 12,
+                "fontSize": 12,
+                "subtitleFontSize": 11,
             },
             # 図の大きさ
             "view": {"width": 760, "height": 380},
@@ -60,7 +58,17 @@ def publish_theme():
 @alt.theme.register(name="edit", enable=True)
 def edit_theme():
     return {
-        "usermeta": {"embedOptions": ALT_EMBED_OPTIONS},
+        "usermeta": {
+            "embedOptions": {
+                "actions": {
+                    "export": True,
+                    "source": False,
+                    "compiled": False,
+                    "editor": False,
+                },
+                "scaleFactor": 1,
+            }
+        },
         "config": {
             "axis": {
                 "ticks": True,
