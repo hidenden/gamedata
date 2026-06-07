@@ -52,8 +52,8 @@ def _():
         { "hw" : "NSW", "begin": datetime(2017,3,3), "label": "Switch発売後1年"},
         { "hw" : "NS2", "begin": datetime(2025,6,5), "label": "Switch2発売後1年"},
         { "hw" : "PS4", "begin": datetime(2014,2,22), "label": "PS4発売後1年"},
-        { "hw" : "3DS", "begin": datetime(2011,2,26), "label": "3DS発売後1年"},
-        { "hw" : "Wii", "begin": datetime(2006,12,2), "label": "Wii発売後1年"},
+    #    { "hw" : "3DS", "begin": datetime(2011,2,26), "label": "3DS発売後1年"},
+    #    { "hw" : "Wii", "begin": datetime(2006,12,2), "label": "Wii発売後1年"},
     ]
 
     g.chart_line_weekly_by_hw_date(
