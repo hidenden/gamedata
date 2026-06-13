@@ -53,6 +53,11 @@ def chart_heatmap(
         alt_y = alt.Y(shorthand="year:O", title="年", axis=alt.Axis(grid=grid))
         alt_color = alt.Color(shorthand="units:Q", title="販売台数", scale=scale)
         title = "週次ヒートマップ"
+        tooltip = [
+            alt.Tooltip("report_date:T", title="集計日"),
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("units:Q", title="販売台数"),
+        ]
     elif mode_enum == Mode.MONTH:
         src_df = hsl.monthly_sales_long(df_all, hw=hw_key, begin=begin, end=end)
         alt_x = alt.X(shorthand="month:O", title="月", axis=alt.Axis(grid=grid))
@@ -60,6 +65,11 @@ def chart_heatmap(
         alt_color = alt.Color(
             shorthand="monthly_units:Q", title="販売台数", scale=scale
         )
+        tooltip = [
+            alt.Tooltip("year_month_str:N", title="集計年月"),
+            alt.Tooltip("hw:N", title="ハード"),
+            alt.Tooltip("monthly_units:Q", title="販売台数"),
+        ]
         title = "月次ヒートマップ"
     else:
         raise ValueError("modeは 'week'または 'month'のいずれかでなければなりません")
@@ -68,6 +78,7 @@ def chart_heatmap(
         x=alt_x,
         y=alt_y,
         color=alt_color,
+        tooltip=tooltip,
     )
     if alt_row:
         base_chart = base_chart.encode(row=alt_row)
