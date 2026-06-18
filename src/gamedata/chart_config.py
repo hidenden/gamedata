@@ -17,6 +17,7 @@ def publish_theme():
             }
         },
         "config": {
+            "timeFormat": "%Y-%m-%d",
             "axis": {
                 "ticks": True,
                 "grid": True,
@@ -70,6 +71,7 @@ def edit_theme():
             }
         },
         "config": {
+            "timeFormat": "%Y-%m-%d",
             "axis": {
                 "ticks": True,
                 "grid": True,
