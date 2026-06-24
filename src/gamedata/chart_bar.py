@@ -28,6 +28,7 @@ def _chart_bar_sales(
     xoffset: str | None = None,
     tooltip: List[alt.Tooltip] | None = None,
     size: Tuple[int, int] | None = None,
+    order: alt.Order | None = None,
 ) -> alt.Chart:
     """売上の棒グラフを作成する内部関数
 
@@ -64,6 +65,8 @@ def _chart_bar_sales(
         chart = chart.encode(xOffset=xoffset)
     if tooltip is not None:
         chart = chart.encode(tooltip=tooltip)
+    if order is not None:
+        chart = chart.encode(order=order)
     if size is not None:
         chart = chart.properties(width=size[0], height=size[1])
 
@@ -151,6 +154,98 @@ def chart_bar_sales(
         xoffset=xoffset,
         tooltip=tooltip,
         size=size,
+    )
+
+
+def chart_bar_yearly_by_mode(
+    hw: list[str] = [],
+    begin: date | datetime | None = None,
+    end: date | datetime | None = None,
+    mode: str = "quarter",
+    stacked: bool = True,
+    ymax: int | None = None,
+    size: Tuple[int, int] | None = None,
+) -> alt.Chart:
+    """ハード別の月次売上棒グラフを作成する関数
+    Args:
+        hw: ハードのリスト
+        begin: データの開始日（オプション）
+        end: データの終了日（オプション）
+        mode: 集計の単位（"month", "quarter", デフォルトは"month"）
+        stacked: 棒グラフを積み上げ表示するかどうか（デフォルトはFalse）
+        ymax: Y軸の最大値（オプション）
+        size: グラフの画像サイズ
+
+    Returns:
+        alt.Chart: 年ごとの期間別売上棒グラフ
+    """
+    df_all = hs.load_hard_sales()
+
+    mode_enum = parse_mode(mode)
+    if mode_enum == Mode.MONTH:
+        src_df = hsl.monthly_sales_long(df_all, hw=hw, begin=begin, end=end)
+        src_df = (
+            src_df.group_by(["year", "month"])
+            .agg(pl.col("monthly_units").sum().alias("units"))
+            .sort(["year", "month"])
+        )
+        alt_x = alt.X(
+            "year:O",
+            title="年",
+        )
+        alt_color = alt.Color(
+            "month:O",
+            title="月",
+            scale=alt.Scale(scheme="tableau20"),
+            sort=[12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+        )
+        alt_y = alt.Y("units:Q", title="販売台数")
+        alt_order = alt.Order("month:O", sort="ascending")
+        title = "年毎の販売台数(月単位集計)"
+        tooltip = [
+            alt.Tooltip("year:O", title="年"),
+            alt.Tooltip("month:O", title="月"),
+            alt.Tooltip("units:Q", title="販売台数"),
+        ]
+    elif mode_enum == Mode.QUARTER:
+        src_df = hsl.quarterly_sales_long(df_all, hw=hw, begin=begin, end=end)
+        src_df = (
+            src_df.group_by(["year", "q_num"])
+            .agg(pl.col("quarterly_units").sum().alias("units"))
+            .sort(["year", "q_num"])
+        )
+        alt_x = alt.X("year:O", title="年")
+        alt_color = alt.Color(
+            "q_num:O",
+            title="四半期",
+            sort=[4, 3, 2, 1],
+            scale=alt.Scale(scheme="set2"),
+            legend=alt.Legend(labelExpr="'Q'+ datum.label"),
+        )
+        alt_order = alt.Order("q_num:O", sort="ascending")
+        alt_y = alt.Y("units:Q", title="販売台数")
+        title = "年毎の販売台数(四半期毎集計)"
+        tooltip = [
+            alt.Tooltip("year:O", title="年"),
+            alt.Tooltip("q_num:O", title="四半期"),
+            alt.Tooltip("units:Q", title="販売台数"),
+        ]
+    else:
+        raise ValueError(
+            "modeは'month', 'quarter', または 'year'のいずれかでなければなりません"
+        )
+
+    return _chart_bar_sales(
+        src_df=src_df,
+        alt_x=alt_x,
+        alt_y=alt_y,
+        color=alt_color,
+        title=title,
+        ymax=ymax,
+        ymin=0,
+        tooltip=tooltip,
+        size=size,
+        order=alt_order,
     )
 
 
