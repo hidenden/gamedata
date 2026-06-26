@@ -238,9 +238,15 @@ def _(df_all):
 
 @app.cell
 def _():
-    _c1 = g.chart_bar_yearly_by_mode(begin=date(2016,1,1),  )
+    _c1 = g.chart_bar_yearly_by_mode(begin=date(2016,1,1), stacked=False )
     _c2 = mo.ui.altair_chart(_c1)
     _c2
+    return
+
+
+@app.cell
+def _():
+    g.chart_bar_sales(hw=["PS5"], mode="m", begin=date(2021,1,1), end=date(2024,12,31))
     return
 
 
