@@ -12,6 +12,7 @@ from . import chart_config  # テーマ登録の副作用を有効化
 from .chart_bar import (
     chart_bar_hwsales_by_year,
     chart_bar_sales,
+    chart_bar_yearly_by_mode,
     chart_hbar_yearly_share_by_maker,
     chart_bar_sales_by_hard_year,
     chart_bar_yearly_delta,

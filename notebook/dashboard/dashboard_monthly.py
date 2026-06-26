@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.9"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -16,7 +16,7 @@ with app.setup:
     # プロジェクト内モジュール
     import gamedata as g
 
-    g.set_dispfunc(func=None)
+
 
 
 @app.cell
@@ -67,7 +67,6 @@ def ui_month_02():
     begin_year2 = mo.ui.number(start=2001, step=1, value=2021, label="開始年")
     end_year2 = mo.ui.number(start=2005, step=1, value=2026, label="終了年")
     stacked = mo.ui.switch(label="積み上げ", value=True)
-
     return begin_year2, end_year2, month, stacked
 
 
@@ -81,7 +80,6 @@ def begin_year2(begin_year2, end_year2, month, stacked):
     )
 
     mo.vstack([begin_year2, end_year2, stacked, month, _chart], justify="start")
-
     return
 
 

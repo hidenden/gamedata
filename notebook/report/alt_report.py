@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.6"
+__generated_with = "0.23.9"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -22,6 +22,11 @@ with app.setup:
     # プロジェクト内モジュール
     import gamedata as g
 
+    # レポート日付
+    from report_config import get_config
+    config = get_config()
+    report_date: datetime = config["date"]
+
 
 @app.cell
 def md_alt_title():
@@ -35,6 +40,22 @@ def md_alt_title():
 def load_hard_sales():
     df_all = g.load_hard_sales()
     return (df_all,)
+
+
+@app.cell
+def _():
+    _begin = date(2020, 1, 15)
+    _end = report_date
+    _chart = g.chart_line_sales(
+        begin=_begin,
+        end=_end,
+        annotation_level=10,
+        padding_end=1,
+        ymax=200000,
+        size=(4000, 520)
+    )
+    mo.hstack(items=[mo.ui.altair_chart(_chart)], justify="start", wrap=True)
+    return
 
 
 @app.cell(hide_code=True)
@@ -199,6 +220,33 @@ def md_ps5_cumulative_delta_1():
     PS5は､PS4,PS3に比べて販売ペースが遅い状態で安定しています｡
     PS5 DE日本語版が日本のゲーム機最安値となったことでブースト効果があるのかどうかが注目されます｡
     """)
+    return
+
+
+@app.cell
+def _(df_all):
+    src_df = g.quarterly_sales_long(df_all, hw=["NSW"])
+    src_df = (
+        src_df.group_by(["year", "q_num"])
+        .agg(pl.col("quarterly_units").sum().alias("units"))
+        .sort(["year", "q_num"])
+    )
+
+    src_df
+    return
+
+
+@app.cell
+def _():
+    _c1 = g.chart_bar_yearly_by_mode(begin=date(2016,1,1), stacked=False )
+    _c2 = mo.ui.altair_chart(_c1)
+    _c2
+    return
+
+
+@app.cell
+def _():
+    g.chart_bar_sales(hw=["PS5"], mode="m", begin=date(2021,1,1), end=date(2024,12,31))
     return
 
 
