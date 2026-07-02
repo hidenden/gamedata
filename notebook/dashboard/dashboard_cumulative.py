@@ -17,8 +17,6 @@ with app.setup:
     import gamedata as g
 
 
-
-
 @app.cell
 def ui_end_01():
     end = mo.ui.number(label="累積グラフ週数", value=52, start=10, stop=1000, step=5)
