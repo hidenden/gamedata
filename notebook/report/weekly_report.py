@@ -102,16 +102,21 @@ def units_by_date_hw_table(df_all: pl.DataFrame, report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_summary_1():
     mo.md(r"""
-    Star Foxの好調とは逆にSwitch2は1566台減らして24879台でした｡
-    2週間続いた回復が元に戻ってしまいました｡3万台が遠いです｡
-    おそらくスプラトゥーン・レイダースまではこの調子が続くでしょう｡
+    39万本販売したリズム天国が任天堂ハードを牽引しました｡
+    Switch2は7,918台増加し､5週ぶりに3万台超えて32,797台でした｡
+    Switchも3,720台増加し､7週ぶりに1万台超えで10,788台でした｡
 
-    Switchが1601台増えて7068台でした｡
-    次回集計のリズム天国に合わせてLiteの本体出荷が行われると､
-    1万台回復する可能性があります｡
+    この増加が一時的なものか､
+    値上げ後に低迷していた販売ペースを元に戻していくきっかけになるのか､注目です｡
 
-    PS5は447台増加で9896台｡ボーナス効果?が合ったと言えるか微妙ではあります｡
-    惜しくも1万台には届きませんでした｡
+    2028年1月以降の新規タイトルのディスク提供終了の話題で世界を騒然とさせているPS5｡
+    発表は7月1日だったので今週の週販にはその影響が含まれます｡
+    今週のPS5は1,017台増加の10,913台でした｡増えています｡増加はボーナス効果でしょうか｡
+    ディスク提供終了告知の影響は日本では見られませんでした｡
+
+    既に日本のPS5販売量の97%がドライブ無しモデルであり､
+    日本におけるPlayStationの売場減少・縮小はここ数年来の傾向です｡
+    ディスク終了に影響を受ける部分は､削ぎ落とされ済みと考えたほうが良いでしょう｡
     """)
     return
 
@@ -166,7 +171,7 @@ def weekly_sales_trend_2(report_date: datetime):
         begin=_begin,
         end=_end,
         annotation_level=50,
-        ymax=32000,
+        ymax=36000,
         padding_end=1,
         value_label=True,
     )
@@ -177,8 +182,9 @@ def weekly_sales_trend_2(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_3():
     mo.md(r"""
-    5週間連続でPS5がSwitchを上回っています｡
-    Switch2はこのまま2万5千台前後で安定してしまうのか注目です｡
+    XBOXも含め全機種上昇です｡特にSwitch2の上昇量は顕著で､値上げ実施後の最高記録です｡
+    PS5は6週間連続でSwitchを上回り続けています(今週はギリギリですが)｡
+    この PS5 > Switch が､いつまで続くかも注目です｡
     """)
     return
 
@@ -220,7 +226,7 @@ def ps5_yearly_cumulative_chart(ps5_latest):
         x=ps5_latest["report_date"].timetuple().tm_yday,
         y=_df.filter(pl.col("report_date") == ps5_latest["report_date"]).row(0, named=True)["yearly_sum_units"],
         x2=365,
-        y2=570000,
+        y2=590000,
         stroke=[3, 2],
         size=2,
         color="#ff000080",
@@ -257,7 +263,8 @@ def _(df_all: pl.DataFrame, ps5_info):
 @app.cell(hide_code=True)
 def md_ps5_yearly_cumulative_1():
     mo.md(r"""
-    294週目のPS5はPS4の同時期と比べ約80万台下回る状況です｡
+    PS5の週販は安定しています｡295週目のPS5はPS4の同時期と比べ約80万台下回る状況が続いていますが､
+    追いつけていませんが離されてもいません｡
     """)
     return
 
@@ -282,7 +289,7 @@ def switch_yearly_cumulative_chart(switch_latest):
         x=switch_latest["report_date"].timetuple().tm_yday,
         y=_df.filter(pl.col("report_date") == switch_latest["report_date"]).row(0, named=True)["yearly_sum_units"],
         x2=365,
-        y2=650000,
+        y2=680000,
         stroke=[3, 2],
         size=2,
         color="#ff000080",
@@ -307,7 +314,7 @@ def _():
 @app.cell(hide_code=True)
 def md_switch_yearly_cumulative_1():
     mo.md(r"""
-    6週間連続で1万台を割り込んでいます｡次回のリズム天国週に1万台にもどるか注目です｡
+    7週ぶりに1万台を回復しました｡これが続くのか､ここから上昇するのか注目です｡
     """)
     return
 
@@ -339,7 +346,7 @@ def _(switch2_latest):
         x=switch2_latest["report_date"].timetuple().tm_yday,
         y=_df.filter(pl.col("report_date") == switch2_latest["report_date"]).row(0, named=True)["yearly_sum_units"],
         x2=365,
-        y2=3800000,
+        y2=3750000,
         stroke=[3, 2],
         size=2,
         color="#ffa00080",
@@ -365,8 +372,8 @@ def _():
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    販売台数の低迷が続いています｡
-    この状況が続くと年末ブースト込みで昨年の販売台数に近い値になってしまう可能性があります｡
+    ヒートマップで暗黒状態が続いていましたが､少し変化が見られる今週｡
+    スプラトゥーンレイダースをきっかけに完全回復できるかどうか注目です｡
     """)
     return
 
@@ -415,9 +422,8 @@ def _(ns2_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ns2_monthly_sales_1():
     mo.md(r"""
-    6月の月間販売台数は10万166台｡わずかに10万台を上回りました｡
-    Switch2の月間販売台数としては昨年9月の17万台を下回る最低値です｡
-    昨年6月は歴史的な大ロンチだったため､6月前年比はわずか8.6%にどどまりました｡
+    昨年7月はロンチの影響が残る44万台でしたが､今年の7月は12万~20万台に落ち着くと予想されます｡
+    どこまで伸びるかはスプラトゥーンレイダースの販売状況次第です｡
     """)
     return
 
@@ -457,8 +463,8 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_switch_monthly_sales_1():
     mo.md(r"""
-    Switchの2026年6月は前年同月比32%の25319台でした｡
-    Switchの場合は5月の駆け込み販売も無かったため､値上げ影響での販売減少と言えるでしょう｡
+    Switchの6月前年比は32%と大幅減少でしたが､
+    7月は幾分ましになって､前年比80%程度に落ち着くと予想されます｡
     """)
     return
 
@@ -498,9 +504,8 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ps5_monthly_sales_1():
     mo.md(r"""
-    PS5の2026年6月は前年同月比57%の36175台でした｡
-    昨年の6月は値下げセールで販売台数を伸ばしたため､今年はその反動が現れています｡
-    昨年の7月は2万9千台なので､2026年7月は前年比で100%を超える可能性があります｡
+    2025年7月のPS5は､わずか28,959台でした｡これは2025年のワースト月です｡
+    一方､7月初週の状況が継続するならば､今年の7月は前年を超える可能性が高いです｡
     """)
     return
 
@@ -540,8 +545,9 @@ def _(report_date: datetime, xsx_df_pivot):
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    Xbox Series X|Sは前年を上回ったた唯一の機種になりました｡
-    Forza Horizon 6効果で前年同月比153%を達成しました｡
+    Xbox Series X|Sは
+    7月第1週で前年同月比60%に達しています｡
+    今年の7月は昨年よりも好調に推移すると予想されます｡
     """)
     return
 
@@ -594,7 +600,7 @@ def _(ps5_latest, report_date: datetime, switch2_latest):
         x=report_date.date(),
         y=switch2_latest["sum_units"],
         x2=date(2027, 1, 31),
-        y2=8000000,
+        y2=7900000,
         stroke=[5, 4],
         size=2,
         color="#af000080",
@@ -618,9 +624,8 @@ def _(ps5_latest, report_date: datetime, switch2_latest):
 @app.cell(hide_code=True)
 def md_cumulative_sales_trend_1():
     mo.md(r"""
-    Switch2は累計596万台で600万台まで3万5千台に迫っていますが､600万台到達は再来週になるでしょう｡
-
-    年末商戦までSwitch2値上げの影響が響いた場合には､Switch2累計がPS5に追いつくのは2027年2月にずれ込む可能性があります｡
+    Switch2は累計599万台で600万台まで1800台に迫っています｡600万台到達は来週確実です｡
+    Switch2の販売ペースの鈍化が続いた場合､累計800万台到達はPS5の方が早くなる可能性があります｡
     """)
     return
 
@@ -674,7 +679,7 @@ def ns2_cumulative_delta_chart(ns2_info):
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    Switch2の歴代普及最速は69週目(あと13週)程度は維持できるでしょう｡
+    Switch2の歴代普及最速は69週目(あと12週)程度は維持できるでしょう｡
     """)
     return
 
@@ -693,7 +698,8 @@ def _(df_all: pl.DataFrame, ns2_info):
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    Switch2は同時期のSwitchを約200万台上回る状況は続いています｡
+    Switch2は同時期のSwitchを約191万台上回る状況です｡
+    Switch2値上げ後の低迷が続いており､Switchとの差が縮小しつつあります｡
     """)
     return
 
@@ -708,7 +714,8 @@ def _(switch2_latest):
 @app.cell(hide_code=True)
 def md_ns2_cumulative_delta_1():
     mo.md(r"""
-    Switch2はSwitchの1.7倍のペースですが､PS5に対しては3.5倍になり倍率が若干低下しました｡
+    Switch2の販売ペースはSwitchの1.7→1.6倍となり､
+    累計としては依然として高いペースは維持しているものの､値上げ後の低迷でSwitchに迫られつつあります｡
     """)
     return
 
@@ -798,7 +805,7 @@ def yearly_maker_share_chart():
 @app.cell(hide_code=True)
 def md_yearly_maker_share_1():
     mo.md(r"""
-    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが89.0%から88.8%に低下しました｡
+    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが88.8%から88.6%に低下しました｡
     """)
     return
 
