@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.9"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -15,8 +15,6 @@ with app.setup:
 
     # プロジェクト内モジュール
     import gamedata as g
-
-    g.set_dispfunc(func=None)
 
 
 @app.cell
