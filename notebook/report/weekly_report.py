@@ -102,21 +102,15 @@ def units_by_date_hw_table(df_all: pl.DataFrame, report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_summary_1():
     mo.md(r"""
-    39万本販売したリズム天国が任天堂ハードを牽引しました｡
-    Switch2は7,918台増加し､5週ぶりに3万台超えて32,797台でした｡
-    Switchも3,720台増加し､7週ぶりに1万台超えで10,788台でした｡
+    今週もリズム天国が好調で12万本を販売してパッケージだけで50万本突破しました｡
+    しかしハードの牽引効果は落ち着いています｡
 
-    この増加が一時的なものか､
-    値上げ後に低迷していた販売ペースを元に戻していくきっかけになるのか､注目です｡
+    Switch2は4千台減少し28,755台でした｡再び3万台を割り込みました｡
+    Switchは2千台減少し8,712台でした｡こちらも再び1万台を割り込みました｡
+    なかなか値上げ前の販売ペースに戻せません｡
 
-    2028年1月以降の新規タイトルのディスク提供終了の話題で世界を騒然とさせているPS5｡
-    発表は7月1日だったので今週の週販にはその影響が含まれます｡
-    今週のPS5は1,017台増加の10,913台でした｡増えています｡増加はボーナス効果でしょうか｡
-    ディスク提供終了告知の影響は日本では見られませんでした｡
-
-    既に日本のPS5販売量の97%がドライブ無しモデルであり､
-    日本におけるPlayStationの売場減少・縮小はここ数年来の傾向です｡
-    ディスク終了に影響を受ける部分は､削ぎ落とされ済みと考えたほうが良いでしょう｡
+    一方､PS5は481台増加し11,394台でした｡こちらは1万台をキープし好調です｡
+    海外ではディスク提供終了騒動が尾を引いていますが､日本では影響は見られません｡
     """)
     return
 
@@ -149,7 +143,8 @@ def weekly_sales_trend(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_1():
     mo.md(r"""
-    全機種低水準推移が続いており､全体推移グラフでは直近の様子が見にくい状態です｡
+    Switch2の値上げ後にヨコヨコ推移が続いています｡
+    年末商戦までは10万台超は無いのでしょうか｡
     """)
     return
 
@@ -182,9 +177,10 @@ def weekly_sales_trend_2(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_3():
     mo.md(r"""
-    XBOXも含め全機種上昇です｡特にSwitch2の上昇量は顕著で､値上げ実施後の最高記録です｡
-    PS5は6週間連続でSwitchを上回り続けています(今週はギリギリですが)｡
-    この PS5 > Switch が､いつまで続くかも注目です｡
+    Switch2､Switchともに値上げ直後よりは販売台数が上昇傾向ではありますが､それぞれ3万台､1万台のラインを安定して超えられません｡
+    Switch2は再来週のスプラトゥーン・レイダースによる牽引効果に期待がかかります｡
+
+    PS5の1万台超が今後何週間続くのかも注目です｡
     """)
     return
 
@@ -263,8 +259,7 @@ def _(df_all: pl.DataFrame, ps5_info):
 @app.cell(hide_code=True)
 def md_ps5_yearly_cumulative_1():
     mo.md(r"""
-    PS5の週販は安定しています｡295週目のPS5はPS4の同時期と比べ約80万台下回る状況が続いていますが､
-    追いつけていませんが離されてもいません｡
+    PS5の週販は安定しています｡昨年同時期よりも若干多い推移が続いています｡
     """)
     return
 
@@ -314,7 +309,9 @@ def _():
 @app.cell(hide_code=True)
 def md_switch_yearly_cumulative_1():
     mo.md(r"""
-    7週ぶりに1万台を回復しました｡これが続くのか､ここから上昇するのか注目です｡
+    Switch最後の大物ソフト リズム天国のハード牽引効果も一段落し､
+    今後､Switchが上昇するきっかけが見当たりません｡
+    このままSwitch2への移行が進むのでしょうか｡
     """)
     return
 
@@ -372,8 +369,8 @@ def _():
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    ヒートマップで暗黒状態が続いていましたが､少し変化が見られる今週｡
-    スプラトゥーンレイダースをきっかけに完全回復できるかどうか注目です｡
+    スプラトゥーンレイダースである程度販売量が回復するとして､それが何週間続くか､その後のエルデンリングや万紫千紅まで続くのか､
+    なかなかに見えない厳しい状況です｡
     """)
     return
 
@@ -464,7 +461,7 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
 def md_switch_monthly_sales_1():
     mo.md(r"""
     Switchの6月前年比は32%と大幅減少でしたが､
-    7月は幾分ましになって､前年比80%程度に落ち着くと予想されます｡
+    7月は前年比70%程度に落ち着くと予想されます｡
     """)
     return
 
@@ -504,8 +501,8 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ps5_monthly_sales_1():
     mo.md(r"""
-    2025年7月のPS5は､わずか28,959台でした｡これは2025年のワースト月です｡
-    一方､7月初週の状況が継続するならば､今年の7月は前年を超える可能性が高いです｡
+    7月が半分経過した時点で前年同月比77%とPS5は昨年に比べ好調です｡
+    7月は最終的に前年比150%に到達する可能性があります｡
     """)
     return
 
@@ -545,9 +542,8 @@ def _(report_date: datetime, xsx_df_pivot):
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    Xbox Series X|Sは
-    7月第1週で前年同月比60%に達しています｡
-    今年の7月は昨年よりも好調に推移すると予想されます｡
+    Xbox Series X|Sは7月第2週で急減速です｡
+    昨年並になるかどうか､微妙な状況です｡
     """)
     return
 
@@ -624,16 +620,25 @@ def _(ps5_latest, report_date: datetime, switch2_latest):
 @app.cell(hide_code=True)
 def md_cumulative_sales_trend_1():
     mo.md(r"""
-    Switch2は累計599万台で600万台まで1800台に迫っています｡600万台到達は来週確実です｡
-    Switch2の販売ペースの鈍化が続いた場合､累計800万台到達はPS5の方が早くなる可能性があります｡
+    Switch2は累計600万台を超えました｡
+    Switch2はPS5を追い上げつつありますが､実際に追いつく時期は年末商戦次第で決まるため､
+    現時点で予想するのは難しいです｡
     """)
     return
 
 
 @app.cell
-def md_ns2_sales_weeks_title(switch2_latest):
-    _ns2_weeks = switch2_latest["index_week"]
-    mo.md(f"### Switch2: {_ns2_weeks}週目の累計状況")
+def md_ns2_sales_weeks_title():
+    # _ns2_weeks = switch2_latest["index_week"]
+    # mo.md(f"### Switch2: {_ns2_weeks}週目の累計状況")
+    return
+
+
+@app.cell(hide_code=True)
+def _():
+    mo.md(r"""
+    ### Switch2 600万台到達
+    """)
     return
 
 
@@ -679,27 +684,28 @@ def ns2_cumulative_delta_chart(ns2_info):
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    Switch2の歴代普及最速は69週目(あと12週)程度は維持できるでしょう｡
-    """)
-    return
+    Switch2が累計600万台に到達しました｡58週間での到達はもちろん歴代1位です｡
+    Switch2の100万台ごとの到達時期を示します｡
 
+    |到達台数| 到達日 | 累計週数| 期間(週数)|
+    |--|--|--|--|
+    | 100万	| 2025/06/22 |	3	| 3 |
+    | 200万	| 2025/09/14 |	15	| 12 |
+    | 300万	| 2025/12/7 |	27	| 12 |
+    | 400万	| 2026/01/11 |	32	| 5 |
+    | 500万	| 2026/4/5 |	44	| 12 |
+    | 600万	| 2026/7/12 |	58	| 14 |
 
-@app.cell
-def _(df_all: pl.DataFrame, ns2_info):
-    _d1 = (
-        df_all.filter(pl.col("index_week") == ns2_info["sales_weeks"])
-        .filter(pl.col("hw").is_in(["NS2", "NSW", "GC", "WiiU", "Wii", "3DS"]))
-        .select("hw", "index_week", "report_date", "sum_units")
-    )
-    g.style_df(g.rename_columns(_d1))
-    return
+    ロンチと年末年始を除くと100万台積み上げるのに12週間かかるペースでしたが､
+    500万台から600万台までは14週間を要しました｡
 
+    マイナス要因には値上げ後にペース鈍化が､
+    プラス要因には5月の駆け込み需要がありました｡
+    14週間のペースダウンの原因は､一見マイナス要因が強かった影響とも考えられます｡
+    しかし､季節要因や発売から時間が経過したことによる自然減の可能性もあります｡
 
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    Switch2は同時期のSwitchを約191万台上回る状況です｡
-    Switch2値上げ後の低迷が続いており､Switchとの差が縮小しつつあります｡
+    判断に迷うくらいなので､今のところ､値上げの影響が強く出ているとは言えません｡
+    実際にペースが落ちているのかどうかは700万台の到達を待つ必要があるでしょう｡
     """)
     return
 
@@ -714,7 +720,7 @@ def _(switch2_latest):
 @app.cell(hide_code=True)
 def md_ns2_cumulative_delta_1():
     mo.md(r"""
-    Switch2の販売ペースはSwitchの1.7→1.6倍となり､
+    Switch2の販売ペースはSwitchの1.6倍です｡
     累計としては依然として高いペースは維持しているものの､値上げ後の低迷でSwitchに迫られつつあります｡
     """)
     return
@@ -805,7 +811,7 @@ def yearly_maker_share_chart():
 @app.cell(hide_code=True)
 def md_yearly_maker_share_1():
     mo.md(r"""
-    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが88.8%から88.6%に低下しました｡
+    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが88.6%から88.4%に低下しました｡
     """)
     return
 
