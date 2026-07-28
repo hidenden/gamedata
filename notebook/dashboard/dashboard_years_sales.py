@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.9"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -16,43 +16,40 @@ with app.setup:
     # プロジェクト内モジュール
     import gamedata as g
 
-    g.set_dispfunc(func=None)
 
 
-@app.cell
-def md_cell_01():
-    def sales_by_year(year: int, hw=["NS2", "NSW", "PS5"], stacked=False):
-        begin = datetime(year, 1, 1)
-        end = datetime(year + 1, 1, 1)
-        chart1 = g.chart_line_sales(
-            hw=hw,
-            begin=begin,
-            end=end,
-            annotation_level=20,
-            multi_line=True,
-        )
-        chart_cum = g.chart_line_cumulative(
-            hw=hw,
-            begin=begin,
-            end=end,
-            annotation_level=20,
-            multi_line=True,
-        )
-        chart2 = g.chart_bar_sales(
-            hw=hw,
-            begin=begin,
-            end=end,
-            mode="month",
-            stacked=stacked,
-        )
-        return (
-            mo.md(f"# {year}年のハード販売状況"),
-            chart1,
-            chart_cum,
-            chart2,
-        )
 
-    return (sales_by_year,)
+@app.function
+def sales_by_year(year: int, hw=["NS2", "NSW", "PS5"], stacked=False):
+    begin = datetime(year, 1, 1)
+    end = datetime(year + 1, 1, 1)
+    chart1 = g.chart_line_sales(
+        hw=hw,
+        begin=begin,
+        end=end,
+        annotation_level=20,
+        multi_line=True,
+    )
+    chart_cum = g.chart_line_cumulative(
+        hw=hw,
+        begin=begin,
+        end=end,
+        annotation_level=20,
+        multi_line=True,
+    )
+    chart2 = g.chart_bar_sales(
+        hw=hw,
+        begin=begin,
+        end=end,
+        mode="month",
+        stacked=stacked,
+    )
+    return (
+        mo.md(f"# {year}年のハード販売状況"),
+        chart1,
+        chart_cum,
+        chart2,
+    )
 
 
 @app.cell
@@ -65,7 +62,7 @@ def ui_year_01():
 
 
 @app.cell
-def hw_widget(hw_widget, hwselect, sales_by_year, stacked, year):
+def hw_widget(hw_widget, hwselect, stacked, year):
     hw_widget
     (_title, _chart1, _chart_cum, _chart2) = sales_by_year(
         year=year.value, hw=hwselect.value, stacked=stacked.value

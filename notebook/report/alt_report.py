@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.9"
+__generated_with = "0.23.14"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -248,6 +248,43 @@ def _():
 def _():
     g.chart_bar_sales(hw=["PS5"], mode="m", begin=date(2021,1,1), end=date(2024,12,31))
     return
+
+
+@app.cell(hide_code=True)
+def _():
+    mo.md(r"""
+    ## PS5とSwitch2の販売予測・累計追い越し時期分析
+    """)
+    return
+
+
+@app.cell
+def _(df_all):
+    import numpy as np
+    from datetime import datetime, timedelta
+
+    # PS5とSwitch2の過去データを抽出
+    _ps5_data = df_all.filter(pl.col("hw") == "PS5").sort("report_date")
+    _ns2_data = df_all.filter(pl.col("hw") == "NS2").sort("report_date")
+
+    print("="*70)
+    print("【データ情報】")
+    print("="*70)
+    print(f"PS5データ期間: {_ps5_data['report_date'].min()} ～ {_ps5_data['report_date'].max()}")
+    print(f"PS5データ件数: {len(_ps5_data)}")
+    print(f"NS2データ期間: {_ns2_data['report_date'].min()} ～ {_ns2_data['report_date'].max()}")
+    print(f"NS2データ件数: {len(_ns2_data)}")
+
+    # 直近のPS5とSwitch2の累計販売台数
+    _ps5_latest_cumsum = _ps5_data.select("sum_units").tail(1)["sum_units"][0]
+    _ns2_latest_cumsum = _ns2_data.select("sum_units").tail(1)["sum_units"][0]
+
+    print(f"\n【現在の累計販売台数（{_ps5_data['report_date'].max()}時点）】")
+    print(f"PS5 累計: {_ps5_latest_cumsum:,.0f} 台")
+    print(f"Switch2 累計: {_ns2_latest_cumsum:,.0f} 台")
+    print(f"差分: {_ps5_latest_cumsum - _ns2_latest_cumsum:,.0f} 台")
+
+    return (datetime,)
 
 
 if __name__ == "__main__":
