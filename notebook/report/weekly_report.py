@@ -1,4 +1,12 @@
 # /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "altair==6.2.2",
+#     "marimo>=0.23.14",
+#     "pandas>=2.3.3",
+#     "polars==1.42.1",
+#     "pyarrow>=23.0.1",
+# ]
 # [tool.marimo.display]
 # theme = "system"
 # ///
@@ -6,11 +14,14 @@
 import marimo
 
 __generated_with = "0.23.14"
+__generated_with = "0.23.14"
 app = marimo.App(width="medium")
 
 with app.setup:
     # 標準ライブラリ
     from datetime import date, datetime
+    from pathlib import Path
+    import sys
 
     import marimo as mo
     import altair as alt
@@ -20,6 +31,9 @@ with app.setup:
 
     # import polars.selectors as cs
     # プロジェクト内モジュール
+    # _src_dir = Path.cwd() / "src"
+    # if str(_src_dir) not in sys.path:
+    #    sys.path.insert(0, str(_src_dir))
     import gamedata as g
 
 
@@ -221,7 +235,9 @@ def ps5_yearly_cumulative_chart(ps5_latest):
     _chart = g.chart_line_guide(
         _chart,
         x=ps5_latest["report_date"].timetuple().tm_yday,
-        y=_df.filter(pl.col("report_date") == ps5_latest["report_date"]).row(0, named=True)["yearly_sum_units"],
+        y=_df.filter(pl.col("report_date") == ps5_latest["report_date"]).row(
+            0, named=True
+        )["yearly_sum_units"],
         x2=365,
         y2=590000,
         stroke=[3, 2],
@@ -264,7 +280,9 @@ def switch_yearly_cumulative_chart(switch_latest):
     _chart = g.chart_line_guide(
         _chart,
         x=switch_latest["report_date"].timetuple().tm_yday,
-        y=_df.filter(pl.col("report_date") == switch_latest["report_date"]).row(0, named=True)["yearly_sum_units"],
+        y=_df.filter(pl.col("report_date") == switch_latest["report_date"]).row(
+            0, named=True
+        )["yearly_sum_units"],
         x2=365,
         y2=680000,
         stroke=[3, 2],
@@ -317,7 +335,9 @@ def _(switch2_latest):
     _chart = g.chart_line_guide(
         _chart,
         x=switch2_latest["report_date"].timetuple().tm_yday,
-        y=_df.filter(pl.col("report_date") == switch2_latest["report_date"]).row(0, named=True)["yearly_sum_units"],
+        y=_df.filter(pl.col("report_date") == switch2_latest["report_date"]).row(
+            0, named=True
+        )["yearly_sum_units"],
         x2=365,
         y2=3750000,
         stroke=[3, 2],
@@ -674,7 +694,9 @@ def _():
 
 @app.cell
 def _():
-    _c1 = g.chart_bar_yearly_by_mode(begin=date(2016,1,1),  )
+    _c1 = g.chart_bar_yearly_by_mode(
+        begin=date(2016, 1, 1),
+    )
     _c2 = mo.ui.altair_chart(_c1)
     _c2
     return
