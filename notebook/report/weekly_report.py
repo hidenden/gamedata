@@ -1,25 +1,32 @@
 # /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "altair==6.2.2",
+#     "marimo>=0.23.14",
+#     "pandas>=2.3.3",
+#     "polars==1.42.1",
+#     "pyarrow>=23.0.1",
+# ]
 # [tool.marimo.display]
 # theme = "system"
 # ///
 
 import marimo
 
-__generated_with = "0.23.14"
+__generated_with = "0.23.15"
 app = marimo.App(width="medium")
 
 with app.setup:
     # 標準ライブラリ
     from datetime import date, datetime
+    from pathlib import Path
+    import sys
 
     import marimo as mo
     import altair as alt
 
     # サードパーティライブラリ
     import polars as pl
-
-    # import polars.selectors as cs
-    # プロジェクト内モジュール
     import gamedata as g
 
 
@@ -102,16 +109,17 @@ def units_by_date_hw_table(df_all: pl.DataFrame, report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_summary_1():
     mo.md(r"""
-    今週は全機種ともに減少しました｡
+    今週はSwitch2､Switch､Xbox Series X|Sが増加し､PS5はわずかに減少しました｡
 
-    Switch2の減少はスプラトゥーン・レイダース直前の落ち込みでしょう｡
-    次回は大きく伸びることが期待されます｡
+    Switch2はスプラトゥーン・レイダースの発売に牽引され､前週の24,928台から50,168台へと約2倍に伸びました｡
+    5万台を回復する力強い結果となりましたが､この勢いが発売週以降も続くかに注目です｡
 
-    PS5は減少により3週間ぶりに1万台を割り込みました｡
-    しかし､今週もSwitchを上回ったことにより8週連続でSwitchを上回る結果となりました｡
-    これは新記録です｡今後はPS5がSwitchを上回るのが当たり前になるのかも知れません｡
+    Switchは前週から771台増の7,167台と小幅に回復しました｡
 
-    Switchはリズム天国による牽引効果が終了して落ち込みました｡
+    PS5は前週から390台減の9,184台となり､2週連続で1万台を下回りました｡
+    それでもSwitchを上回るのは9週連続となり､記録を更新しています｡
+
+    Xbox Series X|Sは前週から58台増の151台でしたが､引き続き低い水準です｡
     """)
     return
 
@@ -144,8 +152,8 @@ def weekly_sales_trend(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_1():
     mo.md(r"""
-    Switch2の値上げ後にヨコヨコ推移が続いています｡
-    年末商戦までは10万台超は無いのでしょうか｡
+    Switch2の久しぶりに強い上げ調子です｡
+    しかし､今公開されているラインナップだと､年末商戦までは10万台超は難しそうです｡
     """)
     return
 
@@ -167,7 +175,7 @@ def weekly_sales_trend_2(report_date: datetime):
         begin=_begin,
         end=_end,
         annotation_level=50,
-        ymax=36000,
+        ymax=55000,
         padding_end=1,
         value_label=True,
     )
@@ -178,10 +186,13 @@ def weekly_sales_trend_2(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_3():
     mo.md(r"""
-    Switch2は2万5千台､Switchは6千台､PS5は1万台｡
-    これが現在の平常時の水準になってきています｡
+    Switch2はスプラトゥーン・レイダースの発売に牽引され､前週の約2万5千台から約5万台へ急伸しました｡
+    2万台半ばで続いていた横ばい推移を抜け､約2か月ぶりに5万台を回復しています｡
 
-    Switch2が3万台のペースを取り戻す日はいつになるのでしょうか｡
+    Switchは7千台まで小幅に持ち直した一方､PS5は2週続けて減少し9千台となりました｡
+    Xbox Series X|Sはわずかに増加したものの､依然として低い水準が続いています｡
+
+    次週以降は､Switch2が発売週の勢いをどこまで維持できるかに注目です｡
     """)
     return
 
@@ -221,7 +232,9 @@ def ps5_yearly_cumulative_chart(ps5_latest):
     _chart = g.chart_line_guide(
         _chart,
         x=ps5_latest["report_date"].timetuple().tm_yday,
-        y=_df.filter(pl.col("report_date") == ps5_latest["report_date"]).row(0, named=True)["yearly_sum_units"],
+        y=_df.filter(pl.col("report_date") == ps5_latest["report_date"]).row(
+            0, named=True
+        )["yearly_sum_units"],
         x2=365,
         y2=590000,
         stroke=[3, 2],
@@ -264,7 +277,9 @@ def switch_yearly_cumulative_chart(switch_latest):
     _chart = g.chart_line_guide(
         _chart,
         x=switch_latest["report_date"].timetuple().tm_yday,
-        y=_df.filter(pl.col("report_date") == switch_latest["report_date"]).row(0, named=True)["yearly_sum_units"],
+        y=_df.filter(pl.col("report_date") == switch_latest["report_date"]).row(
+            0, named=True
+        )["yearly_sum_units"],
         x2=365,
         y2=680000,
         stroke=[3, 2],
@@ -291,9 +306,7 @@ def _():
 @app.cell(hide_code=True)
 def md_switch_yearly_cumulative_1():
     mo.md(r"""
-    Switch最後の大物ソフト リズム天国のハード牽引効果も一段落し､
-    今後､Switchが上昇するきっかけが見当たりません｡
-    このままSwitch2への移行が進むのでしょうか｡
+    年末商戦までは7千台程度の推移になりそうです｡
     """)
     return
 
@@ -317,7 +330,9 @@ def _(switch2_latest):
     _chart = g.chart_line_guide(
         _chart,
         x=switch2_latest["report_date"].timetuple().tm_yday,
-        y=_df.filter(pl.col("report_date") == switch2_latest["report_date"]).row(0, named=True)["yearly_sum_units"],
+        y=_df.filter(pl.col("report_date") == switch2_latest["report_date"]).row(
+            0, named=True
+        )["yearly_sum_units"],
         x2=365,
         y2=3750000,
         stroke=[3, 2],
@@ -395,8 +410,9 @@ def _(ns2_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ns2_monthly_sales_1():
     mo.md(r"""
-    昨年7月はロンチの影響が残る44万台でしたが､今年の7月は12万~20万台に落ち着くと予想されます｡
-    どこまで伸びるかはスプラトゥーンレイダースの販売状況次第です｡
+    Switch2の7月販売台数は136,648台となり､6月の100,166台から約36%増加しました｡
+    スプラトゥーン・レイダースが月末の販売を押し上げたものの､ロンチ直後だった前年7月の444,706台に対しては約31%にとどまりました｡
+    発売週の勢いを8月も維持できるかが焦点です｡
     """)
     return
 
@@ -436,8 +452,8 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_switch_monthly_sales_1():
     mo.md(r"""
-    Switchの6月前年比は32%と大幅減少でしたが､
-    7月もペースは上がらず前年比50%程度に落ち着くと予想されます｡
+    Switchの7月販売台数は33,063台となり､6月の25,319台から約31%増加しました｡
+    前月からは持ち直したものの､前年7月の57,532台に対しては約57%で､Switch2への移行による減少傾向が続いています｡
     """)
     return
 
@@ -477,8 +493,9 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ps5_monthly_sales_1():
     mo.md(r"""
-    PS5は好調です｡
-    7月をあと1週残して前年同月比110%で前年を超えました｡最終的には130%に到達する可能性があります｡
+    PS5の7月販売台数は41,065台となり､6月の36,175台から約14%増加しました｡
+    前年7月の28,959台に対して約142%と大きく上回り､Switchを超える月間販売台数となりました｡
+    週販は月末にかけてやや減速したものの､7月全体では堅調な結果です｡
     """)
     return
 
@@ -518,7 +535,7 @@ def _(report_date: datetime, xsx_df_pivot):
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    Xbox Series X|Sは7月はギリギリ前年並みになるかどうかの状況です｡
+    Xbox Series X|Sの7月はギリギリ前年の記録に届きませんでした｡
     """)
     return
 
@@ -674,7 +691,9 @@ def _():
 
 @app.cell
 def _():
-    _c1 = g.chart_bar_yearly_by_mode(begin=date(2016,1,1),  )
+    _c1 = g.chart_bar_yearly_by_mode(
+        begin=date(2016, 1, 1),
+    )
     _c2 = mo.ui.altair_chart(_c1)
     _c2
     return
@@ -741,7 +760,7 @@ def yearly_maker_share_chart():
 @app.cell(hide_code=True)
 def md_yearly_maker_share_1():
     mo.md(r"""
-    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが88.6%から88.4%に低下しました｡
+    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが88.4%から88.2%に低下しました｡
     """)
     return
 

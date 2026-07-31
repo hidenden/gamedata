@@ -20,10 +20,13 @@ CONFIG = get_config()
 
 def marimo_export_html(input_path: str, output_path: str):
     cmd = [
+        "uv",
+        "run",
         "marimo",
         "export",
         "html",
         "--no-include-code",
+        "--no-sandbox",
         input_path,
         "-o",
         output_path,
