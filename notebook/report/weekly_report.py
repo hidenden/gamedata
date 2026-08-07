@@ -13,7 +13,7 @@
 
 import marimo
 
-__generated_with = "0.23.15"
+__generated_with = "0.23.16"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -109,17 +109,19 @@ def units_by_date_hw_table(df_all: pl.DataFrame, report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_summary_1():
     mo.md(r"""
-    今週はSwitch2､Switch､Xbox Series X|Sが増加し､PS5はわずかに減少しました｡
+    先週のSwitch2はスプラトゥーン・レイダースによって牽引されていました｡
+    しかし､今週は牽引効果は続かず､19,562台減らして30,606台となりました｡
+    レイダースの方は好調で7万本を超えましたが､ハードは前週の勢いを維持できず｡
+    ただ､それでも3万台は維持しています｡
 
-    Switch2はスプラトゥーン・レイダースの発売に牽引され､前週の24,928台から50,168台へと約2倍に伸びました｡
-    5万台を回復する力強い結果となりましたが､この勢いが発売週以降も続くかに注目です｡
+    Switchは前週から1066台増加し､8233台となりました｡3週間ぶりの8千台超えです｡
 
-    Switchは前週から771台増の7,167台と小幅に回復しました｡
+    PS5は前週から923台増加し10,107台で3週間ぶりに1万台を超えました｡
+    Switchを上回るのは10週連続となり､連続記録更新｡PS5がSwitchを上回るのが常態化しています｡
 
-    PS5は前週から390台減の9,184台となり､2週連続で1万台を下回りました｡
-    それでもSwitchを上回るのは9週連続となり､記録を更新しています｡
-
-    Xbox Series X|Sは前週から58台増の151台でしたが､引き続き低い水準です｡
+    Xbox Series X|Sは前週から59台減の92台でした｡
+    Xboxは8月1日からの価格改定で大幅に値上げされており､その影響が出ている可能性もあります｡
+    来週からはさらに減少する可能性が高いです｡
     """)
     return
 
@@ -152,8 +154,7 @@ def weekly_sales_trend(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_1():
     mo.md(r"""
-    Switch2の久しぶりに強い上げ調子です｡
-    しかし､今公開されているラインナップだと､年末商戦までは10万台超は難しそうです｡
+    Switch2が通常の水準に戻りました｡
     """)
     return
 
@@ -186,13 +187,10 @@ def weekly_sales_trend_2(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_3():
     mo.md(r"""
-    Switch2はスプラトゥーン・レイダースの発売に牽引され､前週の約2万5千台から約5万台へ急伸しました｡
-    2万台半ばで続いていた横ばい推移を抜け､約2か月ぶりに5万台を回復しています｡
+    スプラトゥーン・レイダースの牽引効果が消えてSwitch2が3万台に低下しました｡
+    この水準が続くのなら「値上げの影響が薄れてきた」と言えそうですが､続くかどうかが注目されます｡
 
-    Switchは7千台まで小幅に持ち直した一方､PS5は2週続けて減少し9千台となりました｡
-    Xbox Series X|Sはわずかに増加したものの､依然として低い水準が続いています｡
-
-    次週以降は､Switch2が発売週の勢いをどこまで維持できるかに注目です｡
+    SwitchとPS5は同じ推移の変化が続いています｡
     """)
     return
 
@@ -306,7 +304,7 @@ def _():
 @app.cell(hide_code=True)
 def md_switch_yearly_cumulative_1():
     mo.md(r"""
-    年末商戦までは7千台程度の推移になりそうです｡
+    年末商戦までは1万台弱の推移になりそうです｡
     """)
     return
 
@@ -360,8 +358,8 @@ def _():
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    スプラトゥーンレイダースである程度販売量が回復するとして､それが何週間続くか､その後のエルデンリングや万紫千紅まで続くのか､
-    なかなかに見えない厳しい状況です｡
+    今後3万台から徐々に回復していき､その後のエルデンリングや万紫千紅まで続くといいのですが｡
+    なかなか先の展望が見えない状況です｡
     """)
     return
 
@@ -410,9 +408,7 @@ def _(ns2_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ns2_monthly_sales_1():
     mo.md(r"""
-    Switch2の7月販売台数は136,648台となり､6月の100,166台から約36%増加しました｡
-    スプラトゥーン・レイダースが月末の販売を押し上げたものの､ロンチ直後だった前年7月の444,706台に対しては約31%にとどまりました｡
-    発売週の勢いを8月も維持できるかが焦点です｡
+    Switch2の8月の前年比は50%を超える程度まで改善するかどうか､注目です｡
     """)
     return
 
@@ -452,8 +448,7 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_switch_monthly_sales_1():
     mo.md(r"""
-    Switchの7月販売台数は33,063台となり､6月の25,319台から約31%増加しました｡
-    前月からは持ち直したものの､前年7月の57,532台に対しては約57%で､Switch2への移行による減少傾向が続いています｡
+    Switchの8月の販売台数は前年比で50%程度になりそうです｡
     """)
     return
 
@@ -493,9 +488,7 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ps5_monthly_sales_1():
     mo.md(r"""
-    PS5の7月販売台数は41,065台となり､6月の36,175台から約14%増加しました｡
-    前年7月の28,959台に対して約142%と大きく上回り､Switchを超える月間販売台数となりました｡
-    週販は月末にかけてやや減速したものの､7月全体では堅調な結果です｡
+    PS5の販売は前年比で好調です｡8月も100%を超える推移です｡
     """)
     return
 
@@ -535,7 +528,8 @@ def _(report_date: datetime, xsx_df_pivot):
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    Xbox Series X|Sの7月はギリギリ前年の記録に届きませんでした｡
+    8月1日からのXbox Series X|Sの値上げ幅は大きく､
+    今後は前年同月比で落ち込むことが予想されます｡
     """)
     return
 
@@ -760,7 +754,7 @@ def yearly_maker_share_chart():
 @app.cell(hide_code=True)
 def md_yearly_maker_share_1():
     mo.md(r"""
-    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが88.4%から88.2%に低下しました｡
+    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが88.2%から88.1%に低下しました｡
     """)
     return
 
