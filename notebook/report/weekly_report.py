@@ -109,19 +109,24 @@ def units_by_date_hw_table(df_all: pl.DataFrame, report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_summary_1():
     mo.md(r"""
-    先週のSwitch2はスプラトゥーン・レイダースによって牽引されていました｡
-    しかし､今週は牽引効果は続かず､19,562台減らして30,606台となりました｡
-    レイダースの方は好調で7万本を超えましたが､ハードは前週の勢いを維持できず｡
-    ただ､それでも3万台は維持しています｡
+    今回の集計は8月9日と8月16日週の合算で2週分です｡
+    ここでは管理の都合上､2週分に分割してます｡
 
-    Switchは前週から1066台増加し､8233台となりました｡3週間ぶりの8千台超えです｡
+    Switch2は盛り返しつつあります｡
+    新規発売の牽引タイトルはありませんが､スプラトゥーン・レイダースが順調に売れています｡
+    夏休みで定番タイトルに牽引された通常時期の売れ方になっていると思われます｡
+    今後はELDEN RING, FE万紫千紅とゲーマー向けのビッグタイトルが続くので､徐々に盛り上がっていくことが期待されます｡
 
-    PS5は前週から923台増加し10,107台で3週間ぶりに1万台を超えました｡
-    Switchを上回るのは10週連続となり､連続記録更新｡PS5がSwitchを上回るのが常態化しています｡
+    Switchは､ソフトの方はリズム天国､トモダチコレクションの好調が続いていますが､
+    ハードの方は概ね8千~7千台の水準で年末商戦まで進みそうです｡
+    12月からインドネシアでのSwitch,Switch2の正式販売も発表されました｡今後Switchの主戦場は新興市場になるでしょう｡
 
-    Xbox Series X|Sは前週から59台減の92台でした｡
-    Xboxは8月1日からの価格改定で大幅に値上げされており､その影響が出ている可能性もあります｡
-    来週からはさらに減少する可能性が高いです｡
+    PS5は1万台弱で安定しています｡ソフトはBeast of Reincarnationが5万本弱を売り上げて好調でしたが､
+    ハード売上への影響は特に無かったようです｡
+
+    Xbox Series X|Sのこの2週間は最低記録です｡
+    もはや推計誤差の範囲と言うべき水準に落ち込んでいます｡
+    8月1日からの大幅値上げ影響で日本でのハードウェア販売は､実質的に停止していると見ていいでしょう｡
     """)
     return
 
@@ -154,7 +159,7 @@ def weekly_sales_trend(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_1():
     mo.md(r"""
-    Switch2が通常の水準に戻りました｡
+ 
     """)
     return
 
@@ -187,10 +192,13 @@ def weekly_sales_trend_2(report_date: datetime):
 @app.cell(hide_code=True)
 def md_weekly_sales_trend_3():
     mo.md(r"""
-    スプラトゥーン・レイダースの牽引効果が消えてSwitch2が3万台に低下しました｡
-    この水準が続くのなら「値上げの影響が薄れてきた」と言えそうですが､続くかどうかが注目されます｡
+    5月のSwitch2駆け込み需要は概ね3ヶ月分に相当する台数を販売しました｡5月､6月､7月の販売台数を5月に集中させた形です｡
+    8月からの販売状況は､駆け込みの影響が薄れた､値上げ後の実力と考えられます｡
+    6月､7月のSwitch2の落ち込み状況に比べると､8月は3万台超の販売台数を維持しており､
+    値上げ後の実力はこの辺りと見ていいでしょう｡
 
-    SwitchとPS5は同じ推移の変化が続いています｡
+    9月にはSwitch2の新規タイトルとして万紫千紅が､PS5の新規タイトルとしてWolverineが発売されます｡
+    ハード牽引効果が期待されます｡
     """)
     return
 
@@ -258,6 +266,14 @@ def _():
 
 
 @app.cell(hide_code=True)
+def _():
+    mo.md(r"""
+ 
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def md_switch_yearly_cumulative_title():
     mo.md(r"""
     ### Switch(2024年, 2025年, 2026年)
@@ -304,7 +320,9 @@ def _():
 @app.cell(hide_code=True)
 def md_switch_yearly_cumulative_1():
     mo.md(r"""
-    年末商戦までは1万台弱の推移になりそうです｡
+    現状の推移の延長線上では年間累計は68万台程度と予想されます｡
+    Switchの場合､例年ですと年末商戦での増加が期待されるので､この予測値を上回るはずなのですが､
+    今年の年末商戦の主役はSwitch2になる可能性が高く､最終的には予測を若干上回る程度になるかもしれまん｡
     """)
     return
 
@@ -358,8 +376,7 @@ def _():
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    今後3万台から徐々に回復していき､その後のエルデンリングや万紫千紅まで続くといいのですが｡
-    なかなか先の展望が見えない状況です｡
+    このまま3万台超が続くようであれば､駆け込み需要の反動が落ち着いてきたと考えていいでしょう｡
     """)
     return
 
@@ -408,7 +425,7 @@ def _(ns2_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ns2_monthly_sales_1():
     mo.md(r"""
-    Switch2の8月の前年比は50%を超える程度まで改善するかどうか､注目です｡
+    Switch2の8月の前年比は50%程度になりそうです｡ELDEN RINGにハード牽引効果があるなら､上振れがあるかも｡
     """)
     return
 
@@ -448,7 +465,7 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_switch_monthly_sales_1():
     mo.md(r"""
-    Switchの8月の販売台数は前年比で50%程度になりそうです｡
+ 
     """)
     return
 
@@ -488,7 +505,9 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
 @app.cell(hide_code=True)
 def md_ps5_monthly_sales_1():
     mo.md(r"""
-    PS5の販売は前年比で好調です｡8月も100%を超える推移です｡
+    PS5の販売は前年比で好調です｡8月も100%を超えるのは確実です｡
+    PlayStationは9月にセールを行うのが恒例で､2025年9月は販売好調でした｡
+    今年は日本語版DEの価格以上のプロモーションを行うのかどうかが注目されます｡
     """)
     return
 
@@ -529,7 +548,8 @@ def _(report_date: datetime, xsx_df_pivot):
 def _():
     mo.md(r"""
     8月1日からのXbox Series X|Sの値上げ幅は大きく､
-    今後は前年同月比で落ち込むことが予想されます｡
+    販売は大きく落ち込んでます｡ 今後はまとまった数の販売は期待できず､
+    推計誤差の範囲と言うべき水準が続くでしょう｡
     """)
     return
 
@@ -606,25 +626,16 @@ def _(ps5_latest, report_date: datetime, switch2_latest):
 @app.cell(hide_code=True)
 def md_cumulative_sales_trend_1():
     mo.md(r"""
-    Switch2は累計600万台を超えました｡
-    Switch2はPS5を追い上げつつありますが､実際に追いつく時期は年末商戦次第で決まるため､
-    現時点で予想するのは難しいです｡
+    年末商戦次第ではありますが､Switch2が年内にPS5を追い抜けるかどうか微妙な状況です｡
+    PS5,Switch2､どちらが先に800万台に到達するかの競争になりそうです｡
     """)
     return
 
 
 @app.cell
-def md_ns2_sales_weeks_title():
-    # _ns2_weeks = switch2_latest["index_week"]
-    # mo.md(f"### Switch2: {_ns2_weeks}週目の累計状況")
-    return
-
-
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    ### Switch2 600万台到達
-    """)
+def md_ns2_sales_weeks_title(switch2_latest):
+    _ns2_weeks = switch2_latest["index_week"]
+    mo.md(f"### Switch2: {_ns2_weeks}週目の累計状況")
     return
 
 
@@ -667,6 +678,31 @@ def ns2_cumulative_delta_chart(ns2_info):
     return
 
 
+@app.cell
+def _(df_all: pl.DataFrame, ns2_info):
+    _d1 = (
+        df_all.filter(pl.col("index_week") == ns2_info["sales_weeks"])
+        .filter(pl.col("hw").is_in(["NS2", "NSW", "3DS", "GBA", "DS"]))
+        .select("hw", "index_week", "report_date", "sum_units")
+        .sort("sum_units", descending=True)
+    )
+    g.style_df(g.rename_columns(_d1))
+    return
+
+
+@app.cell(hide_code=True)
+def _():
+    mo.md(r"""
+    Switch2は依然として歴代最速の普及状況を維持しています｡
+    しかし､3DS,DSとは約20万台差まで迫られています｡
+    DSは66週目から急上昇しており､Switch2の歴代最速は5週間後にはDSに抜かれる可能性があります｡
+    しかし､9月17日発売の万紫千紅がハードを十分に牽引すれば､もう1週間は粘れるかもしれません｡
+
+    その後のDSの推移はあまりにも急激で､Switch2が2026年末商戦をもってしても追いつくのは難しいでしょう｡
+    """)
+    return
+
+
 @app.cell(hide_code=True)
 def md_yearly_sales_title():
     mo.md(r"""
@@ -696,8 +732,8 @@ def _():
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    2026年上期としては､5月のSwitch2駆け込み需要の影響で2017年､2020年に近い水準で約300万台でした｡
-    ただし3Q以降は今までのようなペースは難しそうです｡
+    2026年3Qも半分経過しましたが36万台にとどまっています｡
+    このペースでは､3Qとしては10年ぶりに100万台を下回る可能性があります｡
     """)
     return
 
@@ -754,7 +790,7 @@ def yearly_maker_share_chart():
 @app.cell(hide_code=True)
 def md_yearly_maker_share_1():
     mo.md(r"""
-    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが88.2%から88.1%に低下しました｡
+    Switch2､Switchの販売台数減少で､相対的にSONYのシェアが上昇し続けています｡ 任天堂のシェアが88.1%から87.8%に低下しました｡
     """)
     return
 
