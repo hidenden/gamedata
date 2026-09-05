@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.23.6"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -17,8 +17,14 @@ with app.setup:
 
     # サードパーティライブラリ
     import polars as pl
-
     # import polars.selectors as cs
+
+    import scipy as sp
+    import statsmodels.api as sm
+    import holidays as holidays
+    import ruptures as rpt
+    import vl_convert as vlc
+
     # プロジェクト内モジュール
     import gamedata as g
 

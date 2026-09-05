@@ -22,11 +22,19 @@ with app.setup:
     from pathlib import Path
     import sys
 
+    # サードパーティライブラリ
     import marimo as mo
     import altair as alt
-
-    # サードパーティライブラリ
     import polars as pl
+    # import polars.selectors as cs
+
+    import scipy as sp
+    import statsmodels.api as sm
+    import holidays as holidays
+    import ruptures as rpt
+    import vl_convert as vlc
+
+    # プロジェクト内モジュール
     import gamedata as g
 
 
