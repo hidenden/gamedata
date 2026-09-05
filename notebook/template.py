@@ -31,9 +31,8 @@ with app.setup:
 
 @app.cell
 def _():
-    _df = g.load_hard_sales()
-    _df
-    return
+    hard_sales_df = g.load_hard_sales()
+    return hard_sales_df
 
 
 if __name__ == "__main__":
