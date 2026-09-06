@@ -77,5 +77,18 @@ def _():
     return
 
 
+@app.cell(hide_code=True)
+def _():
+    mo.md(r"""
+    ## AIへの指示
+
+    分析前に `from gamedata import catalog` を実行し、`catalog.overview()` を参照してください。
+    販売データは `hard_sales_all_df`、注釈データは `annotation_all_df` にあります。
+    `catalog.inspect_frame(hard_sales_all_df, dataset="hard_sales")` で実際の収録範囲を確認し、
+    `catalog.search()` と `catalog.describe()` で分析に使う既存関数と列の意味を確認してください。
+    """)
+    return
+
+
 if __name__ == "__main__":
     app.run()

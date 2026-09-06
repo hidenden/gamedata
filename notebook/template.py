@@ -1,4 +1,5 @@
 # /// script
+# requires-python = ">=3.11"
 # [tool.marimo.display]
 # theme = "system"
 # ///
@@ -11,11 +12,12 @@ app = marimo.App(width="medium")
 with app.setup:
     # 標準ライブラリ
     from datetime import date, datetime
-
-    import marimo as mo
-    import altair as alt
+    from pathlib import Path
+    import sys
 
     # サードパーティライブラリ
+    import marimo as mo
+    import altair as alt
     import polars as pl
     # import polars.selectors as cs
 
@@ -30,9 +32,62 @@ with app.setup:
 
 
 @app.cell
+def load_db():
+    hard_sales_all_df: pl.DataFrame = g.load_hard_sales(True)
+    annotation_all_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
+    return
+
+
+@app.cell(hide_code=True)
+def md_prologue():
+    mo.md(r"""
+    # ゲームハードウェア分析 notebook
+
+    - このnotebookは日本国内のゲームハードウェア販売状況をデータから分析するものです｡
+    - ハードウェアの販売データは hard_sales_all_df に格納されています。これは毎週の各ハードウェアの販売台数が格納されています｡
+    - 注釈データは annotation_all_df に格納されています。これはゲーム関係のイベントと日付が格納されています｡売上の変化に影響を与える要因として利用してください｡
+    - データ分析時には､出来るだけ import済みの gamedataライブラリを使用して下さい｡
+    - gamedataライブラリで不足する場合は､新たな関数を実装して分析と可視化を行って下さい。
+    - 新たな関数が将来の分析でも使える汎用性を持つと判断される場合には､出来るだけ汎用な形式で関数化を試み､その旨を報告して下さい｡
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def _():
-    hard_sales_df = g.load_hard_sales()
-    return hard_sales_df
+    mo.md(r"""
+    ## 開発者用メモ
+
+    marimo起動方法
+
+    ```shell
+    uv run marimo edit --no-token --no-sandbox <notebook_file_path>
+    ```
+
+    marimo-pair接続プロンプト
+
+    ```text
+    marimo-pair http://localhost:2718 の既存セッションで､以下に示すnotebookとpairしてください。
+    新しいmarimoサーバーは起動しないでください。
+    sandbox内から接続できない場合は、接続スクリプトをsandbox外で実行してください。
+
+    notebook名:
+    ```
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _():
+    mo.md(r"""
+    ## AIへの指示
+
+    分析前に `from gamedata import catalog` を実行し、`catalog.overview()` を参照してください。
+    販売データは `hard_sales_all_df`、注釈データは `annotation_all_df` にあります。
+    `catalog.inspect_frame(hard_sales_all_df, dataset="hard_sales")` で実際の収録範囲を確認し、
+    `catalog.search()` と `catalog.describe()` で分析に使う既存関数と列の意味を確認してください。
+    """)
+    return
 
 
 if __name__ == "__main__":
