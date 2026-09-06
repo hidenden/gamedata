@@ -8,6 +8,8 @@ This package provides utilities for analyzing game hardware sales data.
 __version__ = "0.1.0"
 __author__ = "Hidenari Miwa"
 
+from . import catalog
+
 from . import chart_config  # テーマ登録の副作用を有効化
 from .chart_bar import (
     chart_bar_hwsales_by_year,

@@ -36,6 +36,7 @@ with app.setup:
 
     # プロジェクト内モジュール
     import gamedata as g
+    from gamedata import catalog
 
 
 @app.cell
