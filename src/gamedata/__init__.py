@@ -67,6 +67,12 @@ from .hard_sales import (
     get_maker_all,
     load_hard_sales,
 )
+from .forecast import (
+    forecast_year_end_52w,
+    forecast_year_end_all,
+    forecast_year_end_quarter_share,
+    forecast_year_end_yoy_seasonal,
+)
 from .hard_sales_extract import (
     extract_by_date,
     extract_latest,

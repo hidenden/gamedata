@@ -87,6 +87,18 @@ FUNCTIONS = {
             "modeはweek/month/year（w/m/yも可）。hw=[]は全機種",
         ],
     ),
+    "forecast_year_end_all": (
+        "forecast",
+        "3つの年末予測モデルと中央値アンサンブルを実行",
+        "hard_sales",
+        "year_end_forecast",
+        ["report_date", "year", "hw", "maker_name", "units", "ma52w", "q_num", "sum_units"],
+        [
+            "7日集計済みのma52w、メーカー別四半期構成比、前年季節ナイーブを併用",
+            "as_ofを省略すると入力の最新report_dateを基準にする",
+            "予測精度は保証されない。過去年のバックテストと併用する",
+        ],
+    ),
 }
 
 
