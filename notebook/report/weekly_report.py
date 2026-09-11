@@ -36,6 +36,7 @@ with app.setup:
 
     # プロジェクト内モジュール
     import gamedata as g
+    from gamedata import catalog
 
 
 @app.cell
@@ -52,7 +53,14 @@ def mode_set():
 
 
 @app.cell
-def report_setup(is_publish):
+def _():
+    df_sales_all: pl.DataFrame = g.load_hard_sales(True)
+    annotation_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
+    return (df_sales_all,)
+
+
+@app.cell
+def report_setup(df_sales_all: pl.DataFrame, is_publish):
     # レポート日付
     from report_config import get_config
 
@@ -64,17 +72,15 @@ def report_setup(is_publish):
         mode: str = "**DRAFT**" if not is_publish else ""
         return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode}")
 
-    df_all: pl.DataFrame = g.load_hard_sales(True)
-    _annotation_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
     [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
-        df_all, hw=["NS2", "PS5", "NSW"]
+        df_sales_all, hw=["NS2", "PS5", "NSW"]
     )
-    return df_all, ns2_info, report_date, show_title
+    return ns2_info, report_date, show_title
 
 
 @app.cell
-def _(df_all: pl.DataFrame):
-    _df_latest = g.extract_latest(df_all, 1)
+def _(df_sales_all: pl.DataFrame):
+    _df_latest = g.extract_latest(df_sales_all, 1)
     switch2_latest = _df_latest.filter(pl.col("hw") == "NS2").row(0, named=True)
     switch_latest = _df_latest.filter(pl.col("hw") == "NSW").row(0, named=True)
     ps5_latest = _df_latest.filter(pl.col("hw") == "PS5").row(0, named=True)
@@ -106,29 +112,22 @@ def md_weekly_summary_title():
 
 
 @app.cell
-def units_by_date_hw_table(df_all: pl.DataFrame, report_date: datetime):
+def units_by_date_hw_table(df_sales_all: pl.DataFrame, report_date: datetime):
     _table = g.units_by_date_hw_table(
-        df_all, begin=g.weeks_before(report_date, 3), end=report_date
+        df_sales_all, begin=g.weeks_before(report_date, 3), end=report_date
     )
     mo.hstack(items=[_table], justify="start", wrap=True)
     return
 
 
 @app.cell(hide_code=True)
-def md_weekly_summary_1():
+def md_top():
     mo.md(r"""
-    先週と比較し全ての機種で販売台数が増加しました｡
-    とはいえ全体としては低調が続いてます｡
+    9月6日は4機種の合計が43,759台となり､前週から12.9%増加しました｡Switch2､Switch､PS5はいずれも前週を上回りましたが､販売水準はなお低調です｡
 
-    Switch2は増加しましたが22,265台と､先週に続いて3万までは遠い状況です｡
-    ELDEN RINGによる牽引効果は特には無かったようです｡
-    3万回復のきっかけが欲しいところです｡
-    9月8日､9日の連続ダイレクトで需要が刺激されるか､万紫千紅まで待つことになるか｡
+    Switch2は24,281台で前週比9.1%増でした｡2週連続で3万台を下回っており､夏場の需要の弱さが続いています｡
 
-    今週最も増加したのはSwitchでした｡Switch Liteが堅実に売れ続けています｡
-
-    PS5も増加はしましたがSwitchほどではなく､
-    5月24日以来､14週間ぶりにSwitchを下回りました｡
+    Switchは11,591台で31.0%増と大きく伸び､7月5日以来9週ぶりに1万台を超えました｡PS5の7,760台を2週連続で上回っています｡Xbox Series X|Sは127台で前週から減少し､小規模な販売が続いています｡
     """)
     return
 
@@ -192,10 +191,13 @@ def weekly_sales_trend_2(report_date: datetime):
 
 
 @app.cell(hide_code=True)
-def md_weekly_sales_trend_3():
+def md_weekly_chart():
     mo.md(r"""
-    Switch2が先週の歴代最低の落ち込みから上昇はしていますが､歴代2番目に低い値であり､3万台回復が遠い状況です｡
-    14週間ぶりにPS5がSwitchを下回りました｡今後この順位がどう変動するかも注目です｡
+    Switch2は24,281台まで増加したものの､直近4週平均は25,015台へ低下しており､3万台回復には至っていません｡夏休み後の需要がどこまで持ち直すかが注目点です｡
+    次回集計にはNintendo Directの影響が反映されますが､時のオカリナモデルの本体が発表された影響で､本体買い控えの可能性も考えられます。
+
+    Switchは直近4週平均で8,515台となり､PS5の7,872台を上回りました｡単週でも2週連続でSwitchがPS5を上回っており､足元ではSwitchの方が強い動きです｡
+    ただし両機種とも販売規模は小さく､この順位が定着するかは今後の推移を見極める必要があります｡
     """)
     return
 
@@ -239,7 +241,7 @@ def ps5_yearly_cumulative_chart(ps5_latest):
             0, named=True
         )["yearly_sum_units"],
         x2=365,
-        y2=550000,
+        y2=637000,
         stroke=[3, 2],
         size=2,
         color="#ff000080",
@@ -259,6 +261,16 @@ def _():
     )
     _chart_ui = mo.ui.altair_chart(_chart)
     _chart_ui
+    return
+
+
+@app.cell(hide_code=True)
+def md_ps5_yearly():
+    mo.md(r"""
+    PS5の2026年累計は9月6日時点で413,562台です｡前年同時期の590,931台を30.0%下回り､2024年同時期の1,063,634台に対しては61.1%少ない水準です｡
+
+    52週平均による予測では年間販売予測は637,227台です｡2025年通年の879,204台を下回る見込みですが､直近の低調な週販だけではなく､過去1年の販売水準を織り込んだ予測です｡
+    """)
     return
 
 
@@ -292,7 +304,7 @@ def switch_yearly_cumulative_chart(switch_latest):
             0, named=True
         )["yearly_sum_units"],
         x2=365,
-        y2=680000,
+        y2=869000,
         stroke=[3, 2],
         size=2,
         color="#ff000080",
@@ -315,9 +327,11 @@ def _():
 
 
 @app.cell(hide_code=True)
-def md_switch_yearly_cumulative_1():
+def md_switch_yearly():
     mo.md(r"""
- 
+    Switchの2026年累計は9月6日時点で551,129台です｡前年同時期の1,073,896台から48.7%減､2024年同時期の1,978,746台から72.1%減となり､発売からの経過に伴う縮小が続いています｡
+
+    52週平均による予測では年間販売予測は869,052台です｡足元ではPS5を上回る週が続いているものの､2025年通年の1,520,384台を大きく下回る見込みです｡
     """)
     return
 
@@ -345,7 +359,7 @@ def _(switch2_latest):
             0, named=True
         )["yearly_sum_units"],
         x2=365,
-        y2=3600000,
+        y2=3850000,
         stroke=[3, 2],
         size=2,
         color="#ffa00080",
@@ -369,10 +383,11 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _():
+def md_switch2_yearly():
     mo.md(r"""
-    ここに来て駆け込み需要の反動以上の落ち込みです｡
-    やはり高価なゲーム機は需要のベースラインが低くなり､季節変動での落ち込みで踏ん張れないのかもしれません｡
+    Switch2の2026年累計は9月6日時点で2,481,406台です｡前年同時期の1,980,483台を25.3%上回っていますが､前年は6月発売であるため､前年比には販売期間の違いも含まれます｡
+
+    52週平均による予測では年間販売予測は3,846,958台です｡2025年通年の3,784,067台をわずかに上回る計算ですが､この平均には発売直後の高い販売水準も含まれるため､足元の週販だけからは達成を見込みにくい水準です｡
     """)
     return
 
@@ -419,9 +434,12 @@ def _(ns2_df_pivot, report_date: datetime):
 
 
 @app.cell(hide_code=True)
-def md_ns2_monthly_sales_1():
+def md_switch2_monthly():
     mo.md(r"""
-    Switch2の8月の前年比は43%でした｡当初予想は50%程度だったのですが､8月後半の落ち込みが予想以上でした｡
+    Switch2の9月第1週の販売は24,281台で､前年同週の46,403台を47.7%下回りました｡前週の22,265台からは増加しましたが､夏場に続き3万台を下回る水準です｡
+
+    8月は139,165台と7月をわずかに上回ったものの､前年8月の319,690台には届きませんでした｡
+    9月は月初の低い水準から始まっており､月後半に「ファイアーエムブレム 万紫千紅 (9月17日発売)」がどこまで需要を押し上げるかが焦点です｡
     """)
     return
 
@@ -459,10 +477,11 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
 
 
 @app.cell(hide_code=True)
-def md_switch_monthly_sales_1():
+def md_switch_monthly():
     mo.md(r"""
-    Switchも前年比で40%と低い値です｡
-    Switchの場合はライフタイム的には妥当な範囲でしょう｡
+    Switchの9月第1週の販売は11,591台で､前年同週の24,175台を52.1%下回りました｡前週比では31.0%増となり､PS5を2週連続で上回っています｡
+
+    8月は38,211台と7月から15.6%増加しましたが､前年8月の94,517台に対しては低い水準でした｡9月も前年を下回る出足であり､縮小基調に変化は見られません｡
     """)
     return
 
@@ -500,13 +519,13 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
 
 
 @app.cell(hide_code=True)
-def md_ps5_monthly_sales_1():
+def md_ps5_monthly():
     mo.md(r"""
-    PS5の8月は前年比で好調でした｡8月の前年比は112%で前年を上回る販売台数でした｡
+    PS5の9月第1週の販売は7,760台で､前年同週の31,695台を75.5%下回りました｡前週の7,351台からは5.6%増えたものの､Switchを2週連続で下回っています｡
 
-    昨年の9月は本体価格を値引きするセールで売上を伸ばしました｡
-    今年､同様のプロモーションを行えない場合には9月の前年比は60%程度に落ち込む可能性があります｡
-    既にPS5DE日本語版を安値で販売しており常時セールとも言えるので､ここから追加で値引きするのは難しいでしょう｡
+    8月は43,810台で前年同月を12.3%上回りましたが､月後半には週販が1万台を割り込みました｡9月は弱い出足となっており､
+    前年の販促効果を上回る材料がなければ前年同月比は大きく低下する可能性があります｡
+    9月15日発売のInsomniac期待の新作 Marvel's Wolverine がどこまでハード販売を押し上げるかが注目点です｡
     """)
     return
 
@@ -544,10 +563,11 @@ def _(report_date: datetime, xsx_df_pivot):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_xsx_monthly():
     mo.md(r"""
-    8月1日からのXbox Series X|Sの値上げの影響は大きく､前年比4割に落ち込んでます｡
-    今後､回復するきっかけを見つけるのも難しそうです｡
+    Xbox Series X|Sの9月第1週の販売は127台で､前年同週の160台を20.6%下回りました｡前週の298台からは減少し､直近4週平均も157台にとどまっています｡
+
+    8月販売は659台で､7月の1,131台から41.7%減少しました｡単週ごとの変動はあるものの､販売規模は引き続き極めて小さい状態です｡
     """)
     return
 
@@ -622,10 +642,11 @@ def _(ps5_latest, report_date: datetime, switch2_latest):
 
 
 @app.cell(hide_code=True)
-def md_cumulative_sales_trend_1():
+def md_cumulative_ps5_switch2():
     mo.md(r"""
-    Switch2の販売ベースラインが下がっており､
-    Switch2が年内にPS5を追い抜くには年末商戦で相当のブーストが必要になるでしょう｡
+    9月6日時点の累計販売はPS5が7,711,772台､Switch2が6,265,473台で､差は1,446,299台です｡今週はSwitch2がPS5を16,521台上回り､差を縮めました｡
+
+    直近4週平均でもSwitch2がPS5を週約1.7万台上回っています｡この差が続けば追いつくまで約84週を要する計算で､逆転時期は2028年春ごろが目安となります｡年内の逆転には､年末商戦で大幅な販売加速が必要です｡
     """)
     return
 
@@ -677,9 +698,9 @@ def ns2_cumulative_delta_chart(ns2_info):
 
 
 @app.cell
-def _(df_all: pl.DataFrame, ns2_info):
+def _(df_sales_all: pl.DataFrame, ns2_info):
     _d1 = (
-        df_all.filter(pl.col("index_week") == ns2_info["sales_weeks"])
+        df_sales_all.filter(pl.col("index_week") == ns2_info["sales_weeks"])
         .filter(pl.col("hw").is_in(["NS2", "NSW", "3DS", "GBA", "DS"]))
         .select("hw", "index_week", "report_date", "sum_units")
         .sort("sum_units", descending=True)
@@ -689,10 +710,11 @@ def _(df_all: pl.DataFrame, ns2_info):
 
 
 @app.cell(hide_code=True)
-def _():
+def md_cumulative_top():
     mo.md(r"""
-    Switch2はまだ歴代最速の普及状況を維持していますが､早ければ再来週､遅くても3週間後には歴代最速の座をDSに明け渡すでしょう｡
-    もし､万紫千紅がSwitch2と強く牽引した場合には､歴代最速を明け渡すのは､もう1週間あとにずれ込むかもしれません｡
+    発売66週時点のSwitch2累計は6,265,473台で､同時点のDSを184,130台､3DSを200,164台上回り､歴代最速の普及ペースを維持しています｡GBAに対しても約79万台の差をつけています｡
+
+    ただしDSはこの時期に週10万台を超える販売を記録しており､3DSも週5万台前後で推移していました｡Switch2が直近4週平均の約2.5万台で推移する場合､両機種との差は今後急速に縮まる可能性があります｡
     """)
     return
 
@@ -718,15 +740,17 @@ def _():
     _c1 = g.chart_bar_yearly_by_mode(
         begin=date(2016, 1, 1),
     )
-    _c2 = mo.ui.altair_chart(_c1)
-    _c2
+    quarter_chart = mo.ui.altair_chart(_c1)
+    mo.vstack([quarter_chart])
     return
 
 
 @app.cell(hide_code=True)
-def _():
+def md_quarterly():
     mo.md(r"""
- 
+    2026年第3四半期は9月6日までの10週間で477,511台です｡前年同期の1,089,637台を56.2%､2024年同期の884,949台を46.0%下回っています｡
+
+    Switch2は300,094台で前年同期から63.0%減となった一方､PS5は92,635台で前年同期の99,658台に近い水準です｡市場全体の減少は､Switch2とSwitchの前年からの縮小が主な要因です｡
     """)
     return
 
@@ -765,6 +789,16 @@ def yearly_sales_table(year_df):
 
 
 @app.cell(hide_code=True)
+def md_yearly_hard():
+    mo.md(r"""
+    2026年のハード販売は9月6日時点で合計3,462,214台です｡前年同時期の3,671,358台を5.7%下回る一方､2024年同時期の3,140,869台は10.2%上回っています｡
+
+    Switch2が2,481,406台で全体の71.7%を占め､Switchの551,129台､PS5の413,562台が続きます｡Switch2が市場規模を支える構図は続いていますが､前年の同時期と比べるとNintendo Switch 2とSwitchの販売減が全体を押し下げています｡
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def md_yearly_maker_share_title():
     mo.md(r"""
     ### 年単位のメーカーシェア
@@ -781,10 +815,72 @@ def yearly_maker_share_chart():
 
 
 @app.cell(hide_code=True)
-def md_yearly_maker_share_1():
+def md_yearly_maker_share():
     mo.md(r"""
-    今週はSwitchの増加の影響で任天堂のシェアが87.7%で変化無しでした｡
+    2026年のメーカー別シェアは9月6日時点で任天堂が87.6%､ソニーが11.9%､マイクロソフトが0.5%です｡前年同時期の任天堂シェア83.2%､2024年同時期の63.0%を上回り､任天堂優位が一段と強まっています｡
+
+    Switch2だけで市場全体の71.7%を占めており､任天堂の高いシェアを支えています｡一方､ソニーは前年同時期の16.1%から低下し､マイクロソフトも1%未満の状態が続いています｡
     """)
+    return
+
+
+@app.cell
+def _():
+    _md_summaries = [
+        {"cell_name": "md_top",
+        "description": "今週の売上概況を､主に先週と比較しながら説明する｡節目となるような変化があれば､それも記述する"},
+        {"cell_name": "md_weekly_chart",
+         "description": "週間販売折れ線グラフの説明､先週と比較しつつ､機種同士の比較や､今後の見通しを含めて解説"},
+        {"cell_name": "md_ps5_yearly",
+         "description": "PS5の今年の販売状況を昨年､一昨年と比較､年末までの見通しについて記述"},
+        {"cell_name": "md_switch_yearly",
+         "description": "Switchの今年の販売状況を昨年､一昨年と比較､年末までの見通しについて記述"},
+        {"cell_name": "md_switch2_yearly",
+         "description": "Switch2の今年の販売状況を昨年と比較､年末までの見通しについて記述"},
+        {"cell_name": "md_switch2_monthly",
+         "description": "Switch2の今月の販売状況を昨年同月､先月と比較して説明｡その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述"},
+        {"cell_name": "md_switch_monthly",
+         "description": "Switchの今月の販売状況を昨年同月､先月と比較して説明｡その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述"},
+        {"cell_name": "md_ps5_monthly",
+         "description": "PS5の今月の販売状況を昨年同月､先月と比較して説明｡その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述"},
+        {"cell_name": "md_xsx_monthly",
+         "description": "Xbox Series X|S の今月の販売状況を昨年同月､先月と比較して説明｡その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述"},
+        {"cell_name": "md_cumulative_ps5_switch2",
+         "description": "PS5とSwitch2の累計比較記事｡特にSwitch2がPS5に追いつく時期の予想も込めて記述"},
+        {"cell_name": "md_cumulative_top",
+         "description": "歴代のハードの初期の累計推移を比較する記事｡特にSwitch2を他機種と比較した状況､今後の見通しを記述"},
+        {"cell_name": "md_quarterly",
+         "description": "各年の四半期販売状況と今期の状況を比較して短く解説"},
+        {"cell_name": "md_yearly_hard",
+         "description": "各年の各ハードの状況と､今年の状況を比較して短く解説"},
+        {"cell_name": "md_yearly_maker_share",
+         "description": "各年の各ハードのメーカーシェアの状況と､今年の状況を比較し短く解説"}        
+    ]
+
+    def get_bodytext_cells():
+        """
+        Return the list of body text cell summaries.
+
+        Returns:
+            list: A list of dictionaries containing cell names and their descriptions.
+        """
+        return _md_summaries
+
+    def get_bodytext_description_by_cell_name(cell_name):
+        """
+        Return the description of a body text cell by its cell name.
+
+        Args:
+            cell_name (str): The name of the cell.
+
+        Returns:
+            str: The description of the cell if found, otherwise None.
+        """
+        for cell in _md_summaries:
+            if cell["cell_name"] == cell_name:
+                return cell["description"]
+        return None
+
     return
 
 

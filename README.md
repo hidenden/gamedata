@@ -1,5 +1,20 @@
 # Japan Game Data Analysis
 
+## AI向けカタログ
+
+marimo-pairで接続したAIや通常のPythonから、データの意味・既存関数・DataFrameの収録範囲を確認できます。
+
+```python
+from gamedata import catalog
+
+print(catalog.render(catalog.overview()))
+print(catalog.render(catalog.search("発売からの累計を比較")))
+# notebookにロード済みのデータを確認
+# catalog.inspect_frame(hard_sales_all_df, dataset="hard_sales")
+```
+
+呼び出し方法・接続案内・登録範囲は [カタログ利用ガイド](docs/catalog-guide.md) を参照してください。
+
 
 ## 全体の構造
 
@@ -106,4 +121,3 @@ uv run python -c "import gamedata; print(gamedata.__file__)"
 ### 補足
 
 この問題は editable 自体の破損ではなく、.pth 読み込みが hidden 属性で抑止されることが原因です。
-
