@@ -137,6 +137,24 @@ def test_forecast_output_contract():
     assert catalog.inspect_frame(actual, dataset="year_end_forecast")["validation"]["status"] == "schema_match"
 
 
+def test_52w_forecast_output_contract():
+    sales = pl.DataFrame(
+        {
+            "report_date": [date(2021, 3, 28)],
+            "year": [2021],
+            "hw": ["N"],
+            "maker_name": ["Nintendo"],
+            "units": [100],
+            "ma52w": [70],
+            "sum_units": [1_000],
+        }
+    )
+    actual = g.forecast_52w(sales, target_date=date(2022, 3, 28))
+    info = catalog.describe("function:forecast_52w")
+    assert info["output_dataset"] == "dataset:forecast_52w"
+    assert catalog.inspect_frame(actual, dataset="forecast_52w")["validation"]["status"] == "schema_match"
+
+
 def test_correction_and_fiscal_semantics(sample_sales_df):
     from gamedata.hard_sales import _with_derived_columns
 

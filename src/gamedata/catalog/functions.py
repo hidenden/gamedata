@@ -99,6 +99,18 @@ FUNCTIONS = {
             "予測精度は保証されない。過去年のバックテストと併用する",
         ],
     ),
+    "forecast_52w": (
+        "forecast",
+        "52週移動平均で任意期間と将来累計の販売台数を予測",
+        "hard_sales",
+        "forecast_52w",
+        ["report_date", "year", "hw", "maker_name", "units", "ma52w", "sum_units"],
+        [
+            "period_start_dateを省略するとas_of年の1月1日、target_dateを省略すると同年12月31日",
+            "target_dateは年をまたいで指定できる。period_start_date <= as_of <= target_dateが必要",
+            "forecast_cumulative_unitsはハードごとのsum_unitsを起点にするため、発売日を個別指定する必要がない",
+        ],
+    ),
 }
 
 

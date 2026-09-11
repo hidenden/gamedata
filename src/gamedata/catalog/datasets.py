@@ -242,6 +242,29 @@ for _period in ("week", "month", "year"):
         semantics=["グループ内の入力順で最後のsum_unitsを採用。日付昇順の入力が必要"],
     )
 
+DATASETS["forecast_52w"] = dataset(
+    "forecast_52w",
+    "52週移動平均による任意期間・将来累計販売台数予測",
+    {
+        "model": column("String", "予測モデル名。trailing_52w"),
+        "as_of": column("Date", "実績を観測済みとして扱う予測基準日"),
+        "period_start_date": column("Date", "期間累計販売台数の集計開始日"),
+        "target_date": column("Date", "予測対象となる期間累計の終了日"),
+        **{k: SALES_COLUMNS[k] for k in ("hw", "maker_name")},
+        "actual_period_units": column("Int64", "開始日から基準日までの実績販売台数", unit="台"),
+        "forecast_remaining_units": column("Int64", "基準日から対象日までの予測販売台数", unit="台"),
+        "forecast_period_units": column("Int64", "開始日から対象日までの予測期間累計販売台数", unit="台"),
+        "forecast_cumulative_units": column("Int64", "対象日時点のハード別累計販売台数予測", unit="台"),
+    },
+    ["model", "as_of", "period_start_date", "target_date", "hw"],
+    grain="予測基準日 × 期間 × ハード × 予測モデル",
+    semantics=[
+        "入力は7日集計済みで、ma52wを週平均販売台数として使う",
+        "forecast_cumulative_unitsはsum_unitsに残期間予測を加えるため、開始日・発売日に依存しない",
+        "期間実績はreport_dateで絞り込み、週次レコードを日割り配分しない",
+    ],
+)
+
 DATASETS["year_end_forecast"] = dataset(
     "year_end_forecast",
     "暦年末のハード別販売台数予測（複数モデル）",

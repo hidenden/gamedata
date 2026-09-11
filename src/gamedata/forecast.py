@@ -1,4 +1,4 @@
-"""暦年末のゲームハード販売台数を予測する関数群。"""
+"""ゲームハード販売台数の52週平均・年末予測関数群。"""
 
 from __future__ import annotations
 
@@ -23,6 +23,18 @@ _FORECAST_COLUMNS = [
     "actual_ytd_units",
     "forecast_remaining_units",
     "forecast_year_units",
+]
+_PERIOD_FORECAST_COLUMNS = [
+    "model",
+    "as_of",
+    "period_start_date",
+    "target_date",
+    "hw",
+    "maker_name",
+    "actual_period_units",
+    "forecast_remaining_units",
+    "forecast_period_units",
+    "forecast_cumulative_units",
 ]
 
 
@@ -70,49 +82,92 @@ def _forecast_context(
     return resolved_as_of, year, current, actual
 
 
-def forecast_year_end_52w(
+def forecast_52w(
     sales_df: pl.DataFrame,
     as_of: date | None = None,
+    period_start_date: date | None = None,
+    target_date: date | None = None,
     hw: Sequence[str] | None = None,
 ) -> pl.DataFrame:
-    """保存済みの52週移動平均から年末販売台数を予測する。
+    """保存済みの52週移動平均から任意期間・将来累計を予測する。
 
     入力がすべて7日集計済みであることを前提に、基準日時点の ``ma52w``
-    （過去52週の週平均販売台数）が年末まで続くと仮定する。返却値はハード
-    ごとの当年実績・残期間予測・年間予測で、``model`` は
-    ``trailing_52w`` となる。52週分の履歴がないハードでは予測列がnullに
-    なる。
+    （過去52週の週平均販売台数）が ``target_date`` まで続くと仮定する。
+    ``period_start_date`` を省略すると基準日の属する年の1月1日、
+    ``target_date`` を省略すると同年12月31日を使う。対象日は年をまたいで
+    指定できる。
+
+    Returns:
+        指定期間の実績・予測累計に加え、対象日時点のハード別累計予測
+        ``forecast_cumulative_units`` を持つDataFrame。後者は開始日や
+        ハードごとの発売日に依存せず、基準日時点の ``sum_units`` に残期間
+        予測を加えて計算する。
+
+    Raises:
+        ValueError: ``period_start_date <= as_of <= target_date`` を満たさない
+            場合、または必須列・販売実績が不足する場合。
     """
     resolved_as_of, year, _, actual = _forecast_context(
-        sales_df, as_of, hw, required={"ma52w"}
+        sales_df, as_of, hw, required={"ma52w", "sum_units"}
     )
-    weekly_average = (
+    start = date(year, 1, 1) if period_start_date is None else period_start_date
+    target = date(year, 12, 31) if target_date is None else target_date
+    if not isinstance(start, date):
+        raise TypeError("period_start_dateはdatetime.dateまたはNoneを指定してください")
+    if not isinstance(target, date):
+        raise TypeError("target_dateはdatetime.dateまたはNoneを指定してください")
+    if start > resolved_as_of:
+        raise ValueError("period_start_dateはas_of以前の日付を指定してください")
+    if target < resolved_as_of:
+        raise ValueError("target_dateはas_of以後の日付を指定してください")
+
+    target_hw = actual.get_column("hw").to_list()
+    snapshot = (
         sales_df.filter(
             (pl.col("report_date") <= resolved_as_of)
-            & pl.col("hw").is_in(actual.get_column("hw").to_list())
+            & pl.col("hw").is_in(target_hw)
         )
         .sort("report_date")
         .group_by("hw")
-        .agg(pl.col("ma52w").last().alias("weekly_run_rate"))
+        .agg(
+            pl.col("maker_name").last().alias("maker_name"),
+            pl.col("ma52w").last().alias("weekly_run_rate"),
+            pl.col("sum_units").last().alias("actual_cumulative_units"),
+        )
     )
-    remaining_days = (date(year, 12, 31) - resolved_as_of).days
+    period_actual = (
+        sales_df.filter(
+            (pl.col("report_date") >= start)
+            & (pl.col("report_date") <= resolved_as_of)
+            & pl.col("hw").is_in(target_hw)
+        )
+        .group_by("hw")
+        .agg(pl.col("units").sum().alias("actual_period_units"))
+    )
+    remaining_days = (target - resolved_as_of).days
     return (
-        actual.join(weekly_average, on="hw", how="left")
+        snapshot.join(period_actual, on="hw", how="left")
         .with_columns(
-            (pl.col("actual_ytd_units") + pl.col("weekly_run_rate") * remaining_days / 7)
+            pl.col("actual_period_units").fill_null(0).cast(pl.Int64),
+            (pl.col("weekly_run_rate") * remaining_days / 7)
             .round(0)
             .cast(pl.Int64)
-            .alias("forecast_year_units"),
+            .alias("forecast_remaining_units"),
             pl.lit("trailing_52w").alias("model"),
             pl.lit(resolved_as_of).alias("as_of"),
+            pl.lit(start).alias("period_start_date"),
+            pl.lit(target).alias("target_date"),
         )
         .with_columns(
-            (pl.col("forecast_year_units") - pl.col("actual_ytd_units")).alias(
-                "forecast_remaining_units"
-            )
+            (pl.col("actual_period_units") + pl.col("forecast_remaining_units")).alias(
+                "forecast_period_units"
+            ),
+            (pl.col("actual_cumulative_units") + pl.col("forecast_remaining_units")).alias(
+                "forecast_cumulative_units"
+            ),
         )
-        .select(_FORECAST_COLUMNS)
-        .sort("forecast_year_units", descending=True)
+        .select(_PERIOD_FORECAST_COLUMNS)
+        .sort("forecast_period_units", descending=True)
     )
 
 
@@ -273,7 +328,16 @@ def forecast_year_end_all(
     _validate_sales_frame(sales_df, _CONTEXT_COLUMNS | {"ma52w", "q_num", "sum_units"})
     forecasts = pl.concat(
         [
-            forecast_year_end_52w(sales_df, as_of, hw=hw),
+            forecast_52w(sales_df, as_of, hw=hw)
+            .select(
+                "model",
+                "as_of",
+                "hw",
+                "maker_name",
+                pl.col("actual_period_units").alias("actual_ytd_units"),
+                "forecast_remaining_units",
+                pl.col("forecast_period_units").alias("forecast_year_units"),
+            ),
             forecast_year_end_quarter_share(sales_df, as_of, hw=hw),
             forecast_year_end_yoy_seasonal(sales_df, as_of, hw=hw),
         ],

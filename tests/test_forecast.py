@@ -57,12 +57,45 @@ def test_yoy_model_keeps_new_hardware_forecast_null():
     assert result.filter(pl.col("hw") == "S")["forecast_year_units"][0] is None
 
 
-def test_52w_model_uses_saved_weekly_average():
-    result = g.forecast_year_end_52w(_forecast_sales_df(), as_of=date(2021, 3, 31))
+def test_52w_model_uses_saved_weekly_average_for_period_and_cumulative_forecasts():
+    result = g.forecast_52w(_forecast_sales_df(), as_of=date(2021, 3, 31))
     nintendo = result.filter(pl.col("hw") == "N").row(0, named=True)
     # 3月31日から年末まで275日、週平均70台を日割りして加算する。
     assert nintendo["forecast_remaining_units"] == 2750
-    assert nintendo["forecast_year_units"] == 2850
+    assert nintendo["actual_period_units"] == 100
+    assert nintendo["forecast_period_units"] == 2850
+    assert nintendo["forecast_cumulative_units"] == 4850
+
+
+def test_52w_model_accepts_cross_year_target_and_explicit_period_start():
+    result = g.forecast_52w(
+        _forecast_sales_df(),
+        as_of=date(2021, 3, 31),
+        period_start_date=date(2020, 1, 1),
+        target_date=date(2022, 3, 31),
+        hw=["N"],
+    ).row(0, named=True)
+    assert result["actual_period_units"] == 1100
+    assert result["forecast_remaining_units"] == 3650
+    assert result["forecast_period_units"] == 4750
+    assert result["forecast_cumulative_units"] == 5750
+
+
+@pytest.mark.parametrize(
+    ("period_start_date", "target_date"),
+    [
+        (date(2021, 4, 1), date(2021, 12, 31)),
+        (date(2021, 1, 1), date(2021, 3, 30)),
+    ],
+)
+def test_52w_model_rejects_invalid_date_order(period_start_date, target_date):
+    with pytest.raises(ValueError):
+        g.forecast_52w(
+            _forecast_sales_df(),
+            as_of=date(2021, 3, 31),
+            period_start_date=period_start_date,
+            target_date=target_date,
+        )
 
 
 def test_all_models_filter_hardware_and_add_cumulative_forecast():
