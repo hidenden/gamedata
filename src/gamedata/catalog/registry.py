@@ -128,6 +128,7 @@ def overview():
             "期間・機種抽出",
             "週次・月次集計",
             "発売からの累計比較",
+            "年末販売台数予測",
         ],
         "coverage": {
             "functions": len(FUNCTIONS),

@@ -87,6 +87,30 @@ FUNCTIONS = {
             "modeはweek/month/year（w/m/yも可）。hw=[]は全機種",
         ],
     ),
+    "forecast_year_end_all": (
+        "forecast",
+        "3つの年末予測モデルと中央値アンサンブルを実行",
+        "hard_sales",
+        "year_end_forecast",
+        ["report_date", "year", "hw", "maker_name", "units", "ma52w", "q_num", "sum_units"],
+        [
+            "7日集計済みのma52w、メーカー別四半期構成比、前年季節ナイーブを併用",
+            "as_ofを省略すると入力の最新report_dateを基準にする",
+            "予測精度は保証されない。過去年のバックテストと併用する",
+        ],
+    ),
+    "forecast_52w": (
+        "forecast",
+        "52週移動平均で任意期間と将来累計の販売台数を予測",
+        "hard_sales",
+        "forecast_52w",
+        ["report_date", "year", "hw", "maker_name", "units", "ma52w", "sum_units"],
+        [
+            "period_start_dateを省略するとas_of年の1月1日、target_dateを省略すると同年12月31日",
+            "target_dateは年をまたいで指定できる。period_start_date <= as_of <= target_dateが必要",
+            "forecast_cumulative_unitsはハードごとのsum_unitsを起点にするため、発売日を個別指定する必要がない",
+        ],
+    ),
 }
 
 

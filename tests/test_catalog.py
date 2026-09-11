@@ -121,6 +121,40 @@ def test_monthly_long_output_and_recipe(sample_sales_df):
         assert isinstance(result, pl.DataFrame)
 
 
+def test_forecast_output_contract():
+    rows = []
+    for year in (2019, 2020):
+        for quarter, month, units in ((1, 3, 100), (2, 6, 200), (3, 9, 300), (4, 12, 400)):
+            rows.append((year, quarter, date(year, month, 28), units))
+    rows.append((2021, 1, date(2021, 3, 28), 100))
+    sales = pl.DataFrame(rows, schema=["year", "q_num", "report_date", "units"], orient="row").with_columns(
+        pl.lit("N").alias("hw"), pl.lit("Nintendo").alias("maker_name"),
+        pl.lit(100).alias("ma52w"), pl.col("units").cum_sum().alias("sum_units"),
+    )
+    actual = g.forecast_year_end_all(sales)
+    info = catalog.describe("function:forecast_year_end_all")
+    assert info["output_dataset"] == "dataset:year_end_forecast"
+    assert catalog.inspect_frame(actual, dataset="year_end_forecast")["validation"]["status"] == "schema_match"
+
+
+def test_52w_forecast_output_contract():
+    sales = pl.DataFrame(
+        {
+            "report_date": [date(2021, 3, 28)],
+            "year": [2021],
+            "hw": ["N"],
+            "maker_name": ["Nintendo"],
+            "units": [100],
+            "ma52w": [70],
+            "sum_units": [1_000],
+        }
+    )
+    actual = g.forecast_52w(sales, target_date=date(2022, 3, 28))
+    info = catalog.describe("function:forecast_52w")
+    assert info["output_dataset"] == "dataset:forecast_52w"
+    assert catalog.inspect_frame(actual, dataset="forecast_52w")["validation"]["status"] == "schema_match"
+
+
 def test_correction_and_fiscal_semantics(sample_sales_df):
     from gamedata.hard_sales import _with_derived_columns
 
