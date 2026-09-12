@@ -49,18 +49,20 @@ def mode_set():
         alt.theme.enable("edit")
     else:
         alt.theme.enable("publish")
+
     return (is_publish,)
 
 
 @app.cell
 def _():
-    df_sales_all: pl.DataFrame = g.load_hard_sales(True)
+    hard_sales_df: pl.DataFrame = g.load_hard_sales(True)
     annotation_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
-    return (df_sales_all,)
+
+    return (hard_sales_df,)
 
 
 @app.cell
-def report_setup(df_sales_all: pl.DataFrame, is_publish):
+def report_setup(hard_sales_df: pl.DataFrame, is_publish):
     # レポート日付
     from report_config import get_config
 
@@ -73,23 +75,26 @@ def report_setup(df_sales_all: pl.DataFrame, is_publish):
         return mo.md(f"# 国内ゲームハード週販レポート ({last_updated_str}) {mode}")
 
     [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
-        df_sales_all, hw=["NS2", "PS5", "NSW"]
+        hard_sales_df, hw=["NS2", "PS5", "NSW"]
     )
+
     return ns2_info, report_date, show_title
 
 
 @app.cell
-def _(df_sales_all: pl.DataFrame):
-    _df_latest = g.extract_latest(df_sales_all, 1)
+def _(hard_sales_df: pl.DataFrame):
+    _df_latest = g.extract_latest(hard_sales_df, 1)
     switch2_latest = _df_latest.filter(pl.col("hw") == "NS2").row(0, named=True)
     switch_latest = _df_latest.filter(pl.col("hw") == "NSW").row(0, named=True)
     ps5_latest = _df_latest.filter(pl.col("hw") == "PS5").row(0, named=True)
+
     return ps5_latest, switch2_latest, switch_latest
 
 
 @app.cell
 def show_title_cell(report_date: datetime, show_title):
     show_title(report_date)
+
     return
 
 
@@ -112,11 +117,12 @@ def md_weekly_summary_title():
 
 
 @app.cell
-def units_by_date_hw_table(df_sales_all: pl.DataFrame, report_date: datetime):
+def units_by_date_hw_table(hard_sales_df: pl.DataFrame, report_date: datetime):
     _table = g.units_by_date_hw_table(
-        df_sales_all, begin=g.weeks_before(report_date, 3), end=report_date
+        hard_sales_df, begin=g.weeks_before(report_date, 3), end=report_date
     )
     mo.hstack(items=[_table], justify="start", wrap=True)
+
     return
 
 
@@ -152,8 +158,9 @@ def weekly_sales_trend(report_date: datetime):
         padding_end=2,
     )
 
-    _weekly_chart = mo.ui.altair_chart(_chart)
-    mo.hstack(items=[_weekly_chart], justify="start", wrap=True)
+    weekly_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[weekly_chart], justify="start")
+
     return
 
 
@@ -175,7 +182,7 @@ def md_weekly_sales_trend_2():
 
 @app.cell
 def weekly_sales_trend_2(report_date: datetime):
-    _begin = date(2026, 1, 15)
+    _begin = date(2026, 2, 15)
     _end = report_date
     _chart = g.chart_line_sales(
         hw=["NSW", "PS5", "XSX", "NS2"],
@@ -186,7 +193,9 @@ def weekly_sales_trend_2(report_date: datetime):
         padding_end=1,
         value_label=True,
     )
-    mo.hstack(items=[mo.ui.altair_chart(_chart)], justify="start", wrap=True)
+    weekly_big_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[weekly_big_chart], justify="start")
+
     return
 
 
@@ -246,21 +255,23 @@ def ps5_yearly_cumulative_chart(ps5_latest):
         size=2,
         color="#ff000080",
     )
+    ps5_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[ps5_yearly_cumulative_chart], justify="start")
 
-    mo.ui.altair_chart(_chart)
     return
 
 
 @app.cell
-def _():
+def ps5_heatmap_chart():
     _chart = g.chart_heatmap(
         hw="PS5",
         mode="week",
         scale_scheme="plasma",
         scale_type="sqrt",
     )
-    _chart_ui = mo.ui.altair_chart(_chart)
-    _chart_ui
+    ps5_heatmap_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[ps5_heatmap_chart], justify="start")
+
     return
 
 
@@ -309,20 +320,23 @@ def switch_yearly_cumulative_chart(switch_latest):
         size=2,
         color="#ff000080",
     )
-    mo.ui.altair_chart(_chart)
+    switch_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[switch_yearly_cumulative_chart], justify="start")
+
     return
 
 
 @app.cell
-def _():
+def switch_heatmap_chart():
     _chart = g.chart_heatmap(
         hw="NSW",
         mode="week",
         scale_scheme="plasma",
         scale_type="sqrt",
     )
-    _chart_ui = mo.ui.altair_chart(_chart)
-    _chart_ui
+    switch_heatmap_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[switch_heatmap_chart], justify="start")
+
     return
 
 
@@ -337,7 +351,7 @@ def md_switch_yearly():
 
 
 @app.cell(hide_code=True)
-def _():
+def switch2_yearly_cumulative_title():
     mo.md(r"""
     ### Switch2(2025年, 2026年)
     """)
@@ -345,7 +359,7 @@ def _():
 
 
 @app.cell
-def _(switch2_latest):
+def switch2_yearly_cumulative_chart(switch2_latest):
     _chart = g.chart_line_ycumulative_by_hw_year(
         hw_years=[("NS2", 2025), ("NS2", 2026)],
         annotation_level=25,
@@ -364,12 +378,14 @@ def _(switch2_latest):
         size=2,
         color="#ffa00080",
     )
-    mo.ui.altair_chart(_chart)
+    switch2_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[switch2_yearly_cumulative_chart], justify="start")
+
     return
 
 
 @app.cell
-def _():
+def switch2_heatmap_chart():
     _chart = g.chart_heatmap(
         hw="NS2",
         mode="week",
@@ -377,8 +393,9 @@ def _():
         scale_type="log",
     )
     _chart = _chart.properties(height=200)
-    _chart_ui = mo.ui.altair_chart(_chart)
-    _chart_ui
+    switch2_heatmap_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[switch2_heatmap_chart], justify="start")
+
     return
 
 
@@ -409,20 +426,21 @@ def md_ns2_monthly_sales_title():
 
 
 @app.cell
-def _(report_date: datetime):
+def switch2_monthly_sales_chart(report_date: datetime):
     _begin = g.years_ago(report_date)
     _end = report_date
-    _chart_bar = mo.ui.altair_chart(
+    switch2_monthly_bar = mo.ui.altair_chart(
         g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="NS2")
     )
-    ns2_df = _chart_bar.dataframe
+    ns2_df = switch2_monthly_bar.dataframe
     ns2_df_pivot = ns2_df.pivot(index="month", on="year", values="monthly_units")
-    mo.vstack(items=[_chart_bar], justify="start")
+    mo.vstack(items=[switch2_monthly_bar], justify="start")
+
     return (ns2_df_pivot,)
 
 
 @app.cell
-def _(ns2_df_pivot, report_date: datetime):
+def switch2_monthly_sales_table(ns2_df_pivot, report_date: datetime):
     _this_year = report_date.year
     # my_ns2_df2 = ns2_df_pivot.drop(str(_this_year - 2))
     my_ns2_df2 = ns2_df_pivot
@@ -430,6 +448,7 @@ def _(ns2_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ns2_df2))
+
     return
 
 
@@ -456,12 +475,13 @@ def md_switch_monthly_sales_title():
 def switch_monthly_sales_chart(report_date: datetime):
     _begin = g.years_ago(report_date)
     _end = report_date
-    _chart_bar = mo.ui.altair_chart(
+    switch_monthly_bar = mo.ui.altair_chart(
         g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="NSW", ymax=480000)
     )
-    ns_df = _chart_bar.dataframe
+    ns_df = switch_monthly_bar.dataframe
     ns_df_pivot = ns_df.pivot(index="month", on="year", values="monthly_units")
-    mo.vstack(items=[_chart_bar], justify="start")
+    mo.vstack(items=[switch_monthly_bar], justify="start")
+
     return (ns_df_pivot,)
 
 
@@ -473,6 +493,7 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ns_df2))
+
     return
 
 
@@ -498,12 +519,13 @@ def md_ps5_monthly_sales_title():
 def ps5_monthly_sales_chart(report_date: datetime):
     _begin = g.years_ago(report_date)
     _end = report_date
-    _chart_bar = mo.ui.altair_chart(
+    ps5_monthly_bar = mo.ui.altair_chart(
         g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="PS5", ymax=480000)
     )
-    ps5_df = _chart_bar.dataframe
+    ps5_df = ps5_monthly_bar.dataframe
     ps5_df_pivot = ps5_df.pivot(index="month", on="year", values="monthly_units")
-    mo.vstack(items=[_chart_bar], justify="start")
+    mo.vstack(items=[ps5_monthly_bar], justify="start")
+
     return (ps5_df_pivot,)
 
 
@@ -515,6 +537,7 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ps5_df2))
+
     return
 
 
@@ -539,26 +562,28 @@ def _():
 
 
 @app.cell
-def _(report_date: datetime):
+def xsx_monthly_sales_chart(report_date: datetime):
     _begin = g.years_ago(report_date)
     _end = report_date
-    _chart_bar = mo.ui.altair_chart(
+    xsx_monthly_bar = mo.ui.altair_chart(
         g.chart_bar_hwsales_by_year(begin=_begin, end=_end, hw="XSX")
     )
-    xsx_df = _chart_bar.dataframe
+    xsx_df = xsx_monthly_bar.dataframe
     xsx_df_pivot = xsx_df.pivot(index="month", on="year", values="monthly_units")
-    mo.vstack(items=[_chart_bar], justify="start")
+    mo.vstack(items=[xsx_monthly_bar], justify="start")
+
     return (xsx_df_pivot,)
 
 
 @app.cell
-def _(report_date: datetime, xsx_df_pivot):
+def xsx_monthly_sales_table(report_date: datetime, xsx_df_pivot):
     _this_year = report_date.year
     my_xsx_df2 = xsx_df_pivot.drop(str(_this_year - 2))
     my_xsx_df2 = my_xsx_df2.with_columns(
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_xsx_df2))
+
     return
 
 
@@ -591,8 +616,9 @@ def cumulative_sales_trend_chart(report_date: datetime):
         mode="week",
         padding_end=6,
     )
-    chart_cumulative = mo.ui.altair_chart(_chart)
-    chart_cumulative
+    cumulative_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[cumulative_chart], justify="start")
+
     return
 
 
@@ -605,7 +631,11 @@ def _():
 
 
 @app.cell
-def _(ps5_latest, report_date: datetime, switch2_latest):
+def switch2_ps5_cumulative_chart(
+    ps5_latest,
+    report_date: datetime,
+    switch2_latest,
+):
     _chart = g.chart_line_cumulative(
         hw=["NS2", "PS5"],
         begin=datetime(2025, 5, 20),
@@ -638,6 +668,7 @@ def _(ps5_latest, report_date: datetime, switch2_latest):
 
     _chart_ns2_cumulative = mo.ui.altair_chart(_chart)
     _chart_ns2_cumulative
+
     return
 
 
@@ -655,6 +686,7 @@ def md_cumulative_ps5_switch2():
 def md_ns2_sales_weeks_title(switch2_latest):
     _ns2_weeks = switch2_latest["index_week"]
     mo.md(f"### Switch2: {_ns2_weeks}週目の累計状況")
+
     return
 
 
@@ -694,18 +726,20 @@ def ns2_cumulative_delta_chart(ns2_info):
     )
     cd_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[cd_chart], justify="start")
+
     return
 
 
 @app.cell
-def _(df_sales_all: pl.DataFrame, ns2_info):
-    _d1 = (
-        df_sales_all.filter(pl.col("index_week") == ns2_info["sales_weeks"])
+def cumulative_top_chart(hard_sales_df: pl.DataFrame, ns2_info):
+    cumulative_tops_df = (
+        hard_sales_df.filter(pl.col("index_week") == ns2_info["sales_weeks"])
         .filter(pl.col("hw").is_in(["NS2", "NSW", "3DS", "GBA", "DS"]))
         .select("hw", "index_week", "report_date", "sum_units")
         .sort("sum_units", descending=True)
     )
-    g.style_df(g.rename_columns(_d1))
+    g.style_df(g.rename_columns(cumulative_tops_df))
+
     return
 
 
@@ -728,7 +762,7 @@ def md_yearly_sales_title():
 
 
 @app.cell(hide_code=True)
-def _():
+def md_quarterly_title():
     mo.md(r"""
     ### 四半期ごとの状況
     """)
@@ -736,12 +770,13 @@ def _():
 
 
 @app.cell
-def _():
+def quarterly_sales_chart():
     _c1 = g.chart_bar_yearly_by_mode(
         begin=date(2016, 1, 1),
     )
     quarter_chart = mo.ui.altair_chart(_c1)
     mo.vstack([quarter_chart])
+
     return
 
 
@@ -765,7 +800,7 @@ def _():
 
 @app.cell
 def yearly_sales_chart(report_date: datetime):
-    _year_bar = mo.ui.altair_chart(
+    yearly_bar = mo.ui.altair_chart(
         g.chart_bar_sales(
             mode="year",
             stacked=True,
@@ -773,8 +808,9 @@ def yearly_sales_chart(report_date: datetime):
             end=report_date,
         )
     )
-    year_df = _year_bar.dataframe
-    mo.vstack([_year_bar])
+    year_df = yearly_bar.dataframe
+    mo.vstack(items=[yearly_bar], justify="start")
+
     return (year_df,)
 
 
@@ -785,6 +821,7 @@ def yearly_sales_table(year_df):
         合計=pl.sum_horizontal(pl.exclude("year", "合計"))
     )
     g.style_df(year_pivot_df)
+
     return
 
 
@@ -811,6 +848,7 @@ def yearly_maker_share_chart():
     _chart = g.chart_hbar_yearly_share_by_maker(date(2015, 1, 1), date(2026, 12, 31))
     share_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[share_chart], justify="start")
+
     return
 
 
@@ -826,60 +864,135 @@ def md_yearly_maker_share():
 
 @app.cell
 def _():
-    _md_summaries = [
-        {"cell_name": "md_top",
-        "description": "今週の売上概況を､主に先週と比較しながら説明する｡節目となるような変化があれば､それも記述する"},
-        {"cell_name": "md_weekly_chart",
-         "description": "週間販売折れ線グラフの説明､先週と比較しつつ､機種同士の比較や､今後の見通しを含めて解説"},
-        {"cell_name": "md_ps5_yearly",
-         "description": "PS5の今年の販売状況を昨年､一昨年と比較､年末までの見通しについて記述"},
-        {"cell_name": "md_switch_yearly",
-         "description": "Switchの今年の販売状況を昨年､一昨年と比較､年末までの見通しについて記述"},
-        {"cell_name": "md_switch2_yearly",
-         "description": "Switch2の今年の販売状況を昨年と比較､年末までの見通しについて記述"},
-        {"cell_name": "md_switch2_monthly",
-         "description": "Switch2の今月の販売状況を昨年同月､先月と比較して説明｡その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述"},
-        {"cell_name": "md_switch_monthly",
-         "description": "Switchの今月の販売状況を昨年同月､先月と比較して説明｡その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述"},
-        {"cell_name": "md_ps5_monthly",
-         "description": "PS5の今月の販売状況を昨年同月､先月と比較して説明｡その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述"},
-        {"cell_name": "md_xsx_monthly",
-         "description": "Xbox Series X|S の今月の販売状況を昨年同月､先月と比較して説明｡その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述"},
-        {"cell_name": "md_cumulative_ps5_switch2",
-         "description": "PS5とSwitch2の累計比較記事｡特にSwitch2がPS5に追いつく時期の予想も込めて記述"},
-        {"cell_name": "md_cumulative_top",
-         "description": "歴代のハードの初期の累計推移を比較する記事｡特にSwitch2を他機種と比較した状況､今後の見通しを記述"},
-        {"cell_name": "md_quarterly",
-         "description": "各年の四半期販売状況と今期の状況を比較して短く解説"},
-        {"cell_name": "md_yearly_hard",
-         "description": "各年の各ハードの状況と､今年の状況を比較して短く解説"},
-        {"cell_name": "md_yearly_maker_share",
-         "description": "各年の各ハードのメーカーシェアの状況と､今年の状況を比較し短く解説"}        
+    # cell_name: 記事が含まれるマークダウンセルの名前
+    # description: 各記事が含まれるマークダウンセルの内容の概要
+    # calc_cells: 各記事の言及対象となる計算処理､データが含まれるセル名｡概ね記事セルの直前に配置されているセルであることが多いが､必ずしもそうでない場合もある。
+
+    md_summaries = [
+        {
+            "cell_name": "md_top",
+            "calc_cells": ["units_by_date_hw_table"],
+            "description": """
+        今週の売上概況を､主に先週と比較しながら説明する｡トピックとなりそうな変化があるか確認し､
+        変化があればそれについて言及する｡トピックとなる変化の例としては100万台単位の節目､歴代最高､最低の販売台数である｡
+        annotation_dfに書かれているゲーム関係のイベントが影響した可能性も考慮し､影響の有無､大小について言及する｡
+        annotation_dfに含まれる来週､再来週のイベント情報を確認し､それが将来に与える影響の予想も含めて記述する｡
+        """,
+        },
+        {
+            "cell_name": "md_weekly_chart",
+            "calc_cells": ["weekly_sales_trend", "weekly_sales_trend_2"],
+            "description": """
+        週間販売折れ線グラフの説明､先週と比較しつつ､機種同士の比較や､順位の変動､今後の見通し､考察を含めて解説｡
+        久しぶり(4週間以上)の順位変動が発生した場合は､その変動について特に言及する｡
+        折れ線グラフの解説なので､数値の変化や傾向を説明するのが重要である｡
+        md_topと内容的に重複してもよいが､表現が全く同じにならないよう工夫する｡
+         """,
+        },
+        {
+            "cell_name": "md_ps5_yearly",
+            "calc_cells": ["ps5_yearly_cumulative_chart", "ps5_heatmap_chart"],
+            "description": """
+         PS5の今年の販売状況を昨年､一昨年と比較､年末までの見通しについて記述｡将来予想は52週平均を用いる｡
+         100万台単位を節目とし､節目の到達時期が3ヶ月以内である場合は特に言及する｡
+         その際には､過去のPS3, PS4の状況との比較を行い､考察を加える｡
+         """,
+        },
+        {
+            "cell_name": "md_switch_yearly",
+            "calc_cells": ["switch_yearly_cumulative_chart", "switch_heatmap_chart"],
+            "description": """
+         Switchの今年の販売状況を昨年､一昨年と比較､年末までの見通しについて記述
+         将来予想は52週平均を用いる｡
+         100万台単位を節目とし､節目の到達時期が3ヶ月以内である場合は特に言及する｡
+         """,
+        },
+        {
+            "cell_name": "md_switch2_yearly",
+            "calc_cells": ["switch2_yearly_cumulative_chart", "switch2_heatmap_chart"],
+            "description": """
+         Switch2の今年の販売状況を昨年と比較､年末までの見通しについて記述
+         将来予想は52週平均を用いる｡
+         100万台単位を節目とし､節目の到達時期が3ヶ月以内である場合は特に言及する｡
+         その際には､前世代機であるSwitchの状況､ ライバル機であるPS5の状況との比較を行い､考察を加える｡
+         """,
+        },
+        {
+            "cell_name": "md_switch2_monthly",
+            "calc_cells": [
+                "switch2_monthly_sales_table",
+                "switch2_monthly_sales_chart",
+            ],
+            "description": """
+         Switch2の今月の販売状況を昨年同月､先月と比較して説明｡
+         その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述
+         """,
+        },
+        {
+            "cell_name": "md_switch_monthly",
+            "calc_cells": ["switch_monthly_sales_table", "switch_monthly_sales_chart"],
+            "description": """
+         Switchの今月の販売状況を昨年同月､先月と比較して説明｡
+         その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述
+         """,
+        },
+        {
+            "cell_name": "md_ps5_monthly",
+            "calc_cells": ["ps5_monthly_sales_table", "ps5_monthly_sales_chart"],
+            "description": """
+         PS5の今月の販売状況を昨年同月､先月と比較して説明｡
+         その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述
+         """,
+        },
+        {
+            "cell_name": "md_xsx_monthly",
+            "calc_cells": ["xsx_monthly_sales_chart", "xsx_monthly_sales_table"],
+            "description": """
+         Xbox Series X|S の今月の販売状況を昨年同月､先月と比較して説明｡
+         その月の最終週には一ヶ月のサマリーを､それ以外は月末時点での見通しを記述
+         """,
+        },
+        {
+            "cell_name": "md_cumulative_ps5_switch2",
+            "calc_cells": ["switch2_ps5_cumulative_chart"],
+            "description": """
+         PS5とSwitch2の累計比較記事｡特にSwitch2がPS5に追いつく時期の予想を含めて記述｡
+         予想には主に52週平均を用いるが､他の方法を用いて比較しても良い｡
+         累計台数差の100万台､50万台単位の節目を超えた場合には､それについても言及する｡
+         """,
+        },
+        {
+            "cell_name": "md_cumulative_top",
+            "calc_cells": ["ns2_cumulative_delta_chart", "cumulative_top_chart"],
+            "description": """
+         歴代のハードの初期の累計推移を比較する記事｡特にSwitch2を他機種と比較した状況､今後の見通しを記述｡
+         Switch2の歴代一位の状況が今後どうなるのかについては特に言及する｡
+         100万台単位の節目を超えた場合には､それについても言及し､過去の歴代機種や､現役の他機種との比較､考察を行う｡
+         """,
+        },
+        {
+            "cell_name": "md_quarterly",
+            "calc_cells": ["quarterly_sales_chart"],
+            "description": """
+         各年の四半期販売状況と今期の状況を比較して短く解説
+         """,
+        },
+        {
+            "cell_name": "md_yearly_hard",
+            "calc_cells": ["yearly_sales_chart", "yearly_sales_table"],
+            "description": """
+         各年の各ハードの状況と､今年の状況を比較して短く解説
+         """,
+        },
+        {
+            "cell_name": "md_yearly_maker_share",
+            "calc_cells": ["yearly_maker_share_chart"],
+            "description": """
+         各年の各ハードのメーカーシェアの状況と､今年の状況を比較し解説｡
+         52週平均を用いた予測値で､今年の最終的なメーカーシェアの見通しも記述する｡
+         """,
+        },
     ]
-
-    def get_bodytext_cells():
-        """
-        Return the list of body text cell summaries.
-
-        Returns:
-            list: A list of dictionaries containing cell names and their descriptions.
-        """
-        return _md_summaries
-
-    def get_bodytext_description_by_cell_name(cell_name):
-        """
-        Return the description of a body text cell by its cell name.
-
-        Args:
-            cell_name (str): The name of the cell.
-
-        Returns:
-            str: The description of the cell if found, otherwise None.
-        """
-        for cell in _md_summaries:
-            if cell["cell_name"] == cell_name:
-                return cell["description"]
-        return None
 
     return
 
