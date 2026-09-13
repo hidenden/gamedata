@@ -55,6 +55,7 @@ def test_annotation_contract(sample_info_df):
             "annotation_date": [date(2020, 11, 12)],
             "hw": ["PS5"],
             "note": ["発売"],
+            "desc": ["記事用の補足"],
             "level": [0],
             "report_date": [date(2020, 11, 15)],
         }
@@ -63,6 +64,62 @@ def test_annotation_contract(sample_info_df):
     assert (
         catalog.inspect_frame(actual, dataset="hard_annotation")["validation"]["status"]
         == "schema_match"
+    )
+
+
+@pytest.mark.parametrize(
+    ("level", "label", "priority"),
+    [
+        (0, "数年に一度のイベント", "mention_when_relevant"),
+        (9, "数年に一度のイベント", "mention_when_relevant"),
+        (10, "年一のイベント", "mention_when_relevant"),
+        (19, "年一のイベント", "mention_when_relevant"),
+        (20, "四半期に一度のイベント", "mention_if_explanatory"),
+        (29, "四半期に一度のイベント", "mention_if_explanatory"),
+        (30, "月一イベント", "usually_omit"),
+        (39, "月一イベント", "usually_omit"),
+        (40, "週イベント・軽微な出来事", "omit_unless_article_topic"),
+        (51, "週イベント・軽微な出来事", "omit_unless_article_topic"),
+    ],
+)
+def test_annotation_level_policy_and_guidance(level, label, priority):
+    policy = catalog.annotation_level_policy()
+    assert policy["id"] == "guide:annotation_levels"
+    assert policy["runtime_source"].startswith("Python")
+    json.dumps(policy, ensure_ascii=False, allow_nan=False)
+
+    result = catalog.annotation_level_guidance(level)
+    assert result["label"] == label
+    assert result["editorial_priority"] == priority
+    assert result["should_mention"] == (level < 20)
+
+    if 20 <= level < 30:
+        assert catalog.annotation_level_guidance(
+            level, explains_sales_change=True
+        )["should_mention"]
+    if level >= 30:
+        assert catalog.annotation_level_guidance(level, is_article_topic=True)[
+            "should_mention"
+        ]
+    assert not catalog.annotation_level_guidance(
+        level, related_hardware=False
+    )["should_mention"]
+
+
+def test_annotation_level_guidance_validation_and_discovery():
+    with pytest.raises(TypeError):
+        catalog.annotation_level_guidance(True)
+    with pytest.raises(ValueError):
+        catalog.annotation_level_guidance(-1)
+    with pytest.raises(TypeError):
+        catalog.annotation_level_guidance(20, related_hardware="yes")
+
+    assert catalog.search("注釈レベル", kind="guide")["items"][0]["id"] == (
+        "guide:annotation_levels"
+    )
+    assert catalog.describe("guide:annotation_levels")["bands"][0]["min_level"] == 0
+    assert catalog.describe("column:hard_annotation.level")["source"] == (
+        "guide:annotation_levels"
     )
 
 

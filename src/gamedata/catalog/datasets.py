@@ -147,10 +147,15 @@ _annotation_columns = {
     "id": column("Int64", "注釈ID"),
     "annotation_date": column("Date", "元テーブルdateを日付変換した注釈日"),
     "note": column("String", "注釈本文。分析上の因果関係を保証しない"),
+    "desc": column(
+        "String",
+        "注釈の補足・背景情報。空欄はNULL。記事作成では対象ハード・期間との関連を確認し、販売変化の因果として断定しない",
+        null_meaning="補足情報が未登録",
+    ),
     "level": column(
         "Int64",
         "表示優先度。小さいほど長期グラフでも表示する重要な出来事",
-        source="database/annotation/level.md",
+        source="guide:annotation_levels",
     ),
     **{
         k: deepcopy(SALES_COLUMNS[k])
@@ -187,7 +192,11 @@ DATASETS["hard_annotation"] = dataset(
     ["id"],
     grain="注釈。hwとreport_dateの組は一意とは限らない",
     source="SQLite gamehard_annotation → load_hard_annotation()",
-    related=["function:load_hard_annotation", "dataset:hard_sales"],
+    related=[
+        "function:load_hard_annotation",
+        "dataset:hard_sales",
+        "guide:annotation_levels",
+    ],
 )
 
 # Output contracts are distinct even when a column shares a name with the input.

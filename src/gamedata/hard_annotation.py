@@ -31,6 +31,7 @@ def load_hard_annotation(no_cache: bool = False) -> pl.DataFrame:
         - annotation_date (Date): アノテーション登録日
         - hw (String): ゲームハードの識別子
         - note (String): アノテーションの内容
+        - desc (String): 記事作成向けの補足・背景情報（NULLの場合がある）
         - level (Int64): アノテーションのレベル
         - report_date (Date): 対象の集計日
         - launch_date (Date): 発売日
@@ -55,7 +56,14 @@ def load_hard_annotation(no_cache: bool = False) -> pl.DataFrame:
     conn = sqlite3.connect(DB_PATH)
     # データを読み込む
     query = "SELECT * FROM gamehard_annotation"
-    df = pl.read_database(query=query, connection=conn)
+    # `desc` は先頭の多数行が NULL になり得るため、型推論に任せると
+    # Null 型として確定して後続の文字列を読み込めなくなる。明示的に
+    # 文字列型として読み込む。
+    df = pl.read_database(
+        query=query,
+        connection=conn,
+        schema_overrides={"desc": pl.String},
+    )
     # データベース接続を閉じる
     conn.close()
 
@@ -100,6 +108,7 @@ def _delta_annotation(
             "annotation_date",
             "hw",
             "note",
+            "desc",
             "level",
             "report_date",
             "launch_date",
@@ -219,6 +228,7 @@ def join_annotation(
         - id (Int64): アノテーションのID
         - annotation_date (Date): アノテーション登録日
         - note (String): アノテーションの内容
+        - desc (String): 注釈の補足・背景情報（NULLの場合がある）
         - level (Int64): アノテーションのレベル
         - launch_date_right (Date): アノテーション側の発売日（sales_dfにlaunch_dateがある場合）
         - *_right: sales_dfと重複するアノテーション側の日付・相対日付カラム

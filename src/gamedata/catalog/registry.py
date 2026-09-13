@@ -7,8 +7,9 @@ from .datasets import DATASETS
 from .functions import FUNCTIONS, describe_function
 from .models import SCHEMA_VERSION, record
 from .recipes import RECIPES
+from .annotation_levels import annotation_level_policy
 
-KINDS = ("dataset", "column", "function", "recipe")
+KINDS = ("dataset", "column", "function", "recipe", "guide")
 
 
 def describe(id, *, sections=None, params=None):
@@ -39,6 +40,8 @@ def describe(id, *, sections=None, params=None):
         result = describe_function(name, params)
     elif kind == "recipe":
         result = RECIPES[name]
+    elif kind == "guide" and name == "annotation_levels":
+        result = annotation_level_policy()
     else:
         raise KeyError(id)
     if sections is not None:
@@ -61,6 +64,8 @@ def _entries():
         yield f"function:{name}", "function", info[1]
     for info in RECIPES.values():
         yield info["id"], "recipe", info["summary"]
+    policy = annotation_level_policy()
+    yield policy["id"], "guide", policy["summary"]
 
 
 def search(query, *, kind=None, limit=10):
@@ -146,6 +151,7 @@ def overview():
             "catalog.inspect_frame(hard_sales_all_df, dataset='hard_sales')",
             "catalog.search('発売からの累計を比較')",
             "catalog.describe('dataset:hard_sales')",
+            "catalog.annotation_level_policy()",
         ],
         "usage": "from gamedata import catalog; print(catalog.render(catalog.overview()))",
     }
