@@ -1,3 +1,10 @@
+```text
+$weekly-report-update
+既存の Marimo セッション http://localhost:2718 を使用して、全記事を更新して。
+```
+---
+以下はスキルの元ネタとなった処理説明｡
+
 ## Marimo Pair接続プロンプト
 
 marimo-pair http://localhost:2718 の既存セッションで
