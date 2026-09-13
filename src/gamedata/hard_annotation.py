@@ -56,7 +56,14 @@ def load_hard_annotation(no_cache: bool = False) -> pl.DataFrame:
     conn = sqlite3.connect(DB_PATH)
     # データを読み込む
     query = "SELECT * FROM gamehard_annotation"
-    df = pl.read_database(query=query, connection=conn)
+    # `desc` は先頭の多数行が NULL になり得るため、型推論に任せると
+    # Null 型として確定して後続の文字列を読み込めなくなる。明示的に
+    # 文字列型として読み込む。
+    df = pl.read_database(
+        query=query,
+        connection=conn,
+        schema_overrides={"desc": pl.String},
+    )
     # データベース接続を閉じる
     conn.close()
 
