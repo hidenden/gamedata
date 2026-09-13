@@ -8,5 +8,14 @@ All results are JSON-compatible dictionaries. ``render()`` returns display text.
 from .registry import describe, overview, search
 from .inspection import inspect_frame
 from .rendering import render
+from .annotation_levels import annotation_level_guidance, annotation_level_policy
 
-__all__ = ["overview", "search", "describe", "inspect_frame", "render"]
+__all__ = [
+    "overview",
+    "search",
+    "describe",
+    "inspect_frame",
+    "render",
+    "annotation_level_policy",
+    "annotation_level_guidance",
+]

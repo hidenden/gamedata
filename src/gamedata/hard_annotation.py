@@ -31,6 +31,7 @@ def load_hard_annotation(no_cache: bool = False) -> pl.DataFrame:
         - annotation_date (Date): アノテーション登録日
         - hw (String): ゲームハードの識別子
         - note (String): アノテーションの内容
+        - desc (String): 記事作成向けの補足・背景情報（NULLの場合がある）
         - level (Int64): アノテーションのレベル
         - report_date (Date): 対象の集計日
         - launch_date (Date): 発売日
@@ -100,6 +101,7 @@ def _delta_annotation(
             "annotation_date",
             "hw",
             "note",
+            "desc",
             "level",
             "report_date",
             "launch_date",
@@ -219,6 +221,7 @@ def join_annotation(
         - id (Int64): アノテーションのID
         - annotation_date (Date): アノテーション登録日
         - note (String): アノテーションの内容
+        - desc (String): 注釈の補足・背景情報（NULLの場合がある）
         - level (Int64): アノテーションのレベル
         - launch_date_right (Date): アノテーション側の発売日（sales_dfにlaunch_dateがある場合）
         - *_right: sales_dfと重複するアノテーション側の日付・相対日付カラム

@@ -13,7 +13,7 @@
 
 import marimo
 
-__generated_with = "0.24.2"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -39,6 +39,7 @@ with app.setup:
     from gamedata import catalog
 
 
+
 @app.cell
 def mode_set():
     _args = mo.cli_args()
@@ -49,6 +50,7 @@ def mode_set():
         alt.theme.enable("edit")
     else:
         alt.theme.enable("publish")
+
     return (is_publish,)
 
 
@@ -56,6 +58,7 @@ def mode_set():
 def load_data():
     hard_sales_df: pl.DataFrame = g.load_hard_sales(True)
     annotation_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
+
     return (hard_sales_df,)
 
 
@@ -75,6 +78,7 @@ def report_setup(hard_sales_df: pl.DataFrame, is_publish):
     [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
         hard_sales_df, hw=["NS2", "PS5", "NSW"]
     )
+
     return ns2_info, report_date, show_title
 
 
@@ -84,12 +88,14 @@ def _(hard_sales_df: pl.DataFrame):
     switch2_latest = _df_latest.filter(pl.col("hw") == "NS2").row(0, named=True)
     switch_latest = _df_latest.filter(pl.col("hw") == "NSW").row(0, named=True)
     ps5_latest = _df_latest.filter(pl.col("hw") == "PS5").row(0, named=True)
+
     return ps5_latest, switch2_latest, switch_latest
 
 
 @app.cell
 def show_title_cell(report_date: datetime, show_title):
     show_title(report_date)
+
     return
 
 
@@ -117,6 +123,7 @@ def units_by_date_hw_table(hard_sales_df: pl.DataFrame, report_date: datetime):
         hard_sales_df, begin=g.weeks_before(report_date, 3), end=report_date
     )
     mo.hstack(items=[_table], justify="start", wrap=True)
+
     return
 
 
@@ -154,6 +161,7 @@ def weekly_sales_trend(report_date: datetime):
 
     weekly_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[weekly_chart], justify="start")
+
     return
 
 
@@ -188,6 +196,7 @@ def weekly_sales_trend_2(report_date: datetime):
     )
     weekly_big_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[weekly_big_chart], justify="start")
+
     return
 
 
@@ -247,6 +256,7 @@ def ps5_yearly_cumulative_chart(ps5_latest):
     )
     ps5_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[ps5_yearly_cumulative_chart], justify="start")
+
     return
 
 
@@ -260,6 +270,7 @@ def ps5_heatmap_chart():
     )
     ps5_heatmap_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[ps5_heatmap_chart], justify="start")
+
     return
 
 
@@ -310,6 +321,7 @@ def switch_yearly_cumulative_chart(switch_latest):
     )
     switch_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch_yearly_cumulative_chart], justify="start")
+
     return
 
 
@@ -323,6 +335,7 @@ def switch_heatmap_chart():
     )
     switch_heatmap_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch_heatmap_chart], justify="start")
+
     return
 
 
@@ -366,6 +379,7 @@ def switch2_yearly_cumulative_chart(switch2_latest):
     )
     switch2_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch2_yearly_cumulative_chart], justify="start")
+
     return
 
 
@@ -380,6 +394,7 @@ def switch2_heatmap_chart():
     _chart = _chart.properties(height=200)
     switch2_heatmap_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch2_heatmap_chart], justify="start")
+
     return
 
 
@@ -419,6 +434,7 @@ def switch2_monthly_sales_chart(report_date: datetime):
     ns2_df = switch2_monthly_bar.dataframe
     ns2_df_pivot = ns2_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[switch2_monthly_bar], justify="start")
+
     return (ns2_df_pivot,)
 
 
@@ -431,6 +447,7 @@ def switch2_monthly_sales_table(ns2_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ns2_df2))
+
     return
 
 
@@ -462,6 +479,7 @@ def switch_monthly_sales_chart(report_date: datetime):
     ns_df = switch_monthly_bar.dataframe
     ns_df_pivot = ns_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[switch_monthly_bar], justify="start")
+
     return (ns_df_pivot,)
 
 
@@ -473,6 +491,7 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ns_df2))
+
     return
 
 
@@ -504,6 +523,7 @@ def ps5_monthly_sales_chart(report_date: datetime):
     ps5_df = ps5_monthly_bar.dataframe
     ps5_df_pivot = ps5_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[ps5_monthly_bar], justify="start")
+
     return (ps5_df_pivot,)
 
 
@@ -515,6 +535,7 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ps5_df2))
+
     return
 
 
@@ -546,6 +567,7 @@ def xsx_monthly_sales_chart(report_date: datetime):
     xsx_df = xsx_monthly_bar.dataframe
     xsx_df_pivot = xsx_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[xsx_monthly_bar], justify="start")
+
     return (xsx_df_pivot,)
 
 
@@ -557,6 +579,7 @@ def xsx_monthly_sales_table(report_date: datetime, xsx_df_pivot):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_xsx_df2))
+
     return
 
 
@@ -591,6 +614,7 @@ def cumulative_sales_trend_chart(report_date: datetime):
     )
     cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[cumulative_chart], justify="start")
+
     return
 
 
@@ -640,6 +664,7 @@ def switch2_ps5_cumulative_chart(
 
     _chart_ns2_cumulative = mo.ui.altair_chart(_chart)
     _chart_ns2_cumulative
+
     return
 
 
@@ -657,6 +682,7 @@ def md_cumulative_ps5_switch2():
 def md_ns2_sales_weeks_title(switch2_latest):
     _ns2_weeks = switch2_latest["index_week"]
     mo.md(f"### Switch2: {_ns2_weeks}週目の累計状況")
+
     return
 
 
@@ -696,6 +722,7 @@ def ns2_cumulative_delta_chart(ns2_info):
     )
     cd_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[cd_chart], justify="start")
+
     return
 
 
@@ -708,6 +735,7 @@ def cumulative_top_chart(hard_sales_df: pl.DataFrame, ns2_info):
         .sort("sum_units", descending=True)
     )
     g.style_df(g.rename_columns(cumulative_tops_df))
+
     return
 
 
@@ -744,6 +772,7 @@ def quarterly_sales_chart():
     )
     quarter_chart = mo.ui.altair_chart(_c1)
     mo.vstack([quarter_chart])
+
     return
 
 
@@ -777,6 +806,7 @@ def yearly_sales_chart(report_date: datetime):
     )
     year_df = yearly_bar.dataframe
     mo.vstack(items=[yearly_bar], justify="start")
+
     return (year_df,)
 
 
@@ -787,6 +817,7 @@ def yearly_sales_table(year_df):
         合計=pl.sum_horizontal(pl.exclude("year", "合計"))
     )
     g.style_df(year_pivot_df)
+
     return
 
 
@@ -813,6 +844,7 @@ def yearly_maker_share_chart():
     _chart = g.chart_hbar_yearly_share_by_maker(date(2015, 1, 1), date(2026, 12, 31))
     share_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[share_chart], justify="start")
+
     return
 
 
@@ -840,7 +872,7 @@ def report_metadata():
         今週の売上概況を､主に先週と比較しながら説明する｡トピックとなりそうな変化があるか確認し､
         変化があればそれについて言及する｡トピックとなる変化の例としては100万台単位の節目､歴代最高､最低の販売台数である｡
         annotation_dfに書かれているゲーム関係のイベントが影響した可能性も考慮し､影響の有無､大小について言及する｡
-        annotation_dfに含まれる来週､再来週のイベント情報を確認し､それが将来に与える影響の予想も含めて記述する｡
+        annotation_dfに含まれる次回集計､次々回集計時に該当するイベント情報を確認し､それが将来に与える影響の予想も含めて記述する｡
         """,
         },
         {
@@ -957,6 +989,7 @@ def report_metadata():
          """,
         },
     ]
+
     return
 
 
