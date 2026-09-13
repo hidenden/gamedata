@@ -142,7 +142,7 @@ date,hw,note,level,desc
 2026-01-29,NSW,トモコレダイレクト,48,
 2026-01-30,PS5,CODE VEIN II,48,
 2026-02-05,NS2,DQ7R,35,
-2026-02-05,NS2,ソフトメーカー・ラインナップ,42,Nintendo Direct
+2026-02-05,NS2,ソフトメーカー・ラインナップ,42,Nintendo Direct 2026.2.5
 2026-02-06,NS2,マイニン先着販売開始,48,
 2026-02-27,NS2,バイオ9,35,
 2026-02-27,PS5,バイオ9,30,
@@ -154,26 +154,46 @@ date,hw,note,level,desc
 2026-04-16,NS2,トモダチコレクション,34,
 2026-04-16,NSW,トモダチコレクション,25,
 2026-04-17,PS5,PRAGMATA,37,
-2026-05-08,NS2,値上げ発表,11,
-2026-05-08,NSW,値上げ発表,11,
-2026-05-21,NS2,ヨッシーとフカシギの図鑑,32,
-2026-05-25,NS2,値上げ実施,3,
-2026-05-25,NSW,値上げ実施,3,
-2026-05-27,PS5,007ファーストライト,42,
-2026-06-02,PS5,State of Play,19,
-2026-06-03,NS2,FF7R2,31,
-2026-06-09,NS2,Nintendo Direct,17,
-2026-06-25,NS2,Star Fox,32,
-2026-07-01,PS5,ディスク終了発表,12,
-2026-07-02,NS2,リズム天国,28,
-2026-07-23,NS2,Splatoon Raiders,20,
-2026-08-01,XSX,値上げ実施,15,
-2026-08-28,NS2,ELDEN RING,25,
-2026-09-15,PS5,Wolverine,17,
-2026-09-17,NS2,FE万紫千紅,25,
-2026-10-02,PS5,AC8,16,
-2026-10-22,NS2,Sports Resort,25,
-2026-10-23,PS5,CoD:MW4,19,
-2026-10-23,NS2,CoD:MW4,29,
-2026-11-19,PS5,GTA6,9,
-2026-12-03,NS2,DQM4,48,
+2026-05-08,NS2,値上げ発表,11,Switch2の値上げ予告
+2026-05-08,NSW,値上げ発表,11,Switchの値上げ予告
+2026-05-21,NS2,ヨッシーとフカシギの図鑑,32,ヨッシーとフカシギの図鑑発売
+2026-05-25,NS2,値上げ実施,3,Switch2 値上げ実施
+2026-05-25,NSW,値上げ実施,3,Switch 値上げ実施
+2026-05-27,PS5,007ファーストライト,42,007ファーストライト 発売
+2026-06-02,PS5,State of Play,19,State of Play
+2026-06-03,NS2,FF7R2,31,FFVII REBIRTH Switch2版発売
+2026-06-09,NS2,Nintendo Direct,17,Nintendo Direct 2026.6.9
+2026-06-25,NS2,Star Fox,32,Star Fox発売
+2026-07-01,PS5,ディスク終了発表,9,ディスクでのゲーム提供の終了予告
+2026-07-02,NS2,リズム天国,15,リズム天国 ミラクルスターズ発売
+2026-07-23,NS2,Splatoon Raiders,20,スプラトゥーン・レイダース発売
+2026-08-01,XSX,値上げ実施,15,Xbox Series X|S 値上げ
+2026-08-28,NS2,ELDEN RING,22,ELDEN RING Switch2版発売
+2026-09-15,PS5,Wolverine,20,Marvel's Wolverine発売
+2026-09-17,NS2,FE万紫千紅,20,ファイアーエムブレム万紫千紅 発売
+2026-10-02,PS5,AC8,22,ACE COMBAT8発売
+2026-10-22,NS2,Sports Resort,25,Nintendo Switch Sports Resort発売
+2026-10-17,PS5,CoD:MW4,19,Call of Duty:Modern Warfare4発売
+2026-10-17,NS2,CoD:MW4,29,Call of Duty:Modern Warfare4発売
+2026-10-28,NS2,Minecraft,20,Minecraft(Swtich2版)発売
+2026-11-19,PS5,GTAVI,9,GTAVI発売
+2026-12-03,NS2,DQM4,29,ドラクエモンスターズ4発売
+2026-10-29,NS2,ゼルダモデル,18,ゼルダの伝説40周年記念モデル発売
+2026-11-05,NS2,時のオカリナ,8,ゼルダの伝説 時のオカリナ発売
+2026-11-06,NS2,Stellar Blade,30,Steller Blade Complete Edition発売
+2026-12-04,NS2,MHワイルズ,22,モンスターハンターワイルズ発売
+2027-01-28,NS2,METROID RAVENOUS,21,メトロイドRAVENOUS発売
+2026-09-08,NS2,ゼルダDirect,15,ゼルダの伝説40周年Direct
+2026-09-09,NS2,NIntendo Direct,16,Nintendo Direct 2026.9.9
+2026-09-24,PS5,SILENT HILL:Townfall,41,SILENT HILL:Townfall発売
+2027-01-28,PS5,Fate/EXRA Record,45,Fate/EXRA Record 発売(マルチ)
+2027-02-04,PS5,朧村正怪奇譚,40,朧村正怪奇譚 発売(マルチ)
+2027-03-05,PS5,GUNDAM ROGUE ORBIT,46,GUNDAM ROGUE ORBIT発売
+2027-04-08,PS5,FF7R3,25,FFVII REVELATION発売 (マルチ)
+2026-09-16,NS2,Diablo4,42,DIABLO IV Switch2版発売
+2026-09-09,NS2,めっちゃカメレオン,18,めっちゃカメレオン発売
+2026‐12-10,PS5,レイトン教授,38,レイトン教授と蒸気の新世界発売
+2027-01-15,NS2,FixBoxing刀剣乱舞,35,Fit Boxing 刀剣乱舞 -出陣！えくささいず本丸- 発売
+2027-02-18,XSX,P4R,29,ペルソナ4リバイバル発売
+2027-05-20,NS2,P4R,32,ペルソナ4リバイバル発売
+2026-09-17,PS5,TGS2026,18,東京ゲームショウ2026 9/17~9/21
