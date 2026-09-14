@@ -5,6 +5,7 @@ import sys
 import re
 import argparse
 from datetime import datetime
+from pathlib import Path
 from typing import Tuple, List
 
 import requests
@@ -27,9 +28,11 @@ def get_famitsu_hwsales_page(url: str) -> Tuple[List[str], List[str]]:
     Returns:
         Tuple[List[str], str]: A tuple containing the list of raw hardware sales data and the reporting period string.
     """
-    adapter = CacheControlAdapter(heuristic=LastModified(), cache=FileCache('_webcache'))
+    adapter = CacheControlAdapter(
+        heuristic=LastModified(), cache=FileCache("_webcache")
+    )
     session = requests.Session()
-    session.mount('https://', adapter)
+    session.mount("https://", adapter)
     response = session.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
 
@@ -41,9 +44,24 @@ def get_famitsu_hwsales_page(url: str) -> Tuple[List[str], List[str]]:
     annotations = soup.find_all("span", attrs={"class": "article_detail_annotation"})
 
     raw_hard_sales = [item.get_text(strip=True) for item in items]
-    raw_report_dates = [annotation.get_text(strip=True) for annotation in annotations if "集計期間" in annotation.get_text()]
+    raw_report_dates = [
+        annotation.get_text(strip=True)
+        for annotation in annotations
+        if "集計期間" in annotation.get_text()
+    ]
 
     return raw_hard_sales, raw_report_dates
+
+
+def write_source_log(
+    log_path: str,
+    url: str,
+    raw_hard_sales: List[str],
+    raw_report_dates: List[str],
+) -> None:
+    """Write the source URL and raw fetched text to a UTF-8 file."""
+    contents = "\n".join([url, "", *raw_hard_sales, "", *raw_report_dates, ""])
+    Path(log_path).write_text(contents, encoding="utf-8")
 
 
 def parse_hard_sales_lines(lines: List[str]) -> List[List[str]]:
@@ -63,7 +81,7 @@ def parse_hard_sales_lines(lines: List[str]) -> List[List[str]]:
         weekly_units, cumulative_units = rest.split("台（累計")
         # cumulative_units = cumulative_units.rstrip("台）")
         hard_sales_line.append(hw.strip())
-    
+
         sales_units = kanji2number(weekly_units.strip())
         hard_sales_line.append(sales_units)
 
@@ -94,7 +112,7 @@ def normalize_hw_units(hard_sales: List[List[str]]) -> List[List[str]]:
         "PS4": "PS4",
         "Xbox Series X": "XSX",
         "Xbox Series X デジタルエディション": "XSX",
-        "Xbox Series S": "XSX"
+        "Xbox Series S": "XSX",
     }
 
     normalized_sales = {}
@@ -128,9 +146,14 @@ def extract_date_range(date_strings: List[str]) -> Tuple[datetime, datetime]:
     # 最終的に一致する要素がなければ　ValueErrorを発生させる。
     match = False
     for ds in reversed(date_strings):
-        if match := re.search(r"(\d{4}年\d{1,2}月\d{1,2}日)～(\d{1,2}月\d{1,2}日|\d{4}年\d{1,2}月\d{1,2}日)", ds):
+        if match := re.search(
+            r"(\d{4}年\d{1,2}月\d{1,2}日)～(\d{1,2}月\d{1,2}日|\d{4}年\d{1,2}月\d{1,2}日)",
+            ds,
+        ):
             break
-        if match := re.search(r"(\d{4}年\d{1,2}月\d{1,2}日)～年(\d{1,2}月\d{1,2}日)", ds):
+        if match := re.search(
+            r"(\d{4}年\d{1,2}月\d{1,2}日)～年(\d{1,2}月\d{1,2}日)", ds
+        ):
             # 2026/01/22のミス表記対応
             break
 
@@ -147,11 +170,16 @@ def extract_date_range(date_strings: List[str]) -> Tuple[datetime, datetime]:
         end_date = datetime.strptime(end_date_str, "%Y年%m月%d日")
     else:
         # 開始日の年を使用して終了日を補完
-        end_date = datetime.strptime(f"{start_date.year}年{end_date_str}", "%Y年%m月%d日")
+        end_date = datetime.strptime(
+            f"{start_date.year}年{end_date_str}", "%Y年%m月%d日"
+        )
 
     return start_date, end_date
 
-def calculate_date_range_days(start_date: datetime, end_date: datetime) -> Tuple[datetime, int]:
+
+def calculate_date_range_days(
+    start_date: datetime, end_date: datetime
+) -> Tuple[datetime, int]:
     """
     Calculate the number of days in the date range from start_date to end_date (inclusive).
 
@@ -162,8 +190,11 @@ def calculate_date_range_days(start_date: datetime, end_date: datetime) -> Tuple
     Returns:
         Tuple[datetime, int]: A tuple containing the end date and the number of days in the range.
     """
-    delta_days = (end_date - start_date).days + 1  # +1 to include both start and end dates
+    delta_days = (
+        end_date - start_date
+    ).days + 1  # +1 to include both start and end dates
     return end_date, delta_days
+
 
 def upsert_to_database(db_path: str, newdata: List) -> None:
     """
@@ -180,25 +211,36 @@ def upsert_to_database(db_path: str, newdata: List) -> None:
     cursor = conn.cursor()
 
     # upsert前の行数を取得
-    cursor.execute('SELECT COUNT(*) FROM gamehard_weekly')
+    cursor.execute("SELECT COUNT(*) FROM gamehard_weekly")
     before_count = cursor.fetchone()[0]
 
     for row in newdata:
-        cursor.execute('''
+        cursor.execute(
+            """
             INSERT OR REPLACE INTO gamehard_weekly (id, report_date, period_date, hw, units)
             VALUES (?, ?, ?, ?, ?)
-        ''', row)
+        """,
+            row,
+        )
 
     conn.commit()
 
     # upsert後の行数を取得
-    cursor.execute('SELECT COUNT(*) FROM gamehard_weekly')
+    cursor.execute("SELECT COUNT(*) FROM gamehard_weekly")
     after_count = cursor.fetchone()[0]
 
     added_count = after_count - before_count
-    print(f"Data has been upserted to the database. {added_count} rows added (or replaced).")
+    print(
+        f"Data has been upserted to the database. {added_count} rows added (or replaced)."
+    )
 
-def famitsu_main(db_path: str, target_url: str, dry_run: bool = False) -> None:
+
+def famitsu_main(
+    db_path: str,
+    target_url: str,
+    dry_run: bool = False,
+    log_path: str | None = None,
+) -> None:
     """
     Main function to process Famitsu hardware sales data and optionally insert it into the database.
 
@@ -206,11 +248,15 @@ def famitsu_main(db_path: str, target_url: str, dry_run: bool = False) -> None:
         db_path (str): Path to the SQLite database file.
         target_url (str): URL of the Famitsu hardware sales page.
         dry_run (bool, optional): If True, only print the data to be inserted without modifying the database. Defaults to False.
+        log_path (str | None, optional): Output path for the fetched source text.
 
     Returns:
         None
     """
     raw_sales, raw_report_dates = get_famitsu_hwsales_page(target_url)
+    if log_path is not None:
+        write_source_log(log_path, target_url, raw_sales, raw_report_dates)
+        print(f"Source log written to: {log_path}")
 
     parsed_list = parse_hard_sales_lines(raw_sales)
     normalized_list = normalize_hw_units(parsed_list)
@@ -219,30 +265,48 @@ def famitsu_main(db_path: str, target_url: str, dry_run: bool = False) -> None:
     end_date, period_date = calculate_date_range_days(start_date, end_date)
     end_date_str = end_date.strftime("%Y-%m-%d")
 
-    new_record = [[f"{end_date_str}_{sales_line[0]}", end_date_str, period_date, sales_line[0], sales_line[1]] for sales_line in normalized_list]
+    new_record = [
+        [
+            f"{end_date_str}_{sales_line[0]}",
+            end_date_str,
+            period_date,
+            sales_line[0],
+            sales_line[1],
+        ]
+        for sales_line in normalized_list
+    ]
 
     if dry_run:
         print("Dry run mode: Data to be inserted:")
         for record in new_record:
             print(record)
         return
-    
-    upsert_to_database(db_path, new_record)
 
+    upsert_to_database(db_path, new_record)
 
 
 if __name__ == "__main__":
     # 環境変数GAMEHARD_DBが指定されていれば、そこに接続する。
     # 指定されていない場合はエラー終了
-    db_path = os.getenv('GAMEHARD_DB')
+    db_path = os.getenv("GAMEHARD_DB")
     if not db_path:
         print("Error: Environment variable GAMEHARD_DB is not set.")
         sys.exit(1)
 
     # 引数処理
     parser = argparse.ArgumentParser(description="Process Famitsu hardware sales data.")
-    parser.add_argument("-c", "--commit", action="store_true", help="Commit changes to the database.")
-    parser.add_argument("url", type=str, help="Target URL for Famitsu hardware sales data.")
+    parser.add_argument(
+        "-c", "--commit", action="store_true", help="Commit changes to the database."
+    )
+    parser.add_argument(
+        "-l",
+        "--log",
+        metavar="FILE",
+        help="Write the source URL and raw hardware-sales text to FILE.",
+    )
+    parser.add_argument(
+        "url", type=str, help="Target URL for Famitsu hardware sales data."
+    )
     args = parser.parse_args()
 
     # URL検証
@@ -255,6 +319,10 @@ if __name__ == "__main__":
     dry_run = not args.commit
 
     # メイン処理呼び出し
-    famitsu_main(db_path, target_url=target_url, dry_run=dry_run)
+    famitsu_main(
+        db_path,
+        target_url=target_url,
+        dry_run=dry_run,
+        log_path=args.log,
+    )
     sys.exit(0)
-
