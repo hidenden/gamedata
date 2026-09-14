@@ -27,6 +27,7 @@ init_database.shは以下の処理を行います｡
 $ cd update/
 $ ./famitsu.py <ファミ通のハードセールスURL>  # データに間違いがないか確認する｡
 $ ./famitsu.py -c <ファミ通のハードセールスURL> # データベースを更新する｡
+$ ./famitsu.py -l <保存ファイル名> <ファミ通のハードセールスURL> # URLと取得元テキストを保存する｡
 $ ./refresh_analysys.sh # 派生データを更新する｡
 ```
 
@@ -275,4 +276,3 @@ erDiagram
         INTEGER sum_units
     }
 ```
-
