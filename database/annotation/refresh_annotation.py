@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-# /// script
-# [tool.marimo.display]
-# theme = "system"
-# ///
 
 from datetime import date, datetime
 import sqlite3
@@ -30,7 +26,8 @@ def initialize_table(_conn: sqlite3.Connection, _debug: bool = False):
         report_date TEXT NOT NULL CHECK(report_date GLOB '????-??-??'),
         hw TEXT NOT NULL,
         note TEXT NOT NULL,
-        level INTEGER NOT NULL CHECK(level >= 1 AND level <= 50))
+        level INTEGER NOT NULL CHECK(level >= 1 AND level <= 50),
+        "desc" TEXT)
     """)
     _conn.commit()
 
@@ -50,6 +47,24 @@ def load_annotation_csv(
 ):
     # CSVファイルを読み込む
     _df = pl.read_csv(_csv_path, encoding="utf-8", has_header=True)
+    # 入力元によって混入する Unicode のハイフン類を、日付書式で使用する
+    # 半角ハイフンへ正規化する。
+    _df = _df.with_columns(
+        pl.col("date")
+        .str.replace_all("[‐‑‒–—−]", "-")
+        .alias("date")
+    )
+    # descは記事作成向けの任意の補足情報。旧CSVとの互換性のため、列が
+    # 存在しない場合もNULLとして扱う。
+    if "desc" not in _df.columns:
+        _df = _df.with_columns(pl.lit(None, dtype=pl.String).alias("desc"))
+    else:
+        _df = _df.with_columns(
+            pl.when(pl.col("desc").cast(pl.String).str.strip_chars() == "")
+            .then(pl.lit(None, dtype=pl.String))
+            .otherwise(pl.col("desc").cast(pl.String).str.strip_chars())
+            .alias("desc")
+        )
 
     # 日付カラムをdatetime型に変換し､カラム:annotation_dateを作成する
     _df = _df.with_columns(
@@ -75,7 +90,7 @@ def load_annotation_csv(
     for row in _df.iter_rows(named=True):
         id += 1
         _conn.execute(
-            "INSERT INTO gamehard_annotation (id, date, report_date, hw, note, level) VALUES (?, ?, ?, ?, ?, ?)",
+            'INSERT INTO gamehard_annotation (id, date, report_date, hw, note, level, "desc") VALUES (?, ?, ?, ?, ?, ?, ?)',
             (
                 id,
                 row["date"],
@@ -83,6 +98,7 @@ def load_annotation_csv(
                 row["hw"],
                 row["note"],
                 row["level"],
+                row["desc"],
             ),
         )
     _conn.commit()

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Weekly Report Update"
+  short_description: "Update Marimo weekly-report articles"
+  default_prompt: "Use $weekly-report-update to update weekly_report.py from the live Marimo session."
