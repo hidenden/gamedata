@@ -158,7 +158,12 @@ def _refine_annotation(annotation_df: pl.DataFrame) -> pl.DataFrame:
 
 def _summarize_annotation(annotation_df: pl.DataFrame, mode_enum: Mode) -> pl.DataFrame:
     if mode_enum == Mode.WEEK:
-        return annotation_df
+        annotation_df = (
+            annotation_df.group_by(["hw", "delta_week"])
+            .agg([pl.all().gather(pl.col("level").arg_min().first())])
+            .explode(pl.all().exclude("hw", "delta_week"))
+        )
+        return annotation_df.sort(["delta_week"], descending=[False])
 
     if mode_enum == Mode.MONTH:
         annotation_df = (

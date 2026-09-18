@@ -31,11 +31,13 @@ with app.setup:
     import gamedata as g
 
 
+
 @app.cell
 def load_db():
-    hard_sales_all_df: pl.DataFrame = g.load_hard_sales(True)
-    annotation_all_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
-    return
+    hard_sales_df: pl.DataFrame = g.load_hard_sales(True)
+    annotation_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
+
+    return (hard_sales_df,)
 
 
 @app.cell(hide_code=True)
@@ -87,6 +89,39 @@ def _():
     `catalog.inspect_frame(hard_sales_all_df, dataset="hard_sales")` で実際の収録範囲を確認し、
     `catalog.search()` と `catalog.describe()` で分析に使う既存関数と列の意味を確認してください。
     """)
+    return
+
+
+@app.cell
+def _(hard_sales_df: pl.DataFrame):
+    [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
+        hard_sales_df, hw=["NS2", "PS5", "NSW"]
+    )
+
+    return
+
+
+@app.cell
+def _():
+    _chart = g.chart_line_cumulative_delta(
+        hw=[
+            "NS2",
+            "NSW",
+            "3DS",
+            "DS",
+            "GBA",
+        ],
+        end=85,
+        annotation_level=23,
+        mode="week",
+        with_point=False,
+        multi_line=False,
+        begin=45,
+        ymin=3000000,
+    )
+    cd_chart = mo.ui.altair_chart(_chart)
+    mo.vstack(items=[cd_chart], justify="start")
+
     return
 
 

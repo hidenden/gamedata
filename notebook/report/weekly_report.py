@@ -13,7 +13,7 @@
 
 import marimo
 
-__generated_with = "0.24.2"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -39,6 +39,7 @@ with app.setup:
     from gamedata import catalog
 
 
+
 @app.cell
 def mode_set():
     _args = mo.cli_args()
@@ -49,6 +50,7 @@ def mode_set():
         alt.theme.enable("edit")
     else:
         alt.theme.enable("publish")
+
     return (is_publish,)
 
 
@@ -56,6 +58,7 @@ def mode_set():
 def load_data():
     hard_sales_df: pl.DataFrame = g.load_hard_sales(True)
     annotation_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
+
     return (hard_sales_df,)
 
 
@@ -75,6 +78,7 @@ def report_setup(hard_sales_df: pl.DataFrame, is_publish):
     [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
         hard_sales_df, hw=["NS2", "PS5", "NSW"]
     )
+
     return ns2_info, report_date, show_title
 
 
@@ -84,12 +88,14 @@ def _(hard_sales_df: pl.DataFrame):
     switch2_latest = _df_latest.filter(pl.col("hw") == "NS2").row(0, named=True)
     switch_latest = _df_latest.filter(pl.col("hw") == "NSW").row(0, named=True)
     ps5_latest = _df_latest.filter(pl.col("hw") == "PS5").row(0, named=True)
+
     return ps5_latest, switch2_latest, switch_latest
 
 
 @app.cell
 def show_title_cell(report_date: datetime, show_title):
     show_title(report_date)
+
     return
 
 
@@ -99,6 +105,8 @@ def md_prologue():
     * ハードウェアの販売データはファミ通の調査結果を基にしています。
     * 複数週合算の集計値は処理上の都合により、週次値に調整しています｡
     * [過去の週販レポート](../index.html)
+
+    > 9月6日集計版のレポートにおいて、52週平均に基づく年間販売予測の集計値に誤りがありました。正しい予測値は、PS5が701,835台、Nintendo Switchが997,617台、Nintendo Switch 2が4,284,990台です。訂正いたします｡
     """)
     return
 
@@ -117,17 +125,18 @@ def units_by_date_hw_table(hard_sales_df: pl.DataFrame, report_date: datetime):
         hard_sales_df, begin=g.weeks_before(report_date, 3), end=report_date
     )
     mo.hstack(items=[_table], justify="start", wrap=True)
+
     return
 
 
 @app.cell(hide_code=True)
 def md_top():
     mo.md(r"""
-    9月6日は4機種合計で43,759台となり、前週から12.9%増加しました。Switch2、Switch、PS5はいずれも前週を上回りましたが、全体としては低い販売水準が続いています。
+    9月13日は4機種合計で43,552台となり、前週から0.4%減少しました。Switch2は増加した一方、SwitchとPS5が減少し、全体では低い販売水準が続いています。
 
-    Switch2は24,281台で前週比9.1%増、2週連続で3万台を下回りました。Switchは11,591台で31.0%増となり、7月5日以来9週ぶりに1万台を超え、PS5の7,760台を2週連続で上回りました。Xbox Series X|Sは127台で前週から減少し、小規模な販売が続いています。
+    Switch2は28,341台で前週比18.3%増です｡Switchは7,559台で34.8%減、PS5は7,494台で3.4%減となり、SwitchはPS5を3週連続で上回りました。Xbox Series X|Sは158台で前週から増加したものの、小規模な販売が続いています。
 
-    9月13日集計は「ゼルダの伝説40周年Direct」「Nintendo Direct 2026.9.9」後の反応を確認する週ですが、ソフト発売の直接的な影響はなお限定的とみられます。9月20日集計では「Marvel's Wolverine発売」「ファイアーエムブレム万紫千紅 発売」「DIABLO IV Switch2版発売」が反映されるため、販売水準の変化を確認したいところです。
+    今週は「ゼルダの伝説40周年Direct(9/8)」「Nintendo Direct 2026.9.9(9/9)」「めっちゃカメレオン(9/9)」があったものの、ハード販売への直接的な影響は限定的とみられます。次回集計では「PS5DE日本語版新規購入キャンペーン ~3/31(9/14)」「Marvel's Wolverine(9/15)」「ファイアーエムブレム万紫千紅(9/17)」が反映されるため、各機種の販売水準が持ち直すかを確認したいところです。
     """)
     return
 
@@ -154,6 +163,7 @@ def weekly_sales_trend(report_date: datetime):
 
     weekly_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[weekly_chart], justify="start")
+
     return
 
 
@@ -181,22 +191,26 @@ def weekly_sales_trend_2(report_date: datetime):
         hw=["NSW", "PS5", "XSX", "NS2"],
         begin=_begin,
         end=_end,
-        annotation_level=50,
+        annotation_level=30,
         ymax=55000,
         padding_end=1,
         value_label=True,
     )
     weekly_big_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[weekly_big_chart], justify="start")
+
     return
 
 
 @app.cell(hide_code=True)
 def md_weekly_chart():
     mo.md(r"""
-    Switch2は24,281台まで増加したものの、直近4週平均は25,015台で、3万台回復には至っていません。夏休み後の需要がどこまで持ち直すかが焦点です。9月13日集計では「Nintendo Direct 2026.9.9」後の反応を、9月20日集計では「ファイアーエムブレム万紫千紅 発売」後の販売推移を確認することになります。
+    Switch2は28,341台で前週から6,076台増え、直近4週平均も23,905台となりました。
+    3週間連続増加は3月8日以来です｡
+    次回は「ファイアーエムブレム万紫千紅(9/17)」による本体増加が期待されます｡
+    来週さらに増加し4週連続で増えた場合には2025年11月23日の年末商戦以来となります｡
 
-    Switchは直近4週平均8,515台で、PS5の7,872台を上回りました。単週でもSwitchがPS5を2週連続で上回っており、足元ではSwitchのほうが強い動きです。ただし両機種とも販売規模は小さく、「Marvel's Wolverine発売」後にこの順位が続くかを見極める必要があります。
+    Switchは7,559台へ減少したものの、PS5の7,494台を3週連続で上回りました。両機種の直近4週平均はSwitchが8,527台、PS5が7,251台で、足元ではSwitchが優勢です。一方でPS5には次週以降「PS5DE日本語版新規購入キャンペーン ~3/31(9/14)」と「Marvel's Wolverine(9/15)」、さらに東京ゲームショウ2026(9/17)効果が期待できるため、この順位が続くかは次週以降の販売推移を見極める必要があります。
     """)
     return
 
@@ -240,13 +254,14 @@ def ps5_yearly_cumulative_chart(ps5_latest):
             0, named=True
         )["yearly_sum_units"],
         x2=365,
-        y2=637000,
+        y2=687000,
         stroke=[3, 2],
         size=2,
         color="#ff000080",
     )
     ps5_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[ps5_yearly_cumulative_chart], justify="start")
+
     return
 
 
@@ -260,15 +275,16 @@ def ps5_heatmap_chart():
     )
     ps5_heatmap_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[ps5_heatmap_chart], justify="start")
+
     return
 
 
 @app.cell(hide_code=True)
 def md_ps5_yearly():
     mo.md(r"""
-    PS5の2026年累計は9月6日時点で413,562台です。前年同時期の590,931台を30.0%下回り、2024年同時期の1,063,634台に対しては61.1%少ない水準です。歴代PlayStationとの比較では、PS3の2014年同時期の363,427台には近い一方、PS4の2018年同時期の1,159,050台には大きく届きません。
+    PS5の2026年累計は9月13日時点で421,056台です。前年同時期の590,931台を28.7%下回り、2024年同時期の1,063,634台に対しては60.4%少ない水準です。歴代PlayStationとの比較ではPS3の2014年同時期をやや上回る一方、PS4の2018年同時期の水準には大きく届きません。
 
-    52週平均による年間販売予測は637,227台で、2025年通年の879,204台を下回る見込みです。足元の週販は1万台を下回っており、「Marvel's Wolverine発売」後の9月20日集計でどこまで持ち直すかが、年末に向けた上振れの判断材料になります。
+    52週平均による年間販売予測は687,626台で、2025年通年の879,204台を下回る見込みです。足元の週販は7,494台にとどまり、直近4週平均も7,251台です。「PS5DE日本語版新規購入キャンペーン ~3/31(9/14)」「Marvel's Wolverine(9/15)」や東京ゲームショウ2026(9/17)を含む9月後半に、販売水準をどこまで戻せるかが年末に向けた上振れの判断材料になります。
     """)
     return
 
@@ -303,13 +319,14 @@ def switch_yearly_cumulative_chart(switch_latest):
             0, named=True
         )["yearly_sum_units"],
         x2=365,
-        y2=869000,
+        y2=986000,
         stroke=[3, 2],
         size=2,
         color="#ff000080",
     )
     switch_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch_yearly_cumulative_chart], justify="start")
+
     return
 
 
@@ -323,15 +340,16 @@ def switch_heatmap_chart():
     )
     switch_heatmap_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch_heatmap_chart], justify="start")
+
     return
 
 
 @app.cell(hide_code=True)
 def md_switch_yearly():
     mo.md(r"""
-    Switchの2026年累計は9月6日時点で551,129台です。前年同時期の1,073,896台から48.7%減、2024年同時期の1,978,746台から72.1%減となり、発売からの経過に伴う縮小が続いています。
+    Switchの2026年累計は9月13日時点で558,688台です。前年同時期の1,073,896台から48.0%減、2024年同時期の1,978,746台から71.8%減となり、発売からの経過に伴う縮小が続いています。
 
-    52週平均による年間販売予測は869,052台で、2025年通年の1,520,384台を大きく下回る見込みです。足元ではPS5を上回る週が続き、直近4週平均も8,515台と13週平均の7,718台を上回っています。ただし、この持ち直しだけでは年間の縮小基調を変えるほどの水準には至っていません。
+    52週平均による年間販売予測は986,127台で、2025年通年の1,520,384台を下回る見込みです。直近4週平均は8,527台でPS5の7,251台を上回り、単週でもPS5を3週連続で上回っています。ただし販売規模は小さく、足元の持ち直しだけでは年間の縮小基調を変えるほどの水準には至っていません。
     """)
     return
 
@@ -359,13 +377,14 @@ def switch2_yearly_cumulative_chart(switch2_latest):
             0, named=True
         )["yearly_sum_units"],
         x2=365,
-        y2=3850000,
+        y2=4260000,
         stroke=[3, 2],
         size=2,
         color="#ffa00080",
     )
     switch2_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch2_yearly_cumulative_chart], justify="start")
+
     return
 
 
@@ -380,15 +399,16 @@ def switch2_heatmap_chart():
     _chart = _chart.properties(height=200)
     switch2_heatmap_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch2_heatmap_chart], justify="start")
+
     return
 
 
 @app.cell(hide_code=True)
 def md_switch2_yearly():
     mo.md(r"""
-    Switch2の2026年累計は9月6日時点で2,481,406台です。前年同時期の1,980,483台を25.3%上回っていますが、前年は6月発売であるため、前年比には販売期間の違いも含まれます。発売66週時点の累計は6,265,473台で、同時点のSwitchを約187万台上回る高い普及ペースです。
+    Switch2の2026年累計は9月13日時点で2,509,747台です。前年同時期の1,980,483台を26.7%上回っていますが、前年は6月発売であるため、前年比には販売期間の違いも含まれます。発売67週時点の累計は6,293,814台で、同時点のSwitchを約186万台上回る高い普及ペースです。
 
-    52週平均による年間販売予測は3,846,958台で、2025年通年の3,784,067台をわずかに上回る計算です。一方、この平均には発売直後の高い販売水準が含まれます。直近4週平均は25,015台にとどまるため、「ファイアーエムブレム万紫千紅 発売」後を含む9月後半に販売をどこまで回復できるかが重要です。
+    52週平均による年間販売予測は4,269,053台で、2025年通年の3,784,067台を上回る計算です。一方、この平均には発売直後の高い販売水準が含まれます。直近4週平均は23,905台にとどまるため、「DIABLO IV Switch2版(9/16)」「ファイアーエムブレム万紫千紅(9/17)」発売後を含む9月後半に販売をどこまで回復できるかが重要です。PS5の2026年累計421,056台を大きく上回り、市場を支える構図は続いています。
     """)
     return
 
@@ -419,6 +439,7 @@ def switch2_monthly_sales_chart(report_date: datetime):
     ns2_df = switch2_monthly_bar.dataframe
     ns2_df_pivot = ns2_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[switch2_monthly_bar], justify="start")
+
     return (ns2_df_pivot,)
 
 
@@ -431,15 +452,16 @@ def switch2_monthly_sales_table(ns2_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ns2_df2))
+
     return
 
 
 @app.cell(hide_code=True)
 def md_switch2_monthly():
     mo.md(r"""
-    Switch2の9月第1週の販売は24,281台で、前年同週の46,403台を47.7%下回りました。前週の22,265台からは増加したものの、夏場に続き3万台を下回る水準です。
+    Switch2の9月第2週の販売は28,341台で、前週の24,281台から18.3%増加しました。ただし前年同週の46,403台は下回っており、9月は2週合計で52,622台と低い水準からの推移です。
 
-    8月は139,165台で7月を1.8%上回りましたが、前年8月の319,690台には届きませんでした。9月は低い水準からの出足であり、「ファイアーエムブレム万紫千紅 発売」と「DIABLO IV Switch2版発売」が反映される月後半に、販売水準をどこまで持ち直せるかが焦点です。
+    8月は139,165台で7月を1.8%上回りましたが、前年8月の319,690台には届きませんでした。月後半には「ファイアーエムブレム万紫千紅(9/17)」の発売が控えており、これらが9月の販売水準をどこまで押し上げるかが焦点です。
     """)
     return
 
@@ -462,6 +484,7 @@ def switch_monthly_sales_chart(report_date: datetime):
     ns_df = switch_monthly_bar.dataframe
     ns_df_pivot = ns_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[switch_monthly_bar], justify="start")
+
     return (ns_df_pivot,)
 
 
@@ -473,15 +496,16 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ns_df2))
+
     return
 
 
 @app.cell(hide_code=True)
 def md_switch_monthly():
     mo.md(r"""
-    Switchの9月第1週の販売は11,591台で、前年同週の24,175台を52.1%下回りました。前週比では31.0%増となり、PS5を2週連続で上回っています。
+    Switchの9月第2週の販売は7,559台で、前週の11,591台から34.8%減少しました。前年同週の24,175台も下回っており、9月は2週合計で19,150台となっています。
 
-    8月は38,211台で7月から15.6%増加しましたが、前年8月の94,517台に対しては低い水準でした。9月も前年を下回る出足で、直近4週平均は8,515台まで持ち直しているものの、縮小基調に変化は見られません。
+    8月は38,211台で7月から15.6%増加しましたが、前年8月の94,517台に対しては低い水準でした。直近4週平均は8,527台とPS5を上回るものの、9月後半に販売規模を大きく回復させる材料は限られ、縮小基調が続くかを確認する局面です。
     """)
     return
 
@@ -504,6 +528,7 @@ def ps5_monthly_sales_chart(report_date: datetime):
     ps5_df = ps5_monthly_bar.dataframe
     ps5_df_pivot = ps5_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[ps5_monthly_bar], justify="start")
+
     return (ps5_df_pivot,)
 
 
@@ -515,15 +540,16 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ps5_df2))
+
     return
 
 
 @app.cell(hide_code=True)
 def md_ps5_monthly():
     mo.md(r"""
-    PS5の9月第1週の販売は7,760台で、前年同週の31,695台を75.5%下回りました。前週の7,351台からは5.6%増えたものの、Switchを2週連続で下回っています。
+    PS5の9月第2週の販売は7,494台で、前週の7,760台から3.4%減少しました。前年同週の31,695台を大きく下回り、9月は2週合計で15,254台と弱い出足です。
 
-    8月は43,810台で前年同月を12.3%上回りましたが、月後半には週販が1万台を割り込みました。9月は弱い出足となっており、「Marvel's Wolverine発売」と東京ゲームショウの時期を含む9月後半の推移が注目されます。
+    8月は43,810台で前年同月を12.3%上回りましたが、月後半には週販が1万台を割り込みました。次回集計では「PS5DE日本語版新規購入キャンペーン ~3/31(9/14)」「Marvel's Wolverine(9/15)」の時期が反映されるため、9月後半に販売水準を持ち直せるかが注目されます。
     """)
     return
 
@@ -546,6 +572,7 @@ def xsx_monthly_sales_chart(report_date: datetime):
     xsx_df = xsx_monthly_bar.dataframe
     xsx_df_pivot = xsx_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[xsx_monthly_bar], justify="start")
+
     return (xsx_df_pivot,)
 
 
@@ -557,15 +584,16 @@ def xsx_monthly_sales_table(report_date: datetime, xsx_df_pivot):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_xsx_df2))
+
     return
 
 
 @app.cell(hide_code=True)
 def md_xsx_monthly():
     mo.md(r"""
-    Xbox Series X|Sの9月第1週の販売は127台で、前年同週の160台を20.6%下回りました。前週の298台からは減少し、直近4週平均も157台にとどまっています。
+    Xbox Series X|Sの9月第2週の販売は158台で、前週の127台から24.4%増加しました。ただし前年同週の160台とほぼ同水準で、9月は2週合計285台にとどまっています。
 
-    8月販売は659台で、7月の1,131台から41.7%減少しました。「Xbox Series X|S 値上げ」後も販売規模は極めて小さく、単週ごとの変動はあるものの、9月時点で明確な回復の兆しは限られます。
+    8月販売は659台で、7月の1,131台から41.7%減少しました。「Xbox Series X|S 値上げ(8/1)」後も販売規模は極めて小さく、単週ごとの変動はあるものの、9月時点で明確な回復の兆しは限られます。
     """)
     return
 
@@ -591,6 +619,7 @@ def cumulative_sales_trend_chart(report_date: datetime):
     )
     cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[cumulative_chart], justify="start")
+
     return
 
 
@@ -640,15 +669,16 @@ def switch2_ps5_cumulative_chart(
 
     _chart_ns2_cumulative = mo.ui.altair_chart(_chart)
     _chart_ns2_cumulative
+
     return
 
 
 @app.cell(hide_code=True)
 def md_cumulative_ps5_switch2():
     mo.md(r"""
-    9月6日時点の累計販売はPS5が7,711,772台、Switch2が6,265,473台で、差は1,446,299台です。今週はSwitch2がPS5を16,521台上回り、差を縮めました。
+    9月13日時点の累計販売はPS5が7,719,266台、Switch2が6,293,814台で、差は1,425,452台です。今週はSwitch2がPS5を20,847台上回り、差を縮めました。
 
-    52週平均ではSwitch2が週82,404台、PS5が13,497台で推移しており、この差が続く機械的な試算では約21週後の2027年2月ごろに逆転します。ただしSwitch2の52週平均には発売直後の高い販売が含まれます。直近4週平均の差は週約1.7万台で、こちらを基準にすると逆転は約84週後の2028年春ごろです。年末商戦に向けてSwitch2が販売をどこまで持ち直せるかが、逆転時期を左右します。
+    52週平均ではSwitch2が週82,097台、PS5が13,224台で推移しており、この差が続く機械的な試算では約21週後の2027年2月ごろに逆転します。ただしSwitch2の52週平均には発売直後の高い販売が含まれます。直近4週平均の差は週約1.7万台で、こちらを基準にすると逆転は約86週後の2028年春ごろです。年末商戦に向けてSwitch2が販売をどこまで持ち直せるかが、逆転時期を左右します。
     """)
     return
 
@@ -657,6 +687,7 @@ def md_cumulative_ps5_switch2():
 def md_ns2_sales_weeks_title(switch2_latest):
     _ns2_weeks = switch2_latest["index_week"]
     mo.md(f"### Switch2: {_ns2_weeks}週目の累計状況")
+
     return
 
 
@@ -671,31 +702,24 @@ def ns2_cumulative_delta_chart(ns2_info):
             "GBA",
         ],
         end=ns2_info["sales_weeks"] + 20,
-        annotation_level=23,
+        annotation_level=20,
         mode="week",
         with_point=False,
         multi_line=True,
-    )
-    _chart = g.chart_rule_xy(
-        base_chart=_chart,
-        x=ns2_info["sales_weeks"],
-        y=ns2_info["total_units"],
-        stroke=[5, 2],
-        size=2,
-        color="#00000060",
     )
     _chart = g.chart_line_guide(
         base_chart=_chart,
         x=ns2_info["sales_weeks"],
         y=ns2_info["total_units"],
-        x2=ns2_info["sales_weeks"] + 20,
-        y2=6850000,
+        x2=85,
+        y2=6730000,
         stroke=[2, 3],
         size=2,
         color="#800000",
     )
     cd_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[cd_chart], justify="start")
+
     return
 
 
@@ -708,15 +732,16 @@ def cumulative_top_chart(hard_sales_df: pl.DataFrame, ns2_info):
         .sort("sum_units", descending=True)
     )
     g.style_df(g.rename_columns(cumulative_tops_df))
+
     return
 
 
 @app.cell(hide_code=True)
 def md_cumulative_top():
     mo.md(r"""
-    発売66週時点のSwitch2累計は6,265,473台で、同時点のDSを184,130台、3DSを200,164台上回り、歴代最速の普及ペースを維持しています。GBAに対しても約79万台の差をつけています。
+    発売67週時点のSwitch2累計は6,293,814台で、同時点のDSを72,653台、3DSを126,787台上回り、歴代最速の普及ペースを維持しています。GBAに対しても約79万台、Switchに対しては約186万台の差をつけています。
 
-    一方、DSはこの時期に週129,044台、3DSも週51,804台を販売していました。Switch2は直近4週平均が約2.5万台で、今週も24,281台にとどまります。需要回復が限定的ならDS・3DSとの差は今後縮まる可能性があり、9月後半のソフト投入後に販売水準が変わるかが注目点です。
+    一方、DSはこの時期に週129,044台、3DSも週51,804台を販売していました。Switch2は直近4週平均が23,905台で、今週は28,341台まで増えたものの、過去機種との差はほんの僅かです。直近4週平均のまま推移すると仮定した場合、同じ発売週数での累計比較ではDSに次週の68週目（9月20日ごろ）、3DSに71週目の4週後（10月11日ごろ）に逆転される計算です。次回の9月20日集計で歴代首位を維持するには、DSの68週目累計6,356,952台を上回る63,139台以上の販売が必要です。「ファイアーエムブレム万紫千紅(9/17)」発売後に販売水準が変わるかが、歴代首位を維持できるかを左右します。
     """)
     return
 
@@ -744,15 +769,16 @@ def quarterly_sales_chart():
     )
     quarter_chart = mo.ui.altair_chart(_c1)
     mo.vstack([quarter_chart])
+
     return
 
 
 @app.cell(hide_code=True)
 def md_quarterly():
     mo.md(r"""
-    2026年第3四半期は9月6日までの10週間で477,511台です。前年同期の1,089,637台を56.2%、2024年同期の884,949台を46.0%下回っています。
+    2026年第3四半期は9月13日までの11週間で521,063台です。前年同期の1,089,822台を52.2%、2024年同期の886,090台を41.2%下回っています。Switch2は328,435台で前年同期の810,799台から縮小した一方、PS5は100,129台で前年同期の99,658台とほぼ同水準です。
 
-    Switch2は300,094台で前年同期から63.0%減となった一方、PS5は92,635台で前年同期の99,658台に近い水準です。市場全体の減少は、Switch2とSwitchの前年からの縮小が主な要因です。四半期後半に「ファイアーエムブレム万紫千紅 発売」などの新作が販売水準をどこまで押し上げるかを確認したいところです。
+    市場全体の減少は、Switch2とSwitchの前年からの縮小が主な要因です。四半期後半には「ファイアーエムブレム万紫千紅(9/17)」「Marvel's Wolverine(9/15)」などが控えており、販売水準をどこまで押し上げられるかを確認したいところです。
     """)
     return
 
@@ -777,6 +803,7 @@ def yearly_sales_chart(report_date: datetime):
     )
     year_df = yearly_bar.dataframe
     mo.vstack(items=[yearly_bar], justify="start")
+
     return (year_df,)
 
 
@@ -787,15 +814,16 @@ def yearly_sales_table(year_df):
         合計=pl.sum_horizontal(pl.exclude("year", "合計"))
     )
     g.style_df(year_pivot_df)
+
     return
 
 
 @app.cell(hide_code=True)
 def md_yearly_hard():
     mo.md(r"""
-    2026年のハード販売は9月6日時点で合計3,462,214台です。前年同時期の3,671,358台を5.7%下回る一方、2024年同時期の3,140,869台は10.2%上回っています。
+    2026年のハード販売は9月13日時点で合計3,505,766台です。Switch2が2,509,747台で全体の71.6%を占め、Switchの558,688台、PS5の421,056台が続きます。
 
-    Switch2が2,481,406台で全体の71.7%を占め、Switchの551,129台、PS5の413,562台が続きます。Switch2が市場規模を支える構図は続いていますが、前年同時期と比べるとSwitch2とSwitchの販売減が全体を押し下げています。9月後半の販売水準が改善するかが、年間市場規模の見通しを左右します。
+    前年同時期と比べると、Switch2とSwitchの販売減が市場全体を押し下げています。PS5は前年の水準に近い一方、Switch2の足元の販売が低調なため、年末へ向けた市場規模の見通しは次回以降のソフト投入後の週販に左右されます。
     """)
     return
 
@@ -813,15 +841,16 @@ def yearly_maker_share_chart():
     _chart = g.chart_hbar_yearly_share_by_maker(date(2015, 1, 1), date(2026, 12, 31))
     share_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[share_chart], justify="start")
+
     return
 
 
 @app.cell(hide_code=True)
 def md_yearly_maker_share():
     mo.md(r"""
-    2026年のメーカー別シェアは9月6日時点で任天堂が87.6%、ソニーが11.9%、マイクロソフトが0.5%です。前年同時期の任天堂シェア83.2%、2024年同時期の63.0%を上回り、任天堂優位が一段と強まっています。
+    2026年のメーカー別シェアは9月13日時点で任天堂が87.6%、ソニーが12.0%、マイクロソフトが0.5%です。Switch2だけで市場全体の71.6%を占めることが、高い任天堂シェアを支えています。
 
-    52週平均を年末まで延長した試算では、任天堂の年間シェアは87.7%、ソニーは11.9%、マイクロソフトは0.4%です。Switch2だけで市場全体の71.7%を占めることが高い任天堂シェアを支えています。ただしSwitch2の52週平均には発売直後の販売が含まれるため、実際の年末シェアは今後の週販次第で変動します。
+    52週平均を年換算した試算では、任天堂の年間シェアは約88.1%、ソニーは約11.5%、マイクロソフトは約0.4%です。Switch2の52週平均には発売直後の高い販売が含まれるため、実際の年末シェアは今後の週販次第で変動します。
     """)
     return
 
@@ -957,6 +986,7 @@ def report_metadata():
          """,
         },
     ]
+
     return
 
 
