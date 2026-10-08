@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.6"
+__generated_with = "0.24.2"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -16,7 +16,6 @@ with app.setup:
     # プロジェクト内モジュール
     import gamedata as g
 
-    g.set_dispfunc(func=None)
 
 
 @app.cell
@@ -27,6 +26,7 @@ def ui_hw_select_01():
 
     # Stack指定
     stack_widget = mo.ui.switch(label="Stack mode", value=False)
+
     return hw_select, hw_widget, stack_widget
 
 
@@ -39,6 +39,7 @@ def hw_select(hw_select, hw_widget, stack_widget):
     )
     _mo_chart = mo.ui.altair_chart(_chart)
     mo.vstack([hw_select, stack_widget, _mo_chart, _mo_chart.dataframe])
+
     return
 
 
@@ -47,6 +48,7 @@ def ui_hw_select_area_02():
     # HW select widget
     hw_select_area = g.HwSelect(default_list=[])
     hw_widget_area = hw_select_area.widget
+
     return hw_select_area, hw_widget_area
 
 
@@ -60,6 +62,7 @@ def hw_select_area(hw_select_area, hw_widget_area):
         stacked=True,
     )
     mo.vstack([hw_select_area, _chart])
+
     return
 
 
@@ -69,6 +72,7 @@ def ui_year_end_03():
     year_end = mo.ui.number(
         label="シェア確認年", value=2026, start=2002, stop=2026, step=1
     )
+
     return (year_end,)
 
 
@@ -88,6 +92,7 @@ def year_end(year_end):
     )
 
     mo.vstack([year_end, _pie_chart, _bar_chart])
+
     return
 
 
