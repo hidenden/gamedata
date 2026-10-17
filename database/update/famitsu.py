@@ -113,6 +113,9 @@ def normalize_hw_units(hard_sales: List[List[str]]) -> List[List[str]]:
         "Xbox Series X": "XSX",
         "Xbox Series X デジタルエディション": "XSX",
         "Xbox Series S": "XSX",
+        "XBOX Series X": "XSX",
+        "XBOX Series X デジタルエディション": "XSX",
+        "XBOX Series S": "XSX",
     }
 
     normalized_sales = {}
