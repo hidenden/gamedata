@@ -13,7 +13,7 @@
 
 import marimo
 
-__generated_with = "0.25.1"
+__generated_with = "0.25.2"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -49,7 +49,6 @@ def mode_set():
         alt.theme.enable("edit")
     else:
         alt.theme.enable("publish")
-
     return (is_publish,)
 
 
@@ -57,8 +56,7 @@ def mode_set():
 def load_data():
     hard_sales_all_df: pl.DataFrame = g.load_hard_sales(True)
     annotation_all_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
-
-    return annotation_all_df, hard_sales_all_df
+    return (hard_sales_all_df,)
 
 
 @app.cell
@@ -77,7 +75,6 @@ def report_setup(hard_sales_all_df: pl.DataFrame, is_publish):
     [ns2_info, ps5_info, nsw_info] = g.hard_sales_summary(
         hard_sales_all_df, hw=["NS2", "PS5", "NSW"]
     )
-
     return ns2_info, report_date, show_title
 
 
@@ -87,14 +84,12 @@ def _(hard_sales_all_df: pl.DataFrame):
     switch2_latest = _df_latest.filter(pl.col("hw") == "NS2").row(0, named=True)
     switch_latest = _df_latest.filter(pl.col("hw") == "NSW").row(0, named=True)
     ps5_latest = _df_latest.filter(pl.col("hw") == "PS5").row(0, named=True)
-
     return ps5_latest, switch2_latest, switch_latest
 
 
 @app.cell
 def show_title_cell(report_date: datetime, show_title):
     show_title(report_date)
-
     return
 
 
@@ -125,22 +120,21 @@ def units_by_date_hw_table(
         hard_sales_all_df, begin=g.weeks_before(report_date, 3), end=report_date
     )
     mo.hstack(items=[_table], justify="start", wrap=True)
-
     return
 
 
 @app.cell(hide_code=True)
 def md_top():
     mo.md(r"""
-    10月11日は4機種合計で40,427台となり、前週から14.5%減少しました。全機種が前週を下回り、Switch2は22,420台で14.4%減、PS5は11,911台で6.7%減、Switchは5,806台で24.6%減、Xbox Series X|Sは290台で52.6%減となっています。
+    10月18日は4機種合計で37,607台となり、前週から7.0%減少しました。Switch2は21,854台で2.5%減、PS5は10,667台で10.4%減、Switchは4,857台で16.3%減、Xbox Series X|Sは229台で21.0%減と、2週続けて全機種が前週を下回っています。
 
-    今週の節目はSwitchの累計3,700万台到達です。一方、Switch2は発売後の同じ週数で比較した累計で3DSを下回り、歴代2位から3位へ下がりました。現役機種の週間順位は変わらず、Switch2が首位、PS5が2位を維持しています。
+    特にSwitchは、これまで最低だった6月14日の4,933台を76台下回り、本データの全期間で過去最低を更新しました。前週に累計3,700万台へ到達した一方、足元の新規販売は縮小が続いています。
 
-    [ファミ通のソフト週販](https://www.famitsu.com/article/202610/91095)では「KINGDOM HEARTS Collection」のSwitch2版が23,411本で1位、PS5版が6,261本で5位となりました。PS5では「ACE COMBAT8」も13,801本で3位に残り、前週に本体を牽引した新作の需要が続いています。ただし新作の発売が重なっても両機種のハード販売は減っており、今週は市場全体を押し上げるまでには至りませんでした。
+    [ファミ通のソフト週販](https://www.famitsu.com/article/202610/91765)では「テイルズ オブ エターニア リマスター」がSwitch2版17,911本、PS5版10,390本で新登場し、Switch向け「キャッスルヴァニア ベルモンドカース」も15,630本を販売しました。Switch2、PS5の「Call of Duty:Modern Warfare4」の発売も重なりましたが、複数の新作が市場全体のハード販売を前週以上へ押し上げるまでには至りませんでした。
 
-    次回10月18日集計ではSwitch2、PS5の「Call of Duty:Modern Warfare4」、次々回10月25日集計ではSwitch2の「Nintendo Switch Sports Resort」が販売を支えるかに注目です。Switch2ではソフトセットの予約開始後に本体販売がさらに下がっており、購入待ちの影響も考えられます。
+    PS5では、10月13日に発表された11月19日発売の[「PS5DE日本語版ミッドナイトブラック」](https://blog.ja.playstation.com/2026/10/13/20261013-ps5-dej-black-announcement-s/)を待つ購入の先送りが下押し要因になると見ています。今週はその発表を含む集計期間に入り、減少に購入待ちが関係した可能性があります。発売時には需要を集めると考えていますが、そこまでの週販には慎重な見方が必要です。
 
-    集計後の10月13日には、11月19日発売の[「PS5DE日本語版ミッドナイトブラック」](https://blog.ja.playstation.com/2026/10/13/20261013-ps5-dej-black-announcement-s/)が発表されました。予約開始は10月20日です。SNSでの人気を踏まえ、発売時には販売を伸ばすと見ていますが、その分、発売前には希望する色を待つ買い控えが予想されます。次回集計以降の減少要因になるでしょう。
+    次回10月25日集計にはSwitch2の「Nintendo Switch Sports Resort」が入ります。次々回11月1日集計は10月29日発売の「ゼルダの伝説40周年記念モデル」本体モデルが集計に含まれるので､そこで販売台数を大きく伸ばすことが期待されます。
     """)
     return
 
@@ -167,7 +161,6 @@ def weekly_sales_trend(report_date: datetime):
 
     weekly_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[weekly_chart], justify="start")
-
     return
 
 
@@ -202,18 +195,17 @@ def weekly_sales_trend_2(report_date: datetime):
     )
     weekly_big_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[weekly_big_chart], justify="start")
-
     return
 
 
 @app.cell(hide_code=True)
 def md_weekly_chart():
     mo.md(r"""
-    Switch2は9月20日の34,341台を頂点に、32,198台、26,200台、22,420台と3週続けて下がりました。直近4週平均も30,270台から28,790台へ低下し、13週平均の29,388台を下回っています。9月後半に広がった他機種との差が、再び縮小する形となっています。
+    Switch2は9月20日の34,341台から4週連続で減少しました。ただし今週の減少幅は566台で、前週の3,780台より小さくなっています。直近4週平均は28,790台から25,668台へ低下し、13週平均の29,151台も下回りました。下げの勢いは弱まったものの、9月後半の上昇を取り戻す動きにはまだ至っていません。
 
-    PS5は3週連続の増加が止まりましたが、減少幅は857台にとどまり、2週連続で1万台を維持しました。直近4週平均は9,460台から10,564台へ上がり、13週平均の9,237台を上回っています。Switch2との週間販売差は前週の13,432台から10,509台へ縮小しました。
+    PS5は2週連続の減少ですが、3週続けて1万台を保ちました。直近4週平均は10,564台から11,269台へ上昇しています。低かった9月の週が対象から外れた影響で、今週の週販の減少と平均の上昇が同時に起きています。Switch2との差の縮小は止まり、週間順位はSwitch2、PS5、Switch、Xbox Series X|Sの順で変わりません。PS5の2位は5週連続です。
 
-    Switchは前週の増加から反落し、直近4週平均も6,818台から6,380台へ低下しました。Xbox Series X|Sは4週続いた増加が一服しています。PS5は4週連続の2位で、今週も順位の入れ替わりはありません。次週はPS5が1万台を保つか、Switch2が下げ止まるかによって、上位2機種の距離が変わってきます。
+    Switchは直近4週平均が6,168台、13週平均が7,300台で、短い期間ほど弱い販売となっています。Xbox Series X|Sも2週続けて減少しました。次週はSwitch2の下げが止まるか、PS5が1万台を維持できるかが、上位2機種の線の動きを見る際の焦点です。
     """)
     return
 
@@ -257,14 +249,13 @@ def ps5_yearly_cumulative_chart(ps5_latest):
             0, named=True
         )["yearly_sum_units"],
         x2=365,
-        y2=662000,
+        y2=661000,
         stroke=[3, 2],
         size=2,
         color="#ff000080",
     )
     ps5_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[ps5_yearly_cumulative_chart], justify="start")
-
     return
 
 
@@ -278,18 +269,17 @@ def ps5_heatmap_chart():
     )
     ps5_heatmap_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[ps5_heatmap_chart], justify="start")
-
     return
 
 
 @app.cell(hide_code=True)
 def md_ps5_yearly():
     mo.md(r"""
-    PS5の2026年累計は10月11日時点で463,312台です。前年同時期の680,073台を31.9%、2024年同時期の1,117,640台を58.5%下回っています。PS3の2014年同時期389,346台に対しては19.0%多い一方、PS4の2018年同時期1,256,748台には大きく届かず、過去のPlayStationと比べても高い年間販売水準ではありません。
+    PS5の2026年累計は10月18日時点で473,979台です。前年同時期の692,158台を31.5%、2024年同時期の1,128,955台を58.0%下回っています。PS3の2014年同時期393,555台に対しては20.4%多い一方、PS4の2018年同時期1,276,615台には62.9%届かず、過去のPlayStationと比べても年間販売は低い水準です。
 
-    52週平均の12,739台を年換算した年間販売の目安は約662,000台で、2025年通年の879,204台を下回ります。年初来の前年割れ幅は前週の32.1%から31.9%へわずかに縮まりましたが、年間で前年に並ぶには残り11週で415,892台、週平均約37,810台が必要です。
+    52週平均の12,712台を年換算した年間販売の目安は約661,000台で、2025年通年の879,204台を24.8%下回ります。年初来の前年割れ幅は前週の31.9%からわずかに改善していますが、前年との差はなお218,179台あります。
 
-    発売からの累計は7,761,522台で、800万台まで残り238,478台です。52週平均を維持した場合の到達は約19週後の2027年2月となり、年内到達には残り11週で週平均約21,680台が必要です。同じ発売309週時点でPS3は約825万台、PS4は約881万台に達しており、PS5は累計でも両機種を下回っています。
+    発売からの累計は7,772,189台で、800万台まで残り227,811台です。52週平均を維持した場合は約18週後の2027年2月に到達する計算です。年内に超えるには残り10週で週平均約22,780台が必要となり、足元の1万台前後からの販売拡大が条件になります。
     """)
     return
 
@@ -324,14 +314,13 @@ def switch_yearly_cumulative_chart(switch_latest):
             0, named=True
         )["yearly_sum_units"],
         x2=365,
-        y2=925000,
+        y2=906000,
         stroke=[3, 2],
         size=2,
         color="#ff000080",
     )
     switch_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch_yearly_cumulative_chart], justify="start")
-
     return
 
 
@@ -345,16 +334,15 @@ def switch_heatmap_chart():
     )
     switch_heatmap_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch_heatmap_chart], justify="start")
-
     return
 
 
 @app.cell(hide_code=True)
 def md_switch_yearly():
     mo.md(r"""
-    Switchの2026年累計は10月11日時点で584,209台です。前年同時期の1,179,925台から50.5%減、2024年同時期の2,274,915台から74.3%減となり、前年の半分弱の販売にとどまっています。年間の目安は、週17,782台という52週平均を基準に約925,000台です。2025年通年の1,520,384台からの縮小を見込んでいます。足元はこの平均より低く、年末商戦での上積みが乏しければ目安からの下振れも考えられます。
+    Switchの2026年累計は10月18日時点で589,066台です。前年同時期の1,203,638台から51.1%減、2024年同時期の2,333,768台から74.8%減となり、年初来の前年割れ幅は前週より広がりました。年間の目安は、週17,419台という52週平均を基準に約906,000台で、2025年通年の1,520,384台を約4割下回ります。
 
-    発売からの累計は37,000,370台となり、今週3,700万台を突破しました。発売502週での到達です。既にDSの国内累計約3,260万台を上回っており、普及台数では記録を伸ばす一方、今年の販売規模は後継機への移行に伴い縮小しています。節目の達成と年間需要の減少が並行している点が、現在のSwitchの特徴です。
+    発売からの累計は37,005,227台となりました。先週の大台到達後も記録は伸びていますが、52週平均に対して直近4週平均は6,168台と低く、年末の上積みが弱ければ年間の目安からも下振れします。3,800万台まで残り994,773台を売るには、この足元の平均でも3年以上の販売が必要です。本体の供給が長く続くことを前提とするため、次の大台は長期販売が続いた場合の上振れとして捉えたいところです。
     """)
     return
 
@@ -382,14 +370,13 @@ def switch2_yearly_cumulative_chart(switch2_latest):
             0, named=True
         )["yearly_sum_units"],
         x2=365,
-        y2=4208000,
+        y2=4028000,
         stroke=[3, 2],
         size=2,
         color="#ffa00080",
     )
     switch2_yearly_cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch2_yearly_cumulative_chart], justify="start")
-
     return
 
 
@@ -404,18 +391,17 @@ def switch2_heatmap_chart():
     _chart = _chart.properties(height=200)
     switch2_heatmap_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[switch2_heatmap_chart], justify="start")
-
     return
 
 
 @app.cell(hide_code=True)
 def md_switch2_yearly():
     mo.md(r"""
-    Switch2の2026年累計は10月11日時点で2,624,906台です。前年同時期の2,200,903台を19.3%上回りますが、前年は6月発売だったため販売期間が異なります。今年のPS5の約5.7倍、Switchの約4.5倍を売り上げており、市場の中心を担う構図は続いています。
+    2026年のSwitch2販売は10月18日までに2,646,760台となりました。前年同時期の2,402,587台を10.2%上回っていますが、伸び率は前週の19.3%から大きく縮まりました。前年は「Pokemon LEGENDS ZA」の発売週に201,684台を販売しており、今週はその高い実績との比較に入ったことが影響しています。前年超過分は424,003台から244,173台へ減少しました。
 
-    52週平均は80,924台で、年間に換算すると約4,208,000台となります。2025年通年の3,784,067台より多い水準ですが、前年の年末商戦や今年春の高い販売を含む平均であり、足元の需要をそのまま示す値ではありません。
+    52週平均は77,466台で、年間に換算すると約4,028,000台です。2025年通年の3,784,067台より6.5%多い水準ですが、前年の年末商戦や今年春の高い販売を含む平均であり、直近4週平均の25,668台とは開きがあります。
 
-    累計700万台までは残り591,027台です。52週平均なら約8週後の12月6日集計、発売79週で到達する計算となり、Switchの97週、PS5の252週を上回る普及速度です。一方、直近4週平均で延ばすと2027年3月までかかります。年内の到達には残り11週で週平均約53,730台が必要で、足元からの明確な回復が条件となります。
+    累計700万台までは残り569,173台となりました。52週平均なら約8週後の12月13日集計、発売80週で到達する計算で、Switchの97週、PS5の252週より早い到達です。一方、直近4週平均で延ばすと2027年3月末までかかります。年内到達には残り10週で週平均約56,920台が必要で、11月以降の明確な回復が条件となります。
     """)
     return
 
@@ -446,7 +432,6 @@ def switch2_monthly_sales_chart(report_date: datetime):
     ns2_df = switch2_monthly_bar.dataframe
     ns2_df_pivot = ns2_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[switch2_monthly_bar], justify="start")
-
     return (ns2_df_pivot,)
 
 
@@ -459,18 +444,17 @@ def switch2_monthly_sales_table(ns2_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ns2_df2))
-
     return
 
 
 @app.cell(hide_code=True)
 def md_switch2_monthly():
     mo.md(r"""
-    Switch2の10月販売は2週累計で48,620台です。前年同月の最初の2週91,281台から46.7%減となりました。月間全体では9月が119,161台、前年10月が358,399台で、今月は10月25日集計までの4週間です。残り2週を今週と同じペースで延ばすと93,460台、直近4週平均なら106,200台となり、9月を10.9～21.6%下回る計算です。
+    Switch2の10月販売は3週累計で70,474台です。前年同月の最初の3週292,965台から75.9%減となりました。残りは10月25日集計の1週で、今週のペースを延ばすと月間92,328台、直近4週平均なら96,142台です。9月の119,161台を19.3～22.5%、前年10月の358,399台を73.2～74.2%下回る計算となります。
 
-    10月6日の「選べるソフトセット予約開始」によって、11月12日の「選べるソフトセット発売」を待つ理由が生まれました。ソフト同梱で最大4,980円お得な構成のため、11月8日集計までは通常の本体購入を先送りする動きが続くと見ています。既に発表済みの10月29日発売「ゼルダの伝説40周年記念モデル」も、発売日が近づくほど購入待ちを強めるでしょう。
+    11月12日の「選べるソフトセット発売」を待つ動きは、引き続き通常の本体購入を抑えると見ています。ソフト同梱で最大4,980円お得な構成のため、発売前の11月8日集計までは先送りが続くでしょう。ゼルダ記念モデルも発売が近づくほど意識されるため、10月の最終週に週3万台へ戻るのは難しいと考えています。
 
-    こうした条件から、10月中に週3万台へ戻るのは引き続き難しいと見ています。記念モデル発売週の販売は11月1日集計に入るため、10月分には発売時の上積みが含まれません。今月の評価では新作ソフトの本数だけでなく、販売が11月へずれる影響も考慮する必要があります。
+    9月と同数に届くには最終週だけで48,687台が必要です。記念モデルの発売週は11月1日集計に入るので、発売時の上積みは10月分に含まれません。今月は新作の牽引だけでこの差を埋められるかという状況ですが、購入待ちを踏まえると急増は見込みにくいでしょう。
     """)
     return
 
@@ -493,7 +477,6 @@ def switch_monthly_sales_chart(report_date: datetime):
     ns_df = switch_monthly_bar.dataframe
     ns_df_pivot = ns_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[switch_monthly_bar], justify="start")
-
     return (ns_df_pivot,)
 
 
@@ -505,16 +488,15 @@ def switch_monthly_sales_table(ns_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ns_df2))
-
     return
 
 
 @app.cell(hide_code=True)
 def md_switch_monthly():
     mo.md(r"""
-    Switchの10月販売は2週累計で13,510台です。前年同月の最初の2週47,258台を71.4%下回っています。前年10月の月間96,080台に対しても大きく弱い推移です。
+    Switchの10月販売は3週累計で18,367台です。前年同月の最初の3週70,971台を74.1%下回り、月初からの低調な推移が続いています。残り1週を今週の販売水準で延ばすと月間23,224台、直近4週平均なら24,535台となります。
 
-    残り2週を今週の販売水準で延ばすと月間25,122台、直近4週平均なら26,270台となり、9月の31,161台を15.7～19.4%下回ります。初週の増加を2週目に維持できなかったため、今月は2.5万～2.6万台程度を基準とし、月後半に持ち直せるかを確認したいところです。
+    この二つのペースでは9月の31,161台から21.3～25.5%減、前年10月の96,080台から74.5～75.8%減です。9月並みへ戻すために必要な最終週の12,794台は、今週の約2.6倍という高い水準です。
     """)
     return
 
@@ -537,7 +519,6 @@ def ps5_monthly_sales_chart(report_date: datetime):
     ps5_df = ps5_monthly_bar.dataframe
     ps5_df_pivot = ps5_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[ps5_monthly_bar], justify="start")
-
     return (ps5_df_pivot,)
 
 
@@ -549,16 +530,15 @@ def ps5_monthly_sales_table(ps5_df_pivot, report_date: datetime):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_ps5_df2))
-
     return
 
 
 @app.cell(hide_code=True)
 def md_ps5_monthly():
     mo.md(r"""
-    PS5の10月販売は2週累計で24,679台です。前年同月の最初の2週42,144台から41.4%減となっていますが、9月の月間32,831台に対しては既に75.2%まで積み上がりました。
+    PS5の10月販売は3週累計で35,346台となり、9月の月間32,831台を既に超えました。一方、前年同月の最初の3週54,229台からは34.8%減で、前月からの回復と前年割れが並行しています。
 
-    残り2週を今週のペースで延ばすと月間48,501台、直近4週平均なら45,807台となり、単純延長では9月を約4～5割上回ります。ただし今後は新色を待つ購入層の先送りが加わるため、この4.6万～4.9万台という目安には下振れ余地があります。前年10月の64,732台に届くには残り2週で40,053台が必要で、月後半に大幅な加速がない限り前年割れが続く見通しです。
+    最終週を今週と同じペースで延ばすと月間46,013台、直近4週平均なら46,615台です。9月を40.2～42.0%上回る一方、前年10月の64,732台には28.0～28.9%届きません。前年並みに届くには最終週に29,386台が必要で、月末まで前年割れが続く見通しです。
     """)
     return
 
@@ -581,7 +561,6 @@ def xsx_monthly_sales_chart(report_date: datetime):
     xsx_df = xsx_monthly_bar.dataframe
     xsx_df_pivot = xsx_df.pivot(index="month", on="year", values="monthly_units")
     mo.vstack(items=[xsx_monthly_bar], justify="start")
-
     return (xsx_df_pivot,)
 
 
@@ -593,16 +572,15 @@ def xsx_monthly_sales_table(report_date: datetime, xsx_df_pivot):
         YoY=pl.col(str(_this_year)) / pl.col(str(_this_year - 1))
     )
     g.style_df(g.rename_columns(my_xsx_df2))
-
     return
 
 
 @app.cell(hide_code=True)
 def md_xsx_monthly():
     mo.md(r"""
-    Xbox Series X|Sの10月販売は2週累計で902台です。前年同月の最初の2週1,074台から16.0%減となる一方、9月の月間918台にはほぼ並びました。今週は290台へ反落したため、初週の612台を基準にした強い見通しは修正する必要があります。
+    Xbox Series X|Sの10月販売は3週累計で1,131台です。前年同月の最初の3週1,262台から10.4%減ですが、9月の月間918台は23.2%上回っています。初週の612台だけで現在の月間累計の54.1%を占めており、月初の販売が全体を押し上げています。
 
-    残り2週を今週の水準で延ばすと月間1,482台、直近4週平均なら1,670台です。どちらも9月を上回りますが、前年10月の2,253台には届きません。
+    残り1週を今週の229台で延ばすと月間1,360台、直近4週平均なら1,504台です。9月からは約5～6割の増加を見込む一方、前年10月の2,253台に対しては33.2～39.6%少ない水準です。
     """)
     return
 
@@ -628,349 +606,6 @@ def cumulative_sales_trend_chart(report_date: datetime):
     )
     cumulative_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[cumulative_chart], justify="start")
-
-    return
-
-
-@app.cell(hide_code=True)
-def _():
-    mo.md(r"""
-    ## Switch 3700万台の軌跡
-    """)
-    return
-
-
-@app.cell
-def switch_37m(
-    annotation_all_df: pl.DataFrame,
-    hard_sales_all_df: pl.DataFrame,
-    report_date: datetime,
-):
-    # 3,700万台到達週までの実績で、100万台ごとの区間を固定する。
-    _switch_all = hard_sales_all_df.filter(
-        (pl.col("hw") == "NSW") & (pl.col("report_date") <= report_date.date())
-    ).sort("report_date")
-    _reach_37m = _switch_all.filter(pl.col("sum_units") >= 37_000_000).head(1)
-    if _reach_37m.is_empty():
-        raise ValueError("この集計日ではSwitchの3,700万台到達を確認できません。")
-    _reach_date = _reach_37m["report_date"][0]
-    _switch_sales = _switch_all.filter(pl.col("report_date") <= _reach_date)
-    _ds_sales = hard_sales_all_df.filter(
-        (pl.col("hw") == "DS") & (pl.col("report_date") <= _reach_date)
-    ).sort("report_date")
-
-    def _milestone_rows(sales, annotations, limit):
-        rows = []
-        previous_week = 0
-        previous_units = 0
-        previous_date = None
-        for million in range(1, limit + 1):
-            reached = sales.filter(pl.col("sum_units") >= million * 1_000_000)
-            if reached.is_empty():
-                break
-            row = reached.row(0, named=True)
-            weeks = row["index_week"] - previous_week
-            period_units = row["sum_units"] - previous_units
-            events = annotations.filter(pl.col("annotation_date") <= row["report_date"])
-            if previous_date is None:
-                events = events.filter(pl.col("annotation_date") >= row["launch_date"])
-            else:
-                events = events.filter(pl.col("annotation_date") > previous_date)
-            # descを優先し、空文字・NULLのときだけnoteへフォールバックする。
-            events = events.with_columns(
-                pl.when(pl.col("desc").fill_null("").str.strip_chars() != "")
-                .then(pl.col("desc").str.strip_chars())
-                .otherwise(pl.col("note").fill_null("").str.strip_chars())
-                .alias("event_label")
-            ).filter(pl.col("event_label") != "")
-            # 重要度で2件を選び、選んだ出来事を時系列で表示する。
-            selected = (
-                events.sort(["level", "annotation_date", "id"], nulls_last=True)
-                .head(2)
-                .sort(["annotation_date", "id"])
-            )
-            labels = [
-                f"{event['annotation_date']:%Y-%m-%d} {event['event_label']}"
-                for event in selected.to_dicts()
-            ]
-            rows.append(
-                {
-                    "threshold_units": million * 1_000_000,
-                    "report_date": row["report_date"],
-                    "index_week": row["index_week"],
-                    "period_weeks": weeks,
-                    "period_units": period_units,
-                    "weekly_average_units": round(period_units / weeks),
-                    "cumulative_units": row["sum_units"],
-                    "event_1": labels[0] if labels else "",
-                    "event_2": labels[1] if len(labels) > 1 else "",
-                    "event_ids": selected["id"].to_list(),
-                    "event_count": events.height,
-                }
-            )
-            previous_week = row["index_week"]
-            previous_units = row["sum_units"]
-            previous_date = row["report_date"]
-        return pl.DataFrame(rows, schema_overrides={"event_ids": pl.List(pl.Int64)})
-
-    switch_37m_milestones_df = _milestone_rows(
-        _switch_sales, annotation_all_df.filter(pl.col("hw") == "NSW"), 37
-    )
-    switch_37m_ds_milestones_df = _milestone_rows(
-        _ds_sales, annotation_all_df.filter(pl.col("hw") == "DS"), 32
-    )
-    switch_37m_comparison_df = (
-        _switch_sales.select(
-            "index_week", "report_date", pl.col("sum_units").alias("switch_units")
-        )
-        .join(
-            _ds_sales.select("index_week", pl.col("sum_units").alias("ds_units")),
-            on="index_week",
-        )
-        .sort("index_week")
-        .with_columns(gap=pl.col("switch_units") - pl.col("ds_units"))
-    )
-    _crossings = switch_37m_comparison_df.with_columns(
-        previous_gap=pl.col("gap").shift(1)
-    ).filter((pl.col("gap") > 0) & (pl.col("previous_gap") <= 0))
-    _ds_final = _ds_sales.row(-1, named=True)
-    _switch_final = _switch_sales.row(-1, named=True)
-    _same_ds_final = switch_37m_comparison_df.filter(
-        pl.col("index_week") == _ds_final["index_week"]
-    ).row(0, named=True)
-    switch_37m_metrics = {
-        "switch_final": _switch_final,
-        "ds_final": _ds_final,
-        "same_52": switch_37m_comparison_df.filter(pl.col("index_week") == 52).row(
-            0, named=True
-        ),
-        "same_ds_final": _same_ds_final,
-        "max_ds_lead": switch_37m_comparison_df.sort("gap").row(0, named=True),
-        "relative_cross": _crossings.row(-1, named=True),
-        "ds_final_cross": _switch_sales.filter(
-            pl.col("sum_units") > _ds_final["sum_units"]
-        ).row(0, named=True),
-        "switch_peak_year": _switch_sales.group_by("year")
-        .agg(pl.col("units").sum())
-        .sort("units", descending=True)
-        .row(0, named=True),
-        "ds_peak_year": _ds_sales.group_by("year")
-        .agg(pl.col("units").sum())
-        .sort("units", descending=True)
-        .row(0, named=True),
-        "fastest_million": switch_37m_milestones_df.sort(
-            ["period_weeks", "threshold_units"]
-        ).row(0, named=True),
-        "period_36m": switch_37m_milestones_df.filter(
-            pl.col("threshold_units") == 36_000_000
-        ).row(0, named=True),
-        "period_37m": switch_37m_milestones_df.filter(
-            pl.col("threshold_units") == 37_000_000
-        ).row(0, named=True),
-        "after_ds_final_weeks": _switch_final["index_week"] - _ds_final["index_week"],
-        "after_ds_final_units": _switch_final["sum_units"]
-        - _same_ds_final["switch_units"],
-    }
-
-    mo.md(f"""
-    {_switch_final["launch_date"]:%Y年%m月%d日}発売のNintendo Switchは、
-    {_reach_date:%Y年%m月%d日}集計で国内累計**{_switch_final["sum_units"]:,}台**となり、
-    発売**{_switch_final["index_week"]}週目**に3,700万台を突破しました。
-    100万台ごとの到達履歴から、普及の加速と成熟の過程を振り返ります。
-    """)
-
-    return (
-        switch_37m_ds_milestones_df,
-        switch_37m_metrics,
-        switch_37m_milestones_df,
-    )
-
-
-@app.cell(hide_code=True)
-def switch_37m_history_table(switch_37m_milestones_df):
-    _heatmap_min = switch_37m_milestones_df["period_weeks"].min()
-    _heatmap_range = max(
-        switch_37m_milestones_df["period_weeks"].max() - _heatmap_min, 1
-    )
-
-    def _style_required_weeks(_row_id, _column_name, _value):
-        if _column_name != "必要週数" or _value is None:
-            return {}
-        _fraction = min(max((float(_value) - _heatmap_min) / _heatmap_range, 0), 1)
-        _rgb = tuple(
-            round(_light + (_dark - _light) * _fraction)
-            for _light, _dark in zip((247, 250, 255), (32, 88, 163))
-        )
-        _linear = [
-            (_channel / 255) / 12.92
-            if _channel / 255 <= 0.04045
-            else ((_channel / 255 + 0.055) / 1.055) ** 2.4
-            for _channel in _rgb
-        ]
-        _luminance = sum(
-            _weight * _channel
-            for _weight, _channel in zip((0.2126, 0.7152, 0.0722), _linear)
-        )
-        return {
-            "backgroundColor": f"rgb({_rgb[0]}, {_rgb[1]}, {_rgb[2]})",
-            "color": "#ffffff" if _luminance < 0.179 else "#000000",
-            "fontWeight": "600",
-        }
-
-    _display = switch_37m_milestones_df.select(
-        pl.col("threshold_units")
-        .map_elements(lambda value: f"{value // 10_000:,}万台", return_dtype=pl.String)
-        .alias("台数"),
-        pl.col("report_date").dt.strftime("%Y-%m-%d").alias("到達日"),
-        pl.col("index_week").cast(pl.Int64).alias("週数"),
-        pl.col("period_weeks").cast(pl.Int64).alias("必要週数"),
-        pl.when(pl.col("event_count") == 0)
-        .then(pl.lit(""))
-        .when(pl.col("event_count") == 1)
-        .then(pl.col("event_1"))
-        .otherwise(
-            pl.concat_str([pl.col("event_1"), pl.col("event_2")], separator=" ／ ")
-        )
-        .alias("出来事"),
-    )
-    switch_37m_history_table = mo.ui.table(
-        _display,
-        pagination=False,
-        selection=None,
-        show_column_summaries=False,
-        show_data_types=False,
-        format_mapping={
-            "週数": "{:,.0f}".format,
-            "必要週数": "{:,.0f}".format,
-        },
-        style_cell=_style_required_weeks,
-        header_tooltip={
-            "必要週数": "濃い青ほど、次の100万台に達するまで長い期間を要した区間です。"
-        },
-        wrapped_columns=["出来事"],
-        column_widths={
-            "台数": 90,
-            "到達日": 105,
-            "週数": 65,
-            "必要週数": 80,
-            "出来事": 420,
-        },
-        label="Switch：100万台ごとの到達履歴（37行）",
-    )
-    mo.vstack(
-        [
-            mo.md("""
-    ### 100万台ごとの到達履歴
-
-    到達日は初めて節目を超えた週の集計日、週数は発売週を1とした経過週数です。
-    必要週数は直前の節目の到達週との差で、最初の100万台は発売週から数えています。
-        """),
-            switch_37m_history_table,
-        ]
-    )
-
-    return
-
-
-@app.cell(hide_code=True)
-def switch_37m_ds_chart(switch_37m_metrics):
-    _last_week = switch_37m_metrics["switch_final"]["index_week"]
-    switch_37m_ds_chart = g.chart_line_cumulative_delta(
-        hw=["DS", "NSW"],
-        mode="week",
-        begin=1,
-        end=_last_week,
-        ymax=40_000_000,
-        annotation_level=10,
-        index_mode=True,
-        with_point=False,
-        multi_line=True,
-        size=(900, 420),
-    ).properties(title="Nintendo DSとNintendo Switch：発売週を揃えた累計販売")
-    _chart_view = mo.ui.altair_chart(switch_37m_ds_chart)
-    mo.vstack(
-        [
-            mo.md("### DSとSwitchの累計の伸び方"),
-            _chart_view,
-            mo.md(f"""
-    横軸はそれぞれの発売週から数えた週数で、同じ暦の日付を比較したものではありません。
-    DSは本データの最終集計である{switch_37m_metrics["ds_final"]["index_week"]}週
-    （{switch_37m_metrics["ds_final"]["report_date"]:%Y-%m-%d}）、
-    Switchは3,700万台に到達した{_last_week}週までを表示しています。
-        """),
-        ]
-    )
-
-    return
-
-
-@app.cell(hide_code=True)
-def switch_37m_ds_analysis(
-    switch_37m_ds_milestones_df,
-    switch_37m_metrics,
-    switch_37m_milestones_df,
-):
-    _m = switch_37m_metrics
-    _sw = switch_37m_milestones_df
-    _ds = switch_37m_ds_milestones_df
-    _sw_10m = _sw.filter(pl.col("threshold_units") == 10_000_000)["index_week"][0]
-    _ds_10m = _ds.filter(pl.col("threshold_units") == 10_000_000)["index_week"][0]
-    _sw_20m = _sw.filter(pl.col("threshold_units") == 20_000_000)["index_week"][0]
-    _ds_20m = _ds.filter(pl.col("threshold_units") == 20_000_000)["index_week"][0]
-
-    mo.md(f"""
-    ### 発売1年の規模は近く、加速した時期が異なる
-
-    発売52週の累計はSwitchが{_m["same_52"]["switch_units"]:,}台、
-    DSが{_m["same_52"]["ds_units"]:,}台で、差は約20万台でした。
-    両機種とも最初の1年で大きな普及基盤を築きましたが、その後はDSの伸びが先行します。
-    1,000万台到達はDSが{_ds_10m}週、Switchが{_sw_10m}週、
-    2,000万台はそれぞれ{_ds_20m}週、{_sw_20m}週です。
-    同じ経過週数でのDSの最大リードは{_m["max_ds_lead"]["index_week"]}週時点の
-    **{-_m["max_ds_lead"]["gap"]:,}台**に達しました。
-
-    ただし、DSは12月、Switchは3月の発売で、年末商戦を迎える経過週数が異なります。
-    DSの100万台到達は4週、Switchは17週でしたが、初期の速さを比べる際には
-    この発売時期の違いも考慮する必要があります。
-
-    ### DSは早期の急拡大、Switchは中盤以降の持続
-
-    暦年で販売が最大だったのはDSが{_m["ds_peak_year"]["year"]}年の
-    {_m["ds_peak_year"]["units"]:,}台、Switchが{_m["switch_peak_year"]["year"]}年の
-    {_m["switch_peak_year"]["units"]:,}台です。DSは発売から比較的早い段階で
-    大きく普及した一方、Switchは発売4年目に最大の年間販売を記録しました。
-
-    DSには「脳トレ」「どう森」「DSi発売」、Switchには
-    「Switch Lite」「あつ森」「有機ELモデル」といった節目があります。
-    ソフトと本体の更新を重ねながら累計を積み上げた点は共通しています。
-    その中でSwitchは、最初の1,000万台に{_sw_10m}週かかった後、
-    次の1,000万台を{_sw_20m - _sw_10m}週で売り、販売期間の中盤に加速しました。
-    100万台単位で最も短い区間は600万台から700万台までの
-    {_m["fastest_million"]["period_weeks"]}週で、2018年末から2019年初めに当たります。
-    年末年始を含む区間なので、季節的な需要の集中が速さに寄与したと考えられます。
-
-    ### 後半の積み上げが最終的な差を生んだ
-
-    Switchは{_m["ds_final_cross"]["report_date"]:%Y年%m月%d日}集計、
-    発売{_m["ds_final_cross"]["index_week"]}週でDSの最終累計
-    **{_m["ds_final"]["sum_units"]:,}台**を上回りました。
-    同じ経過週数の累計比較でも、この{_m["relative_cross"]["index_week"]}週に再逆転しています。
-
-    DSの最終集計と同じ{_m["ds_final"]["index_week"]}週で比較すると、
-    Switchは{_m["same_ds_final"]["switch_units"]:,}台で、
-    既にDSを{_m["same_ds_final"]["gap"]:,}台上回っていました。
-    その後の{_m["after_ds_final_weeks"]}週でさらに{_m["after_ds_final_units"]:,}台を積み上げ、
-    今回の3,700万台へ到達しています。DSの早期の急拡大に対し、
-    Switchは中盤の加速と長い後半の販売が累計を押し上げたと捉えられます。
-
-    もっとも、直近の100万台には{_m["period_37m"]["period_weeks"]}週を要し、
-    その前の{_m["period_36m"]["period_weeks"]}週から期間が延びています。
-    区間の週平均も{_m["period_36m"]["weekly_average_units"]:,}台から
-    {_m["period_37m"]["weekly_average_units"]:,}台へ低下しました。
-    大きな累計を築いた持続力と、世代交代期に入った現在の減速の両方が、
-    この37行の履歴に表れています。
-    """)
-
     return
 
 
@@ -992,7 +627,7 @@ def switch2_ps5_cumulative_chart(
         hw=["NS2", "PS5"],
         begin=datetime(2025, 5, 20),
         end=datetime(2026, 12, 31),
-        annotation_level=30,
+        annotation_level=19,
         multi_line=True,
         mode="week",
         padding_end=36,
@@ -1020,18 +655,17 @@ def switch2_ps5_cumulative_chart(
 
     _chart_ns2_cumulative = mo.ui.altair_chart(_chart)
     _chart_ns2_cumulative
-
     return
 
 
 @app.cell(hide_code=True)
 def md_cumulative_ps5_switch2():
     mo.md(r"""
-    10月11日時点の累計差は1,352,549台で、PS5が7,761,522台、Switch2が6,408,973台です。今週の差の縮小は10,509台となり、前週の13,432台から鈍化しました。
+    10月18日時点の累計差は1,341,362台で、PS5が7,772,189台、Switch2が6,430,827台です。今週の差の縮小は11,187台となり、前週の10,509台からわずかに増えました。
 
-    52週平均の差は週68,185台で、このペースなら約20週後の2027年2月末に逆転する計算です。直近4週平均の差は週18,226台となり、こちらでは約75週後の2028年3月までかかります。短期の平均差が前週の20,810台から縮まったため、足元を基準にした逆転時期はさらに後ろへ動きました。
+    52週平均の差は週64,754台で、このペースなら約21週後の2027年3月に逆転する計算です。直近4週平均の差は週14,399台となり、こちらでは約94週後の2028年8月までかかります。今週だけの縮小幅は増えていても、短期の平均差は前週の18,226台から小さくなったため、足元を基準とした逆転時期はさらに後ろへ動きました。
 
-    二つの逆転時期は、直近1年と直近4週それぞれの平均差が続くことを前提とした試算です。現時点では予測日の一点よりも、週当たりの縮小幅が再び拡大へ向かうかを重視したいところです。
+    この二つの時期は、それぞれの平均差を将来も固定した場合の試算です。
     """)
     return
 
@@ -1040,7 +674,6 @@ def md_cumulative_ps5_switch2():
 def md_ns2_sales_weeks_title(switch2_latest):
     _ns2_weeks = switch2_latest["index_week"]
     mo.md(f"### Switch2: {_ns2_weeks}週目の累計状況")
-
     return
 
 
@@ -1072,7 +705,6 @@ def ns2_cumulative_delta_chart(ns2_info):
     )
     cd_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[cd_chart], justify="start")
-
     return
 
 
@@ -1085,18 +717,17 @@ def cumulative_top_chart(hard_sales_all_df: pl.DataFrame, ns2_info):
         .sort("sum_units", descending=True)
     )
     g.style_df(g.rename_columns(cumulative_tops_df))
-
     return
 
 
 @app.cell(hide_code=True)
 def md_cumulative_top():
     mo.md(r"""
-    発売71週時点のSwitch2累計は6,408,973台となり、3DSの6,416,853台を7,880台下回って歴代3位へ下がりました。前週は34,967台上回っていましたが、今週の販売が3DSの同じ週の65,267台に届かず、逆転を許しています。首位DSは6,946,582台で、Switch2との差は537,609台へ広がりました。
+    発売72週時点のSwitch2累計は6,430,827台で、歴代3位を維持しています。2位の3DSは6,468,783台となり、差は前週の7,880台から37,956台へ拡大しました。首位DSはこの72週で700万台を突破し、累計7,142,963台、Switch2との差は712,136台となっています。
 
-    次の72週時点の3DS累計は6,468,783台です。Switch2が再び上回るには次週に59,811台以上が必要で、今週の販売の約2.7倍に当たります。DSは72週で700万台を超え、週販も約20万台あるため、足元の推移からは首位への復帰も見込みにくい状況です。
+    次の73週時点の3DS累計は6,515,416台です。Switch2が再び上回るには次週に84,590台以上が必要で、今週の約3.9倍に当たります。新作による上積みがあっても、短期で2位を取り戻すには大きな販売の変化が必要です。
 
-    一方、同じ71週のGBAは5,681,505台、Switchは4,618,363台で、Switch2はそれぞれ約73万台、約179万台上回っています。順位は下がったものの、前世代機より早い普及は維持しています。今後は3DSとの差を再び縮められる販売水準へ戻るかが焦点になります。
+    一方、同じ72週のGBAは5,731,090台、Switchは4,665,680台です。Switch2はそれぞれ約70万台、約177万台上回っており、DSや3DSには後れを取る一方、前世代機より速い普及は維持しています。
     """)
     return
 
@@ -1124,16 +755,15 @@ def quarterly_sales_chart():
     )
     quarter_chart = mo.ui.altair_chart(_c1)
     mo.vstack([quarter_chart])
-
     return
 
 
 @app.cell(hide_code=True)
 def md_quarterly():
     mo.md(r"""
-    2026年第4四半期は2週累計で87,711台です。前年同期の最初の2週181,793台を51.8%、2024年の144,100台を39.1%下回っています。初週に続いて2週目も弱く、四半期の出足は低調です。
+    2026年第4四半期は3週累計で125,318台です。前年同期の最初の3週419,486台を70.1%、2024年の218,740台を42.7%下回っています。今期の週平均は約41,773台で、直前の第3四半期が617,823台と2001年以降の完了した四半期で最低だった状況から、まだ回復は見えていません。
 
-    前年の第4四半期は2,308,689台で、第3四半期の約1.7倍でした。今年は直前の第3四半期が617,823台と、2001年以降の完了した四半期で最低にとどまっています。前年と同程度の季節的な伸びを当てはめても約108万台であり、2024年第4四半期の1,345,463台にも届きません。四半期の販売規模を取り戻すには、通常の年末需要以上の回復が必要です。
+    2024年第4四半期の1,345,463台に並ぶには、残る10週で1,220,145台、週平均約122,015台が必要です。今期最初の3週平均の約2.9倍に当たります。前年の第4四半期はさらに多い2,308,689台であり、年末需要が強まるだけでなく、主要機種の発売後に相当の販売拡大が必要な出足となっています。
     """)
     return
 
@@ -1158,7 +788,6 @@ def yearly_sales_chart(report_date: datetime):
     )
     year_df = yearly_bar.dataframe
     mo.vstack(items=[yearly_bar], justify="start")
-
     return (year_df,)
 
 
@@ -1169,16 +798,15 @@ def yearly_sales_table(year_df):
         合計=pl.sum_horizontal(pl.exclude("year", "合計"))
     )
     g.style_df(year_pivot_df)
-
     return
 
 
 @app.cell(hide_code=True)
 def md_yearly_hard():
     mo.md(r"""
-    2026年の主要4機種の販売は10月11日時点で合計3,690,237台となり、前年同時期の4,088,162台を9.7%下回っています。前年との差は397,925台で、前週の353,324台から広がりました。一方、2024年同時期の3,480,590台に対しては6.0%多い水準です。表の全機種合計はPS4の275台を含む3,690,512台となっています。
+    2026年の主要4機種の販売は10月18日時点で合計3,727,844台となり、前年同時期の4,325,832台を13.8%下回っています。前年との差は597,988台へ広がった一方、2024年同時期の3,555,196台に対しては4.9%多い水準です。表の全機種合計はPS4の275台を含む3,728,119台となっています。
 
-    前年比の内訳はSwitch2が424,003台増、Switchが595,716台減、PS5が216,761台減、Xbox Series X|Sが9,451台減です。後継機の増加だけでは他機種の減少を埋められていません。2024年通年の全機種販売4,695,363台に並ぶには、残り11週で約100万台、週平均約9.1万台が必要です。前年を下回るだけでなく、2024年の年間規模を保てるかも今後の判断材料になります。
+    前年比ではSwitch2が244,173台増えましたが、Switchは614,572台、PS5は218,179台、Xbox Series X|Sは9,410台減少しました。Switch2の増加で補えているのはSwitchの減少の約4割にとどまり、世代交代が市場全体の増加につながっていません。2024年通年の全機種販売4,695,363台までの差も967,244台あり、残り10週の年末商戦でこの差を埋められるかが年間規模を判断する目安になります。
     """)
     return
 
@@ -1196,16 +824,17 @@ def yearly_maker_share_chart():
     _chart = g.chart_hbar_yearly_share_by_maker(date(2015, 1, 1), date(2026, 12, 31))
     share_chart = mo.ui.altair_chart(_chart)
     mo.vstack(items=[share_chart], justify="start")
-
     return
 
 
 @app.cell(hide_code=True)
 def md_yearly_maker_share():
     mo.md(r"""
-    2026年のメーカー別シェアは10月11日時点で任天堂が87.0%、ソニーが12.6%、マイクロソフトが0.5%です。前週の87.1%、12.4%、0.5%に対し、任天堂がわずかに下がり、ソニーが上がりました。ソニーは今週も絶対台数では減少しており、シェアの上昇は他社より落ち込みが小さかった結果です。任天堂の比率は2025年通年の85.3%、2024年の66.2%をなお上回っています。
+    2026年のメーカー別シェアは10月18日時点で任天堂が86.8%、ソニーが12.7%、マイクロソフトが0.5%です。前週の87.0%、12.6%、0.5%に対し、任天堂がわずかに低下し、ソニーが上昇しました。任天堂の比率は2025年通年の85.3%、2024年の66.2%をなお上回っています。
 
-    主要4機種の52週平均を年換算した販売台数で年間シェアを試算すると、任天堂が約88.2%、ソニーが約11.4%、マイクロソフトが約0.4%です。試算上の任天堂の比率は現在の実績より約1.3ポイント高く、ソニーは約1.2ポイント低くなります。年間では任天堂の優位が続く見通しですが、足元では逆方向に動いており、年末商戦で各社がどれだけ販売を積み上げるかによって最終的な比率は変わるでしょう。
+    PS5の今週の週間シェアは28.4%で、前週の29.5%から低下しました。それでも年初来のソニーの比率を大きく上回るため、年間累計ではソニーの構成比を押し上げています。週間と年初来でシェアの方向が異なる点に注意が必要です。
+
+    主要4機種の52週平均を年換算した販売台数で年間シェアを試算すると、任天堂が約87.8%、ソニーが約11.8%、マイクロソフトが約0.4%です。現在の累計比率より任天堂が約1ポイント高い試算となり、任天堂中心の構成は年末まで続くと見込まれますが、ソニーが足元の高い週間比率を維持できれば実際の年末シェアはこの目安を上回るでしょう。
     """)
     return
 
@@ -1341,7 +970,6 @@ def report_metadata():
          """,
         },
     ]
-
     return
 
 

@@ -73,7 +73,7 @@ def rename_hw(df: pl.DataFrame) -> pl.DataFrame:
     # dfにカラム:hwがある場合、hw列の値をhard_dictで変換する
     if "hw" in df.columns:
         hard_dict = hi.get_hard_dict()
-        df = df.with_columns(pl.col("hw").replace(hard_dict, default=pl.col("hw")))
+        df = df.with_columns(pl.col("hw").replace(hard_dict))
     return df
 
 
