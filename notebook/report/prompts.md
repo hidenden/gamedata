@@ -3,7 +3,7 @@ $weekly-report-update
 既存の Marimo セッション http://localhost:2718 を使用して、全記事を更新して。
 
 今週のファミ通の週販記事のURLはこれです｡
-https://www.famitsu.com/article/202610/91765
+https://www.famitsu.com/article/202610/92517
 分析記事生成時の参考にして下さい｡(ただしパクリにならないように注意)
 
 全ての記事更新後に各セルの記事を比較して下さい｡同じ記述が繰り返されている場合は冗長なので､
