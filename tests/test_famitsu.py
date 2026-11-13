@@ -25,6 +25,7 @@ def test_write_source_log_writes_url_and_raw_sales_in_order(tmp_path):
         "\n"
         "Switch2／24281台（累計626万5473台）\n"
         "PS5／102台（累計591万9917台）\n"
+        "\n"
         "集計期間：2026年8月31日～9月6日\n"
     )
 
@@ -51,5 +52,49 @@ def test_famitsu_main_writes_log_before_processing(monkeypatch, tmp_path):
         url,
         "",
         *raw_sales,
+        "",
         "集計期間：2026年8月31日～9月6日",
     ]
+
+
+def test_famitsu_main_defaults_to_reporting_end_date_log(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "logs").mkdir()
+    monkeypatch.setattr(
+        famitsu,
+        "get_famitsu_hwsales_page",
+        lambda _url: (
+            ["Switch2／24281台（累計626万5473台）"],
+            ["集計期間：2026年8月31日～9月6日"],
+        ),
+    )
+
+    famitsu.famitsu_main("unused.db", "https://www.famitsu.com/", dry_run=True)
+
+    assert (tmp_path / "logs" / "20260906.log").read_text(encoding="utf-8").startswith(
+        "https://www.famitsu.com/\n"
+    )
+
+
+def test_log_failure_reports_to_stderr_and_continues_database_update(
+    monkeypatch, tmp_path, capsys
+):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        famitsu,
+        "get_famitsu_hwsales_page",
+        lambda _url: (
+            ["Switch2／24281台（累計626万5473台）"],
+            ["集計期間：2026年8月31日～9月6日"],
+        ),
+    )
+    updates = []
+    monkeypatch.setattr(famitsu, "upsert_to_database", lambda db, rows: updates.append(rows))
+
+    famitsu.famitsu_main("unused.db", "https://www.famitsu.com/")
+
+    captured = capsys.readouterr()
+    assert "Could not write source log to logs/20260906.log" in captured.err
+    assert "Source log written" not in captured.out
+    assert not (tmp_path / "logs").exists()
+    assert updates == [[["2026-09-06_NS2", "2026-09-06", 7, "NS2", 24281]]]
