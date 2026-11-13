@@ -251,20 +251,25 @@ def famitsu_main(
         db_path (str): Path to the SQLite database file.
         target_url (str): URL of the Famitsu hardware sales page.
         dry_run (bool, optional): If True, only print the data to be inserted without modifying the database. Defaults to False.
-        log_path (str | None, optional): Output path for the fetched source text.
+        log_path (str | None, optional): Output path for the fetched source text. Defaults to logs/YYYYMMDD.log using the reporting period end date.
 
     Returns:
         None
     """
     raw_sales, raw_report_dates = get_famitsu_hwsales_page(target_url)
-    if log_path is not None:
+    start_date, end_date = extract_date_range(raw_report_dates)
+    if log_path is None:
+        log_path = f"logs/{end_date:%Y%m%d}.log"
+    try:
         write_source_log(log_path, target_url, raw_sales, raw_report_dates)
+    except OSError as exc:
+        print(f"Error: Could not write source log to {log_path}: {exc}", file=sys.stderr)
+    else:
         print(f"Source log written to: {log_path}")
 
     parsed_list = parse_hard_sales_lines(raw_sales)
     normalized_list = normalize_hw_units(parsed_list)
 
-    start_date, end_date = extract_date_range(raw_report_dates)
     end_date, period_date = calculate_date_range_days(start_date, end_date)
     end_date_str = end_date.strftime("%Y-%m-%d")
 
@@ -305,7 +310,7 @@ if __name__ == "__main__":
         "-l",
         "--log",
         metavar="FILE",
-        help="Write the source URL and raw hardware-sales text to FILE.",
+        help="Write the source URL and raw hardware-sales text to FILE (default: logs/YYYYMMDD.log, using the reporting period end date).",
     )
     parser.add_argument(
         "url", type=str, help="Target URL for Famitsu hardware sales data."
