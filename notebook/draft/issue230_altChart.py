@@ -108,7 +108,7 @@ def _(List, alt, date, datetime, g, inner_chart_sales, pl):
             alt.Chart: 売上のチャート
         """
         # データソースの定義
-        src_df = g.load_hard_sales()
+        src_df = g.load_hard_sales2()
     
         if mode == "month":
             df = g.monthly_sales_long(src_df, hw=hw, begin=begin, end=end)
@@ -193,7 +193,7 @@ def _(List, alt, g, inner_chart_sales):
         """
 
         # データソースの定義
-        df_all = g.load_hard_sales()
+        df_all = g.load_hard_sales2()
         src_df = g.sales_with_offset_long(df_all, hw_periods=hw_periods, end=end)
 
         alt_x = alt.X("offset_week:Q", title="週数")
@@ -250,7 +250,7 @@ def _(List, alt, date, datetime, g, inner_chart_sales, pl):
         Returns:
             alt.Chart: 累計販売台数のチャート
         """
-        df_all = g.load_hard_sales()
+        df_all = g.load_hard_sales2()
         src_df = g.cumulative_sales_long(df_all, hw=hw, mode=mode,
                                                     begin=begin, end=end)
         alt_x = alt.X("report_date:T", title="販売年月")
@@ -309,7 +309,7 @@ def _(List, alt, g, inner_chart_sales, mo, pl):
         Returns:
             alt.Chart: 相対累計販売台数のチャート
         """
-        df_all = g.load_hard_sales()
+        df_all = g.load_hard_sales2()
         src_df = g.cumulative_sales_by_delta_long(df_all, hw=hw, mode=mode,
                                                             begin=begin, end=end)
         alt_y = alt.Y("sum_units:Q", title="累計販売台数")

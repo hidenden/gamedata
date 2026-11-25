@@ -29,7 +29,7 @@ def md_cell_01():
 @app.cell
 def calc_all_01():
     # 実データの最新日をUI初期値に使う
-    df_all = g.load_hard_sales()
+    df_all = g.load_hard_sales2()
     latest_date = g.current_report_date(df_all)
     return latest_date
 

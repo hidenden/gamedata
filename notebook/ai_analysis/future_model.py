@@ -33,7 +33,7 @@ with app.setup:
 
 @app.cell
 def load_db():
-    hard_sales_all_df: pl.DataFrame = g.load_hard_sales(True)
+    hard_sales_all_df: pl.DataFrame = g.load_hard_sales2(True)
     annotation_all_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
     return (hard_sales_all_df,)
 
@@ -156,7 +156,7 @@ def backtest_functions(forecast_year_end_all):
         """過去の月末時点へ巻き戻し、各年末予測モデルを時系列バックテストする。
 
         Args:
-            sales_df: `g.load_hard_sales()` と同じ形式の週次販売データ。
+            sales_df: `g.load_hard_sales2()` と同じ形式の週次販売データ。
             years: 評価対象とする直近の完了年数。既定値は10年。
             cutoff_month: 各年の予測基準月。月内の最終 `report_date` を使う。
                 既定値は8月。

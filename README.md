@@ -1,5 +1,21 @@
 # Japan Game Data Analysis
 
+## データソースの切り替え
+
+`load_hard_sales2()`、`load_hard_info()`、`load_hard_annotation()` は、最初の読み込み時に同じデータソースを選択します。既定は SQLite です。`GAMEHARD_DB` に DB ファイルのパスを指定でき、省略時は `/Users/hide/Documents/sqlite3/gamehard.db` を使用します。
+
+同梱 Parquet を使うには、Python や Marimo を起動する前に設定します。切り替える場合はプロセスを再起動します。
+
+```bash
+export GAMEHARD_DATA_SOURCE=parquet
+```
+
+同梱データを更新するには、リポジトリのルートで次を実行します。SQLite の3つの元テーブルを同じ読み取りトランザクションから取得し、`src/gamedata/_parquet/` に書き出します。その後に wheel をビルドすると、生成したスナップショットが同梱されます。
+
+```bash
+uv run python database/export_parquet.py --db /path/to/gamehard.db
+```
+
 ## AI向けカタログ
 
 marimo-pairで接続したAIや通常のPythonから、データの意味・既存関数・DataFrameの収録範囲を確認できます。

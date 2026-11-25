@@ -19,13 +19,21 @@ FUNCTIONS = {
         [],
         ["DBを読み込む。no_cache=Trueでキャッシュを破棄して再読込"],
     ),
+    "load_hard_sales2": (
+        "hard_sales2",
+        "元テーブルから販売データをロード（キャッシュあり）",
+        None,
+        "hard_sales",
+        [],
+        ["no_cache=Trueで選択中のデータソースから再読込"],
+    ),
     "load_hard_info": (
         "hard_info",
         "ハード情報をロード",
         None,
         "hard_info",
         [],
-        ["DBを読み込む"],
+        ["選択中のデータソースから読み込む"],
     ),
     "load_hard_annotation": (
         "hard_annotation",
@@ -33,7 +41,7 @@ FUNCTIONS = {
         None,
         "hard_annotation",
         [],
-        ["DBを読み込む。no_cache=Trueで再読込"],
+        ["no_cache=Trueで選択中のデータソースから再読込"],
     ),
     "date_filter": (
         "hard_sales_filter",

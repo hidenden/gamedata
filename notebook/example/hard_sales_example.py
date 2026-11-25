@@ -40,14 +40,14 @@ def md_hard_sales(mo):
 @app.cell
 def md_load_hard_sales(mo):
     mo.md(r"""
-    ## load_hard_sales
+    ## load_hard_sales2
     """)
     return
 
 
 @app.cell
 def sales_cell(g, pl):
-    df_all: pl.DataFrame = g.load_hard_sales()
+    df_all: pl.DataFrame = g.load_hard_sales2()
     df_all
     return (df_all,)
 

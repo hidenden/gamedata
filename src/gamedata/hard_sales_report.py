@@ -86,7 +86,7 @@ def units_by_date_hw_table(
     日付とハード別の販売台数チャートを出力する
 
     Args:
-        df: load_hard_sales()の戻り値のDataFrame
+        df: load_hard_sales2()の戻り値のDataFrame
 
     Returns:
         pd.io.formats.style.Styler: スタイル適用済みのStylerオブジェクト
@@ -159,7 +159,7 @@ def _build_periodic_ranking(
         - 月間: 順位, 年, 月, ハード/メーカー, 月間販売台数
         - 年間: 順位, 年, ハード/メーカー, 年間販売台数
     """
-    df_all = hs.load_hard_sales()
+    df_all = hs.load_hard_sales2()
     if (not hw) and maker:
         # This is maker mode
         maker_mode = True
@@ -335,7 +335,7 @@ def delta_week_ranking(delta_week: int) -> pl.DataFrame:
         - 累計台数 (Int64): 累計販売台数
     """
 
-    df = hs.load_hard_sales()
+    df = hs.load_hard_sales2()
 
     df = df.filter(pl.col("delta_week") == delta_week).sort(
         by="sum_units", descending=True
@@ -350,7 +350,7 @@ def delta_week_ranking(delta_week: int) -> pl.DataFrame:
 
 
 def reached_unit_summary(n: int, all: bool = False) -> pl.DataFrame:
-    df = hs.load_hard_sales()
+    df = hs.load_hard_sales2()
     df = hse.extract_week_reached_units(df, n).sort(
         ["delta_week", "sum_units"], descending=[False, True]
     )

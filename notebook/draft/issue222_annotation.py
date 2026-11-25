@@ -39,7 +39,7 @@ def _(df_annotation: pl.DataFrame):
 
 @app.cell
 def _():
-    df_all = g.load_hard_sales(True)
+    df_all = g.load_hard_sales2(True)
     df_all
     return (df_all,)
 
