@@ -102,7 +102,7 @@ DATASETS = {
         SALES_COLUMNS,
         ["weekly_id"],
         grain="ハード × 集計期間",
-        source="SQLite hard_salesビュー → load_hard_sales()",
+        source="SQLite gamehard_info・gamehard_weekly → load_hard_sales2()",
         source_code=[
             "src/gamedata/hard_sales.py",
             "database/update_tables.sql",
@@ -128,7 +128,7 @@ DATASETS = {
                 "caveat": "複数注釈との結合で販売行が増殖し得る。結合後のsumに注意",
             },
         ],
-        related=["function:load_hard_sales"],
+        related=["function:load_hard_sales2"],
     ),
     "hard_info": dataset(
         "hard_info",

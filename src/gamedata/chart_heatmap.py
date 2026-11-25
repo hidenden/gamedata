@@ -44,7 +44,7 @@ def chart_heatmap(
         hw_key = hw
         alt_row = alt.Row(shorthand="hw:N", title="ハード")
 
-    df_all = hs.load_hard_sales()
+    df_all = hs.load_hard_sales2()
     scale = alt.Scale(scheme=scale_scheme, type=scale_type)
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.WEEK:

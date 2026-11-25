@@ -25,7 +25,7 @@ with app.setup:
 
 @app.cell
 def _():
-    df_all = g.load_hard_sales()
+    df_all = g.load_hard_sales2()
     return (df_all,)
 
 
@@ -56,7 +56,7 @@ def _():
         複数のハードウェア間の相対累計販売台数の差分を計算してDataFrameで返す。
 
         Args:
-            df: load_hard_sales()で取得したDataFrame
+            df: load_hard_sales2()で取得したDataFrame
             cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
                      ハードウェアシンボルのペアを指定する。
                      例えば[("PS5", "PS4"), ("PS5", "PS3")]のように指定する。
@@ -109,7 +109,7 @@ def sales_pase_diffs_long(df: pl.DataFrame,
     複数のハードウェア間の累計販売台数の差分を計算してDataFrameで返す。
 
     Args:
-        df: load_hard_sales()で取得したDataFrame
+        df: load_hard_sales2()で取得したDataFrame
         cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
                  ハードウェアシンボルのペアを指定する。
                 例えば[("PS5", "PS4"), ("PS5", "PS3")]のように指定する。
@@ -197,7 +197,7 @@ def _():
         複数のハードウェア間の(カレンダー上の)同時期の累計販売台数の差分を計算してDataFrameで返す。
 
         Args:
-            df: load_hard_sales()で取得したDataFrame
+            df: load_hard_sales2()で取得したDataFrame
             cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
                      ハードウェアシンボルのペアを指定する。
                      例えば[("NS2", "PS5"), ("NSW", "PS4")]のように指定する。
@@ -256,7 +256,7 @@ def cumsum_diffs_long(df: pl.DataFrame,
     複数のハードウェア間の(カレンダー上の)同時期の累計販売台数の差分を計算してDataFrameで返す。
 
     Args:
-        df: load_hard_sales()で取得したDataFrame
+        df: load_hard_sales2()で取得したDataFrame
         cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
                  ハードウェアシンボルのペアを指定する。
                  例えば[("NS2", "PS5"), ("NSW", "PS4")]のように指定する。

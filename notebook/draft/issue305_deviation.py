@@ -25,7 +25,7 @@ with app.setup:
 
 @app.cell
 def _():
-    _df = g.load_hard_sales()
+    _df = g.load_hard_sales2()
     hw_all = g.get_hw_all()
     df_all = _df.filter(pl.col("hw").is_in(hw_all))
     return (df_all,)

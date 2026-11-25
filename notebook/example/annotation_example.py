@@ -94,7 +94,7 @@ def md_cell_04():
 @app.cell
 def ui_begin_date(ui_begin_date, ui_end_date, ui_hws, ui_level, ui_mode):
     # 販売データにアノテーションを結合し、note列をチャート表示に利用する
-    df_all = g.load_hard_sales()
+    df_all = g.load_hard_sales2()
     mode = ui_mode.value
     if mode == "week":
         sales_df = g.sales_long(
