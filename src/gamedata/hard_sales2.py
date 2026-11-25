@@ -1,51 +1,13 @@
 """元テーブルのデータから週次販売データを組み立てるローダー。"""
 
-import sqlite3
-from contextlib import closing
-from pathlib import Path
-
 import polars as pl
 
 from ._hard_sales_columns import with_sales_columns
-from .hard_info import DB_PATH
+from .data_source import read_tables
 
 _hard_sales_cache: pl.DataFrame | None = None
 _all_hw_list: list[str] | None = None
 _all_maker_list: list[str] | None = None
-
-
-def read_data() -> tuple[pl.DataFrame, pl.DataFrame]:
-    """同じ時点の gamehard_info と gamehard_weekly を、この順に返す。
-
-    読み込み元を差し替える場合も列名は元テーブルに合わせる。
-    launch_date と report_date は Date 型、台数と集計日数は Int64 型。
-    """
-    uri = Path(DB_PATH).resolve().as_uri() + "?mode=ro"
-    with closing(sqlite3.connect(uri, uri=True)) as conn:
-        conn.execute("BEGIN")
-        info = pl.read_database(
-            "SELECT id, launch_date, maker_name, full_name FROM gamehard_info",
-            conn,
-            schema_overrides=dict.fromkeys(
-                ("id", "launch_date", "maker_name", "full_name"), pl.String
-            ),
-        )
-        weekly = pl.read_database(
-            "SELECT id, report_date, period_date, hw, units, adjust_units FROM gamehard_weekly",
-            conn,
-            schema_overrides={
-                "id": pl.String,
-                "report_date": pl.String,
-                "period_date": pl.Int64,
-                "hw": pl.String,
-                "units": pl.Int64,
-                "adjust_units": pl.Int64,
-            },
-        )
-    return (
-        info.with_columns(pl.col("launch_date").str.to_date("%Y-%m-%d")),
-        weekly.with_columns(pl.col("report_date").str.to_date("%Y-%m-%d")),
-    )
 
 
 def _normalize_weekly(weekly: pl.DataFrame) -> pl.DataFrame:
@@ -82,7 +44,7 @@ def load_hard_sales2(no_cache: bool = False) -> pl.DataFrame:
     if _hard_sales_cache is not None and not no_cache:
         return _hard_sales_cache.clone()
 
-    info, weekly = read_data()
+    info, weekly = read_tables("gamehard_info", "gamehard_weekly")
     report = pl.col("report_date")
     launch = pl.col("launch_date")
     period = pl.col("period_date")

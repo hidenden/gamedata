@@ -102,15 +102,15 @@ DATASETS = {
         SALES_COLUMNS,
         ["weekly_id"],
         grain="ハード × 集計期間",
-        source="SQLite gamehard_info・gamehard_weekly → load_hard_sales2()",
+        source="SQLite / 同梱 Parquet の gamehard_info・gamehard_weekly → load_hard_sales2()",
         source_code=[
-            "src/gamedata/hard_sales.py",
-            "database/update_tables.sql",
-            "database/update/refresh_analysis.py",
+            "src/gamedata/data_source.py",
+            "src/gamedata/hard_sales2.py",
+            "src/gamedata/_hard_sales_columns.py",
         ],
         semantics=[
             "月・年は集計末日の所属期間。日割り配分しない",
-            "14日集計を7日×2へ分割する更新処理がある",
+            "14日集計は読み込み時に7日×2へ分割する",
             "flagが出力されないため分割行はこのDataFrameだけでは特定できない",
         ],
         relations=[
@@ -139,7 +139,7 @@ DATASETS = {
         },
         ["id"],
         grain="ハード",
-        source="SQLite gamehard_info → load_hard_info()",
+        source="SQLite / 同梱 Parquet の gamehard_info → load_hard_info()",
         related=["function:load_hard_info"],
     ),
 }
@@ -191,7 +191,7 @@ DATASETS["hard_annotation"] = dataset(
     _annotation_columns,
     ["id"],
     grain="注釈。hwとreport_dateの組は一意とは限らない",
-    source="SQLite gamehard_annotation → load_hard_annotation()",
+    source="SQLite / 同梱 Parquet の gamehard_annotation → load_hard_annotation()",
     related=[
         "function:load_hard_annotation",
         "dataset:hard_sales",

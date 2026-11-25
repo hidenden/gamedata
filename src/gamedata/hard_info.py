@@ -1,8 +1,7 @@
 # ゲームハードおよびゲームメーカーの情報を返すライブラリ
-import sqlite3
 import polars as pl
 
-DB_PATH = "/Users/hide/Documents/sqlite3/gamehard.db"
+from .data_source import read_tables
 
 
 def load_hard_info() -> pl.DataFrame:
@@ -17,15 +16,8 @@ def load_hard_info() -> pl.DataFrame:
         - maker_name (String): メーカー名
         - full_name (String): ゲームハードの正式名称
     """
-    # SQLite3データベースに接続
-    conn = sqlite3.connect(DB_PATH)
-    # SQLクエリを実行してデータをDataFrameに読み込む
-    query = "SELECT * FROM gamehard_info;"
-    df = pl.read_database(query, conn)
-    df = df.with_columns(pl.col("launch_date").str.to_date())
-    # 接続を閉じる
-    conn.close()
-    return df
+    (info,) = read_tables("gamehard_info")
+    return info
 
 
 HARD_COLORS = {

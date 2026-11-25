@@ -7,7 +7,14 @@ from pathlib import Path
 import pytest
 from polars.testing import assert_frame_equal
 
-from gamedata import hard_sales, hard_sales2, load_hard_sales2
+from gamedata import (
+    data_source,
+    hard_annotation,
+    hard_sales,
+    hard_sales2,
+    load_hard_info,
+    load_hard_sales2,
+)
 
 
 DATABASE = Path(__file__).resolve().parents[1] / "database"
@@ -16,8 +23,9 @@ DATABASE = Path(__file__).resolve().parents[1] / "database"
 @pytest.fixture
 def sales_db(tmp_path, monkeypatch):
     path = tmp_path / "sales.db"
+    monkeypatch.setattr(hard_sales, "DB_PATH", path)
+    monkeypatch.setattr(data_source, "_get_source", lambda: data_source.SQLiteSource(path))
     for module in (hard_sales, hard_sales2):
-        monkeypatch.setattr(module, "DB_PATH", path)
         monkeypatch.setattr(module, "_hard_sales_cache", None)
     monkeypatch.setattr(hard_sales2, "_all_hw_list", None)
     monkeypatch.setattr(hard_sales2, "_all_maker_list", None)
@@ -82,3 +90,36 @@ def test_reads_base_tables_only_and_refreshes_cache(sales_db):
     cached = load_hard_sales2()
     assert cached is not refreshed
     assert_frame_equal(cached, refreshed, check_exact=True)
+
+
+def test_all_loaders_match_exported_parquet(sales_db, tmp_path, monkeypatch):
+    monkeypatch.setattr(hard_annotation, "_annotation_dataframe", None)
+    with closing(sqlite3.connect(sales_db)) as conn:
+        conn.executescript("""
+            DROP VIEW hard_sales;
+            DROP TABLE gamehard_weekly_analysis;
+            CREATE TABLE gamehard_annotation (
+                id INTEGER PRIMARY KEY, date TEXT, report_date TEXT,
+                hw TEXT, note TEXT, level INTEGER, "desc" TEXT
+            );
+            INSERT INTO gamehard_annotation
+            VALUES (1, '2024-01-07', '2024-01-07', 'A', '新年', 5, NULL);
+            INSERT INTO gamehard_weekly (id, report_date, period_date, hw, units, adjust_units)
+            VALUES ('2024-01-07_A', '2024-01-07', 14, 'A', 31, -3);
+        """)
+
+    def load_all():
+        return (
+            load_hard_info(),
+            load_hard_sales2(no_cache=True),
+            hard_annotation.load_hard_annotation(no_cache=True),
+        )
+
+    expected = load_all()
+    export = runpy.run_path(str(DATABASE / "export_parquet.py"))["export_snapshot"]
+    export(sales_db, tmp_path / "_parquet")
+    monkeypatch.setattr(data_source, "files", lambda package: tmp_path)
+    source = data_source.EmbeddedParquetSource()
+    monkeypatch.setattr(data_source, "_get_source", lambda: source)
+    for actual, reference in zip(load_all(), expected, strict=True):
+        assert_frame_equal(actual, reference, check_exact=True)

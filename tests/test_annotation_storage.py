@@ -7,6 +7,7 @@ import sqlite3
 import polars as pl
 
 import gamedata.hard_annotation as ha
+from gamedata import data_source
 
 
 _REFRESH_PATH = (
@@ -39,10 +40,14 @@ def test_desc_is_stored_loaded_and_joined(tmp_path, monkeypatch, sample_info_df,
         rows = conn.execute(
             'SELECT note, "desc" FROM gamehard_annotation ORDER BY id'
         ).fetchall()
+        conn.execute(
+            "CREATE TABLE gamehard_info (id TEXT PRIMARY KEY, launch_date TEXT, "
+            "maker_name TEXT, full_name TEXT)"
+        )
+        conn.executemany("INSERT INTO gamehard_info VALUES (?, ?, ?, ?)", sample_info_df.rows())
     assert rows == [("発売", "発売日に関する記事用の補足"), ("年始", None)]
 
-    monkeypatch.setattr(ha, "DB_PATH", str(db_path))
-    monkeypatch.setattr(ha.hi, "load_hard_info", lambda: sample_info_df)
+    monkeypatch.setattr(data_source, "_get_source", lambda: data_source.SQLiteSource(db_path))
     monkeypatch.setattr(ha, "_annotation_dataframe", None)
     annotation_df = ha.load_hard_annotation(no_cache=True)
     assert annotation_df["desc"].to_list() == ["発売日に関する記事用の補足", None]
