@@ -6,6 +6,9 @@ import polars as pl
 from typing import List
 
 from . import hard_info as hi
+from . import hard_sales2
+from ._hard_sales_columns import with_sales_columns
+from .hard_sales2 import load_hard_sales2
 
 # Polars Configuration
 (
@@ -21,82 +24,11 @@ from . import hard_info as hi
 
 DB_PATH = "/Users/hide/Documents/sqlite3/gamehard.db"
 _hard_sales_cache: pl.DataFrame | None = None
-_all_hw_list = None
-_all_maker_list = None
 
 
 def _with_derived_columns(df: pl.DataFrame) -> pl.DataFrame:
-    return (
-        df.with_columns(
-            pl.col("begin_date").cast(pl.Utf8).str.to_date(),
-            pl.col("report_date").cast(pl.Utf8).str.to_date(),
-            pl.col("end_date").cast(pl.Utf8).str.to_date(),
-            pl.col("launch_date").cast(pl.Utf8).str.to_date(),
-            pl.col("period_date").cast(pl.Int16),
-            pl.col("year").cast(pl.Int16),
-            pl.col("month").cast(pl.Int16),
-            pl.col("mday").cast(pl.Int16),
-            pl.col("week").cast(pl.Int16),
-            pl.col("delta_day").cast(pl.Int32),
-            pl.col("delta_week").cast(pl.Int32),
-            pl.col("delta_month").cast(pl.Int16),
-            pl.col("delta_year").cast(pl.Int16),
-        )
-        .with_columns(
-            q_num=pl.col("report_date").dt.quarter().cast(pl.Int8),
-            fiscal_year=pl.when(pl.col("month") <= 3)
-            .then(pl.col("year"))
-            .otherwise(pl.col("year") + 1)
-            .cast(pl.Int16),
-            fiscal_month=(((pl.col("month") + 8) % 12) + 1).cast(pl.Int8),
-            index_week=(pl.col("delta_week") + 1).cast(pl.Int32),
-            index_month=(pl.col("delta_month") + 1).cast(pl.Int16),
-            index_year=(pl.col("delta_year") + 1).cast(pl.Int16),
-        )
-        .with_columns(
-            fq_num=((pl.col("fiscal_month") - 1) // 3 + 1).cast(pl.Int8),
-            quarter=(
-                pl.col("year").cast(pl.Utf8) + "Q" + pl.col("q_num").cast(pl.Utf8)
-            ),
-        )
-        .with_columns(
-            fiscal_quarter=(
-                pl.col("fiscal_year").cast(pl.Utf8)
-                + "FQ"
-                + pl.col("fq_num").cast(pl.Utf8)
-            ),
-        )
-        .sort("weekly_id")
-        .with_columns(
-            pl.col("units").diff().over("hw").alias("units_diff"),
-            pl.col("units")
-            .rolling_mean(window_size=4)
-            .round(0)
-            .cast(pl.Int64)
-            .over("hw")
-            .alias("ma4w"),
-            pl.col("units")
-            .rolling_mean(window_size=13)
-            .round(0)
-            .cast(pl.Int64)
-            .over("hw")
-            .alias("ma13w"),
-            pl.col("units")
-            .rolling_mean(window_size=52)
-            .round(0)
-            .cast(pl.Int64)
-            .over("hw")
-            .alias("ma52w"),
-            pl.col("units")
-            .cum_sum()
-            .over(pl.col("hw"), pl.col("year"))
-            .alias("yearly_sum_units"),
-        )
-        .with_columns(
-            pl.col("report_date").dt.ordinal_day().alias("yday").cast(pl.Int16),
-            (pl.col("report_date").dt.strftime("%U").cast(pl.Int16) + 1).alias("yweek"),
-        )
-    )
+    dates = pl.col("begin_date", "report_date", "end_date", "launch_date")
+    return with_sales_columns(df.with_columns(dates.cast(pl.Utf8).str.to_date()))
 
 
 def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
@@ -150,12 +82,12 @@ def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
         - yday (Int16): report_dateの日がその年の何日目か（1-366）
         - yweek (Int16): report_dateがその年の何番目の日曜日か（1-53）
     """
-    global _hard_sales_cache, _all_hw_list, _all_maker_list
+    global _hard_sales_cache
 
     if no_cache:
         _hard_sales_cache = None
-        _all_hw_list = None
-        _all_maker_list = None
+        hard_sales2._all_hw_list = None
+        hard_sales2._all_maker_list = None
     elif _hard_sales_cache is not None:
         return _hard_sales_cache.clone()
 
@@ -178,7 +110,7 @@ def current_report_date(df: pl.DataFrame) -> datetime:
     DataFrameから最新の報告日を取得する関数。
 
     Args:
-        df: load_hard_sales()の戻り値のDataFrame
+        df: load_hard_sales2()の戻り値のDataFrame
 
     Returns:
         datetime: 最新の報告日
@@ -191,7 +123,7 @@ def get_hw(df: pl.DataFrame) -> List[str]:
     DataFrameからハードウェア名のユニークなリストを取得する。
 
     Args:
-        df: load_hard_sales()の戻り値のDataFrame
+        df: load_hard_sales2()の戻り値のDataFrame
 
     Returns:
         List[str]: ハードウェア名のユニークなリスト
@@ -206,7 +138,7 @@ def get_active_hw(days: int = 365) -> List[str]:
     Returns:
         List[str]: アクティブなハードウェア名のリスト
     """
-    base_df = load_hard_sales()
+    base_df = load_hard_sales2()
     now = datetime.now()
     one_year_ago = now - timedelta(days=days)
     recent_df = base_df.filter(pl.col("report_date") >= one_year_ago)
@@ -221,18 +153,17 @@ def get_hw_all(true_all: bool = False) -> List[str]:
     Returns:
         List[str]: 全てのハードウェア名のリスト
     """
-    global _all_hw_list
-    if _all_hw_list is not None:
-        return _all_hw_list
+    if hard_sales2._all_hw_list is not None:
+        return hard_sales2._all_hw_list
 
-    base_df = load_hard_sales()
-    _all_hw_list = get_hw(base_df)
+    base_df = load_hard_sales2()
+    hw_list = get_hw(base_df)
     remove_hw_list = ["PKS", "PS", "NeoGeoP", "SATURN", "GB"]
     if not true_all:
-        # _all_hw_listから remove_hw_listの各要素に一致するものを取り除く
-        _all_hw_list = [hw for hw in _all_hw_list if hw not in remove_hw_list]
+        hw_list = [hw for hw in hw_list if hw not in remove_hw_list]
 
-    return _all_hw_list
+    hard_sales2._all_hw_list = hw_list
+    return hw_list
 
 
 def get_maker(df: pl.DataFrame) -> List[str]:
@@ -240,7 +171,7 @@ def get_maker(df: pl.DataFrame) -> List[str]:
     DataFrameからメーカー名のユニークなリストを取得する。
 
     Args:
-        df: load_hard_sales()の戻り値のDataFrame
+        df: load_hard_sales2()の戻り値のDataFrame
 
     Returns:
         List[str]: メーカー名のユニークなリスト
@@ -257,7 +188,7 @@ def get_active_maker(days: int = 365) -> List[str]:
     Returns:
         List[str]: アクティブなメーカー名のリスト
     """
-    base_df = load_hard_sales()
+    base_df = load_hard_sales2()
     now = datetime.now()
     one_year_ago = now - timedelta(days=days)
     recent_df = base_df.filter(pl.col("report_date") >= one_year_ago)
@@ -272,10 +203,10 @@ def get_maker_all() -> List[str]:
     Returns:
         List[str]: 全てのメーカー名のリスト
     """
-    global _all_maker_list
-    if _all_maker_list is not None:
-        return _all_maker_list
+    if hard_sales2._all_maker_list is not None:
+        return hard_sales2._all_maker_list
 
-    base_df = load_hard_sales()
-    _all_maker_list = get_maker(base_df)
-    return _all_maker_list
+    base_df = load_hard_sales2()
+    maker_list = get_maker(base_df)
+    hard_sales2._all_maker_list = maker_list
+    return maker_list

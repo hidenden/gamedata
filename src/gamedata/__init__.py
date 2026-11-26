@@ -67,6 +67,7 @@ from .hard_sales import (
     get_maker_all,
     load_hard_sales,
 )
+from .hard_sales2 import load_hard_sales2
 from .forecast import (
     forecast_52w,
     forecast_year_end_all,

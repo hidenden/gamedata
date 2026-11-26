@@ -25,7 +25,7 @@ with app.setup:
 
 @app.cell
 def _():
-    df_all = g.load_hard_sales()
+    df_all = g.load_hard_sales2()
     return (df_all,)
 
 

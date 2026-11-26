@@ -141,6 +141,7 @@ _webcache/
 
 # parquet related files
 *.parquet
+!/src/gamedata/_parquet/*.parquet
 *.pkl
 hard_weekly.pkl
 .part*.crc

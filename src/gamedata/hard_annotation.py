@@ -1,13 +1,11 @@
 # Game Annotation取得用のユーティリティ関数群
 
-import sqlite3
 from datetime import datetime, date
 import polars as pl
 from typing import List, TypedDict, Dict, Any
-from . import hard_info as hi
+from .data_source import read_tables
 from .mode import Mode, parse_mode
 
-DB_PATH = "/Users/hide/Documents/sqlite3/gamehard.db"
 # ISO 8601形式の曜日定数
 ISO_MONDAY = 1
 ISO_SUNDAY = 7
@@ -17,8 +15,7 @@ _annotation_dataframe: pl.DataFrame | None = None
 
 def load_hard_annotation(no_cache: bool = False) -> pl.DataFrame:
     """
-    sqlite3を使用してデータベースからハードウェアアノテーションデータを読み込む関数。
-    日付関係のカラムをdatetime型に変換して返す。
+    選択中のデータソースからハードウェアアノテーションを読み込む。
 
     Args:
         no_cache (bool): Trueの場合はキャッシュを無視してデータを再読み込みする。
@@ -52,28 +49,8 @@ def load_hard_annotation(no_cache: bool = False) -> pl.DataFrame:
 
     if _annotation_dataframe is not None and not no_cache:
         return _annotation_dataframe.clone()
-    # データベースに接続
-    conn = sqlite3.connect(DB_PATH)
-    # データを読み込む
-    query = "SELECT * FROM gamehard_annotation"
-    # `desc` は先頭の多数行が NULL になり得るため、型推論に任せると
-    # Null 型として確定して後続の文字列を読み込めなくなる。明示的に
-    # 文字列型として読み込む。
-    df = pl.read_database(
-        query=query,
-        connection=conn,
-        schema_overrides={"desc": pl.String},
-    )
-    # データベース接続を閉じる
-    conn.close()
-
-    # カラムdateとカラムreport_dateをdate型に変換
-    df = df.with_columns(
-        pl.col("date").str.strptime(pl.Date, format="%Y-%m-%d").alias("annotation_date")
-    )
-    df = df.with_columns(pl.col("report_date").str.strptime(pl.Date, format="%Y-%m-%d"))
-
-    df = _delta_annotation(df, hi.load_hard_info())
+    info, annotation = read_tables("gamehard_info", "gamehard_annotation")
+    df = _delta_annotation(annotation.rename({"date": "annotation_date"}), info)
     df = _refine_annotation(df)
 
     _annotation_dataframe = df

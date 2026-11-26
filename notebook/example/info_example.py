@@ -27,7 +27,7 @@ def calc_cell_02():
 
 @app.cell
 def sales_cell(g):
-    base_df = g.load_hard_sales()
+    base_df = g.load_hard_sales2()
     return (base_df,)
 
 

@@ -140,7 +140,7 @@ def chart_line_sales(
         alt.Chart | alt.LayerChart | alt.FacetChart: 売上のチャート
     """
     # データソースの定義
-    src_df: pl.DataFrame = hs.load_hard_sales()
+    src_df: pl.DataFrame = hs.load_hard_sales2()
 
     mode_enum = parse_mode(mode)
     unit_col: str = ""
@@ -250,7 +250,7 @@ def chart_line_weekly_by_hw_date(
     """
 
     # データソースの定義
-    df_all = hs.load_hard_sales()
+    df_all = hs.load_hard_sales2()
     src_df = hsl.sales_with_offset_long(df_all, hw_periods=hw_periods, end=end)
 
     alt_x = alt.X("offset_week:Q", title="週数")
@@ -307,7 +307,7 @@ def chart_line_cumulative(
     Returns:
         alt.Chart | alt.LayerChart | alt.FacetChart: 累計販売台数のチャート
     """
-    df_all = hs.load_hard_sales()
+    df_all = hs.load_hard_sales2()
     src_df = hsl.cumulative_sales_long(df_all, hw=hw, mode=mode, begin=begin, end=end)
 
     x_min = src_df["report_date"].min()
@@ -369,7 +369,7 @@ def chart_line_cumulative_delta(
     Returns:
         alt.Chart: 相対累計販売台数のチャート
     """
-    df_all = hs.load_hard_sales()
+    df_all = hs.load_hard_sales2()
     mode_enum = parse_mode(mode)
     src_df = hsl.cumulative_sales_by_delta_long(
         df_all, hw=hw, mode=mode, begin=begin, end=end
@@ -439,7 +439,7 @@ def chart_line_cumsum_diffs(
     Returns:
         alt.Chart: 累計販売台数差を示すAltairチャート
     """
-    df_all = hs.load_hard_sales()
+    df_all = hs.load_hard_sales2()
     src_df = hsl.cumsum_diffs_long(df_all, cmplist)
 
     alt_y = alt.Y("cumsum_diff:Q", title="累計販売台数差")
@@ -495,7 +495,7 @@ def chart_line_pase_diffs(
     Returns:
         alt.Chart | alt.LayerChart: 販売ペース差を示すAltairチャート
     """
-    df_all = hs.load_hard_sales()
+    df_all = hs.load_hard_sales2()
     src_df = hsl.sales_pase_diffs_long(df_all, cmplist)
 
     alt_y = alt.Y("pase_diff:Q", title="累計販売台数差分")
@@ -548,7 +548,7 @@ def chart_line_ycumulative(
     Returns:
         alt.Chart: 年次累計販売台数のチャート
     """
-    df_all = hs.load_hard_sales()
+    df_all = hs.load_hard_sales2()
     src_df = hsl.yearly_cumulative_long(df_all, hw=hw, year=year, begin=begin, end=end)
     alt_x = alt.X(
         "yday:Q",
@@ -601,7 +601,7 @@ def chart_line_ycumulative_by_hw_year(
     Returns:
         alt.Chart: 年次累計販売台数のチャート
     """
-    df_all = hs.load_hard_sales()
+    df_all = hs.load_hard_sales2()
     src_df = hsl.yearly_cumulative_by_hwy_long(
         df_all, hw_years=hw_years, begin=begin, end=end
     )

@@ -25,7 +25,7 @@ with app.setup:
 
 @app.cell
 def load_sales():
-    hard_sales = g.load_hard_sales()
+    hard_sales = g.load_hard_sales2()
     hard_sales
     return (hard_sales,)
 

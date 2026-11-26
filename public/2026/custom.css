@@ -247,6 +247,11 @@ a:focus-visible {
 
 /* marimo notebook固有の定義 */
 
+/* Marimo 0.26 の静的エクスポートで追加されたセル間の余白を詰める */
+#root .flex.flex-col.gap-5:has(> .marimo-cell) {
+  row-gap: 0;
+}
+
 [data-testid="watermark"] {
   display: none !important;
 }
