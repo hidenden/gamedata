@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, date
 import polars as pl
 from typing import Any, Dict, List
 
-from . import hard_sales as hs
+from . import hard_sales2 as hs
 
 
 def extract_week_reached_units(df: pl.DataFrame, threshold_units: int) -> pl.DataFrame:

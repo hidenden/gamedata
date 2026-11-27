@@ -35,7 +35,7 @@ def md_alt_title():
 
 
 @app.cell
-def load_hard_sales():
+def load_sales_data():
     df_all = g.load_hard_sales2()
     return (df_all,)
 

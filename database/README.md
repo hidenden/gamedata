@@ -15,7 +15,7 @@ init_database.shは以下の処理を行います｡
 
 1. データベースファイルを作成する
 2. create_tables.sql を実行してテーブルを作成する
-3. update_tables.sql を実行してカラムの追加､ビューの作成を行う
+3. update_tables.sql を実行して販売台数の補正列を追加する
 4. hard_info.csv の内容を gamehard_info テーブルに投入する
 5. ../data_source/hard_weekly_init.csv の内容を gamehard_weekly テーブルに投入する
 
@@ -28,7 +28,6 @@ $ cd update/
 $ ./famitsu.py <ファミ通のハードセールスURL>  # データに間違いがないか確認する｡
 $ ./famitsu.py -c <ファミ通のハードセールスURL> # データベースを更新する｡
 $ ./famitsu.py -l <保存ファイル名> <ファミ通のハードセールスURL> # URLと取得元テキストを保存する｡
-$ ./refresh_analysys.sh # 派生データを更新する｡
 ```
 
 ### 手動による更新
@@ -39,7 +38,6 @@ $ ./refresh_analysys.sh # 派生データを更新する｡
 デフォルトでは同じ行に対する更新はできません｡(データ破壊防止のため)
 同じ行に対しUPDATEを行う場合には `-f` オプションを付与して強制的に更新することができます｡
 
-更新後は `./refresh_analysys.sh` を実行して、派生データを更新してください｡
 
 
 ### イベントデータベースの作成
@@ -114,29 +112,6 @@ sqlite3 $GAMEHARD_DB < create_events_table.sql
 
 ---
 
-### 4. `gamehard_weekly_analysis`
-
-週次販売データとゲームハード情報をもとに、分析用の指標をまとめたテーブルです。
-
-| カラム名      | 型      | 制約・説明                                                                                  |
-|:------------- |:------- |:------------------------------------------------------------------------------------------ |
-| id            | TEXT    | PRIMARY KEY。`gamehard_weekly(id)` と同じ値。外部キーでもある                              |
-| year          | INTEGER | `report_date` の年                                                                         |
-| month         | INTEGER | `report_date` の月                                                                         |
-| mday          | INTEGER | `report_date` の日                                                                         |
-| week          | INTEGER | `report_date` がその月の何番目の日曜日か　　　                                             |
-| delta_day     | INTEGER | 発売日から何日後か（発売日と同じなら0）                                                    |
-| delta_week    | INTEGER | 発売日から何週間後か（発売週と同じなら0）                                                  |
-| delta_month   | INTEGER | 発売日から何ヶ月後か（発売月と同じなら0）                                                  |
-| delta_year    | INTEGER | 発売年から何年後か（発売年と同じなら0、翌年なら1、整数）                                   |
-| avg_units     | INTEGER | 1日あたりの販売台数（`units` を `period_date` で割り整数化）                               |
-| sum_units     | INTEGER | `report_date` 時点でのそのゲーム機の累計台数（その週の `units` も加算済み）                |
-
-- `id` は `gamehard_weekly(id)` を参照する外部キー（ON DELETE CASCADE）。
-- `sum_units` は各ハードごとに `report_date` 昇順で累積計算されます。
-
----
-
 ## インデックス
 
 - `CREATE INDEX idx_gamehard_weekly_report_date ON gamehard_weekly(report_date);`
@@ -146,47 +121,13 @@ sqlite3 $GAMEHARD_DB < create_events_table.sql
 
 ---
 
-## ビュー `hard_sales`
+## 販売データの読み込み
 
-`hard_sales` は、ゲームハードの週次販売データ・分析指標・ハード情報を統合して参照できるビューです。  
-主に分析や可視化、データ抽出用途で利用します。
+`load_hard_sales2()` は週次販売データと機種情報を結合し、補正済みの販売台数、
+累計、移動平均、会計年度などを計算して Polars DataFrame を返します。
+14日集計は読み込み時に7日ずつに分割します。
 
-#### カラム一覧
-
-| カラム名      | 型      | 説明                                   | 元のテーブル.カラム         |
-|:------------- |:------- |:-------------------------------------|:----------------------- |
-| weekly_id     | TEXT    | 週次データのID（gamehard_weekly.id）    |  gamehard_weekly.id      |
-| begin_date    | TEXT    | 集計開始日（週の初日）                  |  gamehard_weekly_analysis.begin_date |
-| end_date      | TEXT    | 集計終了日（週の末日、=report_date）     |  gamehard_weekly.report_date  |
-| report_date   | TEXT    | 集計期間の末日                          | gamehard_weekly.report_date |
-| period_date   | INTEGER | 集計日数                               | gamehard_weekly.period_date  |
-| hw            | TEXT    | ゲームハードの識別子                    | gamehard_weekly.hw    |
-| units         | INTEGER | 週次販売台数（units + adjust_units の合算値）| gamehard_weekly.units + adjust_units |
-| adjust_units  | INTEGER | 調整用売上台数                          | gamehard_weekly.adjust_units |
-| year          | INTEGER | report_dateの年                         |  gamehard_weekly_analysis.year  |
-| month         | INTEGER | report_dateの月                         |  gamehard_weekly_analysis.month |
-| mday          | INTEGER | report_dateの日                         |  gamehard_weekly_analysis.mday  |
-| week          | INTEGER | report_dateがその月の何番目の日曜日か　　　　 |  gamehard_weekly_analysis.week |
-| delta_day     | INTEGER | 発売日から何日後か                      |  gamehard_weekly_analysis.delta_day|
-| delta_week    | INTEGER | 発売日から何週間後か                    |  gamehard_weekly_analysis.delta_week|
-| delta_month   | INTEGER | 発売日から何ヶ月後か                    |  gamehard_weekly_analysis.delta_month|
-| delta_year    | INTEGER | 発売年から何年後か                      |  gamehard_weekly_analysis.delta_year |
-| avg_units     | INTEGER | 1日あたりの販売台数                     | gamehard_weekly_analysis.avg_units |
-| sum_units     | INTEGER | report_date時点での累計販売台数         | gamehard_weekly_analysis.sum_units |
-| launch_date   | TEXT    | 発売日                                  |  gamehard_info.launch_date |
-| maker_name    | TEXT    | メーカー名                              |  gamehard_info.maker_name  |
-| full_name     | TEXT    | ゲームハードの正式名称                  |  gamehard_info.full_name   |
-
----
-
-### load_hard_sales()の返すデータ型
-
-`hard_sales.py` に定義される `load_hard_sales()` を使うことで、VIEW `hard_sales` から
-Polars DataFrameでデータを読み込むことが出来ます。
-`load_hard_sales()` はデータを読み込む際に、日付データをTEXTからDate型に変換し、
-派生カラム（移動平均、会計年度、四半期など）を自動的に計算して返します。
-
-#### load_hard_sales()が返すDataFrameのカラム一覧
+### DataFrameのカラム一覧
 
 | カラム名        | 型         | 説明                                                         |
 |:--------------- |:---------- |:------------------------------------------------------------ |
@@ -195,7 +136,7 @@ Polars DataFrameでデータを読み込むことが出来ます。
 | end_date        | date       | 集計終了日（週の末日、=report_date）                         |
 | report_date     | date       | 集計期間の末日、日曜日                                       |
 | quarter         | string     | report_dateの四半期（例: "2024Q1"）                          |
-| period_date     | int16      | 集計日数(通常は7, 稀に14)                                    |
+| period_date     | int16      | 集計日数（14日集計の分割後は7）                                    |
 | hw              | string     | ゲームハードの識別子                                         |
 | units           | int64      | 週次販売台数（補正済み値）                                   |
 | adjust_units    | int64      | 週次販売台数の補正値                                         |
@@ -241,7 +182,6 @@ Polars DataFrameでデータを読み込むことが出来ます。
 erDiagram
     gamehard_info ||--o{ gamehard_weekly : "id = hw"
     gamehard_info ||--o{ gamehard_events : "id = hw"
-    gamehard_weekly ||--|| gamehard_weekly_analysis : "id = id"
 
     gamehard_info {
         TEXT id PK
@@ -261,18 +201,5 @@ erDiagram
         TEXT event_date
         TEXT hw FK
         TEXT event_name
-    }
-    gamehard_weekly_analysis {
-        TEXT id PK, FK
-        INTEGER year
-        INTEGER month
-        INTEGER mday
-        INTEGER week
-        INTEGER delta_day
-        INTEGER delta_week
-        INTEGER delta_month
-        INTEGER delta_year
-        INTEGER avg_units
-        INTEGER sum_units
     }
 ```

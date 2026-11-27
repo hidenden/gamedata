@@ -9,7 +9,7 @@ import polars as pl
 
 # プロジェクト内モジュール
 from . import hard_info as hi
-from . import hard_sales as hs
+from . import hard_sales2 as hs
 from . import hard_sales_filter as hsf
 from . import hard_sales_extract as hse
 

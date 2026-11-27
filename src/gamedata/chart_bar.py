@@ -11,7 +11,7 @@ from . import hard_info as hi
 
 # プロジェクト内モジュール
 # プロジェクト内モジュール
-from . import hard_sales as hs
+from . import hard_sales2 as hs
 from . import hard_sales_long as hsl
 from . import hard_sales_filter as hsf
 from .mode import Mode, parse_mode

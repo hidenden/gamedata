@@ -1,9 +1,24 @@
 """元テーブルのデータから週次販売データを組み立てるローダー。"""
 
+from datetime import datetime, timedelta
+from typing import List
+
 import polars as pl
 
-from ._hard_sales_columns import with_sales_columns
+from . import hard_info as hi
 from .data_source import read_tables
+
+# Polars Configuration
+(
+    pl.Config.set_tbl_rows(30)
+    .set_tbl_cols(-1)
+    .set_float_precision(2)
+    .set_thousands_separator(",")
+    .set_trim_decimal_zeros(True)
+    .set_tbl_hide_column_data_types(False)
+    .set_tbl_hide_dataframe_shape(True)
+    # .set_tbl_column_data_type_inline(True)
+)
 
 _hard_sales_cache: pl.DataFrame | None = None
 _all_hw_list: list[str] | None = None
@@ -35,8 +50,78 @@ def _normalize_weekly(weekly: pl.DataFrame) -> pl.DataFrame:
     return pl.concat([reported, previous])
 
 
+def _with_sales_columns(df: pl.DataFrame) -> pl.DataFrame:
+    return (
+        df.with_columns(
+            pl.col("period_date").cast(pl.Int16),
+            pl.col("year").cast(pl.Int16),
+            pl.col("month").cast(pl.Int16),
+            pl.col("mday").cast(pl.Int16),
+            pl.col("week").cast(pl.Int16),
+            pl.col("delta_day").cast(pl.Int32),
+            pl.col("delta_week").cast(pl.Int32),
+            pl.col("delta_month").cast(pl.Int16),
+            pl.col("delta_year").cast(pl.Int16),
+        )
+        .with_columns(
+            q_num=pl.col("report_date").dt.quarter().cast(pl.Int8),
+            fiscal_year=pl.when(pl.col("month") <= 3)
+            .then(pl.col("year"))
+            .otherwise(pl.col("year") + 1)
+            .cast(pl.Int16),
+            fiscal_month=(((pl.col("month") + 8) % 12) + 1).cast(pl.Int8),
+            index_week=(pl.col("delta_week") + 1).cast(pl.Int32),
+            index_month=(pl.col("delta_month") + 1).cast(pl.Int16),
+            index_year=(pl.col("delta_year") + 1).cast(pl.Int16),
+        )
+        .with_columns(
+            fq_num=((pl.col("fiscal_month") - 1) // 3 + 1).cast(pl.Int8),
+            quarter=(
+                pl.col("year").cast(pl.Utf8) + "Q" + pl.col("q_num").cast(pl.Utf8)
+            ),
+        )
+        .with_columns(
+            fiscal_quarter=(
+                pl.col("fiscal_year").cast(pl.Utf8)
+                + "FQ"
+                + pl.col("fq_num").cast(pl.Utf8)
+            ),
+        )
+        .sort("weekly_id")
+        .with_columns(
+            pl.col("units").diff().over("hw").alias("units_diff"),
+            pl.col("units")
+            .rolling_mean(window_size=4)
+            .round(0)
+            .cast(pl.Int64)
+            .over("hw")
+            .alias("ma4w"),
+            pl.col("units")
+            .rolling_mean(window_size=13)
+            .round(0)
+            .cast(pl.Int64)
+            .over("hw")
+            .alias("ma13w"),
+            pl.col("units")
+            .rolling_mean(window_size=52)
+            .round(0)
+            .cast(pl.Int64)
+            .over("hw")
+            .alias("ma52w"),
+            pl.col("units")
+            .cum_sum()
+            .over(pl.col("hw"), pl.col("year"))
+            .alias("yearly_sum_units"),
+        )
+        .with_columns(
+            pl.col("report_date").dt.ordinal_day().alias("yday").cast(pl.Int16),
+            (pl.col("report_date").dt.strftime("%U").cast(pl.Int16) + 1).alias("yweek"),
+        )
+    )
+
+
 def load_hard_sales2(no_cache: bool = False) -> pl.DataFrame:
-    """元テーブルから load_hard_sales() と同じ列・型・順序の販売データを返す。
+    """週次販売データと機種情報から、補正済みの販売台数と集計指標を返す。
 
     no_cache=True で入力を再読み込みし、キャッシュを更新する。
     """
@@ -79,7 +164,116 @@ def load_hard_sales2(no_cache: bool = False) -> pl.DataFrame:
             full_name=pl.col("full_name"),
         )
     )
-    _hard_sales_cache = with_sales_columns(sales)
+    _hard_sales_cache = _with_sales_columns(sales)
     _all_hw_list = None
     _all_maker_list = None
     return _hard_sales_cache.clone()
+
+
+def current_report_date(df: pl.DataFrame) -> datetime:
+    """
+    DataFrameから最新の報告日を取得する関数。
+
+    Args:
+        df: load_hard_sales2()の戻り値のDataFrame
+
+    Returns:
+        datetime: 最新の報告日
+    """
+    return df.select(pl.col("report_date").max()).item()
+
+
+def get_hw(df: pl.DataFrame) -> List[str]:
+    """
+    DataFrameからハードウェア名のユニークなリストを取得する。
+
+    Args:
+        df: load_hard_sales2()の戻り値のDataFrame
+
+    Returns:
+        List[str]: ハードウェア名のユニークなリスト
+    """
+    return hi.sort_hard(df.select(["hw"]).unique().to_series(0).to_list())
+
+
+def get_active_hw(days: int = 365) -> List[str]:
+    """
+    直近1年間のデータを元にアクティブなハードウェア名のリストを取得する。
+
+    Returns:
+        List[str]: アクティブなハードウェア名のリスト
+    """
+    base_df = load_hard_sales2()
+    now = datetime.now()
+    one_year_ago = now - timedelta(days=days)
+    recent_df = base_df.filter(pl.col("report_date") >= one_year_ago)
+    active_hw = get_hw(recent_df)
+    return active_hw
+
+
+def get_hw_all(true_all: bool = False) -> List[str]:
+    """
+    データベースに存在する全てのハードウェア名のリストを取得する。
+
+    Returns:
+        List[str]: 全てのハードウェア名のリスト
+    """
+    global _all_hw_list
+    if _all_hw_list is not None:
+        return _all_hw_list
+
+    base_df = load_hard_sales2()
+    hw_list = get_hw(base_df)
+    remove_hw_list = ["PKS", "PS", "NeoGeoP", "SATURN", "GB"]
+    if not true_all:
+        hw_list = [hw for hw in hw_list if hw not in remove_hw_list]
+
+    _all_hw_list = hw_list
+    return hw_list
+
+
+def get_maker(df: pl.DataFrame) -> List[str]:
+    """
+    DataFrameからメーカー名のユニークなリストを取得する。
+
+    Args:
+        df: load_hard_sales2()の戻り値のDataFrame
+
+    Returns:
+        List[str]: メーカー名のユニークなリスト
+    """
+    return hi.sort_maker(
+        df.select(pl.col("maker_name")).unique().to_series(0).to_list()
+    )
+
+
+def get_active_maker(days: int = 365) -> List[str]:
+    """
+    直近1年間のデータを元にアクティブなメーカー名のリストを取得する。
+
+    Returns:
+        List[str]: アクティブなメーカー名のリスト
+    """
+    base_df = load_hard_sales2()
+    now = datetime.now()
+    one_year_ago = now - timedelta(days=days)
+    recent_df = base_df.filter(pl.col("report_date") >= one_year_ago)
+    active_maker = get_maker(recent_df)
+    return active_maker
+
+
+def get_maker_all() -> List[str]:
+    """
+    データベースに存在する全てのメーカー名のリストを取得する。
+
+    Returns:
+        List[str]: 全てのメーカー名のリスト
+    """
+    global _all_maker_list
+    if _all_maker_list is not None:
+        return _all_maker_list
+
+    base_df = load_hard_sales2()
+    maker_list = get_maker(base_df)
+    _all_maker_list = maker_list
+    return maker_list

@@ -3,7 +3,7 @@ import polars as pl
 from typing import List
 
 # プロジェクト内モジュール
-from . import hard_sales as hs
+from . import hard_sales2 as hs
 from . import hard_sales_filter as hsf
 from . import hard_info as hi
 from .mode import Mode, parse_mode

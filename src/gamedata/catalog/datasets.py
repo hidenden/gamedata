@@ -106,7 +106,6 @@ DATASETS = {
         source_code=[
             "src/gamedata/data_source.py",
             "src/gamedata/hard_sales2.py",
-            "src/gamedata/_hard_sales_columns.py",
         ],
         semantics=[
             "月・年は集計末日の所属期間。日割り配分しない",

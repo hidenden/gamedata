@@ -94,7 +94,7 @@
                     <h1 class="modulename">
 <a href="./../gamedata.html">gamedata</a><wbr>.marimo_util    </h1>
 
-                
+
                         <input id="mod-marimo_util-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
                         <label class="view-source-button" for="mod-marimo_util-view-source"><span>View Source</span></label>
@@ -106,18 +106,18 @@
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">date</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">hard_sales</span> <span class="k">as</span> <span class="n">hs</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">hard_sales2</span> <span class="k">as</span> <span class="n">hs</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="k">class</span><span class="w"> </span><span class="nc">HwSelect</span><span class="p">:</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;ゲームハードウェアをチェックボックスで選択するUIウィジェット。</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="w">    </span><span class="sd">"""ゲームハードウェアをチェックボックスで選択するUIウィジェット。</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">    Args:</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="sd">        default_list: 初期状態でチェックを入れるhw識別子のリスト。</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="sd">                      Noneの場合は全ハードをデフォルト選択とする。</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">        force_any: Trueの場合、何も選択されていないときに全ハードを返す。</span>
 </span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">        hw_list: 表示するhw識別子のリスト。Noneの場合はget_hw_all()で取得する。</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="sd">    """</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>        <span class="bp">self</span><span class="p">,</span>
@@ -144,26 +144,26 @@
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">force_any</span> <span class="o">=</span> <span class="n">force_any</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_display_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Marimoセル上での表示レイアウト。要素数が多い場合は2行に分けて表示する。&quot;&quot;&quot;</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="w">        </span><span class="sd">"""Marimoセル上での表示レイアウト。要素数が多い場合は2行に分けて表示する。"""</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">11</span><span class="p">:</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>            <span class="c1"># 11件を超える場合は2行に分割して表示</span>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>            <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>                <span class="p">[</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>                    <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">[:</span><span class="mi">11</span><span class="p">],</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">),</span>  <span class="c1"># 前半11件</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>                    <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">[</span><span class="mi">11</span><span class="p">:],</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">),</span>  <span class="c1"># 後半残り</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>                    <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">[:</span><span class="mi">11</span><span class="p">],</span> <span class="n">justify</span><span class="o">=</span><span class="s2">"start"</span><span class="p">),</span>  <span class="c1"># 前半11件</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>                    <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">[</span><span class="mi">11</span><span class="p">:],</span> <span class="n">justify</span><span class="o">=</span><span class="s2">"start"</span><span class="p">),</span>  <span class="c1"># 後半残り</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>                <span class="p">]</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>            <span class="p">)</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>        <span class="c1"># 11件以下の場合は1行で表示</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>        <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>        <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">"start"</span><span class="p">)</span>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>    <span class="nd">@property</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;チェック済みのhw識別子リストを返す。</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="w">        </span><span class="sd">"""チェック済みのhw識別子リストを返す。</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">        Returns:</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">            チェックされているhwの識別子リスト。</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">            force_any=Trueかつ何も選択されていない場合は全ハードを返す。</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">        """</span>
 </span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>        <span class="n">hw_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">hw</span> <span class="k">for</span> <span class="n">hw</span><span class="p">,</span> <span class="n">flg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hw_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">flg</span><span class="p">]</span>
 </span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>        <span class="c1"># 何も選択されていない場合にforce_anyが有効なら全ハードを返す</span>
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_any</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">hw_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -172,14 +172,14 @@
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="k">class</span><span class="w"> </span><span class="nc">MakerSelect</span><span class="p">:</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;ゲームメーカーをチェックボックスで選択するUIウィジェット。</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="w">    </span><span class="sd">"""ゲームメーカーをチェックボックスで選択するUIウィジェット。</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">    Args:</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">        default_list: 初期状態でチェックを入れるメーカー名のリスト。</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">                      Noneの場合は全メーカーをデフォルト選択とする。</span>
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        force_any: Trueの場合、何も選択されていないときに全メーカーを返す。</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">        maker_list: 表示するメーカー名のリスト。Noneの場合はget_maker_all()で取得する。</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">    """</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>        <span class="bp">self</span><span class="p">,</span>
@@ -206,17 +206,17 @@
 </span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">force_any</span> <span class="o">=</span> <span class="n">force_any</span>
 </span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>
 </span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_display_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Marimoセル上での表示レイアウト。メーカー数は少ないため1行で表示する。&quot;&quot;&quot;</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="w">        </span><span class="sd">"""Marimoセル上での表示レイアウト。メーカー数は少ないため1行で表示する。"""</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">"start"</span><span class="p">)</span>
 </span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>
 </span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="nd">@property</span>
 </span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;チェック済みのメーカー名リストを返す。</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="w">        </span><span class="sd">"""チェック済みのメーカー名リストを返す。</span>
 </span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
 </span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">        Returns:</span>
 </span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">            チェックされているメーカー名のリスト。</span>
 </span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="sd">            force_any=Trueかつ何も選択されていない場合は全メーカーを返す。</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="sd">        """</span>
 </span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="n">maker_data</span> <span class="o">=</span> <span class="p">[</span>
 </span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>            <span class="n">maker</span> <span class="k">for</span> <span class="n">maker</span><span class="p">,</span> <span class="n">flg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maker_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">flg</span>
 </span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="p">]</span>
@@ -231,7 +231,7 @@
                 <section id="HwSelect">
                             <input id="HwSelect-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
-            
+
     <span class="def">class</span>
     <span class="name">HwSelect</span>:
 
@@ -240,14 +240,14 @@
     </div>
     <a class="headerlink" href="#HwSelect"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="HwSelect-12"><a href="#HwSelect-12"><span class="linenos">12</span></a><span class="k">class</span><span class="w"> </span><span class="nc">HwSelect</span><span class="p">:</span>
-</span><span id="HwSelect-13"><a href="#HwSelect-13"><span class="linenos">13</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;ゲームハードウェアをチェックボックスで選択するUIウィジェット。</span>
+</span><span id="HwSelect-13"><a href="#HwSelect-13"><span class="linenos">13</span></a><span class="w">    </span><span class="sd">"""ゲームハードウェアをチェックボックスで選択するUIウィジェット。</span>
 </span><span id="HwSelect-14"><a href="#HwSelect-14"><span class="linenos">14</span></a>
 </span><span id="HwSelect-15"><a href="#HwSelect-15"><span class="linenos">15</span></a><span class="sd">    Args:</span>
 </span><span id="HwSelect-16"><a href="#HwSelect-16"><span class="linenos">16</span></a><span class="sd">        default_list: 初期状態でチェックを入れるhw識別子のリスト。</span>
 </span><span id="HwSelect-17"><a href="#HwSelect-17"><span class="linenos">17</span></a><span class="sd">                      Noneの場合は全ハードをデフォルト選択とする。</span>
 </span><span id="HwSelect-18"><a href="#HwSelect-18"><span class="linenos">18</span></a><span class="sd">        force_any: Trueの場合、何も選択されていないときに全ハードを返す。</span>
 </span><span id="HwSelect-19"><a href="#HwSelect-19"><span class="linenos">19</span></a><span class="sd">        hw_list: 表示するhw識別子のリスト。Noneの場合はget_hw_all()で取得する。</span>
-</span><span id="HwSelect-20"><a href="#HwSelect-20"><span class="linenos">20</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="HwSelect-20"><a href="#HwSelect-20"><span class="linenos">20</span></a><span class="sd">    """</span>
 </span><span id="HwSelect-21"><a href="#HwSelect-21"><span class="linenos">21</span></a>
 </span><span id="HwSelect-22"><a href="#HwSelect-22"><span class="linenos">22</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="HwSelect-23"><a href="#HwSelect-23"><span class="linenos">23</span></a>        <span class="bp">self</span><span class="p">,</span>
@@ -274,26 +274,26 @@
 </span><span id="HwSelect-44"><a href="#HwSelect-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">force_any</span> <span class="o">=</span> <span class="n">force_any</span>
 </span><span id="HwSelect-45"><a href="#HwSelect-45"><span class="linenos">45</span></a>
 </span><span id="HwSelect-46"><a href="#HwSelect-46"><span class="linenos">46</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_display_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="HwSelect-47"><a href="#HwSelect-47"><span class="linenos">47</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Marimoセル上での表示レイアウト。要素数が多い場合は2行に分けて表示する。&quot;&quot;&quot;</span>
+</span><span id="HwSelect-47"><a href="#HwSelect-47"><span class="linenos">47</span></a><span class="w">        </span><span class="sd">"""Marimoセル上での表示レイアウト。要素数が多い場合は2行に分けて表示する。"""</span>
 </span><span id="HwSelect-48"><a href="#HwSelect-48"><span class="linenos">48</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">11</span><span class="p">:</span>
 </span><span id="HwSelect-49"><a href="#HwSelect-49"><span class="linenos">49</span></a>            <span class="c1"># 11件を超える場合は2行に分割して表示</span>
 </span><span id="HwSelect-50"><a href="#HwSelect-50"><span class="linenos">50</span></a>            <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span>
 </span><span id="HwSelect-51"><a href="#HwSelect-51"><span class="linenos">51</span></a>                <span class="p">[</span>
-</span><span id="HwSelect-52"><a href="#HwSelect-52"><span class="linenos">52</span></a>                    <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">[:</span><span class="mi">11</span><span class="p">],</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">),</span>  <span class="c1"># 前半11件</span>
-</span><span id="HwSelect-53"><a href="#HwSelect-53"><span class="linenos">53</span></a>                    <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">[</span><span class="mi">11</span><span class="p">:],</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">),</span>  <span class="c1"># 後半残り</span>
+</span><span id="HwSelect-52"><a href="#HwSelect-52"><span class="linenos">52</span></a>                    <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">[:</span><span class="mi">11</span><span class="p">],</span> <span class="n">justify</span><span class="o">=</span><span class="s2">"start"</span><span class="p">),</span>  <span class="c1"># 前半11件</span>
+</span><span id="HwSelect-53"><a href="#HwSelect-53"><span class="linenos">53</span></a>                    <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">[</span><span class="mi">11</span><span class="p">:],</span> <span class="n">justify</span><span class="o">=</span><span class="s2">"start"</span><span class="p">),</span>  <span class="c1"># 後半残り</span>
 </span><span id="HwSelect-54"><a href="#HwSelect-54"><span class="linenos">54</span></a>                <span class="p">]</span>
 </span><span id="HwSelect-55"><a href="#HwSelect-55"><span class="linenos">55</span></a>            <span class="p">)</span>
 </span><span id="HwSelect-56"><a href="#HwSelect-56"><span class="linenos">56</span></a>        <span class="c1"># 11件以下の場合は1行で表示</span>
-</span><span id="HwSelect-57"><a href="#HwSelect-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+</span><span id="HwSelect-57"><a href="#HwSelect-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">"start"</span><span class="p">)</span>
 </span><span id="HwSelect-58"><a href="#HwSelect-58"><span class="linenos">58</span></a>
 </span><span id="HwSelect-59"><a href="#HwSelect-59"><span class="linenos">59</span></a>    <span class="nd">@property</span>
 </span><span id="HwSelect-60"><a href="#HwSelect-60"><span class="linenos">60</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="HwSelect-61"><a href="#HwSelect-61"><span class="linenos">61</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;チェック済みのhw識別子リストを返す。</span>
+</span><span id="HwSelect-61"><a href="#HwSelect-61"><span class="linenos">61</span></a><span class="w">        </span><span class="sd">"""チェック済みのhw識別子リストを返す。</span>
 </span><span id="HwSelect-62"><a href="#HwSelect-62"><span class="linenos">62</span></a>
 </span><span id="HwSelect-63"><a href="#HwSelect-63"><span class="linenos">63</span></a><span class="sd">        Returns:</span>
 </span><span id="HwSelect-64"><a href="#HwSelect-64"><span class="linenos">64</span></a><span class="sd">            チェックされているhwの識別子リスト。</span>
 </span><span id="HwSelect-65"><a href="#HwSelect-65"><span class="linenos">65</span></a><span class="sd">            force_any=Trueかつ何も選択されていない場合は全ハードを返す。</span>
-</span><span id="HwSelect-66"><a href="#HwSelect-66"><span class="linenos">66</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="HwSelect-66"><a href="#HwSelect-66"><span class="linenos">66</span></a><span class="sd">        """</span>
 </span><span id="HwSelect-67"><a href="#HwSelect-67"><span class="linenos">67</span></a>        <span class="n">hw_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">hw</span> <span class="k">for</span> <span class="n">hw</span><span class="p">,</span> <span class="n">flg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hw_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">flg</span><span class="p">]</span>
 </span><span id="HwSelect-68"><a href="#HwSelect-68"><span class="linenos">68</span></a>        <span class="c1"># 何も選択されていない場合にforce_anyが有効なら全ハードを返す</span>
 </span><span id="HwSelect-69"><a href="#HwSelect-69"><span class="linenos">69</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_any</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">hw_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -315,7 +315,7 @@
                             <div id="HwSelect.__init__" class="classattr">
                                         <input id="HwSelect.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="name">HwSelect</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">default_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">force_any</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>,</span><span class="param">	<span class="n">hw_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
                 <label class="view-source-button" for="HwSelect.__init__-view-source"><span>View Source</span></label>
@@ -348,51 +348,51 @@
 </span></pre></div>
 
 
-    
+
 
                             </div>
                             <div id="HwSelect.hw_list" class="classattr">
                                 <div class="attr variable">
             <span class="name">hw_list</span>
 
-        
+
     </div>
     <a class="headerlink" href="#HwSelect.hw_list"></a>
-    
-    
+
+
 
                             </div>
                             <div id="HwSelect.checklist" class="classattr">
                                 <div class="attr variable">
             <span class="name">checklist</span>
 
-        
+
     </div>
     <a class="headerlink" href="#HwSelect.checklist"></a>
-    
-    
+
+
 
                             </div>
                             <div id="HwSelect.widget" class="classattr">
                                 <div class="attr variable">
             <span class="name">widget</span>
 
-        
+
     </div>
     <a class="headerlink" href="#HwSelect.widget"></a>
-    
-    
+
+
 
                             </div>
                             <div id="HwSelect.force_any" class="classattr">
                                 <div class="attr variable">
             <span class="name">force_any</span>
 
-        
+
     </div>
     <a class="headerlink" href="#HwSelect.force_any"></a>
-    
-    
+
+
 
                             </div>
                             <div id="HwSelect.value" class="classattr">
@@ -406,12 +406,12 @@
     <a class="headerlink" href="#HwSelect.value"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="HwSelect.value-59"><a href="#HwSelect.value-59"><span class="linenos">59</span></a>    <span class="nd">@property</span>
 </span><span id="HwSelect.value-60"><a href="#HwSelect.value-60"><span class="linenos">60</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="HwSelect.value-61"><a href="#HwSelect.value-61"><span class="linenos">61</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;チェック済みのhw識別子リストを返す。</span>
+</span><span id="HwSelect.value-61"><a href="#HwSelect.value-61"><span class="linenos">61</span></a><span class="w">        </span><span class="sd">"""チェック済みのhw識別子リストを返す。</span>
 </span><span id="HwSelect.value-62"><a href="#HwSelect.value-62"><span class="linenos">62</span></a>
 </span><span id="HwSelect.value-63"><a href="#HwSelect.value-63"><span class="linenos">63</span></a><span class="sd">        Returns:</span>
 </span><span id="HwSelect.value-64"><a href="#HwSelect.value-64"><span class="linenos">64</span></a><span class="sd">            チェックされているhwの識別子リスト。</span>
 </span><span id="HwSelect.value-65"><a href="#HwSelect.value-65"><span class="linenos">65</span></a><span class="sd">            force_any=Trueかつ何も選択されていない場合は全ハードを返す。</span>
-</span><span id="HwSelect.value-66"><a href="#HwSelect.value-66"><span class="linenos">66</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="HwSelect.value-66"><a href="#HwSelect.value-66"><span class="linenos">66</span></a><span class="sd">        """</span>
 </span><span id="HwSelect.value-67"><a href="#HwSelect.value-67"><span class="linenos">67</span></a>        <span class="n">hw_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">hw</span> <span class="k">for</span> <span class="n">hw</span><span class="p">,</span> <span class="n">flg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hw_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">flg</span><span class="p">]</span>
 </span><span id="HwSelect.value-68"><a href="#HwSelect.value-68"><span class="linenos">68</span></a>        <span class="c1"># 何も選択されていない場合にforce_anyが有効なら全ハードを返す</span>
 </span><span id="HwSelect.value-69"><a href="#HwSelect.value-69"><span class="linenos">69</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_any</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">hw_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -433,7 +433,7 @@
                 <section id="MakerSelect">
                             <input id="MakerSelect-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
-            
+
     <span class="def">class</span>
     <span class="name">MakerSelect</span>:
 
@@ -442,14 +442,14 @@
     </div>
     <a class="headerlink" href="#MakerSelect"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="MakerSelect-74"><a href="#MakerSelect-74"><span class="linenos"> 74</span></a><span class="k">class</span><span class="w"> </span><span class="nc">MakerSelect</span><span class="p">:</span>
-</span><span id="MakerSelect-75"><a href="#MakerSelect-75"><span class="linenos"> 75</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;ゲームメーカーをチェックボックスで選択するUIウィジェット。</span>
+</span><span id="MakerSelect-75"><a href="#MakerSelect-75"><span class="linenos"> 75</span></a><span class="w">    </span><span class="sd">"""ゲームメーカーをチェックボックスで選択するUIウィジェット。</span>
 </span><span id="MakerSelect-76"><a href="#MakerSelect-76"><span class="linenos"> 76</span></a>
 </span><span id="MakerSelect-77"><a href="#MakerSelect-77"><span class="linenos"> 77</span></a><span class="sd">    Args:</span>
 </span><span id="MakerSelect-78"><a href="#MakerSelect-78"><span class="linenos"> 78</span></a><span class="sd">        default_list: 初期状態でチェックを入れるメーカー名のリスト。</span>
 </span><span id="MakerSelect-79"><a href="#MakerSelect-79"><span class="linenos"> 79</span></a><span class="sd">                      Noneの場合は全メーカーをデフォルト選択とする。</span>
 </span><span id="MakerSelect-80"><a href="#MakerSelect-80"><span class="linenos"> 80</span></a><span class="sd">        force_any: Trueの場合、何も選択されていないときに全メーカーを返す。</span>
 </span><span id="MakerSelect-81"><a href="#MakerSelect-81"><span class="linenos"> 81</span></a><span class="sd">        maker_list: 表示するメーカー名のリスト。Noneの場合はget_maker_all()で取得する。</span>
-</span><span id="MakerSelect-82"><a href="#MakerSelect-82"><span class="linenos"> 82</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="MakerSelect-82"><a href="#MakerSelect-82"><span class="linenos"> 82</span></a><span class="sd">    """</span>
 </span><span id="MakerSelect-83"><a href="#MakerSelect-83"><span class="linenos"> 83</span></a>
 </span><span id="MakerSelect-84"><a href="#MakerSelect-84"><span class="linenos"> 84</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="MakerSelect-85"><a href="#MakerSelect-85"><span class="linenos"> 85</span></a>        <span class="bp">self</span><span class="p">,</span>
@@ -476,17 +476,17 @@
 </span><span id="MakerSelect-106"><a href="#MakerSelect-106"><span class="linenos">106</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">force_any</span> <span class="o">=</span> <span class="n">force_any</span>
 </span><span id="MakerSelect-107"><a href="#MakerSelect-107"><span class="linenos">107</span></a>
 </span><span id="MakerSelect-108"><a href="#MakerSelect-108"><span class="linenos">108</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_display_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="MakerSelect-109"><a href="#MakerSelect-109"><span class="linenos">109</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Marimoセル上での表示レイアウト。メーカー数は少ないため1行で表示する。&quot;&quot;&quot;</span>
-</span><span id="MakerSelect-110"><a href="#MakerSelect-110"><span class="linenos">110</span></a>        <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+</span><span id="MakerSelect-109"><a href="#MakerSelect-109"><span class="linenos">109</span></a><span class="w">        </span><span class="sd">"""Marimoセル上での表示レイアウト。メーカー数は少ないため1行で表示する。"""</span>
+</span><span id="MakerSelect-110"><a href="#MakerSelect-110"><span class="linenos">110</span></a>        <span class="k">return</span> <span class="n">mo</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checklist</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">"start"</span><span class="p">)</span>
 </span><span id="MakerSelect-111"><a href="#MakerSelect-111"><span class="linenos">111</span></a>
 </span><span id="MakerSelect-112"><a href="#MakerSelect-112"><span class="linenos">112</span></a>    <span class="nd">@property</span>
 </span><span id="MakerSelect-113"><a href="#MakerSelect-113"><span class="linenos">113</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="MakerSelect-114"><a href="#MakerSelect-114"><span class="linenos">114</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;チェック済みのメーカー名リストを返す。</span>
+</span><span id="MakerSelect-114"><a href="#MakerSelect-114"><span class="linenos">114</span></a><span class="w">        </span><span class="sd">"""チェック済みのメーカー名リストを返す。</span>
 </span><span id="MakerSelect-115"><a href="#MakerSelect-115"><span class="linenos">115</span></a>
 </span><span id="MakerSelect-116"><a href="#MakerSelect-116"><span class="linenos">116</span></a><span class="sd">        Returns:</span>
 </span><span id="MakerSelect-117"><a href="#MakerSelect-117"><span class="linenos">117</span></a><span class="sd">            チェックされているメーカー名のリスト。</span>
 </span><span id="MakerSelect-118"><a href="#MakerSelect-118"><span class="linenos">118</span></a><span class="sd">            force_any=Trueかつ何も選択されていない場合は全メーカーを返す。</span>
-</span><span id="MakerSelect-119"><a href="#MakerSelect-119"><span class="linenos">119</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="MakerSelect-119"><a href="#MakerSelect-119"><span class="linenos">119</span></a><span class="sd">        """</span>
 </span><span id="MakerSelect-120"><a href="#MakerSelect-120"><span class="linenos">120</span></a>        <span class="n">maker_data</span> <span class="o">=</span> <span class="p">[</span>
 </span><span id="MakerSelect-121"><a href="#MakerSelect-121"><span class="linenos">121</span></a>            <span class="n">maker</span> <span class="k">for</span> <span class="n">maker</span><span class="p">,</span> <span class="n">flg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maker_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">flg</span>
 </span><span id="MakerSelect-122"><a href="#MakerSelect-122"><span class="linenos">122</span></a>        <span class="p">]</span>
@@ -510,7 +510,7 @@
                             <div id="MakerSelect.__init__" class="classattr">
                                         <input id="MakerSelect.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="name">MakerSelect</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">default_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">force_any</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>,</span><span class="param">	<span class="n">maker_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
                 <label class="view-source-button" for="MakerSelect.__init__-view-source"><span>View Source</span></label>
@@ -543,51 +543,51 @@
 </span></pre></div>
 
 
-    
+
 
                             </div>
                             <div id="MakerSelect.maker_list" class="classattr">
                                 <div class="attr variable">
             <span class="name">maker_list</span>
 
-        
+
     </div>
     <a class="headerlink" href="#MakerSelect.maker_list"></a>
-    
-    
+
+
 
                             </div>
                             <div id="MakerSelect.checklist" class="classattr">
                                 <div class="attr variable">
             <span class="name">checklist</span>
 
-        
+
     </div>
     <a class="headerlink" href="#MakerSelect.checklist"></a>
-    
-    
+
+
 
                             </div>
                             <div id="MakerSelect.widget" class="classattr">
                                 <div class="attr variable">
             <span class="name">widget</span>
 
-        
+
     </div>
     <a class="headerlink" href="#MakerSelect.widget"></a>
-    
-    
+
+
 
                             </div>
                             <div id="MakerSelect.force_any" class="classattr">
                                 <div class="attr variable">
             <span class="name">force_any</span>
 
-        
+
     </div>
     <a class="headerlink" href="#MakerSelect.force_any"></a>
-    
-    
+
+
 
                             </div>
                             <div id="MakerSelect.value" class="classattr">
@@ -601,12 +601,12 @@
     <a class="headerlink" href="#MakerSelect.value"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="MakerSelect.value-112"><a href="#MakerSelect.value-112"><span class="linenos">112</span></a>    <span class="nd">@property</span>
 </span><span id="MakerSelect.value-113"><a href="#MakerSelect.value-113"><span class="linenos">113</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="MakerSelect.value-114"><a href="#MakerSelect.value-114"><span class="linenos">114</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;チェック済みのメーカー名リストを返す。</span>
+</span><span id="MakerSelect.value-114"><a href="#MakerSelect.value-114"><span class="linenos">114</span></a><span class="w">        </span><span class="sd">"""チェック済みのメーカー名リストを返す。</span>
 </span><span id="MakerSelect.value-115"><a href="#MakerSelect.value-115"><span class="linenos">115</span></a>
 </span><span id="MakerSelect.value-116"><a href="#MakerSelect.value-116"><span class="linenos">116</span></a><span class="sd">        Returns:</span>
 </span><span id="MakerSelect.value-117"><a href="#MakerSelect.value-117"><span class="linenos">117</span></a><span class="sd">            チェックされているメーカー名のリスト。</span>
 </span><span id="MakerSelect.value-118"><a href="#MakerSelect.value-118"><span class="linenos">118</span></a><span class="sd">            force_any=Trueかつ何も選択されていない場合は全メーカーを返す。</span>
-</span><span id="MakerSelect.value-119"><a href="#MakerSelect.value-119"><span class="linenos">119</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="MakerSelect.value-119"><a href="#MakerSelect.value-119"><span class="linenos">119</span></a><span class="sd">        """</span>
 </span><span id="MakerSelect.value-120"><a href="#MakerSelect.value-120"><span class="linenos">120</span></a>        <span class="n">maker_data</span> <span class="o">=</span> <span class="p">[</span>
 </span><span id="MakerSelect.value-121"><a href="#MakerSelect.value-121"><span class="linenos">121</span></a>            <span class="n">maker</span> <span class="k">for</span> <span class="n">maker</span><span class="p">,</span> <span class="n">flg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maker_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">flg</span>
 </span><span id="MakerSelect.value-122"><a href="#MakerSelect.value-122"><span class="linenos">122</span></a>        <span class="p">]</span>

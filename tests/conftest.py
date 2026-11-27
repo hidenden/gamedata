@@ -5,7 +5,7 @@ from datetime import date, timedelta
 import pytest
 import polars as pl
 
-import gamedata.hard_sales as hs
+from gamedata.hard_sales2 import _with_sales_columns
 
 
 # ---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ def _build_sales_rows():
 def sample_sales_df() -> pl.DataFrame:
     """ハード販売データのサンプル DataFrame"""
     rows = _build_sales_rows()
-    return hs._with_derived_columns(pl.DataFrame(rows))
+    return _with_sales_columns(pl.DataFrame(rows))
 
 
 # ---------------------------------------------------------------------------

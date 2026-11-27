@@ -36,7 +36,7 @@ if ! sqlite3 "$GAMEHARD_DB" < ./update_tables.sql; then
     exit 1
 fi
 
-echo "Database tables and views created successfully."
+echo "Database tables created successfully."
 
 # table: gamehard_infoに初期データを投入する
 # 初期データソースは ./hard_info.csv である。
@@ -53,8 +53,12 @@ fi
 # table: gamehard_weeklyに初期データを投入する
 # 初期データソースは ../data_source/hard_weekly_init.csv である。
 if ! sqlite3 "$GAMEHARD_DB" <<EOF
+.bail on
 .mode csv
-.import --skip 1 ../data_source/hard_weekly_init.csv gamehard_weekly
+CREATE TEMP TABLE weekly_seed (id TEXT, report_date TEXT, period_date INTEGER, hw TEXT, units INTEGER);
+.import --skip 1 ../data_source/hard_weekly_init.csv weekly_seed
+INSERT INTO gamehard_weekly (id, report_date, period_date, hw, units)
+SELECT id, report_date, period_date, hw, units FROM weekly_seed;
 EOF
 then
     echo "Error: Failed to import initial data into gamehard_weekly table."

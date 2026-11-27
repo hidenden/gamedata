@@ -5,7 +5,7 @@ import marimo as mo
 import polars as pl
 from datetime import datetime, timedelta, date
 from typing import List
-from . import hard_sales as hs
+from . import hard_sales2 as hs
 
 
 class HwSelect:

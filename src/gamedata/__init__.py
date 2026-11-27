@@ -57,7 +57,7 @@ from .hard_info import (
 )
 
 # Import main functions from modules
-from .hard_sales import (
+from .hard_sales2 import (
     current_report_date,
     get_active_hw,
     get_active_maker,
@@ -65,9 +65,9 @@ from .hard_sales import (
     get_hw_all,
     get_maker,
     get_maker_all,
-    load_hard_sales,
+    load_hard_sales2,
 )
-from .hard_sales2 import load_hard_sales2
+from . import hard_sales
 from .forecast import (
     forecast_52w,
     forecast_year_end_all,
