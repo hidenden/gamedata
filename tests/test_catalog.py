@@ -213,10 +213,10 @@ def test_52w_forecast_output_contract():
 
 
 def test_correction_and_fiscal_semantics(sample_sales_df):
-    from gamedata.hard_sales import _with_derived_columns
+    from gamedata.hard_sales import _with_sales_columns
 
     original = sample_sales_df["units"].to_list()
-    actual = _with_derived_columns(sample_sales_df)
+    actual = _with_sales_columns(sample_sales_df)
     assert actual["units"].to_list() == original  # no double adjustment
     assert actual.filter(pl.col("report_date") == date(2021, 4, 4))[
         "fiscal_year"

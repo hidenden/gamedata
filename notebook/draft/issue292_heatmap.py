@@ -25,7 +25,7 @@ with app.setup:
 
 @app.cell
 def _():
-    df_all = g.load_hard_sales2()
+    df_all = g.load_hard_sales()
     mdf = g.monthly_sales_long(df = df_all, hw=["PS5"])
     mdf
     return df_all, mdf

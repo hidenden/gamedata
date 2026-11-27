@@ -10,7 +10,7 @@ def date_filter(
     """
     日付でDataFrameをフィルタリングする内部関数。
     Args:
-        src_df: load_hard_sales2()の戻り値のDataFrame
+        src_df: load_hard_sales()の戻り値のDataFrame
         begin: 集計開始日
         end: 集計終了日
     Returns:
@@ -39,7 +39,7 @@ def weekly_sales(
     週毎の販売台数と、その週までの累計販売台数（sum_units）を集計して返す。
 
     Args:
-        src_df: load_hard_sales2()の戻り値のDataFrame
+        src_df: load_hard_sales()の戻り値のDataFrame
         begin: 集計開始日
         end: 集計終了日
         maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。
@@ -81,7 +81,7 @@ def monthly_sales(
     月毎の販売台数と、その月までの累計販売台数（sum_units）を集計して返す。
 
     Args:
-        src_df: load_hard_sales2()の戻り値のDataFrame
+        src_df: load_hard_sales()の戻り値のDataFrame
         begin: 集計開始日
         end: 集計終了日
         maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。
@@ -124,7 +124,7 @@ def quarterly_sales(
     四半期毎の販売台数と、その四半期までの累計販売台数（sum_units）を集計して返す。
 
     Args:
-        src_df: load_hard_sales2()の戻り値のDataFrame
+        src_df: load_hard_sales()の戻り値のDataFrame
         begin: 集計開始日
         end: 集計終了日
         maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。
@@ -183,7 +183,7 @@ def yearly_sales(
     年毎の販売台数と、その年までの累計販売台数（sum_units）を集計して返す。
 
     Args:
-        src_df: load_hard_sales2()の戻り値のDataFrame
+        src_df: load_hard_sales()の戻り値のDataFrame
         begin: 集計開始日
         end: 集計終了日
         maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。
@@ -226,7 +226,7 @@ def yearly_maker_sales(
     年毎、メーカー毎の販売台数を集計して返す。
 
     Args:
-        src_df: load_hard_sales2()の戻り値のDataFrame
+        src_df: load_hard_sales()の戻り値のDataFrame
         begin: 集計開始日
         end: 集計終了日
 
@@ -248,7 +248,7 @@ def delta_yearly_sales(df: pl.DataFrame) -> pl.DataFrame:
     販売開始からの経過年毎の販売台数と、その経過年までの累計販売台数（sum_units）を集計して返す。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame
+        df: load_hard_sales()の戻り値のDataFrame
 
     Returns:
         pl.DataFrame: 経過年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame

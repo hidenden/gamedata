@@ -1,13 +1,12 @@
 """
 gamedata.hard_sales モジュールのテスト
 """
-from datetime import date, datetime
-from unittest.mock import patch, MagicMock
+from datetime import date
+from unittest.mock import patch
 import polars as pl
-import pytest
 
 import gamedata.hard_sales as hs
-from gamedata import hard_sales2
+from gamedata.hard_sales import _with_sales_columns
 
 
 # ---------------------------------------------------------------------------
@@ -16,9 +15,8 @@ from gamedata import hard_sales2
 
 def _reset_globals():
     """モジュールレベルのキャッシュをリセットする"""
-    hs._hard_sales_cache = None
-    hard_sales2._all_hw_list = None
-    hard_sales2._all_maker_list = None
+    hs._all_hw_list = None
+    hs._all_maker_list = None
 
 
 # ---------------------------------------------------------------------------
@@ -111,32 +109,32 @@ RAW_COLUMNS = [
 
 class TestDerivedColumns:
     def test_adds_units_diff_and_rolling_mean_columns(self, sample_sales_df):
-        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        result = _with_sales_columns(sample_sales_df.select(RAW_COLUMNS))
         assert "units_diff" in result.columns
         assert "ma4w" in result.columns
         assert "ma13w" in result.columns
         assert "ma52w" in result.columns
 
     def test_first_row_units_diff_is_null(self, sample_sales_df):
-        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        result = _with_sales_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
         assert nsw["units_diff"][0] is None
 
     def test_units_diff_calculated_correctly(self, sample_sales_df):
-        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        result = _with_sales_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
         assert nsw["units_diff"][1] == -5000
 
     def test_ma4w_value_correct(self, sample_sales_df):
         """NSW の4週移動平均の値が正しいこと"""
-        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        result = _with_sales_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
         assert nsw["ma4w"][3] == 31250
         assert nsw["ma4w"][4] == 33750
 
     def test_ma4w_first_rows_are_null(self, sample_sales_df):
         """ウィンドウサイズに満たない行は null になること"""
-        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        result = _with_sales_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
         assert nsw["ma4w"][0] is None
         assert nsw["ma4w"][1] is None
@@ -144,195 +142,25 @@ class TestDerivedColumns:
 
     def test_ma13w_all_null_when_not_enough_rows(self, sample_sales_df):
         """13週分に満たないハードは ma13w が全て null になること"""
-        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        result = _with_sales_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
         assert nsw["ma13w"].null_count() == len(nsw)
 
     def test_ma52w_all_null_when_not_enough_rows(self, sample_sales_df):
         """52週分に満たないハードは ma52w が全て null になること"""
-        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        result = _with_sales_columns(sample_sales_df.select(RAW_COLUMNS))
         nsw = result.filter(pl.col("hw") == "NSW").sort("weekly_id")
         assert nsw["ma52w"].null_count() == len(nsw)
 
     def test_per_hw_grouping(self, sample_sales_df):
         """hw ごとに独立して移動平均が計算されること"""
-        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        result = _with_sales_columns(sample_sales_df.select(RAW_COLUMNS))
         ps5 = result.filter(pl.col("hw") == "PS5").sort("weekly_id")
         assert ps5["ma4w"].null_count() == len(ps5)
 
     def test_returns_dataframe(self, sample_sales_df):
-        result = hs._with_derived_columns(sample_sales_df.select(RAW_COLUMNS))
+        result = _with_sales_columns(sample_sales_df.select(RAW_COLUMNS))
         assert isinstance(result, pl.DataFrame)
-
-
-
-class TestLoadHardSales:
-    def setup_method(self):
-        _reset_globals()
-
-    def teardown_method(self):
-        _reset_globals()
-
-    def _make_raw_df(self):
-        return pl.DataFrame({
-            "weekly_id": ["NSW-0001"],
-            "begin_date": ["2020-01-05"],
-            "end_date": ["2020-01-11"],
-            "report_date": ["2020-01-05"],
-            "period_date": [7],
-            "hw": ["NSW"],
-            "units": [10000],
-            "adjust_units": [10000],
-            "year": [2020],
-            "month": [1],
-            "mday": [5],
-            "week": [1],
-            "delta_day": [150],
-            "delta_week": [21],
-            "delta_month": [10],
-            "delta_year": [2],
-            "avg_units": [1428],
-            "sum_units": [500000],
-            "launch_date": ["2017-03-03"],
-            "maker_name": ["Nintendo"],
-            "full_name": ["Nintendo Switch"],
-        })
-
-    def test_returns_dataframe(self):
-        raw = self._make_raw_df()
-        with patch("sqlite3.connect") as mock_connect:
-            mock_conn = MagicMock()
-            mock_connect.return_value = mock_conn
-            with patch("polars.read_database", return_value=raw):
-                result = hs.load_hard_sales()
-        assert isinstance(result, pl.DataFrame)
-
-    def test_date_columns_are_date_type(self):
-        raw = self._make_raw_df()
-        with patch("sqlite3.connect") as mock_connect:
-            mock_conn = MagicMock()
-            mock_connect.return_value = mock_conn
-            with patch("polars.read_database", return_value=raw):
-                result = hs.load_hard_sales()
-        assert result["report_date"].dtype == pl.Date
-        assert result["begin_date"].dtype == pl.Date
-        assert result["launch_date"].dtype == pl.Date
-
-    def test_quarter_column_added(self):
-        raw = self._make_raw_df()
-        with patch("sqlite3.connect") as mock_connect:
-            mock_conn = MagicMock()
-            mock_connect.return_value = mock_conn
-            with patch("polars.read_database", return_value=raw):
-                result = hs.load_hard_sales()
-        assert "quarter" in result.columns
-        assert result["quarter"][0] == "2020Q1"
-
-    def test_adds_new_cached_columns(self):
-        raw = self._make_raw_df()
-        with patch("sqlite3.connect") as mock_connect:
-            mock_conn = MagicMock()
-            mock_connect.return_value = mock_conn
-            with patch("polars.read_database", return_value=raw):
-                result = hs.load_hard_sales()
-        assert result["index_week"][0] == 22
-        assert result["index_month"][0] == 11
-        assert result["index_year"][0] == 3
-        assert result["fiscal_year"][0] == 2020
-        assert result["fiscal_month"][0] == 10
-        assert result["q_num"][0] == 1
-        assert result["fq_num"][0] == 4
-        assert result["fiscal_quarter"][0] == "2020FQ4"
-        assert result["units_diff"][0] is None
-        assert result["ma4w"][0] is None
-        assert result["ma13w"][0] is None
-        assert result["ma52w"][0] is None
-
-    def test_fiscal_year_for_april_uses_term_ending_year(self):
-        raw = self._make_raw_df().with_columns(
-            pl.lit("2020-04-05").alias("begin_date"),
-            pl.lit("2020-04-11").alias("end_date"),
-            pl.lit("2020-04-11").alias("report_date"),
-            pl.lit(2020).alias("year"),
-            pl.lit(4).alias("month"),
-            pl.lit(11).alias("mday"),
-        )
-        with patch("sqlite3.connect") as mock_connect:
-            mock_conn = MagicMock()
-            mock_connect.return_value = mock_conn
-            with patch("polars.read_database", return_value=raw):
-                result = hs.load_hard_sales()
-        assert result["fiscal_year"][0] == 2021
-        assert result["fq_num"][0] == 1
-        assert result["fiscal_quarter"][0] == "2021FQ1"
-
-    def test_fiscal_year_boundary_on_april_first(self):
-        raw = self._make_raw_df().with_columns(
-            pl.lit("2020-03-26").alias("begin_date"),
-            pl.lit("2020-04-01").alias("end_date"),
-            pl.lit("2020-04-01").alias("report_date"),
-            pl.lit(2020).alias("year"),
-            pl.lit(4).alias("month"),
-            pl.lit(1).alias("mday"),
-        )
-        with patch("sqlite3.connect") as mock_connect:
-            mock_conn = MagicMock()
-            mock_connect.return_value = mock_conn
-            with patch("polars.read_database", return_value=raw):
-                result = hs.load_hard_sales()
-        assert result["fiscal_year"][0] == 2021
-        assert result["fq_num"][0] == 1
-        assert result["fiscal_quarter"][0] == "2021FQ1"
-
-    def test_fiscal_year_for_march_uses_same_calendar_year(self):
-        raw = self._make_raw_df().with_columns(
-            pl.lit("2020-03-22").alias("begin_date"),
-            pl.lit("2020-03-28").alias("end_date"),
-            pl.lit("2020-03-28").alias("report_date"),
-            pl.lit(2020).alias("year"),
-            pl.lit(3).alias("month"),
-            pl.lit(28).alias("mday"),
-        )
-        with patch("sqlite3.connect") as mock_connect:
-            mock_conn = MagicMock()
-            mock_connect.return_value = mock_conn
-            with patch("polars.read_database", return_value=raw):
-                result = hs.load_hard_sales()
-        assert result["fiscal_year"][0] == 2020
-        assert result["fq_num"][0] == 4
-        assert result["fiscal_quarter"][0] == "2020FQ4"
-
-    def test_uses_global_cache_by_default(self):
-        raw = self._make_raw_df()
-        with patch("sqlite3.connect") as mock_connect:
-            mock_conn = MagicMock()
-            mock_connect.return_value = mock_conn
-            with patch("polars.read_database", return_value=raw) as mock_read:
-                result1 = hs.load_hard_sales()
-                result2 = hs.load_hard_sales()
-        assert mock_read.call_count == 1
-        assert result1.equals(result2)
-        assert result1 is not result2
-
-    def test_no_cache_forces_reload_and_refreshes_cache(self):
-        raw1 = self._make_raw_df()
-        raw2 = self._make_raw_df().with_columns(
-            pl.lit(20000).alias("units"),
-            pl.lit(20000).alias("adjust_units"),
-            pl.lit(2857).alias("avg_units"),
-            pl.lit(510000).alias("sum_units"),
-        )
-        with patch("sqlite3.connect") as mock_connect:
-            mock_conn = MagicMock()
-            mock_connect.return_value = mock_conn
-            with patch("polars.read_database", side_effect=[raw1, raw2]) as mock_read:
-                first = hs.load_hard_sales()
-                refreshed = hs.load_hard_sales(no_cache=True)
-                cached = hs.load_hard_sales()
-        assert mock_read.call_count == 2
-        assert first["units"][0] == 10000
-        assert refreshed["units"][0] == 20000
-        assert cached["units"][0] == 20000
 
 
 # ---------------------------------------------------------------------------
@@ -347,7 +175,7 @@ class TestGetHwAll:
         _reset_globals()
 
     def test_returns_list(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_hw_all()
         assert isinstance(result, list)
 
@@ -376,22 +204,22 @@ class TestGetHwAll:
                 pl.lit("SONY").alias("maker_name"),
             )
         )
-        with patch.object(hs, "load_hard_sales2", return_value=mock_full):
+        with patch.object(hs, "load_hard_sales", return_value=mock_full):
             result = hs.get_hw_all(true_all=False)
         assert "PKS" not in result
 
     def test_true_all_includes_legacy(self, sample_sales_df):
         """true_all=True の場合はレガシーハードが含まれること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_hw_all(true_all=True)
         assert isinstance(result, list)
 
     def test_cached_value_returned(self, sample_sales_df):
         """2回目の呼び出しでキャッシュが使われること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df) as mock_load:
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df) as mock_load:
             hs.get_hw_all()
             hs.get_hw_all()
-        # 2回目はキャッシュを使うので load_hard_sales2 は1回しか呼ばれない
+        # 2回目はキャッシュを使うので load_hard_sales は1回しか呼ばれない
         assert mock_load.call_count == 1
 
 
@@ -407,18 +235,18 @@ class TestGetMakerAll:
         _reset_globals()
 
     def test_returns_list(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_maker_all()
         assert isinstance(result, list)
 
     def test_contains_makers(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_maker_all()
         assert "Nintendo" in result
 
     def test_cached_value_returned(self, sample_sales_df):
         """2回目の呼び出しでキャッシュが使われること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df) as mock_load:
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df) as mock_load:
             hs.get_maker_all()
             hs.get_maker_all()
         assert mock_load.call_count == 1
@@ -430,13 +258,13 @@ class TestGetMakerAll:
 
 class TestGetActiveHw:
     def test_returns_list(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_active_hw(days=365 * 10)
         assert isinstance(result, list)
 
 
 class TestGetActiveMaker:
     def test_returns_list(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_active_maker(days=365 * 10)
         assert isinstance(result, list)

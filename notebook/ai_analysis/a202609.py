@@ -34,7 +34,7 @@ with app.setup:
 
 @app.cell
 def load_db():
-    hard_sales_df: pl.DataFrame = g.load_hard_sales2(True)
+    hard_sales_df: pl.DataFrame = g.load_hard_sales(True)
     annotation_df: pl.DataFrame = g.load_hard_annotation(no_cache=True)
 
     return (hard_sales_df,)

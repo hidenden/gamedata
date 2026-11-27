@@ -26,7 +26,7 @@ with app.setup:
 @app.cell
 def _():
     an_df = g.load_hard_annotation(True)
-    df_all = g.load_hard_sales2(True)
+    df_all = g.load_hard_sales(True)
     return
 
 

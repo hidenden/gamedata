@@ -13,14 +13,6 @@ DATE_RULES = [
 FUNCTIONS = {
     "load_hard_sales": (
         "hard_sales",
-        "販売データをロード（キャッシュあり）",
-        None,
-        "hard_sales",
-        [],
-        ["DBを読み込む。no_cache=Trueでキャッシュを破棄して再読込"],
-    ),
-    "load_hard_sales2": (
-        "hard_sales2",
         "元テーブルから販売データをロード（キャッシュあり）",
         None,
         "hard_sales",

@@ -8,7 +8,7 @@
 ## 新規データの取り込み
 
 1. ***database/update/famitsu.py <今週のハード／ソフト集計ページURL>*** を実行して新規データを取り込み
-2. ***database/update/refresh_analysis.py*** を実行してデータ更新を実施
+販売指標は週報の読み込み時に計算されます。
 
 ## 新レポートの作成
 

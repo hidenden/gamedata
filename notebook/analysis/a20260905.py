@@ -31,7 +31,7 @@ with app.setup:
 
 @app.cell
 def _():
-    hard_sales_df = g.load_hard_sales2()
+    hard_sales_df = g.load_hard_sales()
     return (hard_sales_df,)
 
 

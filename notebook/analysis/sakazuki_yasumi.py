@@ -48,7 +48,7 @@ def md_alt_title():
 
 @app.cell
 def _():
-    df_all = g.load_hard_sales2()
+    df_all = g.load_hard_sales()
     df_all
     return
 
@@ -72,7 +72,7 @@ def calc_market_position_data():
     report_hws = ["PS3", "Wii", "XB360", "PSP", "3DS", "DS", "Vita"]
 
     # gamedataの集計関数を使い、2011年の年間販売台数と対象機種内の構成比を求める
-    _report_all = g.load_hard_sales2()
+    _report_all = g.load_hard_sales()
     _report_2011_raw = g.yearly_sales(
         _report_all,
         begin=date(2011, 1, 1),
@@ -233,7 +233,7 @@ def chart_weekly_ps3_3ds_2011():
 def calc_ps3_3ds_cut_summaries():
     # 8月11日を含む週は8月14日集計なので、8月7日までを「以前」、8月14日からを「以後」とする
     _cut_source = (
-        g.load_hard_sales2()
+        g.load_hard_sales()
         .filter(
             pl.col("hw").is_in(["PS3", "3DS"]),
             pl.col("report_date").is_between(date(2011, 1, 1), date(2011, 12, 31)),
@@ -263,7 +263,7 @@ def calc_ps3_3ds_cut_summaries():
     )
 
     # 価格改定直前4週と直後4週を揃え、短期的な変化も比較する
-    _short_source = g.load_hard_sales2().filter(
+    _short_source = g.load_hard_sales().filter(
         pl.col("hw").is_in(["PS3", "3DS"]),
         pl.col("report_date").is_between(date(2011, 7, 17), date(2011, 9, 4)),
     ).with_columns(
@@ -347,7 +347,7 @@ def calc_ps_generations_248():
     # 2011年8月11日はPS3の発売248週目なので、3世代とも第248週までに揃える
     ps_generation_target_week = 248
     _ps_generation_hws = ["PS3", "PS4", "PS5"]
-    _ps_generation_source = g.load_hard_sales2().filter(
+    _ps_generation_source = g.load_hard_sales().filter(
         pl.col("hw").is_in(_ps_generation_hws),
         pl.col("index_week") <= ps_generation_target_week,
     )
@@ -480,7 +480,7 @@ def chart_ps3_yearly_lifetime():
 @app.cell
 def calc_ps3_lifetime_yearly():
     # PS3の年次販売台数を集計し、2011年までの累計比率も確認する
-    _ps3_lifetime_source = g.load_hard_sales2().filter(pl.col("hw") == "PS3")
+    _ps3_lifetime_source = g.load_hard_sales().filter(pl.col("hw") == "PS3")
     ps3_yearly_lifetime_table = (
         g.yearly_sales(_ps3_lifetime_source)
         .select(

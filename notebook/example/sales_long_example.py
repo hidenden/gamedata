@@ -32,7 +32,7 @@ def md_cell_01():
 @app.cell
 def report_latest_date_01():
     # long形式変換の入力として実データを使う
-    df_all: pl.DataFrame = g.load_hard_sales2()
+    df_all: pl.DataFrame = g.load_hard_sales()
     latest_date = g.current_report_date(df_all)
     return df_all, latest_date
 

@@ -81,24 +81,24 @@ class TestPlotCumulativeSalesByDelta:
     """plot_cumulative_sales_by_delta 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_cumulative_sales_by_delta(hw=["NSW"])
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_month_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_cumulative_sales_by_delta(mode="month")
         assert isinstance(fig, Figure)
 
     def test_year_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_cumulative_sales_by_delta(mode="year")
         assert isinstance(fig, Figure)
 
     def test_with_event_mask(self, sample_sales_df, sample_event_df, sample_info_df):
         """event_mask 指定時に annotation_positioner が呼ばれること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df), \
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df), \
              patch.object(he, "load_hard_event", return_value=sample_event_df), \
              patch.object(hi, "load_hard_info", return_value=sample_info_df):
             fig, df = pl_line.plot_cumulative_sales_by_delta(
@@ -107,7 +107,7 @@ class TestPlotCumulativeSalesByDelta:
         assert isinstance(fig, Figure)
 
     def test_with_grid(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_cumulative_sales_by_delta(xgrid=10, ygrid=100000)
         assert isinstance(fig, Figure)
 
@@ -116,28 +116,28 @@ class TestPlotSales:
     """plot_sales 関数のテスト"""
 
     def test_week_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales(mode="week")
         assert isinstance(fig, Figure)
 
     def test_month_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales(mode="month")
         assert isinstance(fig, Figure)
 
     def test_quarter_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales(mode="quarter")
         assert isinstance(fig, Figure)
 
     def test_year_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales(mode="year")
         assert isinstance(fig, Figure)
 
     def test_with_event_mask_week_mode(self, sample_sales_df, sample_event_df):
         """event_mask + mode="week" で annotation_positioner が有効になること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df), \
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df), \
              patch.object(he, "load_hard_event", return_value=sample_event_df):
             fig, df = pl_line.plot_sales(
                 hw=["NSW"], event_mask=he.EVENT_MASK_ALL, mode="week"
@@ -146,7 +146,7 @@ class TestPlotSales:
 
     def test_with_event_mask_month_mode_prints_warning(self, sample_sales_df, capsys):
         """event_mask + mode != "week" の場合にワーニングが出力されること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales(
                 hw=["NSW"], event_mask=he.EVENT_MASK_ALL, mode="month"
             )
@@ -154,19 +154,19 @@ class TestPlotSales:
         assert "Warning" in captured.out
 
     def test_area_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales(hw=["NSW", "PS5"], area=True)
         assert isinstance(fig, Figure)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales(ticklabelsize=8)
         assert isinstance(fig, Figure)
 
     def test_transparent_mode(self, sample_sales_df):
         pu.set_transparent_mode(True)
         try:
-            with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+            with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
                 fig, df = pl_line.plot_sales()
             assert isinstance(fig, Figure)
         finally:
@@ -177,22 +177,22 @@ class TestPlotSalesByDelta:
     """plot_sales_by_delta 関数のテスト"""
 
     def test_week_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales_by_delta(mode="week")
         assert isinstance(fig, Figure)
 
     def test_month_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales_by_delta(mode="month")
         assert isinstance(fig, Figure)
 
     def test_year_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales_by_delta(mode="year")
         assert isinstance(fig, Figure)
 
     def test_with_event_mask_week(self, sample_sales_df, sample_event_df, sample_info_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df), \
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df), \
              patch.object(he, "load_hard_event", return_value=sample_event_df), \
              patch.object(hi, "load_hard_info", return_value=sample_info_df):
             fig, df = pl_line.plot_sales_by_delta(
@@ -201,7 +201,7 @@ class TestPlotSalesByDelta:
         assert isinstance(fig, Figure)
 
     def test_with_event_mask_non_week_prints_warning(self, sample_sales_df, capsys):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales_by_delta(
                 event_mask=he.EVENT_MASK_ALL, mode="month"
             )
@@ -214,7 +214,7 @@ class TestPlotSalesWithOffset:
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
         hw_periods = [{"hw": "NSW", "begin": datetime(2020, 1, 1)}]
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales_with_offset(hw_periods=hw_periods)
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
@@ -224,22 +224,22 @@ class TestPlotCumulativeSales:
     """plot_cumulative_sales 関数のテスト"""
 
     def test_week_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_cumulative_sales(hw=["NSW"], mode="week")
         assert isinstance(fig, Figure)
 
     def test_month_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_cumulative_sales(hw=["NSW"], mode="month")
         assert isinstance(fig, Figure)
 
     def test_year_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_cumulative_sales(hw=["NSW"], mode="year")
         assert isinstance(fig, Figure)
 
     def test_with_event_mask_week(self, sample_sales_df, sample_event_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df), \
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df), \
              patch.object(he, "load_hard_event", return_value=sample_event_df):
             fig, df = pl_line.plot_cumulative_sales(
                 hw=["NSW"], event_mask=he.EVENT_MASK_ALL, mode="week"
@@ -247,7 +247,7 @@ class TestPlotCumulativeSales:
         assert isinstance(fig, Figure)
 
     def test_with_event_mask_month_prints_warning(self, sample_sales_df, capsys):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_cumulative_sales(
                 hw=["NSW"], event_mask=he.EVENT_MASK_ALL, mode="month"
             )
@@ -259,7 +259,7 @@ class TestPlotCumsumDiffs:
     """plot_cumsum_diffs 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_cumsum_diffs([("NSW", "PS5")])
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
@@ -332,7 +332,7 @@ class TestPlotSalesPaseDiff:
         return df
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales_pase_diff("NSW", "PS5")
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
@@ -342,7 +342,7 @@ class TestPlotSalesPaseDiff:
         shared_df = self._make_shared_delta_df()
         # NSW のない DataFrame を 2回目の呼び出しに使う
         no_nsw_df = shared_df.filter(pl.col("hw") == "PS5")
-        with patch.object(hs, "load_hard_sales2", side_effect=[shared_df, no_nsw_df]):
+        with patch.object(hs, "load_hard_sales", side_effect=[shared_df, no_nsw_df]):
             with pytest.raises(ValueError, match="Invalid hardware"):
                 pl_line.plot_sales_pase_diff("NSW", "PS5")
 
@@ -355,13 +355,13 @@ class TestPlotSalesPaseDiff:
             (pl.col("hw") != "NSW") |
             ((pl.col("hw") == "NSW") & (pl.col("delta_week") == min_week))
         )
-        with patch.object(hs, "load_hard_sales2", side_effect=[shared_df, truncated_df]):
+        with patch.object(hs, "load_hard_sales", side_effect=[shared_df, truncated_df]):
             with pytest.raises(ValueError, match="does not have all required"):
                 pl_line.plot_sales_pase_diff("NSW", "PS5")
 
     def test_with_ymax_and_ybottom(self, sample_sales_df):
         """ymax と ybottom が設定されること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales_pase_diff("NSW", "PS5", ymax=100000, ybottom=-100000)
         assert isinstance(fig, Figure)
 
@@ -374,7 +374,7 @@ class TestPlotSalesDispFunc:
         called = []
         pu.set_dispfunc(lambda fig: called.append(fig))
         try:
-            with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+            with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
                 fig, df = pl_line.plot_sales(hw=["NSW"])
             assert len(called) == 1
         finally:
@@ -382,6 +382,6 @@ class TestPlotSalesDispFunc:
 
     def test_ymax_parameter(self, sample_sales_df):
         """ymax パラメータが設定されること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pl_line.plot_sales(hw=["NSW"], ymax=500000)
         assert isinstance(fig, Figure)
