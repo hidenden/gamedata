@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock, PropertyMock
 import polars as pl
 import pytest
 
-import gamedata.hard_sales2 as hs
+import gamedata.hard_sales as hs
 import gamedata.hard_event as he
 from gamedata import marimo_util as mu
 

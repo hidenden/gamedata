@@ -1,12 +1,12 @@
 """
-gamedata.hard_sales2 モジュールのテスト
+gamedata.hard_sales モジュールのテスト
 """
 from datetime import date
 from unittest.mock import patch
 import polars as pl
 
-import gamedata.hard_sales2 as hs
-from gamedata.hard_sales2 import _with_sales_columns
+import gamedata.hard_sales as hs
+from gamedata.hard_sales import _with_sales_columns
 
 
 # ---------------------------------------------------------------------------

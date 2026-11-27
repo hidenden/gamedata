@@ -4,7 +4,7 @@ import altair as alt
 
 
 # プロジェクト内モジュール
-from . import hard_sales2 as hs
+from . import hard_sales as hs
 from . import hard_sales_long as hsl
 from .mode import Mode, parse_mode
 

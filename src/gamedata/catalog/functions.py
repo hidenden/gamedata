@@ -12,7 +12,7 @@ DATE_RULES = [
 
 FUNCTIONS = {
     "load_hard_sales2": (
-        "hard_sales2",
+        "hard_sales",
         "元テーブルから販売データをロード（キャッシュあり）",
         None,
         "hard_sales",

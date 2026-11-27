@@ -57,7 +57,7 @@ from .hard_info import (
 )
 
 # Import main functions from modules
-from .hard_sales2 import (
+from .hard_sales import (
     current_report_date,
     get_active_hw,
     get_active_maker,

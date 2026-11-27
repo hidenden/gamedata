@@ -86,45 +86,45 @@ class TestPeriodicRankingFunctions:
     """weekly/monthly/yearly_sales_ranking 関数のテスト (DB モック)"""
 
     def test_chart_weekly_ranking_returns_dataframe(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.weekly_sales_ranking(rank_n=3)
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_weekly_ranking_hw_filter(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.weekly_sales_ranking(rank_n=3, hw=["NSW"])
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_weekly_ranking_maker_mode(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.weekly_sales_ranking(rank_n=3, maker=["Nintendo"])
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_weekly_ranking_negative_rank(self, sample_sales_df):
         """rank_n が負の場合、下位ランキングが返ること"""
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.weekly_sales_ranking(rank_n=-3)
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_monthly_ranking_returns_dataframe(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.monthly_sales_ranking(rank_n=3)
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_monthly_ranking_with_date_range(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.monthly_sales_ranking(
                 rank_n=3, begin=date(2020, 1, 1), end=date(2020, 12, 31)
             )
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_yearly_ranking_returns_dataframe(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.yearly_sales_ranking(rank_n=3)
         assert isinstance(result, pl.DataFrame)
 
     def test_chart_yearly_ranking_maker_mode(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.yearly_sales_ranking(rank_n=3, maker=["Nintendo", "SONY"])
         assert isinstance(result, pl.DataFrame)
 
@@ -133,12 +133,12 @@ class TestDeltaWeekRanking:
     """delta_week_ranking 関数のテスト (DB モック)"""
 
     def test_returns_dataframe(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.delta_week_ranking(delta_week=10)
         assert isinstance(result, pl.DataFrame)
 
     def test_has_expected_columns(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.delta_week_ranking(delta_week=10)
         # 日本語にリネームされたカラムが含まれること
         assert "累計台数" in result.columns or result.height == 0
@@ -148,18 +148,18 @@ class TestReachedUnitSummary:
     """reached_unit_summary 関数のテスト (DB モック)"""
 
     def test_returns_dataframe(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.reached_unit_summary(50000)
         assert isinstance(result, pl.DataFrame)
 
     def test_all_parameter(self, sample_sales_df):
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.reached_unit_summary(50000, all=True)
         assert isinstance(result, pl.DataFrame)
 
     def test_default_top_10(self, sample_sales_df):
         """all=False の場合、最大10件が返ること"""
-        with patch("gamedata.hard_sales2.load_hard_sales2", return_value=sample_sales_df):
+        with patch("gamedata.hard_sales.load_hard_sales2", return_value=sample_sales_df):
             result = ch.reached_unit_summary(1, all=False)
         assert result.height <= 10
 

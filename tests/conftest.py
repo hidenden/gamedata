@@ -5,7 +5,7 @@ from datetime import date, timedelta
 import pytest
 import polars as pl
 
-from gamedata.hard_sales2 import _with_sales_columns
+from gamedata.hard_sales import _with_sales_columns
 
 
 # ---------------------------------------------------------------------------

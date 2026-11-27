@@ -11,7 +11,7 @@ import polars as pl
 import pytest
 from matplotlib.figure import Figure
 
-import gamedata.hard_sales2 as hs
+import gamedata.hard_sales as hs
 import gamedata.plot_util as pu
 import gamedata.plot_bar as pb
 

@@ -105,7 +105,7 @@ DATASETS = {
         source="SQLite / 同梱 Parquet の gamehard_info・gamehard_weekly → load_hard_sales2()",
         source_code=[
             "src/gamedata/data_source.py",
-            "src/gamedata/hard_sales2.py",
+            "src/gamedata/hard_sales.py",
         ],
         semantics=[
             "月・年は集計末日の所属期間。日割り配分しない",
