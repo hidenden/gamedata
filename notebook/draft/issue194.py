@@ -29,7 +29,7 @@ def _():
 
 @app.cell
 def _(g, pl):
-    df_all:pl.DataFrame = g.load_hard_sales2()
+    df_all:pl.DataFrame = g.load_hard_sales()
     return (df_all,)
 
 

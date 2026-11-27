@@ -29,7 +29,7 @@ def md_cell_01():
 @app.cell
 def calc_all_01():
     # 実データを読み込み、日付UIの初期値に最新集計日を利用する
-    df_all = g.load_hard_sales2()
+    df_all = g.load_hard_sales()
     latest_date = g.current_report_date(df_all)
     return (latest_date,)
 

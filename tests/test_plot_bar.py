@@ -91,25 +91,25 @@ class TestPlotMonthlyBarByYear:
     """plot_monthly_bar_by_year 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_monthly_bar_by_year("NSW")
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_monthly_bar_by_year("NSW", ticklabelsize=8)
         assert isinstance(fig, Figure)
 
     def test_with_ymax(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_monthly_bar_by_year("NSW", ymax=50000)
         assert isinstance(fig, Figure)
 
     def test_with_transparent_mode(self, sample_sales_df):
         pu.set_transparent_mode(True)
         try:
-            with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+            with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
                 fig, df = pb.plot_monthly_bar_by_year("NSW")
             assert isinstance(fig, Figure)
         finally:
@@ -120,13 +120,13 @@ class TestPlotQuarterlyBarByYear:
     """plot_quarterly_bar_by_year 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_quarterly_bar_by_year("NSW")
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_quarterly_bar_by_year("NSW", ticklabelsize=8)
         assert isinstance(fig, Figure)
 
@@ -135,18 +135,18 @@ class TestPlotMonthlyBarByHard:
     """plot_monthly_bar_by_hard 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_monthly_bar_by_hard(["NSW", "PS5"])
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_stacked_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_monthly_bar_by_hard(["NSW", "PS5"], stacked=True)
         assert isinstance(fig, Figure)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_monthly_bar_by_hard(["NSW"], ticklabelsize=8)
         assert isinstance(fig, Figure)
 
@@ -155,18 +155,18 @@ class TestPlotQuarterlyBarByHard:
     """plot_quarterly_bar_by_hard 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_quarterly_bar_by_hard(["NSW", "PS5"])
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_stacked_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_quarterly_bar_by_hard(["NSW"], stacked=True)
         assert isinstance(fig, Figure)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_quarterly_bar_by_hard(["NSW"], ticklabelsize=8)
         assert isinstance(fig, Figure)
 
@@ -175,18 +175,18 @@ class TestPlotMonthlyBarByHardYear:
     """plot_monthly_bar_by_hard_year 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_monthly_bar_by_hard_year([("NSW", 2020)])
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_stacked_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_monthly_bar_by_hard_year([("NSW", 2020)], stacked=True)
         assert isinstance(fig, Figure)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_monthly_bar_by_hard_year([("NSW", 2020)], ticklabelsize=8)
         assert isinstance(fig, Figure)
 
@@ -195,13 +195,13 @@ class TestPlotQuarterlyBarByHardYear:
     """plot_quarterly_bar_by_hard_year 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_quarterly_bar_by_hard_year([("NSW", 2020)])
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_quarterly_bar_by_hard_year([("NSW", 2020)], ticklabelsize=8)
         assert isinstance(fig, Figure)
 
@@ -210,18 +210,18 @@ class TestPlotYearlyBarByHard:
     """plot_yearly_bar_by_hard 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_yearly_bar_by_hard(["NSW", "PS5"])
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_stacked_mode(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_yearly_bar_by_hard(["NSW"], stacked=True)
         assert isinstance(fig, Figure)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_yearly_bar_by_hard(["NSW"], ticklabelsize=8)
         assert isinstance(fig, Figure)
 
@@ -230,13 +230,13 @@ class TestPlotYearlyBarByMonth:
     """plot_yearly_bar_by_month 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_yearly_bar_by_month(month=1)
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_yearly_bar_by_month(month=1, ticklabelsize=8)
         assert isinstance(fig, Figure)
 
@@ -245,18 +245,18 @@ class TestPlotDeltaYearlyBar:
     """plot_delta_yearly_bar 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_delta_yearly_bar(["NSW"])
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_with_delta_begin_end(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_delta_yearly_bar(["NSW"], delta_begin=0, delta_end=5)
         assert isinstance(fig, Figure)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_delta_yearly_bar(["NSW"], ticklabelsize=8)
         assert isinstance(fig, Figure)
 
@@ -265,18 +265,18 @@ class TestPlotMakerShareBar:
     """plot_maker_share_bar 関数のテスト"""
 
     def test_returns_figure_and_dataframe(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_maker_share_bar()
         assert isinstance(fig, Figure)
         assert isinstance(df, pl.DataFrame)
 
     def test_with_date_range(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_maker_share_bar(begin=date(2020, 1, 1), end=date(2021, 12, 31))
         assert isinstance(fig, Figure)
 
     def test_with_ticklabelsize(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb.plot_maker_share_bar(ticklabelsize=8)
         assert isinstance(fig, Figure)
 
@@ -297,7 +297,7 @@ class TestPlotBarShowValues:
 
     def test_show_values_stacked(self, sample_sales_df):
         """stacked=True + show_values=True のブランチ"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             # plot_maker_share_bar は stacked=True, show_values=True を使う
             fig, df = pb.plot_maker_share_bar()
         assert isinstance(fig, Figure)
@@ -305,7 +305,7 @@ class TestPlotBarShowValues:
     def test_show_values_non_stacked_horizontal(self, sample_sales_df):
         """stacked=False + show_values=True + horizontal=True のブランチ"""
         data_aggregator = self._make_data_aggregator(sample_sales_df)
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb._plot_bar(
                 data_aggregator=data_aggregator,
                 stacked=False,
@@ -317,7 +317,7 @@ class TestPlotBarShowValues:
     def test_show_values_non_stacked_vertical(self, sample_sales_df):
         """stacked=False + show_values=True + horizontal=False のブランチ"""
         data_aggregator = self._make_data_aggregator(sample_sales_df)
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             fig, df = pb._plot_bar(
                 data_aggregator=data_aggregator,
                 stacked=False,
@@ -331,7 +331,7 @@ class TestPlotBarShowValues:
         called_with = []
         pu.set_dispfunc(lambda fig: called_with.append(fig))
         try:
-            with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+            with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
                 fig, df = pb.plot_monthly_bar_by_year("NSW")
             assert len(called_with) == 1
         finally:
@@ -349,7 +349,7 @@ class TestPlotBarShowValues:
                 return decorator
 
         with patch("gamedata.plot_bar.mplcursors.cursor", return_value=MockCursor()):
-            with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+            with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
                 fig, df = pb.plot_monthly_bar_by_year("NSW")
 
         # クロージャを手動で呼び出す

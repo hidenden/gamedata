@@ -28,7 +28,7 @@ def pivot_sales(
     ハードウェアの週単位の販売台数をピボットテーブル形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -56,7 +56,7 @@ def pivot_monthly_sales(
     ハードウェアの月単位の販売台数をピボットテーブル形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -84,7 +84,7 @@ def pivot_quarterly_sales(
     ハードウェアの四半期単位の販売台数をピボットテーブル形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -112,7 +112,7 @@ def pivot_yearly_sales(
     ハードウェアの年単位の販売台数をピボットテーブル形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -142,7 +142,7 @@ def pivot_cumulative_sales(
     ハードウェアの累計販売台数をピボットテーブル形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -180,7 +180,7 @@ def pivot_sales_by_delta(
     ハードウェアの販売台数を発売日からの経過状況をカラム、hwを列、unitsを値とするピボットテーブル形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         mode: "week"、"month"または"year"を指定。週単位の集計なら"week"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
         begin: 集計開始（経過期間の最小値）
         end: 集計終了（経過期間の最大値）
@@ -221,7 +221,7 @@ def pivot_sales_with_offset(
     複数のハードウェアの異なる期間のデータを、各期間の開始点を揃えてピボットテーブル形式で返す。
 
     Args:
-        src_df: load_hard_sales2()で取得したDataFrame
+        src_df: load_hard_sales()で取得したDataFrame
         hw_periods: 各ハードウェアの期間設定のリスト
             各要素は以下のキーを持つ辞書:
             - 'hw' (str, required): ハードウェアの識別子
@@ -237,7 +237,7 @@ def pivot_sales_with_offset(
         - 各label (Int64): ハードウェア別の週次販売台数
 
     Example:
-        >>> df = load_hard_sales2()
+        >>> df = load_hard_sales()
         >>> hw_periods = [
         ...     {'hw': 'NSW', 'begin': datetime(2018, 1, 1), 'label': 'NSW 2018~'},
         ...     {'hw': 'NS2', 'begin': datetime(2026, 3, 1), 'label': 'NS2 2026~'}
@@ -260,7 +260,7 @@ def pivot_cumulative_sales_by_delta(
     """
     ハードウェアの累計販売台数を発売日からの経過状況をカラム、hwを列、sum_unitsを値とするピボットテーブル形式で返す。
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         mode: "week"、"month"または"year"を指定。週単位の集計なら"week"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
         hw: プロットしたいハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始（経過期間の最小値）
@@ -299,7 +299,7 @@ def pivot_maker(
     Parameters
     ----------
     df : pl.DataFrame
-        load_hard_sales2()で取得した週次販売データ
+        load_hard_sales()で取得した週次販売データ
     begin_year : int, optional
         開始年（デフォルト: None）
     end_year : int, optional
@@ -343,7 +343,7 @@ def cumsum_diffs(df: pl.DataFrame, cmplist: list[tuple[str, str]]) -> pl.DataFra
     複数のハードウェア間の累計販売台数の差分を計算してDataFrameで返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         cmplist: 比較するハードウェアのペアのリスト。各タプルは(base_hw, cmp_hw)の形式で、
                  cmp_hwの累計販売台数からbase_hwの累計販売台数を引いた差分を計算する。
 

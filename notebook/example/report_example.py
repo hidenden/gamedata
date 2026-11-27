@@ -32,7 +32,7 @@ def md_cell_01():
 @app.cell
 def calc_all_01():
     # レポート系関数も実データを読み込んで表示例を作る
-    df_all = g.load_hard_sales2()
+    df_all = g.load_hard_sales()
     latest_date = g.current_report_date(df_all)
     return df_all, latest_date
 

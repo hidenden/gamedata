@@ -19,7 +19,7 @@ def sales_long(
     ハードウェアの週単位の販売台数をlong形式で返す。
 
     Args:
-        src_df: load_hard_sales2()で取得したDataFrame
+        src_df: load_hard_sales()で取得したDataFrame
         hw: 対象ハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -28,7 +28,7 @@ def sales_long(
         pl.DataFrame: long形式の販売台数DataFrame
 
         DataFrameのカラム構成:
-        - load_hard_sales2()の全カラム: 指定期間・指定ハードでフィルタリングし、report_date順にソートした販売データ
+        - load_hard_sales()の全カラム: 指定期間・指定ハードでフィルタリングし、report_date順にソートした販売データ
     """
     df = hsf.date_filter(df, begin=begin, end=end)
     if len(hw) > 0:
@@ -46,7 +46,7 @@ def monthly_sales_long(
     ハードウェアの月単位の販売台数をlong形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         hw: 対象ハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -83,7 +83,7 @@ def quarterly_sales_long(
     ハードウェアの四半期単位の販売台数をlong形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         hw: 対象ハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -128,7 +128,7 @@ def yearly_sales_long(
     ハードウェアの年単位の販売台数をlong形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         hw: 対象ハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -160,7 +160,7 @@ def cumulative_sales_long(
     ハードウェアの累計販売台数をlong形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         hw: 対象ハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始日
         end: 集計終了日
@@ -171,7 +171,7 @@ def cumulative_sales_long(
         pl.DataFrame: long形式の累計販売台数DataFrame
 
         DataFrameのカラム構成:
-        - load_hard_sales2()の全カラム: 指定modeの期間末行に絞り込んだ累計販売データ（mode="week"では週次全行）
+        - load_hard_sales()の全カラム: 指定modeの期間末行に絞り込んだ累計販売データ（mode="week"では週次全行）
     """
     df = hsf.date_filter(df, begin=begin, end=end)
     if len(hw) > 0:
@@ -220,7 +220,7 @@ def sales_by_delta_long(
     ハードウェアの販売台数を発売日からの経過期間をインデックスとしたlong形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         mode: "week"、"month"または"year"を指定。週単位の集計なら"week"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
         begin: 集計開始（経過期間の最小値）
         end: 集計終了（経過期間の最大値）
@@ -277,7 +277,7 @@ def sales_with_offset_long(
     複数のハードウェアの異なる期間のデータを、各期間の開始点を揃えたlong形式で返す。
 
     Args:
-        src_df: load_hard_sales2()で取得したDataFrame
+        src_df: load_hard_sales()で取得したDataFrame
         hw_periods: 各ハードウェアの期間設定のリスト
             各要素は以下のキーを持つ辞書:
             - 'hw' (str, required): ハードウェアの識別子
@@ -333,7 +333,7 @@ def yearly_cumulative_long(
     複数のハードウェアの同じ年の年次累積データをlong形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         year: 対象年
         hw: 対象ハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始（年次累積の最小値、1から始まる）
@@ -343,7 +343,7 @@ def yearly_cumulative_long(
         pl.DataFrame: long形式のDataFrame
 
         DataFrameのカラム構成:
-        - load_hard_sales2()の全カラム: 指定年・指定yday範囲でフィルタリングした年次累積販売データ
+        - load_hard_sales()の全カラム: 指定年・指定yday範囲でフィルタリングした年次累積販売データ
     """
     if len(hw) > 0:
         df = df.filter(pl.col("hw").is_in(hw))
@@ -366,7 +366,7 @@ def yearly_cumulative_by_hwy_long(
     複数のハードウェアの異なる年の年次累積データをlong形式で返す。
 
     Args:
-        src_df: load_hard_sales2()で取得したDataFrame
+        src_df: load_hard_sales()で取得したDataFrame
         hw_years: 各ハードウェアの年次設定のリスト
             各要素は(hw, year)のタプル形式で、hwはハードウェアの識別子、yearは対象年を指定する。
              例えば[("NS2", 2024), ("PS5", 2020)]のように指定する。
@@ -378,7 +378,7 @@ def yearly_cumulative_by_hwy_long(
         pl.DataFrame: long形式のDataFrame
 
         DataFrameのカラム構成:
-        - load_hard_sales2()の全カラム: 指定ハード・指定年・指定yday範囲でフィルタリングした年次累積販売データ
+        - load_hard_sales()の全カラム: 指定ハード・指定年・指定yday範囲でフィルタリングした年次累積販売データ
         - label (String): ハードウェアのラベル（"{hw}:{year}"の形式）
     """
     all_data = []
@@ -410,7 +410,7 @@ def cumulative_sales_by_delta_long(
     ハードウェアの累計販売台数を発売日からの経過期間をインデックスとしたlong形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         mode: "week"、"month"または"year"を指定。週単位の集計なら"week"、月単位の集計なら"month"、年単位の集計なら"year"を指定。
         hw: 対象ハードウェア名のリスト。[]の場合は全ハードウェアを対象
         begin: 集計開始（経過期間の最小値）
@@ -464,7 +464,7 @@ def maker_long(
     ハードウェアのメーカー別年次販売台数をlong形式で返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         begin_year: 開始年（デフォルト: None）
         end_year: 終了年（デフォルト: None）
 
@@ -507,7 +507,7 @@ def cumsum_diffs_long(
     複数のハードウェア間の(カレンダー上の)同時期の累計販売台数の差分を計算してDataFrameで返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
                  ハードウェアシンボルのペアを指定する。
                  例えば[("NS2", "PS5"), ("NSW", "PS4")]のように指定する。
@@ -603,7 +603,7 @@ def sales_pase_diffs_long(
     複数のハードウェア間の累計販売台数の差分を計算してDataFrameで返す。
 
     Args:
-        df: load_hard_sales2()で取得したDataFrame
+        df: load_hard_sales()で取得したDataFrame
         cmplist: 比較するハードウェアのペアのリスト。各タプルは(hw_new, hw_old)の形式で、
                  ハードウェアシンボルのペアを指定する。
                 例えば[("PS5", "PS4"), ("PS5", "PS3")]のように指定する。

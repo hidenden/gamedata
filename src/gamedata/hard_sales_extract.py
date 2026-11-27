@@ -10,7 +10,7 @@ def extract_week_reached_units(df: pl.DataFrame, threshold_units: int) -> pl.Dat
     累計販売台数が指定の値を超えた最初の週を見つける関数。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame
+        df: load_hard_sales()の戻り値のDataFrame
         threshold_units: 閾値となる累計販売台数
 
     Returns:
@@ -76,7 +76,7 @@ def extract_by_date(
     指定された日付の週に該当するデータを抽出する関数。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame（begin_date, end_date, report_dateはDate型に変換済み）
+        df: load_hard_sales()の戻り値のDataFrame（begin_date, end_date, report_dateはDate型に変換済み）
         target_date: 抽出したい日付のdatetime型､またはdate型
         hw: 省略可能なハードウェア名のリスト。指定すると、そのハードウェアに限定して抽出
 
@@ -139,7 +139,7 @@ def extract_latest(df: pl.DataFrame, weeks: int = 1) -> pl.DataFrame:
     DataFrameから最新の週を抽出する関数。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame
+        df: load_hard_sales()の戻り値のDataFrame
         weeks: 最新から何週間分を抽出するか。デフォルトは1週分。
 
     Returns:
@@ -197,7 +197,7 @@ def extract_total(df: pl.DataFrame, compact: bool = False) -> pl.DataFrame:
     DataFrameから各ハードの最新の累計値行を抽出する関数。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame
+        df: load_hard_sales()の戻り値のDataFrame
         compact: Trueの場合､最小限のカラムのみを返す。デフォルトはFalseで、全てのカラムを返す。
 
     Returns:
@@ -279,7 +279,7 @@ def hard_sales_summary(
     各ゲームハードのサマリ情報を辞書の配列で返す関数。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame
+        df: load_hard_sales()の戻り値のDataFrame
         hw: HW識別子の配列。Noneや空リストの場合は全ハードの情報を返す。
 
     Returns:
@@ -417,7 +417,7 @@ def maker_sales_summary(
     各ゲームハードメーカーのサマリ情報を辞書の配列で返す関数。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame
+        df: load_hard_sales()の戻り値のDataFrame
         makers: メーカー名の配列。Noneや空リストの場合は全メーカーの情報を返す。
 
     Returns:
@@ -558,7 +558,7 @@ def sales_value(
     if report_date is not None and index_week is not None:
         raise ValueError("report_date と index_week は同時に指定できません。")
 
-    df_all = hs.load_hard_sales2()
+    df_all = hs.load_hard_sales()
 
     if report_date:
         df = extract_by_date(df=df_all, hw=[hw], target_date=report_date)

@@ -28,7 +28,7 @@ def md_cell_01():
 
 @app.cell
 def table__df_all_01():
-    _df_all = g.load_hard_sales2(True)
+    _df_all = g.load_hard_sales(True)
     _df = g.extract_total(_df_all, compact=True)
     g.style_df(_df, bar=True)
     return

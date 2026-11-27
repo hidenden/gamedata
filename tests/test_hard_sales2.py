@@ -4,6 +4,7 @@ from contextlib import closing
 from datetime import date, timedelta
 from pathlib import Path
 
+import polars as pl
 import pytest
 from polars.testing import assert_frame_equal
 
@@ -11,9 +12,8 @@ from gamedata import (
     data_source,
     hard_annotation,
     hard_sales,
-    hard_sales2,
     load_hard_info,
-    load_hard_sales2,
+    load_hard_sales,
 )
 
 
@@ -23,12 +23,10 @@ DATABASE = Path(__file__).resolve().parents[1] / "database"
 @pytest.fixture
 def sales_db(tmp_path, monkeypatch):
     path = tmp_path / "sales.db"
-    monkeypatch.setattr(hard_sales, "DB_PATH", path)
     monkeypatch.setattr(data_source, "_get_source", lambda: data_source.SQLiteSource(path))
-    for module in (hard_sales, hard_sales2):
-        monkeypatch.setattr(module, "_hard_sales_cache", None)
-    monkeypatch.setattr(hard_sales2, "_all_hw_list", None)
-    monkeypatch.setattr(hard_sales2, "_all_maker_list", None)
+    monkeypatch.setattr(hard_sales, "_hard_sales_cache", None)
+    monkeypatch.setattr(hard_sales, "_all_hw_list", None)
+    monkeypatch.setattr(hard_sales, "_all_maker_list", None)
     with closing(sqlite3.connect(path)) as conn:
         conn.executescript((DATABASE / "create_tables.sql").read_text())
         conn.executescript((DATABASE / "update_tables.sql").read_text())
@@ -40,7 +38,7 @@ def sales_db(tmp_path, monkeypatch):
     return path
 
 
-def test_matches_full_legacy_pipeline(sales_db):
+def test_normalizes_fortnight_and_calculates_sales_metrics(sales_db):
     # 年をまたぐ14日集計と、52週移動平均が計算できる長さの履歴。
     start = date(2024, 1, 7)
     rows = [("2024-01-07_A", start.isoformat(), 14, "A", 31, -3)]
@@ -56,23 +54,29 @@ def test_matches_full_legacy_pipeline(sales_db):
         )
         conn.commit()
 
-    actual = load_hard_sales2()
+    actual = load_hard_sales()
     with closing(sqlite3.connect(sales_db)) as conn:
         assert conn.execute(
             "SELECT period_date, units, adjust_units FROM gamehard_weekly WHERE id='2024-01-07_A'"
         ).fetchone() == (14, 31, -3)
-    legacy = runpy.run_path(str(DATABASE / "update/refresh_analysis.py"))
-    legacy["normalize7_db"](sales_db, debug_mode=False)
-    legacy["insert_weekly_analysis"](sales_db, debug_mode=False)
-    expected = hard_sales.load_hard_sales()
-    assert_frame_equal(actual, expected, check_exact=True)
-    assert_frame_equal(load_hard_sales2(no_cache=True), expected, check_exact=True)
+    hardware_a = actual.filter(actual["hw"] == "A")
+    assert hardware_a.select(
+        "weekly_id", "period_date", "units", "adjust_units", "avg_units", "sum_units"
+    ).head(2).rows() == [
+        ("2023-12-31_A", 7, 15, 0, 2, 15),
+        ("2024-01-07_A", 7, 13, -3, 1, 28),
+    ]
+    assert hardware_a["begin_date"][1] == date(2024, 1, 1)
+    assert hardware_a["yearly_sum_units"][1] == 13
+    assert hardware_a["ma52w"][50] is None
+    assert hardware_a["ma52w"][51] == 76
+    assert actual.filter(actual["hw"] == "B")["sum_units"][0] == 5
+    assert_frame_equal(load_hard_sales(no_cache=True), actual, check_exact=True)
 
 
 def test_reads_base_tables_only_and_refreshes_cache(sales_db):
     with closing(sqlite3.connect(sales_db)) as conn:
-        conn.executescript("DROP VIEW hard_sales; DROP TABLE gamehard_weekly_analysis;")
-        empty = load_hard_sales2()
+        empty = load_hard_sales()
         assert hard_sales.get_hw_all() == []
         assert hard_sales.get_maker_all() == []
         conn.execute(
@@ -81,13 +85,13 @@ def test_reads_base_tables_only_and_refreshes_cache(sales_db):
         )
         conn.commit()
     assert empty.is_empty()
-    assert load_hard_sales2().is_empty()
-    refreshed = load_hard_sales2(no_cache=True)
+    assert load_hard_sales().is_empty()
+    refreshed = load_hard_sales(no_cache=True)
     assert refreshed.schema == empty.schema
     assert refreshed["units"].to_list() == [123]
     assert hard_sales.get_hw_all() == ["A"]
     assert hard_sales.get_maker_all() == ["X"]
-    cached = load_hard_sales2()
+    cached = load_hard_sales()
     assert cached is not refreshed
     assert_frame_equal(cached, refreshed, check_exact=True)
 
@@ -96,8 +100,6 @@ def test_all_loaders_match_exported_parquet(sales_db, tmp_path, monkeypatch):
     monkeypatch.setattr(hard_annotation, "_annotation_dataframe", None)
     with closing(sqlite3.connect(sales_db)) as conn:
         conn.executescript("""
-            DROP VIEW hard_sales;
-            DROP TABLE gamehard_weekly_analysis;
             CREATE TABLE gamehard_annotation (
                 id INTEGER PRIMARY KEY, date TEXT, report_date TEXT,
                 hw TEXT, note TEXT, level INTEGER, "desc" TEXT
@@ -111,15 +113,24 @@ def test_all_loaders_match_exported_parquet(sales_db, tmp_path, monkeypatch):
     def load_all():
         return (
             load_hard_info(),
-            load_hard_sales2(no_cache=True),
+            load_hard_sales(no_cache=True),
             hard_annotation.load_hard_annotation(no_cache=True),
         )
 
     expected = load_all()
-    export = runpy.run_path(str(DATABASE / "export_parquet.py"))["export_snapshot"]
-    export(sales_db, tmp_path / "_parquet")
-    monkeypatch.setattr(data_source, "files", lambda package: tmp_path)
-    source = data_source.EmbeddedParquetSource()
+    exporter = DATABASE.parent / "dashboard/tools/export_parquet.py"
+    runpy.run_path(str(exporter))["export_snapshot"](sales_db, tmp_path)
+    weekly = pl.read_parquet(tmp_path / "gamehard_weekly.parquet")
+    with closing(sqlite3.connect(sales_db)) as conn:
+        assert weekly.select("flag", "update_at").rows() == conn.execute(
+            "SELECT flag, update_at FROM gamehard_weekly ORDER BY rowid"
+        ).fetchall()
+    source = data_source.HTTPParquetSource("https://example.test/dashboard/data")
+    monkeypatch.setattr(source, "_get", lambda name: (tmp_path / name).read_bytes())
     monkeypatch.setattr(data_source, "_get_source", lambda: source)
     for actual, reference in zip(load_all(), expected, strict=True):
         assert_frame_equal(actual, reference, check_exact=True)
+
+    (tmp_path / "gamehard_info.parquet").write_bytes(b"incomplete")
+    with pytest.raises(ValueError, match="gamehard_info"):
+        load_hard_info()
