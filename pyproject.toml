@@ -55,9 +55,6 @@ dev = [
 where = ["src"]          # src フォルダ以下を探す
 namespaces = false       # 必要に応じて（通常 false でOK）
 
-[tool.setuptools.package-data]
-gamedata = ["_parquet/*.parquet", "_parquet/manifest.json"]
-
 # 必要に応じて追加（オプション）
 # [tool.setuptools]
 # package-dir = {"" = "src"}

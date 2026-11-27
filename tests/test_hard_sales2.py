@@ -4,6 +4,7 @@ from contextlib import closing
 from datetime import date, timedelta
 from pathlib import Path
 
+import polars as pl
 import pytest
 from polars.testing import assert_frame_equal
 
@@ -117,10 +118,19 @@ def test_all_loaders_match_exported_parquet(sales_db, tmp_path, monkeypatch):
         )
 
     expected = load_all()
-    export = runpy.run_path(str(DATABASE / "export_parquet.py"))["export_snapshot"]
-    export(sales_db, tmp_path / "_parquet")
-    monkeypatch.setattr(data_source, "files", lambda package: tmp_path)
-    source = data_source.EmbeddedParquetSource()
+    exporter = DATABASE.parent / "dashboard/tools/export_parquet.py"
+    runpy.run_path(str(exporter))["export_snapshot"](sales_db, tmp_path)
+    weekly = pl.read_parquet(tmp_path / "gamehard_weekly.parquet")
+    with closing(sqlite3.connect(sales_db)) as conn:
+        assert weekly.select("flag", "update_at").rows() == conn.execute(
+            "SELECT flag, update_at FROM gamehard_weekly ORDER BY rowid"
+        ).fetchall()
+    source = data_source.HTTPParquetSource("https://example.test/dashboard/data")
+    monkeypatch.setattr(source, "_get", lambda name: (tmp_path / name).read_bytes())
     monkeypatch.setattr(data_source, "_get_source", lambda: source)
     for actual, reference in zip(load_all(), expected, strict=True):
         assert_frame_equal(actual, reference, check_exact=True)
+
+    (tmp_path / "gamehard_info.parquet").write_bytes(b"incomplete")
+    with pytest.raises(ValueError, match="gamehard_info"):
+        load_hard_info()
