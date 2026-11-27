@@ -2,7 +2,7 @@
 
 ## データソースの切り替え
 
-`load_hard_sales2()`、`load_hard_info()`、`load_hard_annotation()` は、最初の読み込み時に同じデータソースを選択します。既定は SQLite です。`GAMEHARD_DB` に DB ファイルのパスを指定でき、省略時は `/Users/hide/Documents/sqlite3/gamehard.db` を使用します。
+`load_hard_sales()`、`load_hard_info()`、`load_hard_annotation()` は、最初の読み込み時に同じデータソースを選択します。既定は SQLite です。`GAMEHARD_DB` に DB ファイルのパスを指定でき、省略時は `/Users/hide/Documents/sqlite3/gamehard.db` を使用します。
 
 同梱 Parquet を使うには、Python や Marimo を起動する前に設定します。切り替える場合はプロセスを再起動します。
 

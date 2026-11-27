@@ -123,7 +123,7 @@ sqlite3 $GAMEHARD_DB < create_events_table.sql
 
 ## 販売データの読み込み
 
-`load_hard_sales2()` は週次販売データと機種情報を結合し、補正済みの販売台数、
+`load_hard_sales()` は週次販売データと機種情報を結合し、補正済みの販売台数、
 累計、移動平均、会計年度などを計算して Polars DataFrame を返します。
 14日集計は読み込み時に7日ずつに分割します。
 

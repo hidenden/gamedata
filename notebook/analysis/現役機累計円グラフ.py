@@ -36,7 +36,7 @@ def _():
 
 @app.cell
 def load_sales_data():
-    df_all = g.load_hard_sales2()
+    df_all = g.load_hard_sales()
     return (df_all,)
 
 

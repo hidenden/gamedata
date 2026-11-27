@@ -120,7 +120,7 @@ def _with_sales_columns(df: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-def load_hard_sales2(no_cache: bool = False) -> pl.DataFrame:
+def load_hard_sales(no_cache: bool = False) -> pl.DataFrame:
     """週次販売データと機種情報から、補正済みの販売台数と集計指標を返す。
 
     no_cache=True で入力を再読み込みし、キャッシュを更新する。
@@ -175,7 +175,7 @@ def current_report_date(df: pl.DataFrame) -> datetime:
     DataFrameから最新の報告日を取得する関数。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame
+        df: load_hard_sales()の戻り値のDataFrame
 
     Returns:
         datetime: 最新の報告日
@@ -188,7 +188,7 @@ def get_hw(df: pl.DataFrame) -> List[str]:
     DataFrameからハードウェア名のユニークなリストを取得する。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame
+        df: load_hard_sales()の戻り値のDataFrame
 
     Returns:
         List[str]: ハードウェア名のユニークなリスト
@@ -203,7 +203,7 @@ def get_active_hw(days: int = 365) -> List[str]:
     Returns:
         List[str]: アクティブなハードウェア名のリスト
     """
-    base_df = load_hard_sales2()
+    base_df = load_hard_sales()
     now = datetime.now()
     one_year_ago = now - timedelta(days=days)
     recent_df = base_df.filter(pl.col("report_date") >= one_year_ago)
@@ -222,7 +222,7 @@ def get_hw_all(true_all: bool = False) -> List[str]:
     if _all_hw_list is not None:
         return _all_hw_list
 
-    base_df = load_hard_sales2()
+    base_df = load_hard_sales()
     hw_list = get_hw(base_df)
     remove_hw_list = ["PKS", "PS", "NeoGeoP", "SATURN", "GB"]
     if not true_all:
@@ -237,7 +237,7 @@ def get_maker(df: pl.DataFrame) -> List[str]:
     DataFrameからメーカー名のユニークなリストを取得する。
 
     Args:
-        df: load_hard_sales2()の戻り値のDataFrame
+        df: load_hard_sales()の戻り値のDataFrame
 
     Returns:
         List[str]: メーカー名のユニークなリスト
@@ -254,7 +254,7 @@ def get_active_maker(days: int = 365) -> List[str]:
     Returns:
         List[str]: アクティブなメーカー名のリスト
     """
-    base_df = load_hard_sales2()
+    base_df = load_hard_sales()
     now = datetime.now()
     one_year_ago = now - timedelta(days=days)
     recent_df = base_df.filter(pl.col("report_date") >= one_year_ago)
@@ -273,7 +273,7 @@ def get_maker_all() -> List[str]:
     if _all_maker_list is not None:
         return _all_maker_list
 
-    base_df = load_hard_sales2()
+    base_df = load_hard_sales()
     maker_list = get_maker(base_df)
     _all_maker_list = maker_list
     return maker_list

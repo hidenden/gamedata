@@ -65,7 +65,7 @@ from .hard_sales import (
     get_hw_all,
     get_maker,
     get_maker_all,
-    load_hard_sales2,
+    load_hard_sales,
 )
 from .forecast import (
     forecast_52w,

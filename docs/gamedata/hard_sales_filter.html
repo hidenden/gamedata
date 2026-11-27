@@ -67,7 +67,7 @@
                     <h1 class="modulename">
 <a href="./../gamedata.html">gamedata</a><wbr>.hard_sales_filter    </h1>
 
-                
+
                         <input id="mod-hard_sales_filter-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
                         <label class="view-source-button" for="mod-hard_sales_filter-view-source"><span>View Source</span></label>
@@ -84,7 +84,7 @@
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="w">    </span><span class="sd">"""</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">    日付でDataFrameをフィルタリングする内部関数。</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="sd">    Args:</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="sd">    Returns:</span>
@@ -113,7 +113,7 @@
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">    週毎の販売台数と、その週までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">    Args:</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">        maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</span>
@@ -155,7 +155,7 @@
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">    月毎の販売台数と、その月までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">    Args:</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">        maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</span>
@@ -198,7 +198,7 @@
 </span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">    四半期毎の販売台数と、その四半期までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
 </span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">    Args:</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">        maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</span>
@@ -257,7 +257,7 @@
 </span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a><span class="sd">    年毎の販売台数と、その年までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>
 </span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a><span class="sd">    Args:</span>
-</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a><span class="sd">        maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</span>
@@ -300,7 +300,7 @@
 </span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a><span class="sd">    年毎、メーカー毎の販売台数を集計して返す。</span>
 </span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a>
 </span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a><span class="sd">    Args:</span>
-</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>
@@ -322,7 +322,7 @@
 </span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a><span class="sd">    販売開始からの経過年毎の販売台数と、その経過年までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a>
 </span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a><span class="sd">    Args:</span>
-</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a>
 </span><span id="L-253"><a href="#L-253"><span class="linenos">253</span></a><span class="sd">    Returns:</span>
 </span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a><span class="sd">        pl.DataFrame: 経過年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame</span>
@@ -349,7 +349,7 @@
                 <section id="date_filter">
                             <input id="date_filter-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">date_filter</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">src_df</span><span class="p">:</span> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>,</span><span class="param">	<span class="n">begin</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
 
@@ -365,7 +365,7 @@
 </span><span id="date_filter-11"><a href="#date_filter-11"><span class="linenos">11</span></a><span class="w">    </span><span class="sd">"""</span>
 </span><span id="date_filter-12"><a href="#date_filter-12"><span class="linenos">12</span></a><span class="sd">    日付でDataFrameをフィルタリングする内部関数。</span>
 </span><span id="date_filter-13"><a href="#date_filter-13"><span class="linenos">13</span></a><span class="sd">    Args:</span>
-</span><span id="date_filter-14"><a href="#date_filter-14"><span class="linenos">14</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="date_filter-14"><a href="#date_filter-14"><span class="linenos">14</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="date_filter-15"><a href="#date_filter-15"><span class="linenos">15</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="date_filter-16"><a href="#date_filter-16"><span class="linenos">16</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="date_filter-17"><a href="#date_filter-17"><span class="linenos">17</span></a><span class="sd">    Returns:</span>
@@ -387,7 +387,7 @@
 
             <div class="docstring"><p>日付でDataFrameをフィルタリングする内部関数。
 Args:
-    src_df: load_hard_sales2()の戻り値のDataFrame
+    src_df: load_hard_sales()の戻り値のDataFrame
     begin: 集計開始日
     end: 集計終了日
 Returns:
@@ -399,7 +399,7 @@ Returns:
                 <section id="weekly_sales">
                             <input id="weekly_sales-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">weekly_sales</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">src_df</span><span class="p">:</span> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>,</span><span class="param">	<span class="n">begin</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">maker_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
 
@@ -417,7 +417,7 @@ Returns:
 </span><span id="weekly_sales-40"><a href="#weekly_sales-40"><span class="linenos">40</span></a><span class="sd">    週毎の販売台数と、その週までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="weekly_sales-41"><a href="#weekly_sales-41"><span class="linenos">41</span></a>
 </span><span id="weekly_sales-42"><a href="#weekly_sales-42"><span class="linenos">42</span></a><span class="sd">    Args:</span>
-</span><span id="weekly_sales-43"><a href="#weekly_sales-43"><span class="linenos">43</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="weekly_sales-43"><a href="#weekly_sales-43"><span class="linenos">43</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="weekly_sales-44"><a href="#weekly_sales-44"><span class="linenos">44</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="weekly_sales-45"><a href="#weekly_sales-45"><span class="linenos">45</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="weekly_sales-46"><a href="#weekly_sales-46"><span class="linenos">46</span></a><span class="sd">        maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</span>
@@ -453,7 +453,7 @@ Returns:
             <div class="docstring"><p>週毎の販売台数と、その週までの累計販売台数（sum_units）を集計して返す。</p>
 
 <p>Args:
-    src_df: load_hard_sales2()の戻り値のDataFrame
+    src_df: load_hard_sales()の戻り値のDataFrame
     begin: 集計開始日
     end: 集計終了日
     maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</p>
@@ -475,7 +475,7 @@ Returns:
                 <section id="monthly_sales">
                             <input id="monthly_sales-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">monthly_sales</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">src_df</span><span class="p">:</span> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>,</span><span class="param">	<span class="n">begin</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">maker_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
 
@@ -493,7 +493,7 @@ Returns:
 </span><span id="monthly_sales-82"><a href="#monthly_sales-82"><span class="linenos"> 82</span></a><span class="sd">    月毎の販売台数と、その月までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="monthly_sales-83"><a href="#monthly_sales-83"><span class="linenos"> 83</span></a>
 </span><span id="monthly_sales-84"><a href="#monthly_sales-84"><span class="linenos"> 84</span></a><span class="sd">    Args:</span>
-</span><span id="monthly_sales-85"><a href="#monthly_sales-85"><span class="linenos"> 85</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="monthly_sales-85"><a href="#monthly_sales-85"><span class="linenos"> 85</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="monthly_sales-86"><a href="#monthly_sales-86"><span class="linenos"> 86</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="monthly_sales-87"><a href="#monthly_sales-87"><span class="linenos"> 87</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="monthly_sales-88"><a href="#monthly_sales-88"><span class="linenos"> 88</span></a><span class="sd">        maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</span>
@@ -530,7 +530,7 @@ Returns:
             <div class="docstring"><p>月毎の販売台数と、その月までの累計販売台数（sum_units）を集計して返す。</p>
 
 <p>Args:
-    src_df: load_hard_sales2()の戻り値のDataFrame
+    src_df: load_hard_sales()の戻り値のDataFrame
     begin: 集計開始日
     end: 集計終了日
     maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</p>
@@ -553,7 +553,7 @@ Returns:
                 <section id="quarterly_sales">
                             <input id="quarterly_sales-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">quarterly_sales</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">src_df</span><span class="p">:</span> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>,</span><span class="param">	<span class="n">begin</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">maker_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
 
@@ -571,7 +571,7 @@ Returns:
 </span><span id="quarterly_sales-125"><a href="#quarterly_sales-125"><span class="linenos">125</span></a><span class="sd">    四半期毎の販売台数と、その四半期までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="quarterly_sales-126"><a href="#quarterly_sales-126"><span class="linenos">126</span></a>
 </span><span id="quarterly_sales-127"><a href="#quarterly_sales-127"><span class="linenos">127</span></a><span class="sd">    Args:</span>
-</span><span id="quarterly_sales-128"><a href="#quarterly_sales-128"><span class="linenos">128</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="quarterly_sales-128"><a href="#quarterly_sales-128"><span class="linenos">128</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="quarterly_sales-129"><a href="#quarterly_sales-129"><span class="linenos">129</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="quarterly_sales-130"><a href="#quarterly_sales-130"><span class="linenos">130</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="quarterly_sales-131"><a href="#quarterly_sales-131"><span class="linenos">131</span></a><span class="sd">        maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</span>
@@ -624,7 +624,7 @@ Returns:
             <div class="docstring"><p>四半期毎の販売台数と、その四半期までの累計販売台数（sum_units）を集計して返す。</p>
 
 <p>Args:
-    src_df: load_hard_sales2()の戻り値のDataFrame
+    src_df: load_hard_sales()の戻り値のDataFrame
     begin: 集計開始日
     end: 集計終了日
     maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</p>
@@ -651,7 +651,7 @@ Returns:
                 <section id="yearly_sales">
                             <input id="yearly_sales-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">yearly_sales</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">src_df</span><span class="p">:</span> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>,</span><span class="param">	<span class="n">begin</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">maker_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
 
@@ -669,7 +669,7 @@ Returns:
 </span><span id="yearly_sales-184"><a href="#yearly_sales-184"><span class="linenos">184</span></a><span class="sd">    年毎の販売台数と、その年までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="yearly_sales-185"><a href="#yearly_sales-185"><span class="linenos">185</span></a>
 </span><span id="yearly_sales-186"><a href="#yearly_sales-186"><span class="linenos">186</span></a><span class="sd">    Args:</span>
-</span><span id="yearly_sales-187"><a href="#yearly_sales-187"><span class="linenos">187</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="yearly_sales-187"><a href="#yearly_sales-187"><span class="linenos">187</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="yearly_sales-188"><a href="#yearly_sales-188"><span class="linenos">188</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="yearly_sales-189"><a href="#yearly_sales-189"><span class="linenos">189</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="yearly_sales-190"><a href="#yearly_sales-190"><span class="linenos">190</span></a><span class="sd">        maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</span>
@@ -707,7 +707,7 @@ Returns:
             <div class="docstring"><p>年毎の販売台数と、その年までの累計販売台数（sum_units）を集計して返す。</p>
 
 <p>Args:
-    src_df: load_hard_sales2()の戻り値のDataFrame
+    src_df: load_hard_sales()の戻り値のDataFrame
     begin: 集計開始日
     end: 集計終了日
     maker_mode: Trueの場合、メーカー毎に集計。Falseの場合、ハード毎に集計。</p>
@@ -729,7 +729,7 @@ Returns:
                 <section id="yearly_maker_sales">
                             <input id="yearly_maker_sales-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">yearly_maker_sales</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">src_df</span><span class="p">:</span> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>,</span><span class="param">	<span class="n">begin</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
 
@@ -746,7 +746,7 @@ Returns:
 </span><span id="yearly_maker_sales-227"><a href="#yearly_maker_sales-227"><span class="linenos">227</span></a><span class="sd">    年毎、メーカー毎の販売台数を集計して返す。</span>
 </span><span id="yearly_maker_sales-228"><a href="#yearly_maker_sales-228"><span class="linenos">228</span></a>
 </span><span id="yearly_maker_sales-229"><a href="#yearly_maker_sales-229"><span class="linenos">229</span></a><span class="sd">    Args:</span>
-</span><span id="yearly_maker_sales-230"><a href="#yearly_maker_sales-230"><span class="linenos">230</span></a><span class="sd">        src_df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="yearly_maker_sales-230"><a href="#yearly_maker_sales-230"><span class="linenos">230</span></a><span class="sd">        src_df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="yearly_maker_sales-231"><a href="#yearly_maker_sales-231"><span class="linenos">231</span></a><span class="sd">        begin: 集計開始日</span>
 </span><span id="yearly_maker_sales-232"><a href="#yearly_maker_sales-232"><span class="linenos">232</span></a><span class="sd">        end: 集計終了日</span>
 </span><span id="yearly_maker_sales-233"><a href="#yearly_maker_sales-233"><span class="linenos">233</span></a>
@@ -767,7 +767,7 @@ Returns:
             <div class="docstring"><p>年毎、メーカー毎の販売台数を集計して返す。</p>
 
 <p>Args:
-    src_df: load_hard_sales2()の戻り値のDataFrame
+    src_df: load_hard_sales()の戻り値のDataFrame
     begin: 集計開始日
     end: 集計終了日</p>
 
@@ -786,7 +786,7 @@ Returns:
                 <section id="delta_yearly_sales">
                             <input id="delta_yearly_sales-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">delta_yearly_sales</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">df</span><span class="p">:</span> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span></span><span class="return-annotation">) -> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
 
@@ -799,7 +799,7 @@ Returns:
 </span><span id="delta_yearly_sales-249"><a href="#delta_yearly_sales-249"><span class="linenos">249</span></a><span class="sd">    販売開始からの経過年毎の販売台数と、その経過年までの累計販売台数（sum_units）を集計して返す。</span>
 </span><span id="delta_yearly_sales-250"><a href="#delta_yearly_sales-250"><span class="linenos">250</span></a>
 </span><span id="delta_yearly_sales-251"><a href="#delta_yearly_sales-251"><span class="linenos">251</span></a><span class="sd">    Args:</span>
-</span><span id="delta_yearly_sales-252"><a href="#delta_yearly_sales-252"><span class="linenos">252</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="delta_yearly_sales-252"><a href="#delta_yearly_sales-252"><span class="linenos">252</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="delta_yearly_sales-253"><a href="#delta_yearly_sales-253"><span class="linenos">253</span></a>
 </span><span id="delta_yearly_sales-254"><a href="#delta_yearly_sales-254"><span class="linenos">254</span></a><span class="sd">    Returns:</span>
 </span><span id="delta_yearly_sales-255"><a href="#delta_yearly_sales-255"><span class="linenos">255</span></a><span class="sd">        pl.DataFrame: 経過年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame</span>
@@ -825,7 +825,7 @@ Returns:
             <div class="docstring"><p>販売開始からの経過年毎の販売台数と、その経過年までの累計販売台数（sum_units）を集計して返す。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame</p>
+    df: load_hard_sales()の戻り値のDataFrame</p>
 
 <p>Returns:
     pl.DataFrame: 経過年毎の販売台数（yearly_units）と累計販売台数（sum_units）を含むDataFrame</p>

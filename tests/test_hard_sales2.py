@@ -12,7 +12,7 @@ from gamedata import (
     hard_annotation,
     hard_sales,
     load_hard_info,
-    load_hard_sales2,
+    load_hard_sales,
 )
 
 
@@ -53,7 +53,7 @@ def test_normalizes_fortnight_and_calculates_sales_metrics(sales_db):
         )
         conn.commit()
 
-    actual = load_hard_sales2()
+    actual = load_hard_sales()
     with closing(sqlite3.connect(sales_db)) as conn:
         assert conn.execute(
             "SELECT period_date, units, adjust_units FROM gamehard_weekly WHERE id='2024-01-07_A'"
@@ -70,12 +70,12 @@ def test_normalizes_fortnight_and_calculates_sales_metrics(sales_db):
     assert hardware_a["ma52w"][50] is None
     assert hardware_a["ma52w"][51] == 76
     assert actual.filter(actual["hw"] == "B")["sum_units"][0] == 5
-    assert_frame_equal(load_hard_sales2(no_cache=True), actual, check_exact=True)
+    assert_frame_equal(load_hard_sales(no_cache=True), actual, check_exact=True)
 
 
 def test_reads_base_tables_only_and_refreshes_cache(sales_db):
     with closing(sqlite3.connect(sales_db)) as conn:
-        empty = load_hard_sales2()
+        empty = load_hard_sales()
         assert hard_sales.get_hw_all() == []
         assert hard_sales.get_maker_all() == []
         conn.execute(
@@ -84,13 +84,13 @@ def test_reads_base_tables_only_and_refreshes_cache(sales_db):
         )
         conn.commit()
     assert empty.is_empty()
-    assert load_hard_sales2().is_empty()
-    refreshed = load_hard_sales2(no_cache=True)
+    assert load_hard_sales().is_empty()
+    refreshed = load_hard_sales(no_cache=True)
     assert refreshed.schema == empty.schema
     assert refreshed["units"].to_list() == [123]
     assert hard_sales.get_hw_all() == ["A"]
     assert hard_sales.get_maker_all() == ["X"]
-    cached = load_hard_sales2()
+    cached = load_hard_sales()
     assert cached is not refreshed
     assert_frame_equal(cached, refreshed, check_exact=True)
 
@@ -112,7 +112,7 @@ def test_all_loaders_match_exported_parquet(sales_db, tmp_path, monkeypatch):
     def load_all():
         return (
             load_hard_info(),
-            load_hard_sales2(no_cache=True),
+            load_hard_sales(no_cache=True),
             hard_annotation.load_hard_annotation(no_cache=True),
         )
 

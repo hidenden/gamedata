@@ -175,7 +175,7 @@ class TestGetHwAll:
         _reset_globals()
 
     def test_returns_list(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_hw_all()
         assert isinstance(result, list)
 
@@ -204,22 +204,22 @@ class TestGetHwAll:
                 pl.lit("SONY").alias("maker_name"),
             )
         )
-        with patch.object(hs, "load_hard_sales2", return_value=mock_full):
+        with patch.object(hs, "load_hard_sales", return_value=mock_full):
             result = hs.get_hw_all(true_all=False)
         assert "PKS" not in result
 
     def test_true_all_includes_legacy(self, sample_sales_df):
         """true_all=True の場合はレガシーハードが含まれること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_hw_all(true_all=True)
         assert isinstance(result, list)
 
     def test_cached_value_returned(self, sample_sales_df):
         """2回目の呼び出しでキャッシュが使われること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df) as mock_load:
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df) as mock_load:
             hs.get_hw_all()
             hs.get_hw_all()
-        # 2回目はキャッシュを使うので load_hard_sales2 は1回しか呼ばれない
+        # 2回目はキャッシュを使うので load_hard_sales は1回しか呼ばれない
         assert mock_load.call_count == 1
 
 
@@ -235,18 +235,18 @@ class TestGetMakerAll:
         _reset_globals()
 
     def test_returns_list(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_maker_all()
         assert isinstance(result, list)
 
     def test_contains_makers(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_maker_all()
         assert "Nintendo" in result
 
     def test_cached_value_returned(self, sample_sales_df):
         """2回目の呼び出しでキャッシュが使われること"""
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df) as mock_load:
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df) as mock_load:
             hs.get_maker_all()
             hs.get_maker_all()
         assert mock_load.call_count == 1
@@ -258,13 +258,13 @@ class TestGetMakerAll:
 
 class TestGetActiveHw:
     def test_returns_list(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_active_hw(days=365 * 10)
         assert isinstance(result, list)
 
 
 class TestGetActiveMaker:
     def test_returns_list(self, sample_sales_df):
-        with patch.object(hs, "load_hard_sales2", return_value=sample_sales_df):
+        with patch.object(hs, "load_hard_sales", return_value=sample_sales_df):
             result = hs.get_active_maker(days=365 * 10)
         assert isinstance(result, list)

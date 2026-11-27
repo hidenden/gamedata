@@ -84,7 +84,7 @@
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">    累計販売台数が指定の値を超えた最初の週を見つける関数。</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="sd">    Args:</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">        threshold_units: 閾値となる累計販売台数</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="sd">    Returns:</span>
@@ -150,7 +150,7 @@
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">    指定された日付の週に該当するデータを抽出する関数。</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">    Args:</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame（begin_date, end_date, report_dateはDate型に変換済み）</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame（begin_date, end_date, report_dateはDate型に変換済み）</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">        target_date: 抽出したい日付のdatetime型､またはdate型</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">        hw: 省略可能なハードウェア名のリスト。指定すると、そのハードウェアに限定して抽出</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
@@ -213,7 +213,7 @@
 </span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">    DataFrameから最新の週を抽出する関数。</span>
 </span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>
 </span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">    Args:</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="sd">        weeks: 最新から何週間分を抽出するか。デフォルトは1週分。</span>
 </span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>
 </span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">    Returns:</span>
@@ -271,7 +271,7 @@
 </span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="sd">    DataFrameから各ハードの最新の累計値行を抽出する関数。</span>
 </span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a>
 </span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="sd">    Args:</span>
-</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a><span class="sd">        compact: Trueの場合､最小限のカラムのみを返す。デフォルトはFalseで、全てのカラムを返す。</span>
 </span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a>
 </span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a><span class="sd">    Returns:</span>
@@ -353,7 +353,7 @@
 </span><span id="L-279"><a href="#L-279"><span class="linenos">279</span></a><span class="sd">    各ゲームハードのサマリ情報を辞書の配列で返す関数。</span>
 </span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a>
 </span><span id="L-281"><a href="#L-281"><span class="linenos">281</span></a><span class="sd">    Args:</span>
-</span><span id="L-282"><a href="#L-282"><span class="linenos">282</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-282"><a href="#L-282"><span class="linenos">282</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-283"><a href="#L-283"><span class="linenos">283</span></a><span class="sd">        hw: HW識別子の配列。Noneや空リストの場合は全ハードの情報を返す。</span>
 </span><span id="L-284"><a href="#L-284"><span class="linenos">284</span></a>
 </span><span id="L-285"><a href="#L-285"><span class="linenos">285</span></a><span class="sd">    Returns:</span>
@@ -491,7 +491,7 @@
 </span><span id="L-417"><a href="#L-417"><span class="linenos">417</span></a><span class="sd">    各ゲームハードメーカーのサマリ情報を辞書の配列で返す関数。</span>
 </span><span id="L-418"><a href="#L-418"><span class="linenos">418</span></a>
 </span><span id="L-419"><a href="#L-419"><span class="linenos">419</span></a><span class="sd">    Args:</span>
-</span><span id="L-420"><a href="#L-420"><span class="linenos">420</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-420"><a href="#L-420"><span class="linenos">420</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-421"><a href="#L-421"><span class="linenos">421</span></a><span class="sd">        makers: メーカー名の配列。Noneや空リストの場合は全メーカーの情報を返す。</span>
 </span><span id="L-422"><a href="#L-422"><span class="linenos">422</span></a>
 </span><span id="L-423"><a href="#L-423"><span class="linenos">423</span></a><span class="sd">    Returns:</span>
@@ -632,7 +632,7 @@
 </span><span id="L-558"><a href="#L-558"><span class="linenos">558</span></a>    <span class="k">if</span> <span class="n">report_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">index_week</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-559"><a href="#L-559"><span class="linenos">559</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"report_date と index_week は同時に指定できません。"</span><span class="p">)</span>
 </span><span id="L-560"><a href="#L-560"><span class="linenos">560</span></a>
-</span><span id="L-561"><a href="#L-561"><span class="linenos">561</span></a>    <span class="n">df_all</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="L-561"><a href="#L-561"><span class="linenos">561</span></a>    <span class="n">df_all</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="L-562"><a href="#L-562"><span class="linenos">562</span></a>
 </span><span id="L-563"><a href="#L-563"><span class="linenos">563</span></a>    <span class="k">if</span> <span class="n">report_date</span><span class="p">:</span>
 </span><span id="L-564"><a href="#L-564"><span class="linenos">564</span></a>        <span class="n">df</span> <span class="o">=</span> <span class="n">extract_by_date</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_all</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="p">[</span><span class="n">hw</span><span class="p">],</span> <span class="n">target_date</span><span class="o">=</span><span class="n">report_date</span><span class="p">)</span>
@@ -675,7 +675,7 @@
 </span><span id="extract_week_reached_units-11"><a href="#extract_week_reached_units-11"><span class="linenos">11</span></a><span class="sd">    累計販売台数が指定の値を超えた最初の週を見つける関数。</span>
 </span><span id="extract_week_reached_units-12"><a href="#extract_week_reached_units-12"><span class="linenos">12</span></a>
 </span><span id="extract_week_reached_units-13"><a href="#extract_week_reached_units-13"><span class="linenos">13</span></a><span class="sd">    Args:</span>
-</span><span id="extract_week_reached_units-14"><a href="#extract_week_reached_units-14"><span class="linenos">14</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="extract_week_reached_units-14"><a href="#extract_week_reached_units-14"><span class="linenos">14</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="extract_week_reached_units-15"><a href="#extract_week_reached_units-15"><span class="linenos">15</span></a><span class="sd">        threshold_units: 閾値となる累計販売台数</span>
 </span><span id="extract_week_reached_units-16"><a href="#extract_week_reached_units-16"><span class="linenos">16</span></a>
 </span><span id="extract_week_reached_units-17"><a href="#extract_week_reached_units-17"><span class="linenos">17</span></a><span class="sd">    Returns:</span>
@@ -738,7 +738,7 @@
             <div class="docstring"><p>累計販売台数が指定の値を超えた最初の週を見つける関数。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame
+    df: load_hard_sales()の戻り値のDataFrame
     threshold_units: 閾値となる累計販売台数</p>
 
 <p>Returns:
@@ -807,7 +807,7 @@
 </span><span id="extract_by_date-77"><a href="#extract_by_date-77"><span class="linenos"> 77</span></a><span class="sd">    指定された日付の週に該当するデータを抽出する関数。</span>
 </span><span id="extract_by_date-78"><a href="#extract_by_date-78"><span class="linenos"> 78</span></a>
 </span><span id="extract_by_date-79"><a href="#extract_by_date-79"><span class="linenos"> 79</span></a><span class="sd">    Args:</span>
-</span><span id="extract_by_date-80"><a href="#extract_by_date-80"><span class="linenos"> 80</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame（begin_date, end_date, report_dateはDate型に変換済み）</span>
+</span><span id="extract_by_date-80"><a href="#extract_by_date-80"><span class="linenos"> 80</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame（begin_date, end_date, report_dateはDate型に変換済み）</span>
 </span><span id="extract_by_date-81"><a href="#extract_by_date-81"><span class="linenos"> 81</span></a><span class="sd">        target_date: 抽出したい日付のdatetime型､またはdate型</span>
 </span><span id="extract_by_date-82"><a href="#extract_by_date-82"><span class="linenos"> 82</span></a><span class="sd">        hw: 省略可能なハードウェア名のリスト。指定すると、そのハードウェアに限定して抽出</span>
 </span><span id="extract_by_date-83"><a href="#extract_by_date-83"><span class="linenos"> 83</span></a>
@@ -869,7 +869,7 @@
             <div class="docstring"><p>指定された日付の週に該当するデータを抽出する関数。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame（begin_date, end_date, report_dateはDate型に変換済み）
+    df: load_hard_sales()の戻り値のDataFrame（begin_date, end_date, report_dateはDate型に変換済み）
     target_date: 抽出したい日付のdatetime型､またはdate型
     hw: 省略可能なハードウェア名のリスト。指定すると、そのハードウェアに限定して抽出</p>
 
@@ -935,7 +935,7 @@
 </span><span id="extract_latest-140"><a href="#extract_latest-140"><span class="linenos">140</span></a><span class="sd">    DataFrameから最新の週を抽出する関数。</span>
 </span><span id="extract_latest-141"><a href="#extract_latest-141"><span class="linenos">141</span></a>
 </span><span id="extract_latest-142"><a href="#extract_latest-142"><span class="linenos">142</span></a><span class="sd">    Args:</span>
-</span><span id="extract_latest-143"><a href="#extract_latest-143"><span class="linenos">143</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="extract_latest-143"><a href="#extract_latest-143"><span class="linenos">143</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="extract_latest-144"><a href="#extract_latest-144"><span class="linenos">144</span></a><span class="sd">        weeks: 最新から何週間分を抽出するか。デフォルトは1週分。</span>
 </span><span id="extract_latest-145"><a href="#extract_latest-145"><span class="linenos">145</span></a>
 </span><span id="extract_latest-146"><a href="#extract_latest-146"><span class="linenos">146</span></a><span class="sd">    Returns:</span>
@@ -992,7 +992,7 @@
             <div class="docstring"><p>DataFrameから最新の週を抽出する関数。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame
+    df: load_hard_sales()の戻り値のDataFrame
     weeks: 最新から何週間分を抽出するか。デフォルトは1週分。</p>
 
 <p>Returns:
@@ -1057,7 +1057,7 @@
 </span><span id="extract_total-198"><a href="#extract_total-198"><span class="linenos">198</span></a><span class="sd">    DataFrameから各ハードの最新の累計値行を抽出する関数。</span>
 </span><span id="extract_total-199"><a href="#extract_total-199"><span class="linenos">199</span></a>
 </span><span id="extract_total-200"><a href="#extract_total-200"><span class="linenos">200</span></a><span class="sd">    Args:</span>
-</span><span id="extract_total-201"><a href="#extract_total-201"><span class="linenos">201</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="extract_total-201"><a href="#extract_total-201"><span class="linenos">201</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="extract_total-202"><a href="#extract_total-202"><span class="linenos">202</span></a><span class="sd">        compact: Trueの場合､最小限のカラムのみを返す。デフォルトはFalseで、全てのカラムを返す。</span>
 </span><span id="extract_total-203"><a href="#extract_total-203"><span class="linenos">203</span></a>
 </span><span id="extract_total-204"><a href="#extract_total-204"><span class="linenos">204</span></a><span class="sd">    Returns:</span>
@@ -1122,7 +1122,7 @@
             <div class="docstring"><p>DataFrameから各ハードの最新の累計値行を抽出する関数。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame
+    df: load_hard_sales()の戻り値のDataFrame
     compact: Trueの場合､最小限のカラムのみを返す。デフォルトはFalseで、全てのカラムを返す。</p>
 
 <p>Returns:
@@ -1194,7 +1194,7 @@ compact=Trueの場合:
 </span><span id="hard_sales_summary-280"><a href="#hard_sales_summary-280"><span class="linenos">280</span></a><span class="sd">    各ゲームハードのサマリ情報を辞書の配列で返す関数。</span>
 </span><span id="hard_sales_summary-281"><a href="#hard_sales_summary-281"><span class="linenos">281</span></a>
 </span><span id="hard_sales_summary-282"><a href="#hard_sales_summary-282"><span class="linenos">282</span></a><span class="sd">    Args:</span>
-</span><span id="hard_sales_summary-283"><a href="#hard_sales_summary-283"><span class="linenos">283</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="hard_sales_summary-283"><a href="#hard_sales_summary-283"><span class="linenos">283</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="hard_sales_summary-284"><a href="#hard_sales_summary-284"><span class="linenos">284</span></a><span class="sd">        hw: HW識別子の配列。Noneや空リストの場合は全ハードの情報を返す。</span>
 </span><span id="hard_sales_summary-285"><a href="#hard_sales_summary-285"><span class="linenos">285</span></a>
 </span><span id="hard_sales_summary-286"><a href="#hard_sales_summary-286"><span class="linenos">286</span></a><span class="sd">    Returns:</span>
@@ -1329,7 +1329,7 @@ compact=Trueの場合:
             <div class="docstring"><p>各ゲームハードのサマリ情報を辞書の配列で返す関数。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame
+    df: load_hard_sales()の戻り値のDataFrame
     hw: HW識別子の配列。Noneや空リストの場合は全ハードの情報を返す。</p>
 
 <p>Returns:
@@ -1386,7 +1386,7 @@ compact=Trueの場合:
 </span><span id="maker_sales_summary-418"><a href="#maker_sales_summary-418"><span class="linenos">418</span></a><span class="sd">    各ゲームハードメーカーのサマリ情報を辞書の配列で返す関数。</span>
 </span><span id="maker_sales_summary-419"><a href="#maker_sales_summary-419"><span class="linenos">419</span></a>
 </span><span id="maker_sales_summary-420"><a href="#maker_sales_summary-420"><span class="linenos">420</span></a><span class="sd">    Args:</span>
-</span><span id="maker_sales_summary-421"><a href="#maker_sales_summary-421"><span class="linenos">421</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="maker_sales_summary-421"><a href="#maker_sales_summary-421"><span class="linenos">421</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="maker_sales_summary-422"><a href="#maker_sales_summary-422"><span class="linenos">422</span></a><span class="sd">        makers: メーカー名の配列。Noneや空リストの場合は全メーカーの情報を返す。</span>
 </span><span id="maker_sales_summary-423"><a href="#maker_sales_summary-423"><span class="linenos">423</span></a>
 </span><span id="maker_sales_summary-424"><a href="#maker_sales_summary-424"><span class="linenos">424</span></a><span class="sd">    Returns:</span>
@@ -1503,7 +1503,7 @@ compact=Trueの場合:
             <div class="docstring"><p>各ゲームハードメーカーのサマリ情報を辞書の配列で返す関数。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame
+    df: load_hard_sales()の戻り値のDataFrame
     makers: メーカー名の配列。Noneや空リストの場合は全メーカーの情報を返す。</p>
 
 <p>Returns:
@@ -1569,7 +1569,7 @@ compact=Trueの場合:
 </span><span id="sales_value-559"><a href="#sales_value-559"><span class="linenos">559</span></a>    <span class="k">if</span> <span class="n">report_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">index_week</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="sales_value-560"><a href="#sales_value-560"><span class="linenos">560</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"report_date と index_week は同時に指定できません。"</span><span class="p">)</span>
 </span><span id="sales_value-561"><a href="#sales_value-561"><span class="linenos">561</span></a>
-</span><span id="sales_value-562"><a href="#sales_value-562"><span class="linenos">562</span></a>    <span class="n">df_all</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="sales_value-562"><a href="#sales_value-562"><span class="linenos">562</span></a>    <span class="n">df_all</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="sales_value-563"><a href="#sales_value-563"><span class="linenos">563</span></a>
 </span><span id="sales_value-564"><a href="#sales_value-564"><span class="linenos">564</span></a>    <span class="k">if</span> <span class="n">report_date</span><span class="p">:</span>
 </span><span id="sales_value-565"><a href="#sales_value-565"><span class="linenos">565</span></a>        <span class="n">df</span> <span class="o">=</span> <span class="n">extract_by_date</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_all</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="p">[</span><span class="n">hw</span><span class="p">],</span> <span class="n">target_date</span><span class="o">=</span><span class="n">report_date</span><span class="p">)</span>

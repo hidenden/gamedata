@@ -31,7 +31,7 @@ def calc_cell_02():
 
 @app.cell
 def sales_cell(g, pl):
-    df_all: pl.DataFrame = g.load_hard_sales2()
+    df_all: pl.DataFrame = g.load_hard_sales()
     hw_list = g.get_hw(df_all)
     return df_all, hw_list
 

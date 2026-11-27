@@ -172,7 +172,7 @@
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">    日付とハード別の販売台数チャートを出力する</span>
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">    Args:</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="sd">    Returns:</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="sd">        pd.io.formats.style.Styler: スタイル適用済みのStylerオブジェクト</span>
@@ -245,7 +245,7 @@
 </span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="sd">        - 月間: 順位, 年, 月, ハード/メーカー, 月間販売台数</span>
 </span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a><span class="sd">        - 年間: 順位, 年, ハード/メーカー, 年間販売台数</span>
 </span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="sd">    """</span>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>    <span class="n">df_all</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>    <span class="n">df_all</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">hw</span><span class="p">)</span> <span class="ow">and</span> <span class="n">maker</span><span class="p">:</span>
 </span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>        <span class="c1"># This is maker mode</span>
 </span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>        <span class="n">maker_mode</span> <span class="o">=</span> <span class="kc">True</span>
@@ -421,7 +421,7 @@
 </span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a><span class="sd">        - 累計台数 (Int64): 累計販売台数</span>
 </span><span id="L-336"><a href="#L-336"><span class="linenos">336</span></a><span class="sd">    """</span>
 </span><span id="L-337"><a href="#L-337"><span class="linenos">337</span></a>
-</span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="L-339"><a href="#L-339"><span class="linenos">339</span></a>
 </span><span id="L-340"><a href="#L-340"><span class="linenos">340</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"delta_week"</span><span class="p">)</span> <span class="o">==</span> <span class="n">delta_week</span><span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
 </span><span id="L-341"><a href="#L-341"><span class="linenos">341</span></a>        <span class="n">by</span><span class="o">=</span><span class="s2">"sum_units"</span><span class="p">,</span> <span class="n">descending</span><span class="o">=</span><span class="kc">True</span>
@@ -436,7 +436,7 @@
 </span><span id="L-350"><a href="#L-350"><span class="linenos">350</span></a>
 </span><span id="L-351"><a href="#L-351"><span class="linenos">351</span></a>
 </span><span id="L-352"><a href="#L-352"><span class="linenos">352</span></a><span class="k">def</span><span class="w"> </span><span class="nf">reached_unit_summary</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-</span><span id="L-353"><a href="#L-353"><span class="linenos">353</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="L-353"><a href="#L-353"><span class="linenos">353</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="L-354"><a href="#L-354"><span class="linenos">354</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hse</span><span class="o">.</span><span class="n">extract_week_reached_units</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
 </span><span id="L-355"><a href="#L-355"><span class="linenos">355</span></a>        <span class="p">[</span><span class="s2">"delta_week"</span><span class="p">,</span> <span class="s2">"sum_units"</span><span class="p">],</span> <span class="n">descending</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
 </span><span id="L-356"><a href="#L-356"><span class="linenos">356</span></a>    <span class="p">)</span>
@@ -738,7 +738,7 @@
 </span><span id="units_by_date_hw_table-87"><a href="#units_by_date_hw_table-87"><span class="linenos"> 87</span></a><span class="sd">    日付とハード別の販売台数チャートを出力する</span>
 </span><span id="units_by_date_hw_table-88"><a href="#units_by_date_hw_table-88"><span class="linenos"> 88</span></a>
 </span><span id="units_by_date_hw_table-89"><a href="#units_by_date_hw_table-89"><span class="linenos"> 89</span></a><span class="sd">    Args:</span>
-</span><span id="units_by_date_hw_table-90"><a href="#units_by_date_hw_table-90"><span class="linenos"> 90</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="units_by_date_hw_table-90"><a href="#units_by_date_hw_table-90"><span class="linenos"> 90</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="units_by_date_hw_table-91"><a href="#units_by_date_hw_table-91"><span class="linenos"> 91</span></a>
 </span><span id="units_by_date_hw_table-92"><a href="#units_by_date_hw_table-92"><span class="linenos"> 92</span></a><span class="sd">    Returns:</span>
 </span><span id="units_by_date_hw_table-93"><a href="#units_by_date_hw_table-93"><span class="linenos"> 93</span></a><span class="sd">        pd.io.formats.style.Styler: スタイル適用済みのStylerオブジェクト</span>
@@ -784,7 +784,7 @@
             <div class="docstring"><p>日付とハード別の販売台数チャートを出力する</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame</p>
+    df: load_hard_sales()の戻り値のDataFrame</p>
 
 <p>Returns:
     pd.io.formats.style.Styler: スタイル適用済みのStylerオブジェクト</p>
@@ -1044,7 +1044,7 @@
 </span><span id="delta_week_ranking-336"><a href="#delta_week_ranking-336"><span class="linenos">336</span></a><span class="sd">        - 累計台数 (Int64): 累計販売台数</span>
 </span><span id="delta_week_ranking-337"><a href="#delta_week_ranking-337"><span class="linenos">337</span></a><span class="sd">    """</span>
 </span><span id="delta_week_ranking-338"><a href="#delta_week_ranking-338"><span class="linenos">338</span></a>
-</span><span id="delta_week_ranking-339"><a href="#delta_week_ranking-339"><span class="linenos">339</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="delta_week_ranking-339"><a href="#delta_week_ranking-339"><span class="linenos">339</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="delta_week_ranking-340"><a href="#delta_week_ranking-340"><span class="linenos">340</span></a>
 </span><span id="delta_week_ranking-341"><a href="#delta_week_ranking-341"><span class="linenos">341</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"delta_week"</span><span class="p">)</span> <span class="o">==</span> <span class="n">delta_week</span><span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
 </span><span id="delta_week_ranking-342"><a href="#delta_week_ranking-342"><span class="linenos">342</span></a>        <span class="n">by</span><span class="o">=</span><span class="s2">"sum_units"</span><span class="p">,</span> <span class="n">descending</span><span class="o">=</span><span class="kc">True</span>
@@ -1090,7 +1090,7 @@
     </div>
     <a class="headerlink" href="#reached_unit_summary"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="reached_unit_summary-353"><a href="#reached_unit_summary-353"><span class="linenos">353</span></a><span class="k">def</span><span class="w"> </span><span class="nf">reached_unit_summary</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-</span><span id="reached_unit_summary-354"><a href="#reached_unit_summary-354"><span class="linenos">354</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="reached_unit_summary-354"><a href="#reached_unit_summary-354"><span class="linenos">354</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="reached_unit_summary-355"><a href="#reached_unit_summary-355"><span class="linenos">355</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">hse</span><span class="o">.</span><span class="n">extract_week_reached_units</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
 </span><span id="reached_unit_summary-356"><a href="#reached_unit_summary-356"><span class="linenos">356</span></a>        <span class="p">[</span><span class="s2">"delta_week"</span><span class="p">,</span> <span class="s2">"sum_units"</span><span class="p">],</span> <span class="n">descending</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
 </span><span id="reached_unit_summary-357"><a href="#reached_unit_summary-357"><span class="linenos">357</span></a>    <span class="p">)</span>

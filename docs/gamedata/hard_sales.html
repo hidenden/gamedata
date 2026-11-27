@@ -31,7 +31,7 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="function" href="#load_hard_sales2">load_hard_sales2</a>
+                    <a class="function" href="#load_hard_sales">load_hard_sales</a>
             </li>
             <li>
                     <a class="function" href="#current_report_date">current_report_date</a>
@@ -199,7 +199,7 @@
 </span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>    <span class="p">)</span>
 </span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
 </span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="k">def</span><span class="w"> </span><span class="nf">load_hard_sales2</span><span class="p">(</span><span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="k">def</span><span class="w"> </span><span class="nf">load_hard_sales</span><span class="p">(</span><span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 </span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="w">    </span><span class="sd">"""週次販売データと機種情報から、補正済みの販売台数と集計指標を返す。</span>
 </span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
 </span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">    no_cache=True で入力を再読み込みし、キャッシュを更新する。</span>
@@ -254,7 +254,7 @@
 </span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="sd">    DataFrameから最新の報告日を取得する関数。</span>
 </span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>
 </span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a><span class="sd">    Args:</span>
-</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>
 </span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a><span class="sd">    Returns:</span>
 </span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="sd">        datetime: 最新の報告日</span>
@@ -267,7 +267,7 @@
 </span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a><span class="sd">    DataFrameからハードウェア名のユニークなリストを取得する。</span>
 </span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>
 </span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a><span class="sd">    Args:</span>
-</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>
 </span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a><span class="sd">    Returns:</span>
 </span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a><span class="sd">        List[str]: ハードウェア名のユニークなリスト</span>
@@ -282,7 +282,7 @@
 </span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a><span class="sd">    Returns:</span>
 </span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a><span class="sd">        List[str]: アクティブなハードウェア名のリスト</span>
 </span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a><span class="sd">    """</span>
-</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 </span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>    <span class="n">one_year_ago</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days</span><span class="p">)</span>
 </span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a>    <span class="n">recent_df</span> <span class="o">=</span> <span class="n">base_df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"report_date"</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">one_year_ago</span><span class="p">)</span>
@@ -301,7 +301,7 @@
 </span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>    <span class="k">if</span> <span class="n">_all_hw_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>        <span class="k">return</span> <span class="n">_all_hw_list</span>
 </span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>
-</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a>    <span class="n">hw_list</span> <span class="o">=</span> <span class="n">get_hw</span><span class="p">(</span><span class="n">base_df</span><span class="p">)</span>
 </span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a>    <span class="n">remove_hw_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"PKS"</span><span class="p">,</span> <span class="s2">"PS"</span><span class="p">,</span> <span class="s2">"NeoGeoP"</span><span class="p">,</span> <span class="s2">"SATURN"</span><span class="p">,</span> <span class="s2">"GB"</span><span class="p">]</span>
 </span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">true_all</span><span class="p">:</span>
@@ -316,7 +316,7 @@
 </span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a><span class="sd">    DataFrameからメーカー名のユニークなリストを取得する。</span>
 </span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>
 </span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a><span class="sd">    Args:</span>
-</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a>
 </span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a><span class="sd">    Returns:</span>
 </span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a><span class="sd">        List[str]: メーカー名のユニークなリスト</span>
@@ -333,7 +333,7 @@
 </span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a><span class="sd">    Returns:</span>
 </span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a><span class="sd">        List[str]: アクティブなメーカー名のリスト</span>
 </span><span id="L-256"><a href="#L-256"><span class="linenos">256</span></a><span class="sd">    """</span>
-</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="L-258"><a href="#L-258"><span class="linenos">258</span></a>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 </span><span id="L-259"><a href="#L-259"><span class="linenos">259</span></a>    <span class="n">one_year_ago</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days</span><span class="p">)</span>
 </span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a>    <span class="n">recent_df</span> <span class="o">=</span> <span class="n">base_df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"report_date"</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">one_year_ago</span><span class="p">)</span>
@@ -352,7 +352,7 @@
 </span><span id="L-273"><a href="#L-273"><span class="linenos">273</span></a>    <span class="k">if</span> <span class="n">_all_maker_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-274"><a href="#L-274"><span class="linenos">274</span></a>        <span class="k">return</span> <span class="n">_all_maker_list</span>
 </span><span id="L-275"><a href="#L-275"><span class="linenos">275</span></a>
-</span><span id="L-276"><a href="#L-276"><span class="linenos">276</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="L-276"><a href="#L-276"><span class="linenos">276</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="L-277"><a href="#L-277"><span class="linenos">277</span></a>    <span class="n">maker_list</span> <span class="o">=</span> <span class="n">get_maker</span><span class="p">(</span><span class="n">base_df</span><span class="p">)</span>
 </span><span id="L-278"><a href="#L-278"><span class="linenos">278</span></a>    <span class="n">_all_maker_list</span> <span class="o">=</span> <span class="n">maker_list</span>
 </span><span id="L-279"><a href="#L-279"><span class="linenos">279</span></a>    <span class="k">return</span> <span class="n">maker_list</span>
@@ -360,65 +360,65 @@
 
 
             </section>
-                <section id="load_hard_sales2">
-                            <input id="load_hard_sales2-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="load_hard_sales">
+                            <input id="load_hard_sales-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
 
         <span class="def">def</span>
-        <span class="name">load_hard_sales2</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
+        <span class="name">load_hard_sales</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n">polars</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
 
-                <label class="view-source-button" for="load_hard_sales2-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="load_hard_sales-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#load_hard_sales2"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="load_hard_sales2-124"><a href="#load_hard_sales2-124"><span class="linenos">124</span></a><span class="k">def</span><span class="w"> </span><span class="nf">load_hard_sales2</span><span class="p">(</span><span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-</span><span id="load_hard_sales2-125"><a href="#load_hard_sales2-125"><span class="linenos">125</span></a><span class="w">    </span><span class="sd">"""週次販売データと機種情報から、補正済みの販売台数と集計指標を返す。</span>
-</span><span id="load_hard_sales2-126"><a href="#load_hard_sales2-126"><span class="linenos">126</span></a>
-</span><span id="load_hard_sales2-127"><a href="#load_hard_sales2-127"><span class="linenos">127</span></a><span class="sd">    no_cache=True で入力を再読み込みし、キャッシュを更新する。</span>
-</span><span id="load_hard_sales2-128"><a href="#load_hard_sales2-128"><span class="linenos">128</span></a><span class="sd">    """</span>
-</span><span id="load_hard_sales2-129"><a href="#load_hard_sales2-129"><span class="linenos">129</span></a>    <span class="k">global</span> <span class="n">_hard_sales_cache</span><span class="p">,</span> <span class="n">_all_hw_list</span><span class="p">,</span> <span class="n">_all_maker_list</span>
-</span><span id="load_hard_sales2-130"><a href="#load_hard_sales2-130"><span class="linenos">130</span></a>    <span class="k">if</span> <span class="n">_hard_sales_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">no_cache</span><span class="p">:</span>
-</span><span id="load_hard_sales2-131"><a href="#load_hard_sales2-131"><span class="linenos">131</span></a>        <span class="k">return</span> <span class="n">_hard_sales_cache</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
-</span><span id="load_hard_sales2-132"><a href="#load_hard_sales2-132"><span class="linenos">132</span></a>
-</span><span id="load_hard_sales2-133"><a href="#load_hard_sales2-133"><span class="linenos">133</span></a>    <span class="n">info</span><span class="p">,</span> <span class="n">weekly</span> <span class="o">=</span> <span class="n">read_tables</span><span class="p">(</span><span class="s2">"gamehard_info"</span><span class="p">,</span> <span class="s2">"gamehard_weekly"</span><span class="p">)</span>
-</span><span id="load_hard_sales2-134"><a href="#load_hard_sales2-134"><span class="linenos">134</span></a>    <span class="n">report</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"report_date"</span><span class="p">)</span>
-</span><span id="load_hard_sales2-135"><a href="#load_hard_sales2-135"><span class="linenos">135</span></a>    <span class="n">launch</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"launch_date"</span><span class="p">)</span>
-</span><span id="load_hard_sales2-136"><a href="#load_hard_sales2-136"><span class="linenos">136</span></a>    <span class="n">period</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"period_date"</span><span class="p">)</span>
-</span><span id="load_hard_sales2-137"><a href="#load_hard_sales2-137"><span class="linenos">137</span></a>    <span class="n">units</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"units"</span><span class="p">)</span>
-</span><span id="load_hard_sales2-138"><a href="#load_hard_sales2-138"><span class="linenos">138</span></a>    <span class="n">delta_day</span> <span class="o">=</span> <span class="p">(</span><span class="n">report</span> <span class="o">-</span> <span class="n">launch</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_days</span><span class="p">()</span>
-</span><span id="load_hard_sales2-139"><a href="#load_hard_sales2-139"><span class="linenos">139</span></a>    <span class="n">delta_year</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span> <span class="o">-</span> <span class="n">launch</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span>
-</span><span id="load_hard_sales2-140"><a href="#load_hard_sales2-140"><span class="linenos">140</span></a>    <span class="n">sales</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="load_hard_sales2-141"><a href="#load_hard_sales2-141"><span class="linenos">141</span></a>        <span class="n">_normalize_weekly</span><span class="p">(</span><span class="n">weekly</span><span class="p">)</span>
-</span><span id="load_hard_sales2-142"><a href="#load_hard_sales2-142"><span class="linenos">142</span></a>        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">"hw"</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">"id"</span><span class="p">)</span>
-</span><span id="load_hard_sales2-143"><a href="#load_hard_sales2-143"><span class="linenos">143</span></a>        <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">units</span> <span class="o">+</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"adjust_units"</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-</span><span id="load_hard_sales2-144"><a href="#load_hard_sales2-144"><span class="linenos">144</span></a>        <span class="o">.</span><span class="n">select</span><span class="p">(</span>
-</span><span id="load_hard_sales2-145"><a href="#load_hard_sales2-145"><span class="linenos">145</span></a>            <span class="n">weekly_id</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"id"</span><span class="p">),</span>
-</span><span id="load_hard_sales2-146"><a href="#load_hard_sales2-146"><span class="linenos">146</span></a>            <span class="n">begin_date</span><span class="o">=</span><span class="n">report</span> <span class="o">-</span> <span class="n">pl</span><span class="o">.</span><span class="n">duration</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">period</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-</span><span id="load_hard_sales2-147"><a href="#load_hard_sales2-147"><span class="linenos">147</span></a>            <span class="n">end_date</span><span class="o">=</span><span class="n">report</span><span class="p">,</span>
-</span><span id="load_hard_sales2-148"><a href="#load_hard_sales2-148"><span class="linenos">148</span></a>            <span class="n">report_date</span><span class="o">=</span><span class="n">report</span><span class="p">,</span>
-</span><span id="load_hard_sales2-149"><a href="#load_hard_sales2-149"><span class="linenos">149</span></a>            <span class="n">period_date</span><span class="o">=</span><span class="n">period</span><span class="p">,</span>
-</span><span id="load_hard_sales2-150"><a href="#load_hard_sales2-150"><span class="linenos">150</span></a>            <span class="n">hw</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"hw"</span><span class="p">),</span>
-</span><span id="load_hard_sales2-151"><a href="#load_hard_sales2-151"><span class="linenos">151</span></a>            <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span>
-</span><span id="load_hard_sales2-152"><a href="#load_hard_sales2-152"><span class="linenos">152</span></a>            <span class="n">adjust_units</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"adjust_units"</span><span class="p">),</span>
-</span><span id="load_hard_sales2-153"><a href="#load_hard_sales2-153"><span class="linenos">153</span></a>            <span class="n">year</span><span class="o">=</span><span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">(),</span>
-</span><span id="load_hard_sales2-154"><a href="#load_hard_sales2-154"><span class="linenos">154</span></a>            <span class="n">month</span><span class="o">=</span><span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">(),</span>
-</span><span id="load_hard_sales2-155"><a href="#load_hard_sales2-155"><span class="linenos">155</span></a>            <span class="n">mday</span><span class="o">=</span><span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="p">(),</span>
-</span><span id="load_hard_sales2-156"><a href="#load_hard_sales2-156"><span class="linenos">156</span></a>            <span class="n">week</span><span class="o">=</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">7</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-</span><span id="load_hard_sales2-157"><a href="#load_hard_sales2-157"><span class="linenos">157</span></a>            <span class="n">delta_day</span><span class="o">=</span><span class="n">delta_day</span><span class="p">,</span>
-</span><span id="load_hard_sales2-158"><a href="#load_hard_sales2-158"><span class="linenos">158</span></a>            <span class="n">delta_week</span><span class="o">=</span><span class="n">delta_day</span> <span class="o">//</span> <span class="mi">7</span><span class="p">,</span>
-</span><span id="load_hard_sales2-159"><a href="#load_hard_sales2-159"><span class="linenos">159</span></a>            <span class="n">delta_month</span><span class="o">=</span><span class="n">delta_year</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">+</span> <span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">()</span> <span class="o">-</span> <span class="n">launch</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">(),</span>
-</span><span id="load_hard_sales2-160"><a href="#load_hard_sales2-160"><span class="linenos">160</span></a>            <span class="n">delta_year</span><span class="o">=</span><span class="n">delta_year</span><span class="p">,</span>
-</span><span id="load_hard_sales2-161"><a href="#load_hard_sales2-161"><span class="linenos">161</span></a>            <span class="n">avg_units</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">period</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">units</span> <span class="o">//</span> <span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-</span><span id="load_hard_sales2-162"><a href="#load_hard_sales2-162"><span class="linenos">162</span></a>            <span class="n">sum_units</span><span class="o">=</span><span class="n">units</span><span class="o">.</span><span class="n">cum_sum</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="s2">"hw"</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="s2">"report_date"</span><span class="p">),</span>
-</span><span id="load_hard_sales2-163"><a href="#load_hard_sales2-163"><span class="linenos">163</span></a>            <span class="n">launch_date</span><span class="o">=</span><span class="n">launch</span><span class="p">,</span>
-</span><span id="load_hard_sales2-164"><a href="#load_hard_sales2-164"><span class="linenos">164</span></a>            <span class="n">maker_name</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"maker_name"</span><span class="p">),</span>
-</span><span id="load_hard_sales2-165"><a href="#load_hard_sales2-165"><span class="linenos">165</span></a>            <span class="n">full_name</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"full_name"</span><span class="p">),</span>
-</span><span id="load_hard_sales2-166"><a href="#load_hard_sales2-166"><span class="linenos">166</span></a>        <span class="p">)</span>
-</span><span id="load_hard_sales2-167"><a href="#load_hard_sales2-167"><span class="linenos">167</span></a>    <span class="p">)</span>
-</span><span id="load_hard_sales2-168"><a href="#load_hard_sales2-168"><span class="linenos">168</span></a>    <span class="n">_hard_sales_cache</span> <span class="o">=</span> <span class="n">_with_sales_columns</span><span class="p">(</span><span class="n">sales</span><span class="p">)</span>
-</span><span id="load_hard_sales2-169"><a href="#load_hard_sales2-169"><span class="linenos">169</span></a>    <span class="n">_all_hw_list</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="load_hard_sales2-170"><a href="#load_hard_sales2-170"><span class="linenos">170</span></a>    <span class="n">_all_maker_list</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="load_hard_sales2-171"><a href="#load_hard_sales2-171"><span class="linenos">171</span></a>    <span class="k">return</span> <span class="n">_hard_sales_cache</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+    <a class="headerlink" href="#load_hard_sales"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="load_hard_sales-124"><a href="#load_hard_sales-124"><span class="linenos">124</span></a><span class="k">def</span><span class="w"> </span><span class="nf">load_hard_sales</span><span class="p">(</span><span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+</span><span id="load_hard_sales-125"><a href="#load_hard_sales-125"><span class="linenos">125</span></a><span class="w">    </span><span class="sd">"""週次販売データと機種情報から、補正済みの販売台数と集計指標を返す。</span>
+</span><span id="load_hard_sales-126"><a href="#load_hard_sales-126"><span class="linenos">126</span></a>
+</span><span id="load_hard_sales-127"><a href="#load_hard_sales-127"><span class="linenos">127</span></a><span class="sd">    no_cache=True で入力を再読み込みし、キャッシュを更新する。</span>
+</span><span id="load_hard_sales-128"><a href="#load_hard_sales-128"><span class="linenos">128</span></a><span class="sd">    """</span>
+</span><span id="load_hard_sales-129"><a href="#load_hard_sales-129"><span class="linenos">129</span></a>    <span class="k">global</span> <span class="n">_hard_sales_cache</span><span class="p">,</span> <span class="n">_all_hw_list</span><span class="p">,</span> <span class="n">_all_maker_list</span>
+</span><span id="load_hard_sales-130"><a href="#load_hard_sales-130"><span class="linenos">130</span></a>    <span class="k">if</span> <span class="n">_hard_sales_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">no_cache</span><span class="p">:</span>
+</span><span id="load_hard_sales-131"><a href="#load_hard_sales-131"><span class="linenos">131</span></a>        <span class="k">return</span> <span class="n">_hard_sales_cache</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+</span><span id="load_hard_sales-132"><a href="#load_hard_sales-132"><span class="linenos">132</span></a>
+</span><span id="load_hard_sales-133"><a href="#load_hard_sales-133"><span class="linenos">133</span></a>    <span class="n">info</span><span class="p">,</span> <span class="n">weekly</span> <span class="o">=</span> <span class="n">read_tables</span><span class="p">(</span><span class="s2">"gamehard_info"</span><span class="p">,</span> <span class="s2">"gamehard_weekly"</span><span class="p">)</span>
+</span><span id="load_hard_sales-134"><a href="#load_hard_sales-134"><span class="linenos">134</span></a>    <span class="n">report</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"report_date"</span><span class="p">)</span>
+</span><span id="load_hard_sales-135"><a href="#load_hard_sales-135"><span class="linenos">135</span></a>    <span class="n">launch</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"launch_date"</span><span class="p">)</span>
+</span><span id="load_hard_sales-136"><a href="#load_hard_sales-136"><span class="linenos">136</span></a>    <span class="n">period</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"period_date"</span><span class="p">)</span>
+</span><span id="load_hard_sales-137"><a href="#load_hard_sales-137"><span class="linenos">137</span></a>    <span class="n">units</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"units"</span><span class="p">)</span>
+</span><span id="load_hard_sales-138"><a href="#load_hard_sales-138"><span class="linenos">138</span></a>    <span class="n">delta_day</span> <span class="o">=</span> <span class="p">(</span><span class="n">report</span> <span class="o">-</span> <span class="n">launch</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_days</span><span class="p">()</span>
+</span><span id="load_hard_sales-139"><a href="#load_hard_sales-139"><span class="linenos">139</span></a>    <span class="n">delta_year</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span> <span class="o">-</span> <span class="n">launch</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span>
+</span><span id="load_hard_sales-140"><a href="#load_hard_sales-140"><span class="linenos">140</span></a>    <span class="n">sales</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="load_hard_sales-141"><a href="#load_hard_sales-141"><span class="linenos">141</span></a>        <span class="n">_normalize_weekly</span><span class="p">(</span><span class="n">weekly</span><span class="p">)</span>
+</span><span id="load_hard_sales-142"><a href="#load_hard_sales-142"><span class="linenos">142</span></a>        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">"hw"</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">"id"</span><span class="p">)</span>
+</span><span id="load_hard_sales-143"><a href="#load_hard_sales-143"><span class="linenos">143</span></a>        <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">units</span> <span class="o">+</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"adjust_units"</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</span><span id="load_hard_sales-144"><a href="#load_hard_sales-144"><span class="linenos">144</span></a>        <span class="o">.</span><span class="n">select</span><span class="p">(</span>
+</span><span id="load_hard_sales-145"><a href="#load_hard_sales-145"><span class="linenos">145</span></a>            <span class="n">weekly_id</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"id"</span><span class="p">),</span>
+</span><span id="load_hard_sales-146"><a href="#load_hard_sales-146"><span class="linenos">146</span></a>            <span class="n">begin_date</span><span class="o">=</span><span class="n">report</span> <span class="o">-</span> <span class="n">pl</span><span class="o">.</span><span class="n">duration</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">period</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+</span><span id="load_hard_sales-147"><a href="#load_hard_sales-147"><span class="linenos">147</span></a>            <span class="n">end_date</span><span class="o">=</span><span class="n">report</span><span class="p">,</span>
+</span><span id="load_hard_sales-148"><a href="#load_hard_sales-148"><span class="linenos">148</span></a>            <span class="n">report_date</span><span class="o">=</span><span class="n">report</span><span class="p">,</span>
+</span><span id="load_hard_sales-149"><a href="#load_hard_sales-149"><span class="linenos">149</span></a>            <span class="n">period_date</span><span class="o">=</span><span class="n">period</span><span class="p">,</span>
+</span><span id="load_hard_sales-150"><a href="#load_hard_sales-150"><span class="linenos">150</span></a>            <span class="n">hw</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"hw"</span><span class="p">),</span>
+</span><span id="load_hard_sales-151"><a href="#load_hard_sales-151"><span class="linenos">151</span></a>            <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span>
+</span><span id="load_hard_sales-152"><a href="#load_hard_sales-152"><span class="linenos">152</span></a>            <span class="n">adjust_units</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"adjust_units"</span><span class="p">),</span>
+</span><span id="load_hard_sales-153"><a href="#load_hard_sales-153"><span class="linenos">153</span></a>            <span class="n">year</span><span class="o">=</span><span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">(),</span>
+</span><span id="load_hard_sales-154"><a href="#load_hard_sales-154"><span class="linenos">154</span></a>            <span class="n">month</span><span class="o">=</span><span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">(),</span>
+</span><span id="load_hard_sales-155"><a href="#load_hard_sales-155"><span class="linenos">155</span></a>            <span class="n">mday</span><span class="o">=</span><span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="p">(),</span>
+</span><span id="load_hard_sales-156"><a href="#load_hard_sales-156"><span class="linenos">156</span></a>            <span class="n">week</span><span class="o">=</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">7</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+</span><span id="load_hard_sales-157"><a href="#load_hard_sales-157"><span class="linenos">157</span></a>            <span class="n">delta_day</span><span class="o">=</span><span class="n">delta_day</span><span class="p">,</span>
+</span><span id="load_hard_sales-158"><a href="#load_hard_sales-158"><span class="linenos">158</span></a>            <span class="n">delta_week</span><span class="o">=</span><span class="n">delta_day</span> <span class="o">//</span> <span class="mi">7</span><span class="p">,</span>
+</span><span id="load_hard_sales-159"><a href="#load_hard_sales-159"><span class="linenos">159</span></a>            <span class="n">delta_month</span><span class="o">=</span><span class="n">delta_year</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">+</span> <span class="n">report</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">()</span> <span class="o">-</span> <span class="n">launch</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">(),</span>
+</span><span id="load_hard_sales-160"><a href="#load_hard_sales-160"><span class="linenos">160</span></a>            <span class="n">delta_year</span><span class="o">=</span><span class="n">delta_year</span><span class="p">,</span>
+</span><span id="load_hard_sales-161"><a href="#load_hard_sales-161"><span class="linenos">161</span></a>            <span class="n">avg_units</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">period</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">units</span> <span class="o">//</span> <span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+</span><span id="load_hard_sales-162"><a href="#load_hard_sales-162"><span class="linenos">162</span></a>            <span class="n">sum_units</span><span class="o">=</span><span class="n">units</span><span class="o">.</span><span class="n">cum_sum</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="s2">"hw"</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="s2">"report_date"</span><span class="p">),</span>
+</span><span id="load_hard_sales-163"><a href="#load_hard_sales-163"><span class="linenos">163</span></a>            <span class="n">launch_date</span><span class="o">=</span><span class="n">launch</span><span class="p">,</span>
+</span><span id="load_hard_sales-164"><a href="#load_hard_sales-164"><span class="linenos">164</span></a>            <span class="n">maker_name</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"maker_name"</span><span class="p">),</span>
+</span><span id="load_hard_sales-165"><a href="#load_hard_sales-165"><span class="linenos">165</span></a>            <span class="n">full_name</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"full_name"</span><span class="p">),</span>
+</span><span id="load_hard_sales-166"><a href="#load_hard_sales-166"><span class="linenos">166</span></a>        <span class="p">)</span>
+</span><span id="load_hard_sales-167"><a href="#load_hard_sales-167"><span class="linenos">167</span></a>    <span class="p">)</span>
+</span><span id="load_hard_sales-168"><a href="#load_hard_sales-168"><span class="linenos">168</span></a>    <span class="n">_hard_sales_cache</span> <span class="o">=</span> <span class="n">_with_sales_columns</span><span class="p">(</span><span class="n">sales</span><span class="p">)</span>
+</span><span id="load_hard_sales-169"><a href="#load_hard_sales-169"><span class="linenos">169</span></a>    <span class="n">_all_hw_list</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="load_hard_sales-170"><a href="#load_hard_sales-170"><span class="linenos">170</span></a>    <span class="n">_all_maker_list</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="load_hard_sales-171"><a href="#load_hard_sales-171"><span class="linenos">171</span></a>    <span class="k">return</span> <span class="n">_hard_sales_cache</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -445,7 +445,7 @@
 </span><span id="current_report_date-176"><a href="#current_report_date-176"><span class="linenos">176</span></a><span class="sd">    DataFrameから最新の報告日を取得する関数。</span>
 </span><span id="current_report_date-177"><a href="#current_report_date-177"><span class="linenos">177</span></a>
 </span><span id="current_report_date-178"><a href="#current_report_date-178"><span class="linenos">178</span></a><span class="sd">    Args:</span>
-</span><span id="current_report_date-179"><a href="#current_report_date-179"><span class="linenos">179</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="current_report_date-179"><a href="#current_report_date-179"><span class="linenos">179</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="current_report_date-180"><a href="#current_report_date-180"><span class="linenos">180</span></a>
 </span><span id="current_report_date-181"><a href="#current_report_date-181"><span class="linenos">181</span></a><span class="sd">    Returns:</span>
 </span><span id="current_report_date-182"><a href="#current_report_date-182"><span class="linenos">182</span></a><span class="sd">        datetime: 最新の報告日</span>
@@ -457,7 +457,7 @@
             <div class="docstring"><p>DataFrameから最新の報告日を取得する関数。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame</p>
+    df: load_hard_sales()の戻り値のDataFrame</p>
 
 <p>Returns:
     datetime: 最新の報告日</p>
@@ -481,7 +481,7 @@
 </span><span id="get_hw-189"><a href="#get_hw-189"><span class="linenos">189</span></a><span class="sd">    DataFrameからハードウェア名のユニークなリストを取得する。</span>
 </span><span id="get_hw-190"><a href="#get_hw-190"><span class="linenos">190</span></a>
 </span><span id="get_hw-191"><a href="#get_hw-191"><span class="linenos">191</span></a><span class="sd">    Args:</span>
-</span><span id="get_hw-192"><a href="#get_hw-192"><span class="linenos">192</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="get_hw-192"><a href="#get_hw-192"><span class="linenos">192</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="get_hw-193"><a href="#get_hw-193"><span class="linenos">193</span></a>
 </span><span id="get_hw-194"><a href="#get_hw-194"><span class="linenos">194</span></a><span class="sd">    Returns:</span>
 </span><span id="get_hw-195"><a href="#get_hw-195"><span class="linenos">195</span></a><span class="sd">        List[str]: ハードウェア名のユニークなリスト</span>
@@ -493,7 +493,7 @@
             <div class="docstring"><p>DataFrameからハードウェア名のユニークなリストを取得する。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame</p>
+    df: load_hard_sales()の戻り値のDataFrame</p>
 
 <p>Returns:
     List[str]: ハードウェア名のユニークなリスト</p>
@@ -519,7 +519,7 @@
 </span><span id="get_active_hw-204"><a href="#get_active_hw-204"><span class="linenos">204</span></a><span class="sd">    Returns:</span>
 </span><span id="get_active_hw-205"><a href="#get_active_hw-205"><span class="linenos">205</span></a><span class="sd">        List[str]: アクティブなハードウェア名のリスト</span>
 </span><span id="get_active_hw-206"><a href="#get_active_hw-206"><span class="linenos">206</span></a><span class="sd">    """</span>
-</span><span id="get_active_hw-207"><a href="#get_active_hw-207"><span class="linenos">207</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="get_active_hw-207"><a href="#get_active_hw-207"><span class="linenos">207</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="get_active_hw-208"><a href="#get_active_hw-208"><span class="linenos">208</span></a>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 </span><span id="get_active_hw-209"><a href="#get_active_hw-209"><span class="linenos">209</span></a>    <span class="n">one_year_ago</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days</span><span class="p">)</span>
 </span><span id="get_active_hw-210"><a href="#get_active_hw-210"><span class="linenos">210</span></a>    <span class="n">recent_df</span> <span class="o">=</span> <span class="n">base_df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"report_date"</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">one_year_ago</span><span class="p">)</span>
@@ -558,7 +558,7 @@
 </span><span id="get_hw_all-223"><a href="#get_hw_all-223"><span class="linenos">223</span></a>    <span class="k">if</span> <span class="n">_all_hw_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="get_hw_all-224"><a href="#get_hw_all-224"><span class="linenos">224</span></a>        <span class="k">return</span> <span class="n">_all_hw_list</span>
 </span><span id="get_hw_all-225"><a href="#get_hw_all-225"><span class="linenos">225</span></a>
-</span><span id="get_hw_all-226"><a href="#get_hw_all-226"><span class="linenos">226</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="get_hw_all-226"><a href="#get_hw_all-226"><span class="linenos">226</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="get_hw_all-227"><a href="#get_hw_all-227"><span class="linenos">227</span></a>    <span class="n">hw_list</span> <span class="o">=</span> <span class="n">get_hw</span><span class="p">(</span><span class="n">base_df</span><span class="p">)</span>
 </span><span id="get_hw_all-228"><a href="#get_hw_all-228"><span class="linenos">228</span></a>    <span class="n">remove_hw_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"PKS"</span><span class="p">,</span> <span class="s2">"PS"</span><span class="p">,</span> <span class="s2">"NeoGeoP"</span><span class="p">,</span> <span class="s2">"SATURN"</span><span class="p">,</span> <span class="s2">"GB"</span><span class="p">]</span>
 </span><span id="get_hw_all-229"><a href="#get_hw_all-229"><span class="linenos">229</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">true_all</span><span class="p">:</span>
@@ -593,7 +593,7 @@
 </span><span id="get_maker-238"><a href="#get_maker-238"><span class="linenos">238</span></a><span class="sd">    DataFrameからメーカー名のユニークなリストを取得する。</span>
 </span><span id="get_maker-239"><a href="#get_maker-239"><span class="linenos">239</span></a>
 </span><span id="get_maker-240"><a href="#get_maker-240"><span class="linenos">240</span></a><span class="sd">    Args:</span>
-</span><span id="get_maker-241"><a href="#get_maker-241"><span class="linenos">241</span></a><span class="sd">        df: load_hard_sales2()の戻り値のDataFrame</span>
+</span><span id="get_maker-241"><a href="#get_maker-241"><span class="linenos">241</span></a><span class="sd">        df: load_hard_sales()の戻り値のDataFrame</span>
 </span><span id="get_maker-242"><a href="#get_maker-242"><span class="linenos">242</span></a>
 </span><span id="get_maker-243"><a href="#get_maker-243"><span class="linenos">243</span></a><span class="sd">    Returns:</span>
 </span><span id="get_maker-244"><a href="#get_maker-244"><span class="linenos">244</span></a><span class="sd">        List[str]: メーカー名のユニークなリスト</span>
@@ -607,7 +607,7 @@
             <div class="docstring"><p>DataFrameからメーカー名のユニークなリストを取得する。</p>
 
 <p>Args:
-    df: load_hard_sales2()の戻り値のDataFrame</p>
+    df: load_hard_sales()の戻り値のDataFrame</p>
 
 <p>Returns:
     List[str]: メーカー名のユニークなリスト</p>
@@ -633,7 +633,7 @@
 </span><span id="get_active_maker-255"><a href="#get_active_maker-255"><span class="linenos">255</span></a><span class="sd">    Returns:</span>
 </span><span id="get_active_maker-256"><a href="#get_active_maker-256"><span class="linenos">256</span></a><span class="sd">        List[str]: アクティブなメーカー名のリスト</span>
 </span><span id="get_active_maker-257"><a href="#get_active_maker-257"><span class="linenos">257</span></a><span class="sd">    """</span>
-</span><span id="get_active_maker-258"><a href="#get_active_maker-258"><span class="linenos">258</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="get_active_maker-258"><a href="#get_active_maker-258"><span class="linenos">258</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="get_active_maker-259"><a href="#get_active_maker-259"><span class="linenos">259</span></a>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 </span><span id="get_active_maker-260"><a href="#get_active_maker-260"><span class="linenos">260</span></a>    <span class="n">one_year_ago</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days</span><span class="p">)</span>
 </span><span id="get_active_maker-261"><a href="#get_active_maker-261"><span class="linenos">261</span></a>    <span class="n">recent_df</span> <span class="o">=</span> <span class="n">base_df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"report_date"</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">one_year_ago</span><span class="p">)</span>
@@ -672,7 +672,7 @@
 </span><span id="get_maker_all-274"><a href="#get_maker_all-274"><span class="linenos">274</span></a>    <span class="k">if</span> <span class="n">_all_maker_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="get_maker_all-275"><a href="#get_maker_all-275"><span class="linenos">275</span></a>        <span class="k">return</span> <span class="n">_all_maker_list</span>
 </span><span id="get_maker_all-276"><a href="#get_maker_all-276"><span class="linenos">276</span></a>
-</span><span id="get_maker_all-277"><a href="#get_maker_all-277"><span class="linenos">277</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales2</span><span class="p">()</span>
+</span><span id="get_maker_all-277"><a href="#get_maker_all-277"><span class="linenos">277</span></a>    <span class="n">base_df</span> <span class="o">=</span> <span class="n">load_hard_sales</span><span class="p">()</span>
 </span><span id="get_maker_all-278"><a href="#get_maker_all-278"><span class="linenos">278</span></a>    <span class="n">maker_list</span> <span class="o">=</span> <span class="n">get_maker</span><span class="p">(</span><span class="n">base_df</span><span class="p">)</span>
 </span><span id="get_maker_all-279"><a href="#get_maker_all-279"><span class="linenos">279</span></a>    <span class="n">_all_maker_list</span> <span class="o">=</span> <span class="n">maker_list</span>
 </span><span id="get_maker_all-280"><a href="#get_maker_all-280"><span class="linenos">280</span></a>    <span class="k">return</span> <span class="n">maker_list</span>

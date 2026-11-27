@@ -94,7 +94,7 @@ def chart_bar_sales(
     Returns:
         alt.Chart: ハード別の月次売上棒グラフ
     """
-    df_all = hs.load_hard_sales2()
+    df_all = hs.load_hard_sales()
 
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.MONTH:
@@ -179,7 +179,7 @@ def chart_bar_yearly_by_mode(
     Returns:
         alt.Chart: 年ごとの期間別売上棒グラフ
     """
-    df_all = hs.load_hard_sales2()
+    df_all = hs.load_hard_sales()
 
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.MONTH:
@@ -269,7 +269,7 @@ def chart_bar_hwsales_by_year(
     Returns:
         alt.Chart: 年別の月間販売台数を表示する棒グラフ
     """
-    df_all = hs.load_hard_sales2()
+    df_all = hs.load_hard_sales()
 
     mode_enum = parse_mode(mode)
     if mode_enum == Mode.MONTH:
@@ -325,7 +325,7 @@ def chart_hbar_yearly_share_by_maker(
     Returns:
         alt.LayerChart: 年ごとのメーカーシェアと割合ラベルを表示するチャート。
     """
-    _df_all = hs.load_hard_sales2()
+    _df_all = hs.load_hard_sales()
     _df = hsl.maker_long(_df_all, begin_year=begin.year, end_year=end.year)
     _df = _df.with_columns(
         (
@@ -387,7 +387,7 @@ def chart_bar_sales_by_hard_year(
     Returns:
         alt.Chart: ハード別の月次売上棒グラフ
     """
-    df_all = hs.load_hard_sales2()
+    df_all = hs.load_hard_sales()
 
     def data_source(df_all, hwy, fn):
         dfs = []
@@ -470,7 +470,7 @@ def chart_bar_yearly_delta(
         - values: yearly_units (int64): 経過年次販売台数
     """
 
-    df_all = hs.load_hard_sales2()
+    df_all = hs.load_hard_sales()
     df = (
         hsf.delta_yearly_sales(df_all)
         .filter(pl.col("hw").is_in(hw))
@@ -530,7 +530,7 @@ def chart_bar_month_year(
     begin = datetime(begin_year, 1, 1) if begin_year is not None else None
     end = datetime(end_year, 12, 31) if end_year is not None else None
 
-    df_all = hs.load_hard_sales2()
+    df_all = hs.load_hard_sales()
     df = hsf.monthly_sales(df_all, maker_mode=True, begin=begin, end=end).filter(
         pl.col("month") == month
     )
@@ -575,7 +575,7 @@ def chart_pie_yearly_share_by_maker(
     Returns:
         alt.Chart | alt.FacetChart | alt.LayerChart: 年ごとのメーカーシェアを表示するチャート。
     """
-    df_all = hs.load_hard_sales2()
+    df_all = hs.load_hard_sales()
     if end_year is None:
         end_year = begin_year
 

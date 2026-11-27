@@ -61,7 +61,7 @@ def sales_value(
     if report_date is not None and index_week is not None:
         raise ValueError("report_date と index_week は同時に指定できません。")
 
-    df_all = g.load_hard_sales2()
+    df_all = g.load_hard_sales()
 
     if report_date:
         df = g.extract_by_date(df=df_all, hw=[hw], target_date=report_date)
@@ -120,7 +120,7 @@ def _():
 
 @app.cell
 def _():
-    df_all = g.load_hard_sales2()
+    df_all = g.load_hard_sales()
     dfx = df_all.filter(pl.col("hw") == "NS2").sort(pl.col("index_week"), descending=
     True).head(1)
     dfx
