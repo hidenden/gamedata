@@ -407,7 +407,7 @@ def cumsum_diffs(df: pl.DataFrame, cmplist: list[tuple[str, str]]) -> pl.DataFra
     # 最初のDataFrameをベースに、他のDataFrameをrow_nrで結合
     result_df = diff_dfs[0]
     for diff_df in diff_dfs[1:]:
-        result_df = result_df.join(diff_df, on="row_nr", how="outer")
+        result_df = result_df.join(diff_df, on="row_nr", how="full")
 
     # 行番号を0から振り直す
     result_df = result_df.with_row_index("weeks").drop("row_nr")

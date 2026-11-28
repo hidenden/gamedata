@@ -4,7 +4,7 @@
 #     "altair==6.2.2",
 #     "marimo>=0.23.14",
 #     "pandas>=2.3.3",
-#     "polars==1.42.1",
+#     "polars==1.33.1",
 #     "pyarrow>=23.0.1",
 # ]
 # [tool.marimo.display]
