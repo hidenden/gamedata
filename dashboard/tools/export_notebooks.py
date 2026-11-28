@@ -1,5 +1,6 @@
 """各 marimo notebook を public/dashboard に単一 HTML として出力する。"""
 
+import argparse
 import subprocess
 import sys
 from pathlib import Path
@@ -11,7 +12,10 @@ OUTPUT = ROOT / "public/dashboard"
 
 
 def main() -> None:
-    notebooks = sorted(
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("notebook", nargs="?", type=Path, help="個別に出力する notebook")
+    args = parser.parse_args()
+    notebooks = [args.notebook.resolve()] if args.notebook else sorted(
         path
         for path in NOTEBOOKS.rglob("*.py")
         if "__marimo__" not in path.relative_to(NOTEBOOKS).parts

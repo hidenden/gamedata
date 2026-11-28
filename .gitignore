@@ -151,3 +151,6 @@ _SUCCESS*
 # marimo session cache
 __marimo__/
 
+
+# Dashboard make のローカル入力 DB 記録
+/dashboard/.build/
