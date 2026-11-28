@@ -79,12 +79,14 @@ def _(g, pl, sales, week):
 
 
 @app.cell(hide_code=True)
-def machine_picker(mo, pl, sales):
+def machine_picker(mo, sales):
     mo.stop(sales.is_empty())
-    _totals = sales.group_by("full_name", "hw").agg(pl.col("units").sum()).sort(
-        ["units", "hw"], descending=[True, False],
+    _machines = (
+        sales.select("hw", "full_name", "launch_date")
+        .unique()
+        .sort(["launch_date", "hw"], descending=[True, False], nulls_last=True)
     )
-    _options = dict(_totals.select("full_name", "hw").iter_rows())
+    _options = dict(_machines.select("full_name", "hw").iter_rows())
     machine = mo.ui.dropdown(
         _options, value=next(iter(_options)), searchable=True,
         allow_select_none=False, label="機種",
@@ -123,19 +125,28 @@ def summary_panel(
     mo.stop(view.value == "年別比較")
     if market_view:
         _current = history.filter(pl.col("report_date") == week.value).sort("units", descending=True)
-        _notes = annotations.filter(pl.col("report_date") == week.value)
+        _events = (
+            annotations.filter(pl.col("report_date") == week.value)
+            .sort(["level", "annotation_date", "id"], descending=[False, True, False])
+            .group_by("hw")
+            .agg(event=pl.coalesce("desc", "note").str.join(" ／ "))
+        )
+        _sales_table = _current.join(_events, on="hw", how="left", maintain_order="left").select(
+            機種="full_name", 販売台数="units", 直近のイベント=pl.col("event").fill_null("—"),
+        )
         _metrics = [
             mo.stat(f"{_current['units'].sum():,} 台", label="週間販売台数"),
             mo.stat(f"{_current.height} 機種", label="集計機種"),
-            mo.stat(f"{_notes.height} 件", label="関連する注釈"),
         ]
         _table = mo.ui.table(
-            _current.select(機種="full_name", 販売台数="units"),
+            _sales_table,
             selection=None, pagination=False, show_column_summaries=False,
         )
         _panel = mo.vstack([mo.hstack(_metrics, wrap=True, justify="start", gap=2), _table])
     else:
         _row = ranking.filter(pl.col("hw") == machine.value).row(0, named=True)
+        _launch_date = machine_history["launch_date"].first()
+        _launch_label = f"{_launch_date:%Y/%m/%d}" if _launch_date is not None else "不明"
         _launch = machine_history.filter(pl.col("delta_week") == 0)
         _launch_units = f"{_launch['units'].sum():,} 台" if _launch.height else "記録なし"
         _metrics = [
@@ -146,7 +157,7 @@ def summary_panel(
             mo.stat(f"{_row['rank']} 位", label="歴代累計順位", caption=f"集計対象 {ranking.height} 機種"),
         ]
         _panel = mo.vstack([
-            mo.md(f"**{_row['full_name']}**　記録期間　{_row['first']:%Y/%m/%d} 〜 {_row['last']:%Y/%m/%d}"),
+            mo.md(f"**{_row['full_name']}**　発売日　{_launch_label}　記録期間　{_row['first']:%Y/%m/%d} 〜 {_row['last']:%Y/%m/%d}"),
             mo.hstack(_metrics, wrap=True, justify="start", gap=2),
         ])
     _panel
@@ -301,7 +312,7 @@ def weekly_detail(
 
 
 @app.cell(hide_code=True)
-def compare_controls(alt, g, machine_history, mo, view):
+def compare_controls(alt, annotation_level, g, machine_history, mo, view):
     mo.stop(view.value != "年別比較")
     _annual = g.yearly_sales(machine_history).select("year", "yearly_units").sort("year")
     initial_years = _annual["year"].tail(3).to_list()
@@ -325,7 +336,7 @@ def compare_controls(alt, g, machine_history, mo, view):
     mo.vstack([
         mo.md(f"### {machine_history['full_name'][0]} の年間販売台数"),
         mo.md("棒をクリックして比較する年を追加・解除できます。濃い色の棒が選択中です。"),
-        year_chart, grain,
+        year_chart, grain, annotation_level,
     ])
     return grain, initial_years, year_chart
 
@@ -333,6 +344,8 @@ def compare_controls(alt, g, machine_history, mo, view):
 @app.cell(hide_code=True)
 def comparison(
     alt,
+    annotation_level,
+    annotations,
     g,
     grain,
     initial_years,
@@ -346,6 +359,24 @@ def comparison(
     _years = year_chart.value["year"].to_list() if "comparison_years" in year_chart.selections else initial_years
     mo.stop(not _years, mo.md("上の棒グラフから比較する年を選んでください。"))
     _rows = machine_history.filter(pl.col("year").is_in(_years))
+    _events = (
+        annotations.filter(
+            (pl.col("hw") == _rows["hw"][0])
+            & (pl.col("report_date") <= week.value)
+            & (pl.col("level") <= annotation_level.value)
+        )
+        .sort(["level", "id"])
+    )
+    _week_events = _events.unique(subset="report_date", keep="first").select("report_date", "note")
+
+    def _with_events(base):
+        labels = (
+            base.transform_filter(alt.datum.note != None)
+            .mark_text(dy=-9, baseline="bottom")
+            .encode(text="note:N")
+        )
+        return base.mark_line(point=True) + labels
+
     _grain = grain.value
     _axis_title = {"週間": "年初からの週", "月間": "月", "四半期": "四半期", "年間": "年"}[_grain]
     if _grain == "週間":
@@ -371,11 +402,23 @@ def comparison(
         _tooltips.append(alt.Tooltip("slot:Q", title=_axis_title))
         if _grain == "週間":
             _tooltips.append(alt.Tooltip("report_date:T", title="集計末日", format="%Y/%m/%d"))
-        _chart = alt.Chart(_data).mark_line(point=True).encode(
+            _data = _data.join(_week_events, on="report_date", how="left")
+        else:
+            _month_events = (
+                _events.with_columns(
+                    pl.col("year").cast(_data.schema["year"]),
+                    slot=pl.col("month").cast(_data.schema["slot"]),
+                )
+                .unique(subset=["year", "slot"], keep="first")
+                .select("year", "slot", "note")
+            )
+            _data = _data.join(_month_events, on=["year", "slot"], how="left")
+        _tooltips.append(alt.Tooltip("note:N", title="イベント"))
+        _chart = _with_events(alt.Chart(_data).encode(
             x=alt.X("slot:Q", title=_axis_title, scale=alt.Scale(domain=[1, _max_slot]),
                     axis=alt.Axis(tickMinStep=1)),
             y=_y, color=_color, detail="segment:N", order="slot:Q", tooltip=_tooltips,
-        )
+        ))
     elif _grain == "四半期":
         _chart = alt.Chart(_data).mark_bar().encode(
             x=alt.X("slot:O", title="四半期", scale=alt.Scale(domain=[1, 2, 3, 4])),
@@ -389,8 +432,37 @@ def comparison(
     comparison_chart = mo.ui.altair_chart(
         _chart.properties(width="container", height=320), chart_selection=False, legend_selection=False,
     )
-    mo.vstack([mo.md(f"### {_rows['full_name'][0]} の{_grain}販売台数"),
-               comparison_chart, mo.md(f"集計末日を基準に暦年で集計。{week.value:%Y/%m/%d} までの記録を表示しています。")])
+    _cumulative_data = _rows.select("year", "yday", "report_date", "yearly_sum_units").join(
+        _week_events, on="report_date", how="left",
+    )
+    _cumulative = _with_events(
+        alt.Chart(_cumulative_data)
+        .encode(
+            x=alt.X(
+                "yday:Q", title="年初からの日数",
+                scale=alt.Scale(domain=[1, 366], nice=False),
+            ),
+            y=alt.Y("yearly_sum_units:Q", title="年間累計販売台数（台）"),
+            color=_color,
+            order="yday:Q",
+            tooltip=[
+                alt.Tooltip("year:O", title="年"),
+                alt.Tooltip("report_date:T", title="集計末日", format="%Y/%m/%d"),
+                alt.Tooltip("yearly_sum_units:Q", title="年間累計販売台数", format=","),
+                alt.Tooltip("note:N", title="イベント"),
+            ],
+        )
+    ).properties(width="container", height=320)
+    annual_cumulative_chart = mo.ui.altair_chart(
+        _cumulative, chart_selection=False, legend_selection=False,
+    )
+    mo.vstack([
+        mo.md(f"### {_rows['full_name'][0]} の{_grain}販売台数"),
+        comparison_chart,
+        mo.md("### 年間累計販売台数の推移"),
+        annual_cumulative_chart,
+        mo.md(f"集計末日を基準に暦年で集計。{week.value:%Y/%m/%d} までの記録を表示しています。"),
+    ])
 
 
 if __name__ == "__main__":
