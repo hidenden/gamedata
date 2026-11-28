@@ -55,7 +55,7 @@ def _(mo, sales):
         allow_select_none=False, label="基準週（集計末日）",
     )
     view = mo.ui.radio(
-        ["市場の振り返り", "機種サマリー", "年別比較"], value="市場の振り返り", inline=True,
+        ["市場の振り返り", "機種サマリー", "年別比較", "累計"], value="市場の振り返り", inline=True,
     )
     mo.vstack([view, week])
     return view, week
@@ -96,7 +96,7 @@ def machine_picker(mo, sales):
 
 @app.cell(hide_code=True)
 def machine_control(machine, mo, view):
-    mo.stop(view.value == "市場の振り返り")
+    mo.stop(view.value in ("市場の振り返り", "累計"))
     machine
 
 
@@ -122,7 +122,7 @@ def summary_panel(
     view,
     week,
 ):
-    mo.stop(view.value == "年別比較")
+    mo.stop(view.value in ("年別比較", "累計"))
     if market_view:
         _current = history.filter(pl.col("report_date") == week.value).sort("units", descending=True)
         _events = (
@@ -201,7 +201,7 @@ def weekly_bestsellers(annotations, machine, machine_history, mo, pl, view):
 def monthly_overview(alt, g, mo, pl, scope, view):
     from datetime import date as _date
 
-    mo.stop(view.value == "年別比較")
+    mo.stop(view.value in ("年別比較", "累計"))
     _start = _date(2000, 1, 1)
     _last_month = scope["report_date"].max().replace(day=1)
     _periods = pl.date_range(_start, _last_month, interval="1mo", eager=True).dt.strftime("%Y-%m").to_list()
@@ -312,7 +312,7 @@ def weekly_detail(
 
 
 @app.cell(hide_code=True)
-def compare_controls(alt, annotation_level, g, machine_history, mo, view):
+def compare_controls(alt, g, machine_history, mo, view):
     mo.stop(view.value != "年別比較")
     _annual = g.yearly_sales(machine_history).select("year", "yearly_units").sort("year")
     initial_years = _annual["year"].tail(3).to_list()
@@ -336,9 +336,15 @@ def compare_controls(alt, annotation_level, g, machine_history, mo, view):
     mo.vstack([
         mo.md(f"### {machine_history['full_name'][0]} の年間販売台数"),
         mo.md("棒をクリックして比較する年を追加・解除できます。濃い色の棒が選択中です。"),
-        year_chart, grain, annotation_level,
+        year_chart, grain,
     ])
     return grain, initial_years, year_chart
+
+
+@app.cell(hide_code=True)
+def compare_annotation_control(annotation_level, mo, view):
+    mo.stop(view.value != "年別比較")
+    annotation_level
 
 
 @app.cell(hide_code=True)
@@ -462,6 +468,171 @@ def comparison(
         mo.md("### 年間累計販売台数の推移"),
         annual_cumulative_chart,
         mo.md(f"集計末日を基準に暦年で集計。{week.value:%Y/%m/%d} までの記録を表示しています。"),
+    ])
+
+
+@app.cell(hide_code=True)
+def cumulative_widgets(mo, pl, sales):
+    mo.stop(sales.is_empty())
+    _options = dict(
+        sales.select("full_name", "hw", "launch_date").unique()
+        .sort(["launch_date", "hw"], descending=[True, False], nulls_last=True)
+        .select("full_name", "hw").iter_rows()
+    )
+    _active = set(sales.filter(pl.col("report_date") == sales["report_date"].max())["hw"])
+    cumulative_machines = mo.ui.multiselect(
+        _options, value=[name for name, hw in _options.items() if hw in _active],
+        label="表示する機種",
+    )
+    cumulative_max_week = mo.ui.slider(
+        start=1, stop=600, value=200, show_value=True, label="表示週の最大値",
+    )
+    return cumulative_machines, cumulative_max_week
+
+
+@app.cell(hide_code=True)
+def cumulative_controls(
+    annotation_level,
+    cumulative_machines,
+    cumulative_max_week,
+    mo,
+    view,
+):
+    mo.stop(view.value != "累計")
+    mo.vstack([
+        mo.md("### 発売からの累計販売台数"),
+        cumulative_machines,
+        mo.hstack([cumulative_max_week, annotation_level], wrap=True, justify="start", gap=2),
+    ])
+
+
+@app.cell(hide_code=True)
+def cumulative_plot(
+    alt,
+    annotation_level,
+    annotations,
+    cumulative_machines,
+    cumulative_max_week,
+    g,
+    history,
+    mo,
+    pl,
+    view,
+    week,
+):
+    mo.stop(view.value != "累計")
+    mo.stop(not cumulative_machines.value, mo.md("表示する機種を選んでください。"))
+    cumulative_rows = (
+        history.filter(
+            pl.col("hw").is_in(cumulative_machines.value)
+            & pl.col("index_week").is_between(1, cumulative_max_week.value)
+        )
+        .sort("report_date")
+        .unique(subset=["hw", "index_week"], keep="last")
+        .select("hw", "full_name", "index_week", "sum_units", "report_date")
+    )
+    mo.stop(cumulative_rows.is_empty(), mo.md("表示範囲に販売記録がありません。"))
+    _events = (
+        annotations.filter(
+            (pl.col("level") <= annotation_level.value)
+            & (pl.col("report_date") <= week.value)
+        )
+        .sort(["level", "id"])
+        .unique(subset=["hw", "report_date"], keep="first")
+        .select("hw", "report_date", "note")
+    )
+    _hardware = g.get_hw(cumulative_rows)
+    _x = alt.X(
+        "index_week:Q", title="発売からの週数",
+        scale=alt.Scale(domain=[0.5, cumulative_max_week.value + 0.5], nice=False),
+        axis=alt.Axis(tickMinStep=1),
+    )
+    _y = alt.Y("sum_units:Q", title="累計販売台数（台）", scale=alt.Scale(zero=True))
+    _color = alt.Color("hw:N", title="機種",
+                       scale=alt.Scale(domain=_hardware, range=g.get_hard_colors(_hardware)))
+    _data = cumulative_rows.join(_events, on=["hw", "report_date"], how="left").with_columns(
+        single_point=pl.len().over("hw") == 1,
+    )
+    _pick = alt.selection_point(
+        name="cumulative_target", fields=["index_week", "sum_units"], nearest=True,
+        on="click[!length(data('cumulative_target_store'))]",
+        clear="click[length(data('cumulative_target_store'))]",
+        toggle=False, empty=False,
+    )
+    _base = alt.Chart(_data).encode(x=_x, y=_y)
+    _tips = [
+        alt.Tooltip("full_name:N", title="機種"),
+        alt.Tooltip("index_week:Q", title="発売からの週数"),
+        alt.Tooltip("sum_units:Q", title="累計販売台数", format=","),
+        alt.Tooltip("report_date:T", title="集計末日", format="%Y/%m/%d"),
+        alt.Tooltip("note:N", title="イベント"),
+    ]
+    _curve = _base.mark_line().encode(
+        color=_color, order="index_week:Q",
+    )
+    _single_points = (
+        _base.transform_filter(alt.datum.single_point)
+        .mark_point(filled=True).encode(color=_color)
+    )
+    _guides = alt.Chart(_data).transform_filter(_pick)
+    _vertical = _guides.mark_rule(strokeDash=[4, 3]).encode(x=_x)
+    _horizontal = _guides.mark_rule(strokeDash=[4, 3]).encode(y=_y)
+    _labels = _base.transform_filter(alt.datum.note != None).mark_text(
+        dy=-9, baseline="bottom",
+    ).encode(color=_color, text="note:N")
+    _targets = _base.mark_point(opacity=0).encode(tooltip=_tips).add_params(_pick)
+    _plot = alt.layer(_curve, _single_points, _vertical, _horizontal, _labels, _targets).properties(
+        width="container", height=540,
+    )
+    cumulative_chart = mo.ui.altair_chart(_plot, chart_selection=False, legend_selection=False)
+    mo.vstack([
+        mo.md("グラフ内をクリックすると最寄りの実績点にガイド線が付きます。もう一度クリックすると解除します。"),
+        cumulative_chart,
+    ])
+    return cumulative_chart, cumulative_rows
+
+
+@app.cell(hide_code=True)
+def cumulative_tables(cumulative_chart, cumulative_rows, mo, pl, view):
+    mo.stop(view.value != "累計")
+    _target = cumulative_chart.selections.get("cumulative_target", {})
+    _weeks = _target.get("index_week", [])
+    _units = _target.get("sum_units", [])
+    _first_week = cumulative_rows.filter(pl.col("index_week") == 1)
+    _target_week = int(_weeks[0]) if _weeks else 1
+    _target_units = int(_units[0]) if _units else _first_week["sum_units"].max()
+
+    _week_table = (
+        cumulative_rows.select("hw", "full_name").unique()
+        .join(
+            cumulative_rows.filter(pl.col("index_week") == _target_week)
+            .select("hw", "sum_units", "report_date"),
+            on="hw", how="left",
+        )
+        .sort(["sum_units", "hw"], descending=[True, False], nulls_last=True)
+        .select(機種="full_name", 累計販売台数="sum_units", 集計末日="report_date")
+    )
+    if _target_units is None:
+        _reach_title = "### 指定累計台数の到達週"
+        _reach_panel = mo.md("表示中の機種に第1週の記録がありません。グラフ上の実績点を選んでください。")
+    else:
+        _reach_title = f"### {_target_units:,} 台以上に達した週"
+        _reach_table = (
+            cumulative_rows.filter(pl.col("sum_units") >= _target_units)
+            .sort(["index_week", "hw"])
+            .unique(subset="hw", keep="first", maintain_order=True)
+            .select(機種="full_name", 相対週数="index_week", 集計末日="report_date")
+        )
+        _reach_panel = (
+            mo.md("表示範囲内に指定台数以上に達した機種はありません。")
+            if _reach_table.is_empty()
+            else mo.ui.table(_reach_table, selection=None, pagination=False, show_column_summaries=False)
+        )
+    mo.vstack([
+        mo.md(f"### 第{_target_week}週の累計販売台数"),
+        mo.ui.table(_week_table, selection=None, pagination=False, show_column_summaries=False),
+        mo.md(_reach_title),
+        _reach_panel,
     ])
 
 
