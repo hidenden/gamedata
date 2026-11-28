@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "sha256": {
-    "gamehard_info": "a394b51df079880da912ad6b5c9c180103ce036dd432ec3524c91228a8754c37",
-    "gamehard_weekly": "72522aebfbc93680dfea0cac65d79745c658ac46116ab57d0afa036be7c847fb",
-    "gamehard_annotation": "e8aceb0cce38beca1e24431f6fb8afe3ad25807d38ee4fe580b01ac1275def28"
+    "gamehard_info": "1665138f267d0548700e5d0431551ba09f3b32628aadffdd436f82bda9dcd33c",
+    "gamehard_weekly": "e62a60f56cd246ed3654a408d31d6bc48e7bf8e1ded66c220c58520fa5265c3a",
+    "gamehard_annotation": "3d57e66f74cb6b71b92d8b47b35a4c81bde3f050a0e4c107ffa6ccecb7c4e6ae"
   }
 }
