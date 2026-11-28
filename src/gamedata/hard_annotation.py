@@ -138,53 +138,23 @@ def _summarize_annotation(annotation_df: pl.DataFrame, mode_enum: Mode) -> pl.Da
     if annotation_df.is_empty():
         return annotation_df
 
-    if mode_enum == Mode.WEEK:
-        annotation_df = (
-            annotation_df.group_by(["hw", "delta_week"])
-            .agg([pl.all().gather(pl.col("level").arg_min().first())])
-            .explode(pl.all().exclude("hw", "delta_week"))
-        )
-        return annotation_df.sort(["delta_week"], descending=[False])
+    period_columns = {
+        Mode.WEEK: ["delta_week"],
+        Mode.MONTH: ["year", "month"],
+        Mode.QUARTER: ["year", "q_num"],
+        Mode.FISCAL_QUARTER: ["fiscal_year", "fq_num"],
+        Mode.YEAR: ["year"],
+        Mode.FISCAL_YEAR: ["fiscal_year"],
+    }[mode_enum]
+    keys = ["hw", *period_columns]
 
-    if mode_enum == Mode.MONTH:
-        annotation_df = (
-            annotation_df.group_by(["hw", "year", "month"])
-            .agg([pl.all().gather(pl.col("level").arg_min().first())])
-            .explode(pl.all().exclude("hw", "year", "month"))
-        )
-        return annotation_df.sort(["year", "month"], descending=[False, False])
-
-    if mode_enum == Mode.QUARTER:
-        annotation_df = (
-            annotation_df.group_by(["hw", "year", "q_num"])
-            .agg([pl.all().gather(pl.col("level").arg_min().first())])
-            .explode(pl.all().exclude("hw", "year", "q_num"))
-        )
-        return annotation_df.sort(["year", "q_num"], descending=[False, False])
-
-    if mode_enum == Mode.FISCAL_QUARTER:
-        annotation_df = (
-            annotation_df.group_by(["hw", "fiscal_year", "fq_num"])
-            .agg([pl.all().gather(pl.col("level").arg_min().first())])
-            .explode(pl.all().exclude("hw", "fiscal_year", "fq_num"))
-        )
-        return annotation_df.sort(["fiscal_year", "fq_num"], descending=[False, False])
-
-    if mode_enum == Mode.YEAR:
-        annotation_df = (
-            annotation_df.group_by(["hw", "year"])
-            .agg([pl.all().gather(pl.col("level").arg_min().first())])
-            .explode(pl.all().exclude("hw", "year"))
-        )
-        return annotation_df.sort(["year"], descending=[False])
-
-    if mode_enum == Mode.FISCAL_YEAR:
-        annotation_df = (
-            annotation_df.group_by(["hw", "fiscal_year"])
-            .agg([pl.all().gather(pl.col("level").arg_min().first())])
-            .explode(pl.all().exclude("hw", "fiscal_year"))
-        )
-        return annotation_df.sort(["fiscal_year"], descending=[False])
+    # レベルが同じときは、入力順で先にある注釈を採用する。
+    return (
+        annotation_df.sort("level", nulls_last=True, maintain_order=True)
+        .unique(subset=keys, keep="first", maintain_order=True)
+        .select(*keys, pl.all().exclude(keys))
+        .sort(period_columns)
+    )
 
 
 def summarize_annotation(
