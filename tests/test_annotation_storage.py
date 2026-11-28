@@ -5,9 +5,37 @@ from pathlib import Path
 import sqlite3
 
 import polars as pl
+import pytest
 
 import gamedata.hard_annotation as ha
 from gamedata import data_source
+
+
+@pytest.mark.parametrize(
+    ("mode", "period_columns"),
+    [
+        ("week", ["delta_week"]),
+        ("month", ["year", "month"]),
+        ("quarter", ["year", "q_num"]),
+        ("fq", ["fiscal_year", "fq_num"]),
+        ("year", ["year"]),
+        ("fy", ["fiscal_year"]),
+    ],
+)
+def test_summarize_keeps_first_most_important_annotation(mode, period_columns):
+    annotations = pl.DataFrame(
+        {
+            "hw": ["A", "A", "A", "B", "A"],
+            "level": [30, 10, 10, 20, 30],
+            "note": ["lower priority", "first", "tie", "another machine", "later"],
+            **{column: [1, 1, 1, 1, 2] for column in period_columns},
+        }
+    )
+
+    summary = ha.summarize_annotation(annotations, mode)
+
+    assert set(summary["note"]) == {"first", "another machine", "later"}
+    assert summary[period_columns[0]].to_list() == [1, 1, 2]
 
 
 _REFRESH_PATH = (

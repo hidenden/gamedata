@@ -19,7 +19,7 @@ async def _():
         _response = await pyfetch(f"{_packages}/wheel.json")
         _response.raise_for_status()
         _wheel = (await _response.json())["filename"]
-        await micropip.install(["polars", "pyarrow", "pandas", "jinja2", "altair"])
+        await micropip.install(["polars==1.33.1", "pyarrow", "pandas", "jinja2", "altair"])
         # ローカルの開発・分析ツールは Pyodide にインストールしない。
         await micropip.install(f"{_packages}/{_wheel}", deps=False)
 
@@ -362,8 +362,10 @@ def comparison(
     _y = alt.Y("units:Q", title="販売台数（台）")
     _color = alt.Color("year:N", title="年", sort="ascending")
     if _grain in ("週間", "月間"):
-        _data = _data.sort(["year", "slot"]).with_columns(
-            segment=(pl.col("slot").diff().over("year").fill_null(1) != 1).cum_sum().over("year")
+        _data = (
+            _data.sort(["year", "slot"])
+            .with_columns(gap=pl.col("slot").diff().over("year").fill_null(1) != 1)
+            .with_columns(segment=pl.col("gap").cum_sum().over("year"))
         )
         _max_slot = 53 if _grain == "週間" else 12
         _tooltips.append(alt.Tooltip("slot:Q", title=_axis_title))
