@@ -134,6 +134,10 @@ def _refine_annotation(annotation_df: pl.DataFrame) -> pl.DataFrame:
 
 
 def _summarize_annotation(annotation_df: pl.DataFrame, mode_enum: Mode) -> pl.DataFrame:
+    # 空の集合でも、後続の販売データとの結合に使う日付列の型を保つ。
+    if annotation_df.is_empty():
+        return annotation_df
+
     if mode_enum == Mode.WEEK:
         annotation_df = (
             annotation_df.group_by(["hw", "delta_week"])

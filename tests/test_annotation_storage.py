@@ -59,6 +59,9 @@ def test_desc_is_stored_loaded_and_joined(tmp_path, monkeypatch, sample_info_df,
     assert joined.filter(pl.col("hw") == "PS5")["desc"].to_list() == [
         "発売日に関する記事用の補足"
     ]
+    without_events = ha.join_annotation(sales_df, level=0)
+    assert without_events.height == sales_df.height
+    assert without_events["note"].null_count() == sales_df.height
 
 
 def test_refresh_accepts_legacy_csv_without_desc(tmp_path, monkeypatch):
